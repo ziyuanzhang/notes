@@ -9,8 +9,10 @@
 
 4.  事件循环有**多个**任务队列（task queues）参与；任务队列是一组任务（task）；（多个队列相互来回切换的）
 
-图片中的不同的盒子代表不同的阶段，每个阶段执行特定的工作。每个阶段都有一个队列（这里说成队列主要是为了你更好的理解，真实上和数据结构种的队列有区别），Javascript 可以在任何一个阶段执行（除了 idle & prepare）。
-你在图片中也能看到 nextTickQueue 和 microTaskQueue，它们不是循环的一部分，它们的回调可以在任意阶段执行。它们有更高的优先级去执行。nextTickQueue 的优先级高于 microTaskQueue。
+![node事件循环](./img/nodeEventLoop.jpg)
+
+- 图片中的不同的盒子代表不同的阶段，每个阶段执行特定的工作。每个阶段都有一个队列，Javascript 可以在任何一个阶段执行（除了 idle & prepare）。
+- 你在图片中也能看到 nextTickQueue 和 microTaskQueue，它们不是循环的一部分，它们的回调可以在任意阶段执行。它们有更高的优先级去执行。nextTickQueue 的优先级高于 microTaskQueue。
 
 #### 事件循环的主要机制就是任务队列机制:
 
