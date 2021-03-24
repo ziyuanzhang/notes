@@ -62,7 +62,10 @@ a()
 #### 4. @babel/polyfill ---es6,7,8,9 （API 不兼容和新语法不支持）用 polyfill 转化
 
 polyfill 是直接打包进入代码中的，所以应该安装在 dependencies 里而不是 devDependencies 里。
-**注：**node 环境用 babal 开发插件不能引用@babel/polyfill
+**注：**
+1.node 环境用 babal 开发插件不能引用@babel/polyfill  
+2.transform： 语法转化，把新的语法转化为浏览器可以兼容的语法;  
+ polyfill :兼容新的特性，增加 polyfill 代码，让新的 API 可以正常工作浏览器缺某个 api
 
 #### 5. @babel/node --node 端---babel-node 和 babel-cli 类似
 
