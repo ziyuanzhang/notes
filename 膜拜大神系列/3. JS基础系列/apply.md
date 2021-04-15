@@ -38,7 +38,8 @@
         var obj = new Object();
         Constructor = [].shift.call(arguments);
         obj.__proto__ = Constructor.prototype;
-        var ret = Constructor.apply(obj, arguments);//借用外部传入的构造器给obj设置属性,
+        var ret = Constructor.apply(obj, arguments);
+        //借用外部传入的构造器给obj设置属性,this指向obj，this.name=arguments-->obj.name=arguments
         console.log("ret:", ret);
         console.log("obj:", obj);
         return typeof ret == 'object' ? ret : obj;
