@@ -1,6 +1,6 @@
-## this -- apply [原文](https://blog.csdn.net/qq_25076971/article/details/105115057)
+## this 指向 -- apply [原文](https://blog.csdn.net/qq_25076971/article/details/105115057)
 
-this 指向 当前执行上下文（global、function 或 eval）的一个属性；
+this : 当前执行上下文（global、function 或 eval）的一个属性；
 
 - 在非严格模式下，总是指向一个对象；
 - 在严格模式下可以是任意值。
