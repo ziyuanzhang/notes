@@ -30,7 +30,7 @@
         // return "222"  不返回，返回内部组成的对象
         // return {name:"zhang"} 返回明确对象
     }
-    Person.hha = function(){}
+    Person.hha = function(){}  //外部的
     Person.prototype.getName = function () {
         return this.name;
     };
