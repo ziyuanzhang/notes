@@ -1,4 +1,4 @@
-## js 原型与原型链
+## js 原型与原型链 [原文](https://www.jianshu.com/p/652991a67186)
 
 js 对象分为：普通对象和函数对象;  
 Object 、Function 是 JS 自带的函数对象。
