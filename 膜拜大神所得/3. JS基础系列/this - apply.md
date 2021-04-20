@@ -56,5 +56,5 @@ this : 当前执行上下文（global、function 或 eval）的一个属性；
     var a = objectF(Person, "sven");
     console.log(a.name);
     console.log(a.getName());
-     调用Person返回对象，有明确return对象后，返回明确的；没明确时--返回构造函数中的对象
+     调用Person返回对象，有明确return对象后，返回明确的；没明确时--返回构造函数中的对象；
 ```
