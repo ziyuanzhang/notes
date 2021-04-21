@@ -6,10 +6,11 @@
 2. 根源之上再没有其他根源，Object.prototype._proto_ === null
 
 3. Function.prototype 是一个空函数（Empty function）;  
-   Object,Array,Function,Number,Date,String,Boolean 继承 Function.prototype；  
-   Object._proto_ == Function.prototype;  
-   Array._proto_ == Function.prototype;  
-   Number._proto_ == Function.prototype;
+   内置对象（Object,Array,Function,Number,Date,String,Boolean）继承 Function.prototype；  
+    Object._proto_ == Function.prototype;  
+    Array._proto_ == Function.prototype;  
+    Number._proto_ == Function.prototype;  
+    ...
 
 4. Object,Array,Function,Number,Date,String,Boolean 本质是不同功能的函数；  
    typeof Object,Array,Function,Number,Date,String,Boolean --->function
