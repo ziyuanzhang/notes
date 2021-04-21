@@ -15,8 +15,8 @@
 4. Object,Array,Function,Number,Date,String,Boolean 本质是不同功能的函数；  
    typeof Object,Array,Function,Number,Date,String,Boolean --->function
 
-5. typeof Function.prototype -->// "function"；  
-   typeof 其他.prototype -->"object" (let obj=new Object-->{}-->obj._proto_==Object.prototype)
+5. typeof Function.prototype -->// "function"（特殊）；  
+   typeof 其他.prototype -->"object" （let obj=new Object-->{}-->obj._proto_==Object.prototype）
 
 js 对象分为：普通对象和函数对象;  
 Object 、Function 是 JS 自带的函数对象。
@@ -48,9 +48,9 @@ console.log(typeof o3); //object
 ```
 
 1. o1 o2 o3 为普通对象，f1 f2 f3 为函数对象;
-2. 凡是通过 new Function() 创建的对象都是**函数对象**，其他的都是普通对象。
-3. f1,f2,归根结底都是通过 new Function()的方式进行创建的。
-4. Function Object 也都是通过 New Function()创建的。
+2. 凡是通过 new Function( ) 创建的对象都是**函数对象**，其他的都是普通对象。
+3. f1,f2,归根结底都是通过 new Function( )的方式进行创建的。
+4. Function Object 也都是通过 New Function( )创建的。
 
 #### 2.构造函数--原型对象
 
@@ -65,11 +65,11 @@ var person1 = new Person('Zaxlct', 28, 'Software Engineer');
 var person2 = new Person('Mick', 23, 'Doctor');
 ```
 
-person1，person2 是实例；Person 是构造函数；Person.prototype 是原型对象(记作 对象 A)；
+person1，person2 是实例；Person 是构造函数；Person.prototype 是原型对象（记作 对象 A）；
 
 通常所说的 person1 的原型（原型对象），更准确地描述是 person1 的构造函数（Person）的原型对象
 
-构造函数（Person）的原型对象(A) 有 2 个属性：constructor，_proto_
+构造函数（Person）的原型对象（A） 有 2 个属性：constructor，_proto_
 
 - 对象 A :
 
@@ -80,7 +80,7 @@ person1，person2 是实例；Person 是构造函数；Person.prototype 是原�
 }
 ```
 
-- A 对象的 constructor 指向 构造函数(Person)
+- A 对象的 constructor 指向 构造函数（Person）
 
 ```
 constructor：ƒ Person(name, age, job)
@@ -90,29 +90,29 @@ constructor：ƒ Person(name, age, job)
     length: 3
     name: "Person",
     prototype:{},//指向对象A（套娃--循环递归）
-    __proto__:f() //
+    __proto__:f( ) //
   }
 ```
 
-- A 对象的 _proto_ ==(A 的构造函数)的 prototype --> Object.prototype
+- A 对象的 _proto_ ==（A 的构造函数）的 prototype --> Object.prototype
   A 是普通对象，A 的构造函数是 Object;
 
 ```
 _proto_:Object
 {
-   constructor: ƒ Object()
-   hasOwnProperty: ƒ hasOwnProperty()
-   isPrototypeOf: ƒ isPrototypeOf()
-   propertyIsEnumerable: ƒ propertyIsEnumerable()
-   toLocaleString: ƒ toLocaleString()
-   toString: ƒ toString()
-   valueOf: ƒ valueOf()
-   __defineGetter__: ƒ __defineGetter__()
-   __defineSetter__: ƒ __defineSetter__()
-   __lookupGetter__: ƒ __lookupGetter__()
-   __lookupSetter__: ƒ __lookupSetter__()
-   get __proto__: ƒ __proto__()
-   set __proto__: ƒ __proto__()
+   constructor: ƒ Object( )
+   hasOwnProperty: ƒ hasOwnProperty( )
+   isPrototypeOf: ƒ isPrototypeOf( )
+   propertyIsEnumerable: ƒ propertyIsEnumerable( )
+   toLocaleString: ƒ toLocaleString( )
+   toString: ƒ toString( )
+   valueOf: ƒ valueOf( )
+   __defineGetter__: ƒ __defineGetter__( )
+   __defineSetter__: ƒ __defineSetter__( )
+   __lookupGetter__: ƒ __lookupGetter__( )
+   __lookupSetter__: ƒ __lookupSetter__( )
+   get __proto__: ƒ __proto__( )
+   set __proto__: ƒ __proto__( )
 }
 
 ```
@@ -120,7 +120,7 @@ _proto_:Object
 ### 3. 构造器
 
 ```
-var obj = {}  等价  var obj = new Object()
+var obj = {}  等价  var obj = new Object( )
 
 obj.constructor === Object
 obj.__proto__ === Object.prototype
@@ -151,7 +151,7 @@ typeof Boolean   ---->function
 
    因为 Person._proto_ === Person 的构造函数.prototype
    因为 Person 的构造函数 === Function
-   所以 Person._proto_ === Function.prototype(空函数)；
+   所以 Person._proto_ === Function.prototype（空函数）；
 
 3. Person.prototype._proto_ 是什么？
 
@@ -163,7 +163,7 @@ typeof Boolean   ---->function
 
    因为 Object._proto_ === Object 的构造函数.prototype;
    因为 Object 的构造函数 === Function;
-   所以 Object._proto_ === Function.prototype(空函数)；
+   所以 Object._proto_ === Function.prototype（空函数）；
 
 5. Object.prototype._proto_ 是什么？
 
@@ -173,19 +173,19 @@ typeof Boolean   ---->function
 
 ```
     Object.prototype={
-        constructor: ƒ Object()
-        hasOwnProperty: ƒ hasOwnProperty()
-        isPrototypeOf: ƒ isPrototypeOf()
-        propertyIsEnumerable: ƒ propertyIsEnumerable()
-        toLocaleString: ƒ toLocaleString()
-        toString: ƒ toString()
-        valueOf: ƒ valueOf()
-        __defineGetter__: ƒ __defineGetter__()
-        __defineSetter__: ƒ __defineSetter__()
-        __lookupGetter__: ƒ __lookupGetter__()
-        __lookupSetter__: ƒ __lookupSetter__()
-        get __proto__: ƒ __proto__()
-        set __proto__: ƒ __proto__()
+        constructor: ƒ Object( )
+        hasOwnProperty: ƒ hasOwnProperty( )
+        isPrototypeOf: ƒ isPrototypeOf( )
+        propertyIsEnumerable: ƒ propertyIsEnumerable( )
+        toLocaleString: ƒ toLocaleString( )
+        toString: ƒ toString( )
+        valueOf: ƒ valueOf( )
+        __defineGetter__: ƒ __defineGetter__( )
+        __defineSetter__: ƒ __defineSetter__( )
+        __lookupGetter__: ƒ __lookupGetter__( )
+        __lookupSetter__: ƒ __lookupSetter__( )
+        get __proto__: ƒ __proto__( )
+        set __proto__: ƒ __proto__( )
     }
 ```
 
@@ -193,15 +193,15 @@ typeof Boolean   ---->function
 
 - 所有的构造器都来自于 Function.prototype，包括根构造器 Object 及 Function 自身;
 
-  Object._proto_ == Function.prototype(空函数);  
-  Function._proto_ == Function.prototype(空函数);
+  Object._proto_ == Function.prototype（空函数）;  
+  Function._proto_ == Function.prototype（空函数）;
 
 - 所有构造器都继承了 Function.prototype 的属性及方法。如 length、call、apply、bind;
   typeof Function.prototype -->// "function"
-  typeof 其他.prototype -->"object" (let obj=new Object-->{}-->obj._proto_==Object.prototype)
+  typeof 其他.prototype -->"object" （let obj=new Object-->{}-->obj._proto_==Object.prototype）
 
 所有构造器（含内置及自定义）的 _proto_ == Function.prototype;
-console.log(Function.prototype._proto_ === Object.prototype) // true
+console.log（Function.prototype._proto_ === Object.prototype） // true
 Object.prototype._proto_ === null // true
 
 **注意:**
@@ -224,16 +224,16 @@ Object.prototype._proto_ === null // true
    }
    // 重写原型
    Person.prototype = {
-      getName: function() {}
+      getName: function( ) {}
    }
    var p = new Person('jack')
    console.log(p.__proto__ === Person.prototype) // true
    console.log(p.__proto__ === p.constructor.prototype) // false
 ```
 
-给 Person.prototype 赋值的是一个对象直接量{getName: function(){}},  
+给 Person.prototype 赋值的是一个对象直接量{getName: function( ){}},  
 对象直接量定义的对象， 其构造函数是根构造器 Object,  
-Object.prototype 是一个空对象{}，{}自然与{getName: function(){}}不等。如下：
+Object.prototype 是一个空对象{}，{}自然与{getName: function( ){}}不等。如下：
 
 ```
    var p = {}
@@ -243,11 +243,11 @@ Object.prototype 是一个空对象{}，{}自然与{getName: function(){}}不等
 ```
 
 1. Object._proto_ === Function.prototype // true;  
-   Object 是函数对象，是通过 new Function()创建的，所以 Object.'_proto_'指向 Function.prototype。
+   Object 是函数对象，是通过 new Function( )创建的，所以 Object.'_proto_'指向 Function.prototype。
 
 2. Function._proto_ === Function.prototype // true；
 
-   Function 也是对象函数，也是通过 new Function()创建，所以 Function.'_proto_'指向 Function.prototype。  
+   Function 也是对象函数，也是通过 new Function( )创建，所以 Function.'_proto_'指向 Function.prototype。  
    自己是由自己创建的，好像不符合逻辑，但仔细想想，现实世界也有些类似
 
 3. Function.prototype._proto_ === Object.prototype //true
