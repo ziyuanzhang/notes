@@ -1,5 +1,22 @@
 ## js 原型与原型链 [原文](https://www.jianshu.com/p/652991a67186)
 
+1. 一切对象都有一个根源。它是 Object.prototype。
+   Function.prototype._proto_ === Object.prototype //true;
+
+2. 根源之上再没有其他根源，Object.prototype._proto_ === null
+
+3. Function.prototype 是一个空函数（Empty function）;  
+   Object,Array,Function,Number,Date,String,Boolean 继承 Function.prototype；  
+   Object._proto_ == Function.prototype;  
+   Array._proto_ == Function.prototype;  
+   Number._proto_ == Function.prototype;
+
+4. Object,Array,Function,Number,Date,String,Boolean 本质是不同功能的函数；  
+   typeof Object,Array,Function,Number,Date,String,Boolean --->function
+
+5. typeof Function.prototype -->// "function"；  
+   typeof 其他.prototype -->"object" (let obj=new Object-->{}-->obj._proto_==Object.prototype)
+
 js 对象分为：普通对象和函数对象;  
 Object 、Function 是 JS 自带的函数对象。
 
@@ -179,15 +196,62 @@ typeof Boolean   ---->function
   Function._proto_ == Function.prototype(空函数);
 
 - 所有构造器都继承了 Function.prototype 的属性及方法。如 length、call、apply、bind;
-  typeof Function.prototype -->// function
-  typeof 其他.prototype -->object (let obj=new Object-->{}-->obj._proto_==Object.prototype)
+  typeof Function.prototype -->// "function"
+  typeof 其他.prototype -->"object" (let obj=new Object-->{}-->obj._proto_==Object.prototype)
 
 所有构造器（含内置及自定义）的 _proto_ == Function.prototype;
 console.log(Function.prototype._proto_ === Object.prototype) // true
+Object.prototype._proto_ === null // true
 
 **注意:**
 
-- 说明所有的构造器也都是一个普通 JS 对象，可以给构造器**添加/删除属性**等。
+- 说明所有的构造器都是一个普通 JS 对象，可以给构造器**添加/删除属性**等。
 - 同时它也继承了 Object.prototype 上的所有方法：toString、valueOf、hasOwnProperty 等。
 
 - Object 继承 Function.prototype；-->Function.prototype 继承 Object.prototype；--> Object.prototype._proto_ === null // true
+
+### 6.
+
+- 所有**函数对象**的 _proto_ 都指向 Function.prototype，它是一个空函数（Empty function）;
+  [凡是通过 new Function() 创建的对象都是**函数对象**，其他的都是普通对象];
+
+- 所有**对象**的 _proto_ 都指向其构造器的 prototype
+
+```
+   function Person(name) {
+      this.name = name
+   }
+   // 重写原型
+   Person.prototype = {
+      getName: function() {}
+   }
+   var p = new Person('jack')
+   console.log(p.__proto__ === Person.prototype) // true
+   console.log(p.__proto__ === p.constructor.prototype) // false
+```
+
+给 Person.prototype 赋值的是一个对象直接量{getName: function(){}},  
+对象直接量定义的对象， 其构造函数是根构造器 Object,  
+Object.prototype 是一个空对象{}，{}自然与{getName: function(){}}不等。如下：
+
+```
+   var p = {}
+   console.log(Object.prototype) // 为一个空的对象{}
+   console.log(p.constructor === Object) // 对象直接量方式定义的对象其constructor为Object
+   console.log(p.constructor.prototype === Object.prototype) // 为true，
+```
+
+1. Object._proto_ === Function.prototype // true;  
+   Object 是函数对象，是通过 new Function()创建的，所以 Object.'_proto_'指向 Function.prototype。
+
+2. Function._proto_ === Function.prototype // true；
+
+   Function 也是对象函数，也是通过 new Function()创建，所以 Function.'_proto_'指向 Function.prototype。  
+   自己是由自己创建的，好像不符合逻辑，但仔细想想，现实世界也有些类似
+
+3. Function.prototype._proto_ === Object.prototype //true
+
+   Function.prototype 是个函数对象，理论上他的'_proto_'应该指向 Function.prototype，就是他自己，自己指向自己；
+   JS 一直强调万物皆对象，函数对象也是对象，给他认个祖宗，指向 Object.prototype。Object.prototype._proto_ === null，保证原型链能够正常结束。
+
+4.原型链的形成是真正是靠'_proto_' 而非 prototype
