@@ -53,3 +53,27 @@
    Frame Data :
    Frame Footer: 上一层每个小块增加尾部；
 5. 物理层 ---->
+
+##
+
+https：在 http 与 TCP/IP 之间增加了 TSL/SSL 层（ HTTP --> TSL/SSL --> TCP/IP ）
+
+- SSL：安全套接层
+- TSL：传输层安全协议(更安全些)
+- 需要客户端安装证书
+
+## curl --- 浏览器链接代理
+
+- 控制台敲：curl https://www.baidu.com  
+  请求百度，拿到请求主体，缺少请求头
+
+- curl -I https://www.baidu.com
+  拿到请求头
+
+## node 调试抓包工具 - Whistle
+
+npm install Whistle; npm start;
+
+- 需要 SwitchOmega 插件
+- node.js 开发
+- 支持抓包、重放、替换、修改等
