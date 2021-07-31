@@ -9,6 +9,5 @@ https ://   www.baidu.com   :    8080   /boods ? id=1000 # Good
 
 **DNS :** 解析“域名”到对应的 IP 地址（多个域名可以指向 同一个 IP 地址）
 
-
 用户跳出率
 可交互时间
