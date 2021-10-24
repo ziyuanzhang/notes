@@ -76,6 +76,9 @@ wss ----> tls-tcp/ip
 https --> tls/ssl -->tcp/ip
 ```
 
+1. WebSocket:握手和协议转换的过程很【自然】
+2. socket(网络插座)：为客户端/服务端提供通信机制
+
 ## curl --- 浏览器链接代理
 
 - 控制台敲：curl https://www.baidu.com  
