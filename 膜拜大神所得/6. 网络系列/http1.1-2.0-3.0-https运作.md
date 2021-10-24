@@ -8,7 +8,7 @@
 **注：**不需要 1.雪碧图；2.js/css 合并；  
 需要：1/GZIP 压缩；2.首屏优化
 
-## hTttp3.0
+## Http3.0
 
 http1.1/http2.0 ------|--------- http3.0
 ----------------------|--------- QUIC(谷歌出的优化)
@@ -63,6 +63,18 @@ https：在 http 与 TCP/IP 之间增加了 TSL/SSL 层（ HTTP --> TSL/SSL --> 
 - 307:（替代原来的 302）临时重定向（post 还是 post，不会变 get）；
 
 - 304：资源没有修改（不返回资源，用缓存）；
+
+## WebSocket
+
+```
+const client =new WebSocket("ws://chat.svc");
+
+测试用 ws; 上线用 wss
+ws -----> WebSocket 缩写
+wss ----> WebSocket Secure（加密）
+wss ----> tls-tcp/ip
+https --> tls/ssl -->tcp/ip
+```
 
 ## curl --- 浏览器链接代理
 
