@@ -78,19 +78,3 @@ https --> tls/ssl -->tcp/ip
 
 1. WebSocket:握手和协议转换的过程很【自然】
 2. socket(网络插座)：为客户端/服务端提供通信机制
-
-## curl --- 浏览器链接代理
-
-- 控制台敲：curl https://www.baidu.com  
-  请求百度，拿到请求主体，缺少请求头
-
-- curl -I https://www.baidu.com
-  拿到请求头
-
-## node 调试抓包工具 - Whistle
-
-npm install Whistle; npm start;
-
-- 需要 SwitchOmega 插件
-- node.js 开发
-- 支持抓包、重放、替换、修改等
