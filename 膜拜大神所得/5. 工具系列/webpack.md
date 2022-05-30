@@ -153,25 +153,25 @@ compilation 对象代表了一次单一的版本 webpack 构建和生成编译�
 ```
 const {
 	SyncHook, //同步基础钩子
-	SyncBailHook, //
-	SyncWaterfallHook,
-	SyncLoopHook,
+	SyncBailHook, //同步--保险类型钩子
+	SyncWaterfallHook,//同步--瀑布类型的钩子
+	SyncLoopHook,//同步--循环类型钩子
 
 	AsyncParallelHook, // 异步并行钩子
 	AsyncParallelBailHook, // 异步并行钩子
 
-	AsyncSeriesHook, //异步
-	AsyncSeriesBailHook, //异步
-	AsyncSeriesWaterfallHook //异步
+	AsyncSeriesHook, //异步串行
+	AsyncSeriesBailHook, //异步串行
+	AsyncSeriesWaterfallHook //异步串行
  } = require("tapable");
 
 ```
 
-1. Basic Hook(基本类型的钩子) : 它仅仅执行钩子注册的事件，不关心每个被调用的事件(函数)返回值如何。
+1. Basic Hook(基本类型钩子) : 它仅仅执行钩子注册的事件，不关心每个被调用的事件(函数)返回值如何。
 
    ![](./img/webpack-tapable-basehook.webp "markdown")
 
-2. Waterfall(瀑布类型的钩子) : 瀑布类型的钩子和基本类型的钩子基本类似，唯一不同的是瀑布类型的钩子会在注册的事件执行时将事件函数执行非 undefined 的返回值传递给接下来的事件函数作为参数。
+2. Waterfall(瀑布类型钩子) : 瀑布类型的钩子和基本类型的钩子基本类似，唯一不同的是瀑布类型的钩子会在注册的事件执行时将事件函数执行非 undefined 的返回值传递给接下来的事件函数作为参数。
 
    ![](./img/webpack-tapable-Waterfall.webp "markdown")
 
