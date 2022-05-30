@@ -8,7 +8,7 @@
 **注：**不需要 1.雪碧图；2.js/css 合并；  
 需要：1/GZIP 压缩；2.首屏优化
 
-## hTttp3.0
+## Http3.0
 
 http1.1/http2.0 ------|--------- http3.0
 ----------------------|--------- QUIC(谷歌出的优化)
@@ -64,18 +64,17 @@ https：在 http 与 TCP/IP 之间增加了 TSL/SSL 层（ HTTP --> TSL/SSL --> 
 
 - 304：资源没有修改（不返回资源，用缓存）；
 
-## curl --- 浏览器链接代理
+## WebSocket
 
-- 控制台敲：curl https://www.baidu.com  
-  请求百度，拿到请求主体，缺少请求头
+```
+const client =new WebSocket("ws://chat.svc");
 
-- curl -I https://www.baidu.com
-  拿到请求头
+测试用 ws; 上线用 wss
+ws -----> WebSocket 缩写
+wss ----> WebSocket Secure（加密）
+wss ----> tls-tcp/ip
+https --> tls/ssl -->tcp/ip
+```
 
-## node 调试抓包工具 - Whistle
-
-npm install Whistle; npm start;
-
-- 需要 SwitchOmega 插件
-- node.js 开发
-- 支持抓包、重放、替换、修改等
+1. WebSocket:握手和协议转换的过程很【自然】
+2. socket(网络插座)：为客户端/服务端提供通信机制
