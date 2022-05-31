@@ -24,6 +24,8 @@
     module.exports = MyPlugin;
 ```
 
+entry 每个入口对应一个 chunk
+
 ## compiler & compilation 对象
 
 通过对 webpack 插件的初步了解，我们注意到了一个 Webpcak 插件中出现了两个对象，一个是 compiler 对象, 一个是 compilation 对象，乍一看这两个对象肯定是一头雾水，compiler 和 compilation 对象是整个 webpack 最核心的两个对象，是扩展 webpack 功能的关键。为了更加利于后面对 webpack 插件机制的理解，先重点介绍一下这两个对象。
