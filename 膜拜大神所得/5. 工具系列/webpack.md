@@ -24,7 +24,7 @@
     module.exports = MyPlugin;
 ```
 
-entry 每个入口对应一个 chunk
+**注：**entry 每个入口对应一个 chunk
 
 ## compiler & compilation 对象
 
