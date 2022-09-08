@@ -1,9 +1,18 @@
 # 事件循环机制 -- nodeJS 端（由 libuv 库实现） [原文链接](https://zhuanlan.zhihu.com/p/35918797)
 
-**重要重要：**
-
-1. 把“JS 引擎源码"编辑成文件,作为库引进 C 中，异步则执行死循环挂起，回调
+1. 把“JS 引擎源码"编辑成文件,作为库引进 C 中，异步则执行死循环挂起，回调;
 2. 事件循环机制由宿主环境实现（有多个线程）, js 引擎（V8）只负责执行代码;
+3. Node.js 不保证回调被触发的确切时间，也不保证它们的顺序，回调会在尽可能接近指定的时间被调用;
+4. setTimeout 当 delay 大于 2147483647 或小于 1 时，则 delay 将会被设置为 1， 非整数的 delay 会被截断为整数;
+
+```
+  setImmediate(console.log, 1);
+  setTimeout(console.log, 1, 2);
+  Promise.resolve(3).then(console.log);
+  process.nextTick(console.log, 4);
+  console.log(5);
+  结果：会打印 5 4 3 2 1 或者 5 4 3 1 2
+```
 
 ## 事件循环的工作流程
 
@@ -99,8 +108,20 @@ nextTickQueue 的优先级高于 microTaskQueue。
 ### 为什么 Promise.then 比 setTimeout 早一些
 
 前端同学肯定都听说过 micoTask 和 macroTask，Promise.then 属于 microTask;
-在浏览器环境下: microTask 任务会在每个 macroTask 执行最末端调用;
-在 Node.js 环境下: microTask 会在每个阶段完成之间调用，也就是每个阶段执行最后都会执行一下 microTask 队列;
+
+- 在浏览器环境下: microTask 任务会在每个 macroTask 执行最末端调用;
+- 在 Node.js 环境下: microTask 会在每个阶段完成之间调用，也就是每个阶段执行最后都会执行一下 microTask 队列;
+
+```
+  setImmediate(console.log, 1);
+  setTimeout(console.log, 1, 2);
+  /****************** microTask 分割线 ********************/
+  Promise.resolve(3).then(console.log); // microTask 分割线
+  /****************** 下次 event loop tick 分割线 ********************/
+  process.nextTick(console.log, 4);
+  /****************** 同步任务和异步任务的分割线 ********************/
+  console.log(5);
+```
 
 ### setImmediate VS process.nextTick
 
