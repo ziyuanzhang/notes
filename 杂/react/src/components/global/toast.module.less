@@ -1,0 +1,48 @@
+.container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 99999999;
+  width: 100vw;
+  height: 100vh;
+  .main {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    z-index: 9;
+    transform: translate(-50%, -50%);
+
+    min-width: 260px;
+    max-width: 600px;
+    min-height: 100px;
+    background: #ffffff;
+    padding: 10px 15px;
+    line-height: 1.2;
+    box-sizing: border-box;
+    font-size: 20px;
+    font-weight: bold;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    color: #333;
+    .icon {
+      width: 20px;
+    }
+    .successToast {
+      color: #04af85;
+      margin-left: 10px;
+    }
+    .failToast {
+      color: #f64135;
+      margin-left: 10px;
+    }
+  }
+
+  .bg {
+    background: rgba(0, 0, 0, 0.3);
+    width: 100vw;
+    height: 100vh;
+  }
+}
