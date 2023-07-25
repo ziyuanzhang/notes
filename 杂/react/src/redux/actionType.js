@@ -1,0 +1,14 @@
+export const INCREMENT = "INCREMENT";
+export const REDUCE = "REDUCE";
+export const ADDLOADING = "add_loading";
+export const CUTLOADING = "cut_loading";
+export const SHOWLOGIN = "show_login";
+export const HIDELOGIN = "hide_login";
+export const SHOWREGISTER = "show_register";
+export const HIDEREGISTER = "hide_register";
+export const SHOWFORGET = "show_forget";
+export const HIDEFORGET = "hide_forget";
+export const ADDUSERINFO = "add_userInfo";
+export const CLEARUSERINFO = "clear_userInfo";
+export const UPDATEGROUPLIST = "update_groupList";
+export const UPDATECOMPANYLIST = "update_companyList";
