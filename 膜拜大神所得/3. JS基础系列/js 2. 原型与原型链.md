@@ -1,4 +1,4 @@
-## js 原型与原型链 [原文](https://www.jianshu.com/p/652991a67186)
+# js 原型与原型链 [原文](https://www.jianshu.com/p/652991a67186)
 
 1. 一切对象都有一个根源。它是 Object.prototype。
    Function.prototype._proto_ === Object.prototype //true;
@@ -24,9 +24,9 @@ Object 、Function 是 JS 自带的函数对象。
 每个函数对象（Person）都有 prototype 属性 指向它的原型对象（普通对象）；  
 每个对象（函数对象，普通对象）都有'_proto_'属性 指向构造函数的原型对象（普通对象）；
 
-#### 1.普通对象--函数对象
+## 1.普通对象--函数对象
 
-```
+```code
 var o1 = {};
 var o2 = new Object();
 var o3 = new f1();
@@ -52,9 +52,9 @@ console.log(typeof o3); //object
 3. f1,f2,归根结底都是通过 new Function( )的方式进行创建的。
 4. Function Object 也都是通过 New Function( )创建的。
 
-#### 2.构造函数--原型对象
+## 2.构造函数--原型对象
 
-```
+```code
 function Person(name, age, job) {
  this.name = name;
  this.age = age;
@@ -71,55 +71,55 @@ person1，person2 是实例；Person 是构造函数；Person.prototype 是原�
 
 构造函数（Person）的原型对象（A） 有 2 个属性：constructor，_proto_
 
-- 对象 A :
+1. 对象 A :
 
-```
-{
-   constructor: ƒ Person(name, age, job)
-  __proto__: Object
-}
-```
+   ```code
+   {
+      constructor: ƒ Person(name, age, job)
+   __proto__: Object
+   }
+   ```
 
-- A 对象的 constructor 指向 构造函数（Person）
+2. A 对象的 constructor 指向 构造函数（Person）
 
-```
-constructor：ƒ Person(name, age, job)
-{
-    arguments: null
-    caller: null
-    length: 3
-    name: "Person",
-    prototype:{},//指向对象A（套娃--循环递归）
-    __proto__:f( ) //
-  }
-```
+   ```code
+   constructor：ƒ Person(name, age, job)
+   {
+      arguments: null
+      caller: null
+      length: 3
+      name: "Person",
+      prototype:{},//指向对象A（套娃--循环递归）
+      __proto__:f( ) //
+   }
+   ```
 
-- A 对象的 _proto_ ==（A 的构造函数）的 prototype --> Object.prototype
-  A 是普通对象，A 的构造函数是 Object;
+3. A 对象的 _proto_ ==（A 的构造函数）的 prototype --> Object.prototype
+   A 是普通对象，A 的构造函数是 Object;
 
-```
-_proto_:Object
-{
-   constructor: ƒ Object( )
-   hasOwnProperty: ƒ hasOwnProperty( )
-   isPrototypeOf: ƒ isPrototypeOf( )
-   propertyIsEnumerable: ƒ propertyIsEnumerable( )
-   toLocaleString: ƒ toLocaleString( )
-   toString: ƒ toString( )
-   valueOf: ƒ valueOf( )
-   __defineGetter__: ƒ __defineGetter__( )
-   __defineSetter__: ƒ __defineSetter__( )
-   __lookupGetter__: ƒ __lookupGetter__( )
-   __lookupSetter__: ƒ __lookupSetter__( )
-   get __proto__: ƒ __proto__( )
-   set __proto__: ƒ __proto__( )
-}
+   ```code
+   _proto_:Object
+   {
+      constructor: ƒ Object( )
+      hasOwnProperty: ƒ hasOwnProperty( )
+      isPrototypeOf: ƒ isPrototypeOf( )
+      propertyIsEnumerable: ƒ propertyIsEnumerable( )
+      toLocaleString: ƒ toLocaleString( )
+      toString: ƒ toString( )
+      valueOf: ƒ valueOf( )
+      __defineGetter__: ƒ __defineGetter__( )
+      __defineSetter__: ƒ __defineSetter__( )
+      __lookupGetter__: ƒ __lookupGetter__( )
+      __lookupSetter__: ƒ __lookupSetter__( )
+      get __proto__: ƒ __proto__( )
+      set __proto__: ƒ __proto__( )
+   }
 
-```
+   ```
 
-### 3. 构造器
+## 3. 构造器
 
-```
+```code
 var obj = {}  等价  var obj = new Object( )
 
 obj.constructor === Object
@@ -129,7 +129,7 @@ obj.__proto__ === Object.prototype
 obj 是 new 操作符后跟一个**构造函数**来创建的；
 构造函数（Object）本身就是一个函数，和上面的构造函数（Person）差不多；只不过该函数是出于创建新对象的目的而定义的； Array，Date，Function,Date,Number,String, Boolean 也是。
 
-```
+```code
 typeof Object    ---->function
 typeof Function  ---->function
 typeof Array   ---->function
@@ -139,7 +139,7 @@ typeof String  ---->function
 typeof Boolean   ---->function
 ```
 
-### 4. 原型链
+## 4. 原型链
 
 1. person1._proto_ 是什么？
 
@@ -171,7 +171,7 @@ typeof Boolean   ---->function
    因为 null 处于原型链的顶端，这个只能记住。
    Object.prototype._proto_ === null
 
-```
+```code
     Object.prototype={
         constructor: ƒ Object( )
         hasOwnProperty: ƒ hasOwnProperty( )
@@ -189,7 +189,7 @@ typeof Boolean   ---->function
     }
 ```
 
-### 5. Function.prototype 是一个空函数（Empty function）
+## 5. Function.prototype 是一个空函数（Empty function）
 
 - 所有的构造器都来自于 Function.prototype，包括根构造器 Object 及 Function 自身;
 
@@ -211,14 +211,14 @@ Object.prototype._proto_ === null // true
 
 - Object 继承 Function.prototype；-->Function.prototype 继承 Object.prototype；--> Object.prototype._proto_ === null // true
 
-### 6.
+### 6
 
 - 所有**函数对象**的 _proto_ 都指向 Function.prototype，它是一个空函数（Empty function）;
   [凡是通过 new Function() 创建的对象都是**函数对象**，其他的都是普通对象];
 
 - 所有**对象**的 _proto_ 都指向其构造器的 prototype
 
-```
+```code
    function Person(name) {
       this.name = name
    }
@@ -235,7 +235,7 @@ Object.prototype._proto_ === null // true
 对象直接量定义的对象， 其构造函数是根构造器 Object,  
 Object.prototype 是一个空对象{}，{}自然与{getName: function( ){}}不等。如下：
 
-```
+```code
    var p = {}
    console.log(Object.prototype) // 为一个空的对象{}
    console.log(p.constructor === Object) // 对象直接量方式定义的对象其constructor为Object
@@ -255,4 +255,4 @@ Object.prototype 是一个空对象{}，{}自然与{getName: function( ){}}不�
    Function.prototype 是个函数对象，理论上他的'_proto_'应该指向 Function.prototype，就是他自己，自己指向自己；
    JS 一直强调万物皆对象，函数对象也是对象，给他认个祖宗，指向 Object.prototype。Object.prototype._proto_ === null，保证原型链能够正常结束。
 
-4.原型链的形成是真正是靠'_proto_' 而非 prototype
+4. 原型链的形成是真正是靠'_proto_' 而非 prototype
