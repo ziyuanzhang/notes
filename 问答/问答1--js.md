@@ -23,6 +23,8 @@
 |                                  | =========                             | arr.every()                                   |
 |                                  | =========                             | arr.reduce(callBack(prev,cur,index,arr),init) |
 
+## 进程、线程：参考 “计算机基础系列 / 进程-线程-协程-纤程”
+
 ## 变量提升：javascript 代码是按顺序执行的吗
 
 js 先编译后解析；
