@@ -115,3 +115,30 @@ RegExpObject.test(string) // 匹配到，返回 true ，否则返回 false。
 递归：调用自身或 间接调用自身 ；
 递归中一定有迭代，但是迭代中不一定有递归；
 能用迭代的不用递归；递归调用函数，浪费空间，并且递归太深容易造成堆栈的溢出。
+
+## for -- setTimeout
+
+1. --添加个闭包
+           for (var i = 1; i <= 5; i++) {
+               (function (j) {
+                   setTimeout(function timer() {
+                       console.log(j)
+                   }, 0)
+               })(i)
+           }
+2. --传第三个参数----
+           for (var i = 1; i <= 5; i++) {
+               setTimeout(function timer(j) {
+                   console.log(j)
+               }, 0, i)
+           }
+3. --let---
+           for (let i = 0; i < 3; ++i) {
+               setTimeout(function () {
+                   console.log("let", i);
+               }, 100);
+           }
+4. ***
+   for (var i = 0; i < 3; ++i) {
+               setTimeout(console.log("var", i), 100);
+           }
