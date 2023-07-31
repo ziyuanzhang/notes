@@ -135,6 +135,38 @@ this 值：指向当前函数执行的上下文对象内部的 this 关键字。
 2. for...in 循环对象的所有枚举属性（包括继承的）,然后再使用 hasOwnProperty()方法来忽略继承属性。
 3. isPrototypeOf 的字面意思就是谁的原型链中是否包含了 XX 的原型(例如:obj1.isPrototypeOf(obj2)  这个意思是，obj1 是否被包含在 obj2 的原型链中)
 
+## typeof / Object.prototype.toString.call / instanceof
+
+1. typeof
+   基本类型，除 null 以外，均可以返回正确的结果；对于 null ，返回 object 类型。
+   引用类型，除 function 以外，一律返回 object 类型；对于 function 返回  function 类型。
+   //typeof (object、Function、Array、Date、Number、String、Bootlean)-->结果是:funciton
+
+2. Object.prototype.toString:判断某个对象属于哪种内置类型；但不能判断自定义类型.
+   Object.prototype.toString.call(null); // "[object Null]"-- [Object type]，其中 type 为对象的类型。
+
+3. instanceof：检测构造函数的 prototype 属性是否出现在某个实例对象的原型链上。  
+   1.自定义类型; 2.只能用来判断对象类型，原始类型不可以。并且所有对象类型 instanceof Object 都是 true。
+   [] instanceof Array; // true; ------ [] instanceof Object; // true
+     //语法：object instanceof constructor ，
+     参数：object（实例对象）constructor（构造函数）
+   console.log(person instanceof Person); // true
+
+4. Array.isArray()方法。  Array.isArray([1, 2, 3]); // true
+
+## 基本数据类型和复杂数据类型的区别
+
+1. 存储位置不同（栈和堆）
+2. 访问机制不同（按值，引用访问）
+3. 变量赋值不同（值的副本，引用）
+4. 参数传递不同（传值，引用）
+
+## null / undefined
+
+null:空值(变量没有值)
+undefined:变量未持有值(只声明未赋值/或者=未赋值的变量)
+typeof bb(bb 未声明，返回 undefined)
+
 ## js 继承 <https://www.cnblogs.com/humin/p/4556820.html>
 
 1. 原型链继承
@@ -168,13 +200,6 @@ JavaScript 代码的执行过程中，除了依靠“函数调用栈”来搞定
 | requestAnimationFrame |  支持  |  不  |     |           process.nextTick |   不   | 支持 |
 |          setImmediate |   不   | 支持 |     |                            |        |      |
 
-## 基本数据类型和复杂数据类型的区别
-
-1. 存储位置不同（栈和堆）
-2. 访问机制不同（按值，引用访问）
-3. 变量赋值不同（值的副本，引用）
-4. 参数传递不同（传值，引用）
-
 ## js defer 和 async 区别
 
 defer(延迟脚本):立即下载，初始的 HTML 文档解析完成再执行（DOMContentLoaded 事件之前执行）
@@ -182,6 +207,49 @@ async(异步脚本):立即下载，下载完在“浏览器空闲时”再执行
 
 1、当初始的 HTML 文档被完全加载和解析完成之后，DOMContentLoaded 事件被触发，而无需等待样式表、图像和子框架的完成加载
 2、页面上所有的资源（图片，音频，视频等）被加载以后才会触发 load 事件
+
+## 跨域
+
+1. jsonp 跨域  （http://aa.com/jsonp/result.aspx?code=CA1998&callback=flightHandler）
+2. CORS（跨域资源共享）
+3. 代理转发（nginx/node）
+4. WebSocket
+5. 图像 ping
+6. iframe
+
+## 深 copy / 浅 copy
+
+深 copy：基础类型（字符串、数字、布尔、Null、Undefined、symbol）
+浅 copy：引用数据类型（包含普通对象-Object，数组对象-Array，正则对象-RegExp，日期对象-Date，数学函数-Math，函数对象-Function）
+
+```code
+1、structuredClone //let newObj = structuredClone(obj)
+2、function deepClone(target, cache = []) {
+      if (target === null || typeof target !== 'object') {
+        return target
+      }
+
+let hit = cache.filter(item => item.origin === target)[0];
+      if (hit) {
+        return hit.copy;
+      }
+
+if (Array.isArray(target)) {
+        return target.map(item => {
+          return deepClone(item, cache);
+        })
+      }
+      let copy = target.constructor === Object ? {} : Object.create(target.constructor.prototype)
+      cache.push({
+        origin: target,
+        copy
+      })
+      return [...Object.keys(target), ...Object.getOwnPropertySymbols(target)].reduce((clone, key) => {
+        clone[key] = deepClone(target[key], cache);
+        return clone;
+      }, copy)
+    }
+```
 
 ## js  链式调用
 
