@@ -1,12 +1,6 @@
 # js 问题
 
-array 与 string 共用方法：
-concat(" world","!");
-slice(0, 3) --3 下标,返回截取的;
-length;
-arr[0] / str[0]
-indexOf('world')
-includes()
+## array 与 string 方法
 
 | array 与 string 共用方法         | string                                | array                                         |
 | -------------------------------- | :------------------------------------ | :-------------------------------------------- |
