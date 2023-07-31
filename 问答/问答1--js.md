@@ -85,6 +85,73 @@ this 值：指向当前函数执行的上下文对象内部的 this 关键字。
 3. 队列只能在队头做删除操作,在队尾做插入操作。（先进先出）
    理解队列数据结构的目的主要是为了清晰的明白事件循环机制
 
+## JS 事件循环机制: 参考 “浏览器系列”
+
+JavaScript 代码的执行过程中，除了依靠“函数调用栈”来搞定函数的执行顺序外，还依靠“任务队列(task queue)”来搞定另外一些代码的执行。
+
+1. 一个线程中，事件循环是唯一的，但是任务队列可以拥有多个。
+2. 任务队列又分为 macro-task（宏任务）与 micro-task（微任务）
+   macro-task 大概包括：script(整体代码), setTimeout, setInterval。
+   micro-task 大概包括: Promise.then, MutationObserver(html5 新特性)
+3. setTimeout/Promise 等我们称之为任务源。而进入任务队列的是他们指定的具体执行任务。（setTimeout 作为一个任务分发器，这个函数会立即执行，而它所要分发的任务，也就是它的第一个参数，才是延迟执行）
+4. 来自不同任务源的任务会进入到不同的任务队列。其中 setTimeout 与 setInterval 是同源的。
+5. 事件循环的顺序，决定了 js 代码的执行顺序。它从 script(整体代码)开始第一次循环。之后全局上下文进入函数调用栈,直到调用栈清空(只剩全局)。然后执行所有的 micro-task(微任务中套微任务，执行)。当所有可执行的 micro-task 执行完毕之后。循环再次从 macro-task 开始，找到其中一个任务队列执行完毕，然后再执行所有的 micro-task，这样一直循环下去
+6. 其中每一个任务的执行，无论是 macro-task 还是 micro-task，都是借助函数调用栈来完成
+
+|                宏任务 | 浏览器 | node |     |                     微任务 | 浏览器 | node |
+| --------------------: | :----: | :--: | --: | -------------------------: | :----: | :--: |
+|            setTimeout |  支持  | 支持 |     | Promise.then catch finally |  支持  | 支持 |
+|           setInterval |  支持  | 支持 |     |           MutationObserver |  支持  |  不  |
+| requestAnimationFrame |  支持  |  不  |     |           process.nextTick |   不   | 支持 |
+|          setImmediate |   不   | 支持 |     |                            |        |      |
+
+## 基本数据类型和复杂数据类型的区别
+
+1. 存储位置不同（栈和堆）
+2. 访问机制不同（按值，引用访问）
+3. 变量赋值不同（值的副本，引用）
+4. 参数传递不同（传值，引用）
+
+## js defer 和 async 区别
+
+defer(延迟脚本):立即下载，初始的 HTML 文档解析完成再执行（DOMContentLoaded 事件之前执行）
+async(异步脚本):立即下载，下载完在“浏览器空闲时”再执行(互不依赖；在 load 前)
+
+1、当初始的 HTML 文档被完全加载和解析完成之后，DOMContentLoaded 事件被触发，而无需等待样式表、图像和子框架的完成加载
+2、页面上所有的资源（图片，音频，视频等）被加载以后才会触发 load 事件
+
+## js  链式调用
+
+我们都很熟悉 jQuery 了，只能 jQuery 中一种非常牛逼的写法叫链式操作;
+
+$('#div').css('background','#ccc').removeClass('box').stop().animate({width:300});
+
+一般的函数调用和链式调用的区别：调用完方法后，return this 返回当前调用方法的对象。
+
+```code
+        function Dog() {
+            this.run = function () {
+                console.log("The dog is running....");
+                return this; //返回当前对象  Dog
+            };
+            this.eat = function () {
+                console.log("After running the dog is eatting....");
+                return this; //返回当前对象  Dog        
+            };
+            this.sleep = function () {
+                console.log("After eatting the dog is running....");
+                return this; //返回当前对象  Dog        
+            };
+        }
+        //一般的调用方式；
+        /*  var dog1 =new Dog();
+            dog1.run();
+            dog1.eat();
+            dog1.sleep();*/
+        var dog2 = new Dog();
+        dog2.run().eat().sleep();
+```
+
 ## JQ 中类似 promise
 
 // $.when().done().fail().then()
