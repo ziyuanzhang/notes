@@ -266,11 +266,11 @@ if (Array.isArray(target)) {
                 return this; //返回当前对象  Dog
             };
             this.eat = function () {
-                console.log("After running the dog is eatting....");
+                console.log("After running the dog is eating ....");
                 return this; //返回当前对象  Dog        
             };
             this.sleep = function () {
-                console.log("After eatting the dog is running....");
+                console.log("After eating the dog is running....");
                 return this; //返回当前对象  Dog        
             };
         }
