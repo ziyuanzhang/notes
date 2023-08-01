@@ -335,7 +335,9 @@ RegExpObject.test(string) // 匹配到，返回 true ，否则返回 false。
 
 ## for -- setTimeout
 
-1. --添加个闭包
+1. 添加个闭包
+
+   ```code
            for (var i = 1; i <= 5; i++) {
                (function (j) {
                    setTimeout(function timer() {
@@ -343,22 +345,35 @@ RegExpObject.test(string) // 匹配到，返回 true ，否则返回 false。
                    }, 0)
                })(i)
            }
-2. --传第三个参数----
+   ```
+
+2. 传第三个参
+
+   ```code
            for (var i = 1; i <= 5; i++) {
                setTimeout(function timer(j) {
                    console.log(j)
                }, 0, i)
            }
-3. --let---
+   ```
+
+3. let
+
+   ```vode
            for (let i = 0; i < 3; ++i) {
                setTimeout(function () {
                    console.log("let", i);
                }, 100);
            }
+   ```
+
 4. ***
-   for (var i = 0; i < 3; ++i) {
+
+   ```code
+      for (var i = 0; i < 3; ++i) {
                setTimeout(console.log("var", i), 100);
            }
+   ```
 
 ## Object.defineproperty 与 proxy 区别
 
