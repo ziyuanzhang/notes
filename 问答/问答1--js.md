@@ -210,7 +210,7 @@ async(异步脚本):立即下载，下载完在“浏览器空闲时”再执行
 
 ## 跨域
 
-1. jsonp 跨域  （http://aa.com/jsonp/result.aspx?code=CA1998&callback=flightHandler）
+1. jsonp 跨域: `http://aa.com/jsonp/result.aspx?code=CA1998&callback=flightHandler`
 2. CORS（跨域资源共享）
 3. 代理转发（nginx/node）
 4. WebSocket
@@ -359,3 +359,93 @@ RegExpObject.test(string) // 匹配到，返回 true ，否则返回 false。
    for (var i = 0; i < 3; ++i) {
                setTimeout(console.log("var", i), 100);
            }
+
+## Object.defineproperty 与 proxy 区别
+
+1. 监听对象不同
+   defineproperty：只能监听某个属性（需要知道对象的具体属性）
+    proxy：只需要知道对象
+2. proxy 不需要借助外部 value
+3. proxy 不会污染原对象（返回新对象，原对象不改变）
+
+```code
+    var o = {};
+    var bValue = 38;
+    Object.defineProperty(o, "b", {
+      get() {
+        return bValue;
+      },
+      set(newValue) {
+        bValue = newValue;
+      }
+    });
+```
+
+## es6 拦截 proxy
+
+```code
+var person = { name: "张三" };
+var proxy = new Proxy(person, {
+    get: function (target, key) {
+        if (keyin target) {
+            return target[key];
+        } else {
+            throw new ReferenceError(`Prop name ${propKey}does not exist.`);
+        }
+    },
+   set: function (target, key, value) {
+          console.log(`${key} 被设置为 ${value}`);
+          target[key] = value; // 或者 Reflect.set(target，key，value）
+        }
+});
+proxy.name // "张三"
+proxy.age //  抛出一个错误
+proxy.name = 'others'; //  控制台输出：name  被设置为  others
+get(target, propKey, receiver)：拦截对象属性的读取
+set(target, propKey, value, receiver)：拦截对象属性的设置
+has(target, propKey)：拦截 propKey in proxy 的操作，返回一个布尔值
+deleteProperty(target, propKey)：拦截 delete proxy[propKey]的操作，返回一个布尔值
+```
+
+## 创建异步对象
+
+```code
+  let xhr = new XMLHttpRequest();
+  //post请求一定要添加请求头才行不然会报错
+  xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+  //设置请求的类型及url
+  xhr.open('post', '02.post.php');
+  xhr.onreadystatechange = function () {
+      // 这步为判断服务器是否正确响应
+      if (xhr.readyState == 4 && xhr.status == 200) {
+          console.log(xhr.responseText);
+      }
+  };
+  //发送请求
+  xhr.send('name=fox&age=18');
+```
+
+## JS 中判断字符串中出现次数最多的字符及出现的次数:
+
+```code
+let str = 'qwertyuilo.,mnbvcsarrrrrrrrtyuiop;l,mhgfdqrtyuio;.cvxsrtyiuo';
+  let json = {};
+  //遍历 str 拆解其中的每一个字符将其某个字符的值及出现的个数拿出来作为 json 的 kv
+  for (let i = 0; i < str.length; i++) {
+      //判断 json 中是否有当前 str 的值  
+      if (!json[str.charAt(i)]) {
+          json[str.charAt(i)] = 1;
+      } else {
+          json[str.charAt(i)]++;
+      }
+  }
+  let number = '';
+  let num = 0;
+  for (let i in json) {
+      if (json[i] > num) {
+          num = json[i];
+          number = i;
+      }
+  }
+  console.log('出现最多的值是' + number + '出现次数为' + num);
+```
