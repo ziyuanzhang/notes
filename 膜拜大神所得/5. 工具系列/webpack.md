@@ -83,13 +83,13 @@ compilation 实例继承于 compiler，compilation 对象代表了一次单一�
 | compile       | 真正开始的编译，在创建 compilation 对象之前         | compilation 参数 | 同步 |
 | compilation   | 生成好了 compilation 对象，可以操作这个对象啦       | compilation      | 同步 |
 | make          | 从 entry 开始递归分析依赖，准备对每个模块进行 build | compilation      | 并行 |
-| after-compile | 编译 build 过程结束                                 | compliation      | 异步 |
+| after-compile | 编译 build 过程结束                                 | compilation      | 异步 |
 | emit          | 在将内存中 assets 内容写到磁盘文件夹之**前**        | compilation      | 异步 |
 | after-emit    | 在将内存中 assets 内容写到磁盘文件夹之**后**        | compilation      | 异步 |
 | done          | 完成所有的编译过程                                  | stats            | 同步 |
 | failed        | 编译失败的时候                                      | error            | 同步 |
 
-**compiler 的绑定事件钩子的方式**
+- compiler 的绑定事件钩子的方式
 
 ```code
     // 前提是先要拿到 compiler 对象，apply 方法的回调中就能拿到，这里假设能拿到 compiler 对象
