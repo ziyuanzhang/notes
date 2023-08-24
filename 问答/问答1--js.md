@@ -322,10 +322,23 @@ RegExpObject.test(string) // 匹配到，返回 true ，否则返回 false。
 
 ## AMD/CMD/CommonJs/ES6
 
-1. AMD---Asynchronous Module Definition（异步模块定义）， 特点是：依赖前置
-2. CMD---Common Module Definition（通用模块定义），特点是：依赖就近，同步。
-3. CommonJs 规范，module.exports / require，特点是 : nodeJs 后台采用的规范，可以多次加载，只在第一次运行，结果被缓存；
-4. ES6 特性 export / import，特点是：成对出现. 只有导出才能导入。
+1. 异步模块定义（AMD---Asynchronous Module Definition）：依赖前置。具体实现 require.js
+2. 通用模块定义（CMD---Common Module Definition）：依赖就近，同步。
+3. ES6 特性：只有导出才能导入；export / import 成对出现。
+4. CommonJs 规范: nodeJs 后台采用的规范，可以多次加载，只在第一次运行，结果被缓存；module.exports / require;
+
+   - CommonJS：
+     1. 模块输出的是一个值的拷贝；
+        因为 CommonJ 输出的值是一个静态值，而且这个值会被缓存到，所以每一次获取到的都是缓存值，改变原来的值，引用值不会改变。
+     2. CommonJS 模块是运行时加载；
+        因为 CommonJS 加载的是一个对象（即 module.exports 属性），该对象只有在脚本运行完才会生成。
+     3. CommonJS 模块的 require()是同步加载模块；
+   - ESM 模块：
+     1. 输出的是值的引用；
+        ESM 输出的是一个只读引用，模块不会缓存运行结果，而是动态地去“被加载的模块”取值，并且变量总是绑定其所在的模块。
+     2. ESM 模块是编译时输出接口；
+        ESM 模块不是对象，它的对外接口只是一种静态定义，在代码静态解析阶段就会生成。
+     3. ESM 模块的 import 命令是异步加载，有一个独立的模块依赖的解析阶段。
 
 ## 迭代与递归
 

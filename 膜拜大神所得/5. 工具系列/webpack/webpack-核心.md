@@ -6,13 +6,43 @@
 2. webpack : 是一个前端模块化方案，更侧重模块打包。
    我们可以把开发中的所有资源（图片、js 文件、css 文件等）都看成模块，通过 loader（加载器/转化器）和 plugins（插件--增强 webpack 功能）对资源进行处理，打包成符合生产环境部署的前端资源。
 
-   - compiler（编译器 对象）：webpack 启动时创建一个编译器对象（compiler）；
-   - compilation（编译 对象） ：只要有文件变化，就会调用（compilation）重新编译，走一个完整的生命周期；
+   - compiler（编译管理器）：webpack 启动后会创建 compiler 对象，该对象一直存活知道结束退出；
+   - compilation（单次编辑过程的管理器） ：比如 watch = true 时，运行过程中只有一个 compiler 但每次文件变更触发重新编译时，都会创建一个新的 compilation 对象;
+   - output：
 
-   - output：hash / chunkhash / contenthash
-     1、hash：和整个项目的构建有关；只要有文件更改，整个项目的 hash 值都会更改；
-     2、chunkhash：和 webapck 打包的 chunk 有关；不同的 entry 生成不懂的 chunkhash；
-     3、contenthash:根据文件内容来定义；文件内容不变，contenthash 不变；（js,css）分开
+     1. path:只是指输出的目录，对应一个绝对路径;例如 `path.resolve(_dirname, '../dist')`;
+
+     2. name:hash / chunkhash / contenthash
+        1、hash：和整个项目的构建有关；只要有文件更改，整个项目的 hash 值都会更改；
+        2、chunkhash：和 webpack 打包的 chunk 有关；不同的 entry 生成不懂的 chunkhash；
+        3、contenthash:根据文件内容来定义；文件内容不变，contenthash 不变；（js,css）分开；
+     3. publicPath ：该配置能帮助你为项目中的所有资源指定一个基础路径（指项目中引用 css，js，img 等资源时候的一个基础路径）；
+        静态资源最终访问路径 = output.publicPath + 资源 loader 或插件等配置路径
+
+        ```code
+            output.publicPath = '/dist/'
+            //-------------------------------------------------------------------
+            // image
+            options: {
+                name: 'img/[name].[ext]?[hash]'
+            }
+            // 最终图片的访问路径为
+            output.publicPath + 'img/[name].[ext]?[hash]' = '/dist/img/[name].[ext]?[hash]'
+            //---------------------------------------------------------------------------------
+            // js output.filename
+            output: {
+                filename: '[name].js'
+            }
+            // 最终js的访问路径为
+            output.publicPath + '[name].js' = '/dist/[name].js'
+            //----------------------------------------------------------------------
+            // extract-text-webpack-plugin css
+            new ExtractTextPlugin({
+                filename: 'style.[chunkhash].css'
+            })
+            // 最终css的访问路径为
+            output.publicPath + 'style.[chunkhash].css' = '/dist/style.[chunkhash].css'
+        ```
 
    - loader：转换文件，让 webpack 能识别并加载
 
