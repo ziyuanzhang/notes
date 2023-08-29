@@ -22,4 +22,10 @@ let buf2 = Buffer.allocUnsafe(10);
 let buf3 = Buffer.from("hello");
 console.log(buf); // <Buffer 68 65 6c 6c 6f>
 "hello": h对应的unicode为104;104 对应的十六进制为 68
+console.log(buf3[0])  //104，10进制
+console.log(buf3[0].toString(2)) //转换为2进制，这里的toString 进行数字转化的
+buf3[0]=361;//361:0001 0110 1001 =>0110 1001;高位舍弃；8位二进制最大是255，大于255的都被舍弃部分，造成溢出
+console.log(buf3)
+4、 buf4 = Buffer.from("你好");
+console.log(buf4) // <Buffer e4 bd a0 e5 a5 bd>  //utf-8的中文，每个中文占3个字节；
 ```
