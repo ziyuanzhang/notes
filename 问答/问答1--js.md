@@ -309,8 +309,9 @@ per.sayName(); //'Nicholas'    
 
 ## JS 中 prop 和 attr 的区别
 
-prop 方法: 对于元素本身就带有的固有属性
-attr 方法: 对于元素我们自己自定义的 DOM 属性
+prop(property) 方法: 对于元素本身就带有的固有属性(checked,selected等);property表示JS对象的属性
+attr(attribute) 方法: 对于元素我们自己自定义的 DOM 属性(id、class、data_id等);attribute表示HTML文档节点属性
+data()方法:把任意的值读取/存储到DOM元素对应的jq对象上
 
 ## 排序：参考计算机基础系列 / 数据结构与算法
 
