@@ -1,4 +1,4 @@
-# node--基础篇 2--模块
+# node--基础篇 2--模块 (原文:深入浅出 Node.js)
 
 ![](./img/模块-node与浏览器、W3C组织、commonJS组织、ECMAScript之间的关系.png)
 
