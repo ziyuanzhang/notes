@@ -179,6 +179,7 @@ Node 的核心模块在编译成可执行文件的过程中被编译进了二进
 
 2. 内建模块的导出
    内建模块（C/C++）-->核心模块（javaScript）-->文件模块
+
    ![依赖层级关系](./img/模块-依赖层级关系.png)
 
 在加载内建模块时，我们先创建一个 exports:空对象，然后调用 get_builtin_module()方法取出内建模块对象，通过执行 register_func()填充 exports 对象，最后将 exports 对象按模块名缀存，并返回给调用方完成导出。
@@ -196,6 +197,7 @@ NODE_MODULE(node_os,reg_func) --> get_builtin_module("node os") --> process.bind
 ## 模块调用
 
 文件模块、核心模块、内建模块、C/C++扩展模块 调用关系
+
 ![模块之间的调用关系](./img/模块-模块之间的调用关系.png)
 
 - JavaScript 核心模块的职责有两类：
