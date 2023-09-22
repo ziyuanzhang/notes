@@ -108,4 +108,4 @@ setTimeout()、setInterval()、setImmediate()、Process.nextTick()。
   Nginx 采用纯 C 写成，性能较高，仅适合于做 web 服务器；用于反向代理或负载均衡等服务；  
   node 则是一套高性能的平台，可以利用它构建与 Nginx 相同的功能，也可以处理各种具休业务，而且与背后的网络保持异步畅通。
 
-**注：** Nginx 在 Web 服务器方面更专业；node 事件驱动 + 异步 I/O
+**注：** Nginx 在 Web 服务器方面更专业；node 事件驱动 + 异步 I/O；
