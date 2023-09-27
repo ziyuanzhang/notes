@@ -1,7 +1,7 @@
 # 理解 buffer (原文:深入浅出 Node.js)
 
 无论是“宽字节”字符串还是“单字节”字符串 JS 都认为是一个字符串；其他语言不是。
-“宽字节”字符串：中文
+“宽字节”字符串：中文（宽字节编码 GBK、GB2312）
 “单字节”字符串：英文
 
 ```
@@ -108,3 +108,55 @@ Node 以 8KB 为界限来区分 Buffer 是大对象还是小对象：`Buffer.poo
    - 对于大块的 Buf 而言，则直接使用 C++层面提供的内存，而无需细腻的分配操作。
 
 ## Buffer 的转换
+
+buffer 对象和字符串相互转换，支持的字符串编码类型：ASCII、UTF-8、UTF-16LE/UCS-2、Base64、Binary、Hex；
+
+1. 字符串转 buffer:
+
+   - 通过构造函数转换 buffer 对象：`new Buffer(str, [encoding]);`，默认 UTF-8；
+   - 一个 Buffer 存不同类型的字符串：`buf.write(string, [offset], [length], [encoding])`【不建议】
+
+2. buffer 转字符串： `buf.toString([encoding], [start], [end])`，默认 utf-8；
+
+   buffer 支持的编码类型有限，判断是否支持类型：`Buffer.isEncoding(encoding) `，true 支持，false 不支持；  
+   中国常用的 GBK、GB2312 和 BIG-5 编码不支持；
+
+   不支持的编码类型转换：1、用 iconv（调 C++） 和 iconv-lite（纯 js） 两个模块转移编码类型，无法转移的多字节会产生乱码；
+
+   ```
+   var iconv = require('iconv-lite');
+   var str = iconv.decode(buf, 'win1251'); //buffer转字符串
+   var buf = iconv.encode("Sample input string", 'win1251'); // 字符串转buffer
+   ```
+
+## buffer 的拼接：
+
+```
+   var fs = require('fs');
+   var rs = fs.createReadStream('test.md');
+   var data = '';
+   rs.on("data", function (chunk){
+       data += chunk;
+   });
+   rs.on("end", function () {
+       console.log(data);
+   });
+```
+
+data 事件中获取的 chunk 对象是 Buffer 对象，不是字符串；
+`data += chunk; `隐藏了 toString()操作，等价于`data = data.toString() + chunk.toString();`
+
+对单字节（例英文）不会有问题；但对宽字节（例中文）有问题；
+`var rs = fs.createReadStream('test.md', {highWaterMark: 11}); `
+
+1. 乱码如何产生的：
+   中文在 UTF-8 下占 3 个字节，可能存在 buffer 最后不够 3 个字节 只能显示乱码；
+
+2. 解决方案：
+
+- 不完善 1、setEncoding()与 string_decoder()；（只能处理 UTF-8、Base64֖ 和 UCS-2/UTF-16LE 这 3 种编码）
+- 完善：
+
+  ```
+
+  ```
