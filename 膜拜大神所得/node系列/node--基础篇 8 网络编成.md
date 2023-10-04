@@ -113,7 +113,7 @@ Node 提供了 net、dgram、http、https 这 4 个模块，分别用于处理 T
    });
    ```
 
-socket.send(buf, offset, length, port, address, [callback])：要发送的 Buffer、Buffer 的偏移、Buffer 的长度、目标端口、目标地址、发送完成后的回调。
+   socket.send(buf, offset, length, port, address, [callback])：要发送的 Buffer、Buffer 的偏移、Buffer 的长度、目标端口、目标地址、发送完成后的回调。
 
 3. UDP 套接字事件
    UDP 套接字它只是一个 EventEmitter 的实例，而非 Stream 的实例。
