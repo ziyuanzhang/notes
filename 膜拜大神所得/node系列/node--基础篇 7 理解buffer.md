@@ -154,9 +154,28 @@ data 事件中获取的 chunk 对象是 Buffer 对象，不是字符串；
 
 2. 解决方案：
 
-- 不完善 1、setEncoding()与 string_decoder()；（只能处理 UTF-8、Base64֖ 和 UCS-2/UTF-16LE 这 3 种编码）
-- 完善：
-
+- 不完善 1、setEncoding()与 string_decoder()；（只能处理 UTF-8、Base64 和 UCS-2/UTF-16LE 这 3 种编码）
+- 完善：将多个小 Buffer 对象拼接为一个 Buffer 对象，然后通过 iconv-lite 一类的模块来转码这种方式。用一个数组来存储接收到的所有 Buffer 片段并记录下所有片段的总长度，然后调用 Buffer.concat()方法生成一个合并的 Buffer 对象。
+  ```
+    var iconv = require("iconv-lite");
+    var fs = require("fs");
+    var rs = fs.createReadStream("./test/test.md", { highWaterMark: 11 });
+    var chunks = [];
+    var size = 0;
+    rs.on("data", function (chunk) {
+      chunks.push(chunk);
+      size += chunk.length;
+    });
+    rs.on("end", function () {
+      var buf = Buffer.concat(chunks, size);
+      var str = iconv.decode(buf, "utf8");
+      console.log(str);
+    });
   ```
 
-  ```
+## Buffer 与性能
+
+Buffer 比“字符串”性能高
+在 Node 构建的 Web 应用中，可以选择将页面中的动态内容和静态内容分离；
+静态内容部分可以通过预光转换为 Bu 的方式，使性能得到提升。
+由于文件自身是二进制数据，所以在不需要改变内容的场景下，尽量只读取 Buffer,然后直接传输，不做额外的转换，避免损耗。
