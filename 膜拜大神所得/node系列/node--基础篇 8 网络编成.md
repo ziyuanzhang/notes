@@ -121,3 +121,5 @@ Node 提供了 net、dgram、http、https 这 4 个模块，分别用于处理 T
    - listening:当 UDP 套接字开始你听时触发该事件。
    - close:调用 close()方法时触发该事件，并不再触发 message 事件。如需再次触发 message 事件，重新绑定即可。
    - error:当异常发生时触发该事件，如果不侦听，异常将直接抛出，使进程退出。
+
+## HTTP
