@@ -6,6 +6,10 @@
 
 Node 提供了 net、dgram、http、https 这 4 个模块，分别用于处理 TCP、UDP、HTTP、HTTPS,适用于服务器端和客户端。
 
+- telnet 127.0.0.1 8124
+- nc -U /tmp/echo.sock
+- curl -v http://127.0.0.1:1337
+
 ## TCP
 
 1. 创建 TCP 服务端
@@ -123,3 +127,77 @@ Node 提供了 net、dgram、http、https 这 4 个模块，分别用于处理 T
    - error:当异常发生时触发该事件，如果不侦听，异常将直接抛出，使进程退出。
 
 ## HTTP
+
+- 从协议的角度来说，现在的应用，如浏览器，其实是一个 HTTP 的代理，用户的行为将会通过它转化为 HTTP 请求报文发送给服务器端，服务器端在处理请求后，发送响应报文给代理，代理在解析报文后，将用户需要的内容呈现在界面上。
+- 以浏览器打开一张图片地址为例：首光，浏览器构造 HTTP 报文发向图片服务器端：然后，服务器端判断报文中的要请求的地址，将磁盘中的图片文件以报文的形式发送给浏览器；浏览器接收完图片后，调用谊染引擎将其显示给用户。简而言之，HTTP 服务只做两件事情：处理 HTTP 请求和发送 HTTP 响应。
+- 无论是 HTTP 请求报文还是 HTTP 响应报文，报文内容都包含两个部分：报文头和报文体。
+- 下文的报文代码中>和<部分属于报文的头部，由于是 GET 请求，请求报文中没有包含报文体，响应报文中的 Hello World 即是报文体。
+
+```
+var http = require('http');
+http.createServer(function (req, res) {
+    res.writeHead(200, {'Content-Type': 'text/plain'});
+    res.end('Hello World\n');
+}).listen(1337, '127.0.0.1');
+console.log('Server running at http://127.0.0.1:1337/');
+//====================================================================
+$ curl -v http://127.0.0.1:1337
+* About to connect() to 127.0.0.1 port 1337 (#0)
+* Trying 127.0.0.1...
+* connected
+* Connected to 127.0.0.1 (127.0.0.1) port 1337 (#0)
+> GET / HTTP/1.1
+> User-Agent: curl/7.24.0 (x86_64-apple-darwin12.0) libcurl/7.24.0 OpenSSL/0.9.8r zlib/1.2.5
+> Host: 127.0.0.1:1337
+> Accept: */*
+>
+< HTTP/1.1 200 OK
+< Content-Type: text/plain
+< Date: Sat, 06 Apr 2013 08:01:44 GMT
+< Connection: keep-alive
+< Transfer-Encoding: chunked
+<
+Hello World
+* Connection #0 to host 127.0.0.1 left intact
+* Closing connection #0
+//==================================================
+第一部分内容为经典的TCP的3次握手过程，
+第二部分是在完成握手之后，客户端向服务器端发送请求报文，
+第三部分是服务器端完成处理后，向客户端发送响应内容，包括响应头和响应休，
+最后部分是结束会话的信总，
+```
+
+### http 模块
+
+在 Node 中，HTTP 服务继承自 TCP 服务器(net 模块)，它能够与多个客户端保持连接，由于其采用事件驱动的形式，并不为每一个连接创建额外的线程或进程，保持很低的内存占用，所以能实现高并发。
+
+HTTP 服务与 TCP 服务模型有区别的地方在于，在开启 keepalive 后，一个 TCP 会话可以用于多次请求和响应。TCP 服务以 connection 为单位进行服务，HTTP 服务以 request 为单位进行服务。http 模块即是将 connection 到 request 的过程进行了封装，
+
+除此之外，http 模块将连接所用套接字的读写抽象为 ServerRequest 和 ServerResponse 对象，它们分别对应请求和响应操作。在请求产生的过程中，htt 模块拿到连接中传来的数据，调用二进制模块 http_parser 进行解析，在解析完请求报文的报头后，触发 request 事件，周用用户的业务逻辑。
+
+1. HTTP 请求
+   - req.method 属性：常见的请求方法有 GET、PoST、DELETE、PUT、CONNECT 等几种；
+   - req.url 属性：值为/；
+   - req.httpVersion 属性：值为 1.1；
+   - 其余报头是很规律的 Key:Value 格式，被解析后放置在 req.headers 属性上；
+   - 报文体部分则抽象为一个只读流对象，如果业务逻辑需要读取报文体中的数据，则要在这个数据流结束后才能进行操作；
+   ```
+   function (req, res) {
+     // console.log(req.headers);
+     var buffers = [];
+     req.on('data', function (trunk) {
+     buffers.push(trunk);
+     }).on('end', function () {
+     var buffer = Buffer.concat(buffers);
+     // TODO
+     res.end('Hello world');
+     });
+    }
+   ```
+2. HTTP 响应
+   - 响应报文头部信息 API: res.setHeader() / res.writeHead() `res.writeHead(200, {'Content-Type': 'text/plain'}); `  
+     调用 setHeader 进行多次设置，但只有调用 writeHead 后，报头才会写入到连接中。除此之外，http 模块会自动帮你设置一些头信息
+   - 报文体部分则是调用 res.write()和 res.end()方法实现,
+     res.end()会先调用 res.write()发送数据，然后发送信号告知服务器这次响应结束，响应结束后，HTTP 服务器可能会将当前的连接用于下一个请求，或者关闭连接。
+   - 报头是在报文体发送前发送的，一旦开始了数据的发送，writeHead()和 setHeader()将不再生效。这由协议的特性决定。
+   - 无论服务器端在处理业务逻辑时是否发生异常，务必在结束时调用 res.end()结束请求，否则客户端将一直处于等待的状态。当然，也可以通过延迟 res.end()的方式实现客户端与服务器端之间的长连接，但结束时务必关闭连接。
