@@ -399,3 +399,67 @@ Node 在网络安全上提供了 3 个模块，分别为 crypto、tls、https。
    ```
 
    启动客户端的过程中，用到了为客户端生成的私钥、证书、CA 证书。客户端启动之后可以 在输入流中输入数据，服务器端将会回应相同的数据。
+
+## HTTPS 服务
+
+准备证书
+
+1. 创建 HTTPS 服务
+
+   ```
+   var https = require("https");
+   var fs = require("fs");
+   var options = {
+     key: fs.readFileSync("./keys/server.key"),
+     cert: fs.readFileSync("./keys/server.crt")
+   };
+   https
+     .createServer(options, function (req, res) {
+       res.writeHead(200);
+       res.end("hello world\n");
+     })
+     .listen(8000);
+   ```
+
+   启动之后通过 cul 进行测试，相关代码如下所示：  
+   `curl https://localhost:8000/`
+
+   由于是自签名的证书，curl 工具无法验证服务器端证书是否正确，所以出现抛错;
+
+   解决问题有两种方式:
+
+   - 一种是加-k 选项，让 c 工具忽略掉证书的验证，这样的结果是数据依然会通过公钥加密传输，但是无法保证对方是可靠的，会存在中间人攻击的潜在风险。  
+     `curl -k https://localhost:8000/`
+   - 另一种解决的方式是给 curl 设置-cacert 选项，告知 CA 证书使之完成对服务器证书的验证;  
+     `$ curl --cacert keys/ca.crt https://localhost:8000/ `
+
+2. HTTPS 客户端
+
+```
+var https = require("https");
+var fs = require("fs");
+var options = {
+   hostname: "localhost",
+   port: 8000,
+   path: "/",
+   method: "GET",
+   key: fs.readFileSync("./keys/client.key"),
+   cert: fs.readFileSync("./keys/client.crt"),
+   ca: [fs.readFileSync("./keys/ca.crt")]
+};
+options.agent = new https.Agent(options);
+var req = https.request(options, function (res) {
+   res.setEncoding("utf-8");
+   res.on("data", function (d) {
+     console.log(d);
+   });
+});
+req.end();
+req.on("error", function (e) {
+   console.log(e);
+});
+```
+
+执行上面的操作得到以下输出：node client.js  
+如果不设置 ca 选项，将会得到如下异常：[Error:UNABLE TO VERIFY LEAF SIGNATURE]  
+解决该异常的方案是添加选项属性 rejectUnauthorized 为 false,它的效果与 curl 工具加-k 一样，都会在数据传输过程中会加密，但是无法保证服务器端的证书不是伪造的。
