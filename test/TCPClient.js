@@ -14,16 +14,3 @@ client.on("data", function (data) {
 client.on("end", function () {
   console.log("client-end:" + Date.parse(new Date()));
 });
-
-
-function (req, res) {
-  // console.log(req.headers);
-  var buffers = [];
-  req.on('data', function (trunk) {
-  buffers.push(trunk);
-  }).on('end', function () {
-  var buffer = Buffer.concat(buffers);
-  // TODO
-  res.end('Hello world');
-  });
- }

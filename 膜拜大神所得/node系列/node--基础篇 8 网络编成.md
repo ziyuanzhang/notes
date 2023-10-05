@@ -195,9 +195,207 @@ HTTP 服务与 TCP 服务模型有区别的地方在于，在开启 keepalive �
     }
    ```
 2. HTTP 响应
+
    - 响应报文头部信息 API: res.setHeader() / res.writeHead() `res.writeHead(200, {'Content-Type': 'text/plain'}); `  
      调用 setHeader 进行多次设置，但只有调用 writeHead 后，报头才会写入到连接中。除此之外，http 模块会自动帮你设置一些头信息
    - 报文体部分则是调用 res.write()和 res.end()方法实现,
      res.end()会先调用 res.write()发送数据，然后发送信号告知服务器这次响应结束，响应结束后，HTTP 服务器可能会将当前的连接用于下一个请求，或者关闭连接。
    - 报头是在报文体发送前发送的，一旦开始了数据的发送，writeHead()和 setHeader()将不再生效。这由协议的特性决定。
-   - 无论服务器端在处理业务逻辑时是否发生异常，务必在结束时调用 res.end()结束请求，否则客户端将一直处于等待的状态。当然，也可以通过延迟 res.end()的方式实现客户端与服务器端之间的长连接，但结束时务必关闭连接。
+   - 无论服务器端在处理业务逻辑时是否发生异常，务必在结束时调用 res.end()结束请求，否则客户端将一直处于等待的状态。当然，也可以通过延迟 res.end()的方式实现客户端与服务器端之间的长连接，但结束时`务必关闭连接`。
+
+### HTTP 服务的事件
+
+- connection 事件：TCP 连接建立时，服务器触发一次 connection 事件。
+- request 事件：在解析出 HTTP 请求头后，将会触发该事件。
+- close 事件：与 TCP 服务器的行为一致，调用 server.close()方法停止接受新的连接，当已有的连接都断开时，触发该事件
+- checkContinue 事件：某些客户端在发送较大的数据时，并不会将数据直接发送，而是先发送一个头部带 Expect:1o0-continue 的请求到服务器，服务器将会触发 checkContinue 事件：
+  1.  如果没有为服务器监听这个事件，服务器将会自动响应客户湍 100 Continue 的状态码，表示接受数据上传；
+  2.  如果不接受数据的较多时，响应客户端 400 Bad Request 拒绝客户端继续发送数据即可。
+  3.  **注**当该事件发生时不会触发 request 事件，两个事件之间互斥。当客户端收到 1o0 Continue/后重新发起请求时，才会触发 request 事件 。
+- connect 事件：当客户带发起 CONNECT 请求时发，而发起 CONNECT 请求通常在 HTTP 代理时出现；如果不监听该事件，发起该请求的连接将会关闭。
+- upgrade 事件：当客户端要求升级连接的协议时，需要和服务器端协商，客户端会在请求头中带上 Upgrade 字段，服务器端会在接收到这样的请求时触发该事件。
+- clientError 事件：连接的客户端触发 error 事件时，这个错误会传递到服务器端，此时触发该事件。
+
+### HTTP 客户端
+
+http 模块提供了一个底层 API:http.request(options,connect),用于构造 HTTP 客户端。
+
+```
+var options = {
+  hostname: "127.0.0.1",
+  port: 1334,
+  path: "/",
+  method: "GET"
+};
+var req = http.request(options, function (res) {
+  console.log("STATUS: " + res.statusCode);
+  console.log("HEADERS: " + JSON.stringify(res.headers));
+  res.setEncoding("utf8");
+  res.on("data", function (chunk) {
+    console.log(chunk);
+  });
+});
+req.end();
+```
+
+options 参数：
+
+- host: 服务器的域名或 IP 地址，默认为 localhost;
+- hostname: 服务器名称;
+- port: 服务器端口，默认为 80;
+- localAddress: 建立网络连接的本地网卡;
+- socketPath: Domain 套接字路径;(Domain 标识指定了哪些主机可以接受 Cookie,例如 Domain=http://mozilla.org)
+- method: HTTP 请求方法，默认为 GET;
+- path: 请求路径，默认为/;
+- headers: 请求头对象;
+- auth: Basic 认证，这个值将被计算成请求头中的 Authorization 部分;
+
+报文体的内容由请求对象的 write()和 end()方法实现：
+
+- 通过 write()方法向连接中写入数据;
+- 通过 end()方法告知报文结束;
+
+1. HTTP 响应
+2. HTTP 代理
+   为了重用 TCP 连接，http 模块包含一个默认的客户端代理对象 http.globalAgent。它对每个服务器端(host+port)创建的连接进行了管理，默认情况下，通过 ClientRequest 对象对同一个服务器端发起的 HTTP 请求最多可以创建 5 个连接。
+   它的实质是一个连接池：  
+   ![网络-http代理](./img/网络-http代理.png)
+
+3. HTTP 客户端事件
+
+   - response:与服务器端的 request 事件对应的客户端在请求发出后得到服务器端响应时，会触发该事件。
+   - socket:当底层连接池中建立的连接分配给当前请求对象时，触发该事件。
+   - connect:当客户端向服务器端发起 CONNECT 请求时，如果服务器端响应了 200 状态码，客户端将会触发该事件。
+   - upgrade:客户端向服务器端发起 Upgrade 请求时，如果服务器端响应了 101 SwitchingProtocols 状态，客户端将会触发该事件。
+   - continue:客户端向服务器端发起 Expect:100-continue 头信息，以试图发送较大数据量，如果服务器端响应 100 Continue 状态，客户端将触发该事件。
+
+## WebSocket
+
+WebSocket 更接近于传输层协议，它并没有在 HTTP 的基础上模拟服务器端的推送，而是在 TCP 上定义独立的协议。
+WebSocket 协议主要分为两个部分：握手和数据传输。
+WebSocket 的握手部分是由 HTTP 完成的。
+
+1. 客户端建立连接时，通过 HTTP 发起请求报文:
+
+   - GET /chat HTTP/1.1
+   - Host: server.example.com
+   - Upgrade: websocket //==请求服务器端升级协议为 WebSocket
+   - Connection: Upgrade //==请求服务器端升级协议为 WebSocket
+   - Sec-WebSocket-Key: dGhlIHNhbXBsZSBub25jZQ== //==用于安全校验：
+   - Sec-WebSocket-Protocol: chat, superchat //==指定子协议
+   - Sec-WebSocket-Version: 13 //==子协议版本号
+
+Sec-WebSocket-Key 的值是随机生成的 Base64 编码的字符串。服务器端接收到之后将其与字符串 258EAFA5-E914-47DA-95CA-C5AB0DC85B11 相连，形成字符串 dGh1 IHNhbXBsZSBub.25jZ0=258EAFA5-E914-47DA-95CA-C5AB0DC85B11,然后通过 sha1 安全散列算法计算出结果后，再进行 Bse64 编码，最后返回给客户端。
+
+2. 服务器端在处理完请求后，响应如下报文：
+
+   - HTTP/1.1 101 Switching Protocols //==告之客户端正在更换协议
+   - Upgrade: websocket //==更新应用层协议为 websocket 协议,并在当前的套接字连接上应用新协议。
+   - Connection: Upgrade //==
+   - Sec-WebSocket-Accept: s3pPLMBiTxaQ9kYGzzhZRbK+xOo= //==服务器端基于 Sec-WebSocket-Key 生成的字符串
+   - Sec-WebSocket-Protocol: chat //==选中的子协议
+
+   ![网路-websocket协议升级过程](./img/网路-websocket协议升级过程.png)
+
+### websocket 数据传输
+
+```
+var socket = new WebSocket("ws://127.0.0.1:12010/updates");
+socket.onopen = function () {
+  setInterval(function () {
+     if (socket.bufferedAmount == 0) socket.send(getUpdateData());
+  }, 50);
+};
+socket.onmessage = function (event) {
+  // TODO：event.data
+};
+```
+
+在握手顺利完成后，当前连接将不再进行 HTTP 的交互，而是开始 WebSocket 的数据帧协议，实现客户端与服务器端的数据交换。  
+握手完成后，客户端的 onopen()将会被触发执行。
+
+当客户端调用 send()发送数据时，服务器端触发 onmessage()；  
+当服务器端调用 send()发送数据时，客户端的 onmessage()触发。  
+当我们调用 send()发送一条数据时，协议可能将这个数据封装为一帧或多帧数据，然后逐帧发送。
+
+## 网络服务与安全
+
+最初网景公司的浏览器提出了 SSL（Secure Sockets Layer，安全套接层），最初的 SSL 应用在 Web 上，被服务器端和浏览器端同时支持，随后 ETF 将其标准化，称为 TLS(Transport Layer Security,安全传输层协议)。
+
+Node 在网络安全上提供了 3 个模块，分别为 crypto、tls、https。
+
+- crypto:主要用于加密解密，SHA1、MD5 等加密算法都在其中有体现。
+- tls 模块提供了与 net 模块类似的功能，区别在于它建立在 TLS/SSL 加密的 TCP 连接上。
+- https 模块，它完全与 http 模块接口一致，区别也仅在于它建立于安全的连接之上。
+
+1. TLS/SSL
+
+   TLS/SSL 是一个公钥/私钥的结构，它是一个非对称的结构；  
+   为了解决“公私钥的非对称加密”被窃听的情况（例：中间人攻击）TLS/SSL 引入了“数字证书”来进行认证。  
+   数字证书中包含了：服务器的名称和主机名、服务器的公钥、签名颁发机构的名称、来自签名颁发机构的签名。
+
+2. 数字证书
+
+   为了确保我们的数据安全，现在我们引入了一个第三方：CA(Certificate Authority,数字证书认证中心)。CA 的作用是为站点颁发证书，且这个证书中具有 CA 通过自己的公钥和私钥实现的签名。
+
+   如果是知名的 CA 机构，它们的证书一般预装在浏览器中。  
+   如果是自己扮演 CA 机构，预发自有签名证书则不能享受这个福利，客户端需要获取到 CA 的证书才能进行验证。  
+   CA 那里的证书是不需要上级证书参与签名的，这个证书我们通常称为根证书。
+
+## TLS 服务（TCP 的加密服务）
+
+1. 创建 TLS 服务端
+
+   ```
+   var tls = require("tls");
+   var fs = require("fs");
+   var options = {
+        key: fs.readFileSync("./keys/server.key"),
+        cert: fs.readFileSync("./keys/server.crt"),
+        requestCert: true,
+        ca: [fs.readFileSync("./keys/ca.crt")]
+   };
+   var server = tls.createServer(options, function (stream) {
+        console.log("server connected", stream.authorized ? "authorized" : "unauthorized");
+        stream.write("welcome!\n");
+        stream.setEncoding("utf8");
+        stream.pipe(stream);
+   });
+   server.listen(8000, function () {
+        console.log("server bound");
+   });
+   ```
+
+   启动上述服务后，通过下面的命令可以测试证书是否正常：
+   openssl s_client -connect 127.0.0.1:8000
+
+2. TLS 客户端  
+   // 创建私钥  
+   $ openssl genrsa -out client.key 1024  
+   // 生成 CSR  
+   $ openssl req -new -key client.key -out client.csr  
+   // 生成签名证书  
+   $ openssl x509 -req -CA ca.crt -CAkey ca.key -CAcreateserial -in client.csr -out client.crt
+
+   ```
+   var tls = require("tls");
+   var fs = require("fs");
+   var options = {
+      key: fs.readFileSync("./keys/client.key"),
+      cert: fs.readFileSync("./keys/client.crt"),
+      ca: [fs.readFileSync("./keys/ca.crt")]
+   };
+   var stream = tls.connect(8000, options, function () {
+      console.log("client connected", stream.authorized ? "authorized" : "unauthorized");
+      process.stdin.pipe(stream);
+   });
+   stream.setEncoding("utf8");
+   stream.on("data", function (data) {
+      console.log(data);
+   });
+   stream.on("end", function () {
+      server.close();
+   });
+   ```
+
+   启动客户端的过程中，用到了为客户端生成的私钥、证书、CA 证书。客户端启动之后可以 在输入流中输入数据，服务器端将会回应相同的数据。
