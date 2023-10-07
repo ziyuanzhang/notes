@@ -23,3 +23,18 @@ rs.on("end", function () {
   var str = iconv.decode(buf, "utf8");
   console.log(str);
 });
+
+function a(req, res) {
+  if (hasBody(req)) {
+    var buffers = [];
+    req.on("data", function (chunk) {
+      buffers.push(chunk);
+    });
+    req.on("end", function () {
+      req.rawBody = Buffer.concat(buffers).toString();
+      handle(req, res);
+    });
+  } else {
+    handle(req, res);
+  }
+}
