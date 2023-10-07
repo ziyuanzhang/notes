@@ -1,4 +1,4 @@
-# 构建 web 应用--报文头 (原文:深入浅出 Node.js)
+# 构建 web 应用---报文头 (原文:深入浅出 Node.js)
 
 而本章的 Web 应用方面的内容，将从 http 模块中服务器端的 request 事件开始分析。  
 request 事件发生于网络连接建立，客户端向服务器端发送报文，服务器端解析报文，发现 HTTP 请求的报头时。在已触发 request 事件前，它已准备好 ServerRequest 和 ServerResponse 对象以供对请求和响应报文的操作。
