@@ -209,5 +209,3 @@ HTTP_Parser 会将所有的报文字段解析到 req.headers 上，那么 Cookie
 大多少缓存只应用在 GET 请求中，post、delete、put 这类带`行为性`的请求一般不做缓存；
 
 ## Basic 认证 ---》缺点太多
-
-## 数据上传
