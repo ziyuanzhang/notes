@@ -83,3 +83,51 @@ res.render = function (view, data) {
 ```
 
 ## 模板
+
+模板技术实质就是将模板文件和数据通过模板引擎生成最终的 HTML 代码。形成模板技术的也就如下 4 个要素。
+
+- 模板语言。
+- 包含模板语言的模板文件。
+- 拥有动态数据的数据对象。
+- 模板引擎。
+
+模板技术干的实际上是拼接字符串这样很底层的活;模板+数据通过`模板引擎`的执行,得到最终的 HTL 字符串。
+
+1. 模板引擎
+   实现一个简单的模板引擎，步骤：
+
+- 语法分解。（提取出普通字符串和表达式，这个过程通常用正则表达式匹配出来，<%=%>的正则表达式为/<%=([八 sS]+?)%>/g）
+- 处理表达式。（将标签表达式转换成普通的语言表达式）
+- 生成待执行的语句。
+- 与数据一起执行，生成最终字符串。
+
+```JavaScript的new Function
+let func = new Function ([arg1, arg2, …argN], functionBody);
+最后一个参数必须是函数体，其余参数作为传递给函数体的参数。
+//----------------------------
+str.replace(pattern, replacement)
+pattern: “字符串”或者“正则表达式”;
+replacement:“字符串”或者“函数”;
+//--------------------------------
+var complie = function (str) {
+  // 模板技术就是替换特殊标签的技术
+  var tpl = str.replace(/< =([ % \s\S]+?) >/g, function (match, code) {
+    return "' + obj." + code + "+ '";
+  });
+  tpl = "var tpl = '" + tpl + "'\n return tpl;";
+  return new Function("obj", tpl);
+};
+//function (obj) {
+//   var tpl = 'Hello ' + obj.username + '.';
+//   return tpl;
+//}
+var render = function (complied, data) {
+  return complied(data);
+};
+//-----调用模板函数-----------------------
+var tpl = "Hello < =username >.";
+console.log(render(complie(tpl), { username: "Jackson Tian" }));
+// => Hello Jackson Tian.
+```
+
+将原始的模板字符串转换成一个函数对象的过程称为模板编译
