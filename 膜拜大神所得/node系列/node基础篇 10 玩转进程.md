@@ -137,3 +137,11 @@ process.on("message", function (m, server) {
 主进程发送完句柄并关闭监听，会发现，多个子进程可以同时监听相同端口，再没有 `EADDRINUSE`异常发生了。
 
 1. 句柄发送与还原
+
+   目前子进程对象 send()方法可以发送的句柄类型包括如下几种。
+
+- net.Socket。TCP 套接字。
+- net.Server。TCP 服务器，任意建立在 TCP 服务上的应用层服务都可以享受到它带来的好处。
+- net.Native。C++层面的 TCP 套接字或 PC 管道。
+- dgram..Socket。UDP 套接字。
+- dgram.Native.。C+层面的 UDP 套接字。
