@@ -96,3 +96,46 @@ process.send({foo: 'bar'});
   **注：**只有启动的子进程是 Node 进程时，子进程才会根据环境变量去连接 PC 通道，对于其他类型的子进程则无法实现进程间通信，除非其他进程地按约定去连接这个已经创建好的 PC 通道。
 
 ## 句柄传递
+
+传统代理：
+
+![主进程接收、分配网络请求](./img/玩转进程-主进程接收、分配网络请求.png)
+
+传统问题：通过代理，可以避免端口不能重复监听的问题，甚至可以在代理进程上做适当的负载均衡，使得每个子进程可以较为均衡地执行任务。  
+由于进程每接收到一个连接，将会用掉一个文件描述符，因此代理方案中客户端连接到代理进程，代理进程连接到工作进程的过程需要用掉两个文件描述符。操作系统的文件描述符是有限的，代理方案浪费掉一倍数量的文件描述符的做法影响了系统的扩展能力。
+
+send()方法除了能通过 IPC 发送数据外，还能发送句柄，第二个可选参数就是句柄:`child.send(message, [sendHandle])`
+
+句柄是一种可以用来标识资源的引用，它的内部包含了指向对象的文件描述符。比如句柄可以用来标识一个服务器端 socket 对象、一个客户端 socket 对象、一个 UDP 套接字、一个管道等。
+
+发送句柄意味着什么？在前一个问题中，我们可以去掉代理这种方案，使主进程接收到 socket 请求后，将这个 socket]直接发送给工作进程，而不是重新与工作进程之间建立新的 socket 连接来转发数据。文件描述符浪费的问题可以通过这样的方式轻松解决。
+
+```
+//----主进程----------------
+var child = require("child_process").fork("child.js");
+// Open up the server object and send the handle
+var server = require("net").createServer();
+server.on("connection", function (socket) {
+  socket.end("handled by parent\n");
+});
+server.listen(1337, function () {
+  child.send("server", server);
+});
+//-----子进程---------------
+process.on("message", function (m, server) {
+  if (m === "server") {
+    server.on("connection", function (socket) {
+      socket.end("handled by child\n");
+    });
+  }
+});
+// 示例中直接将一个TCP服务器发送给了子进程。====== 子进程和主进程都会响应
+```
+
+![主进程将请求发给工作进程](./img/玩转进程-主进程将请求发给工作进程.png)
+
+主进程发送完句柄并关闭监听，会发现，多个子进程可以同时监听相同端口，再没有 `EADDRINUSE`异常发生了。
+
+![主进程发送完句柄并关闭监听后的结构](./img/玩转进程-主进程发送完句柄并关闭监听后的结构.png)
+
+1. 句柄发送与还原
