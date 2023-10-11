@@ -145,3 +145,62 @@ process.on("message", function (m, server) {
 - net.Native。C++层面的 TCP 套接字或 PC 管道。
 - dgram..Socket。UDP 套接字。
 - dgram.Native.。C+层面的 UDP 套接字。
+
+![句柄的发送与还原](./img/玩转进程-句柄的发送与还原.png)
+
+2. 端口共同监听
+
+   为什么，多个进程可以监听到相同的端口而不引起 EADDRINUSE 异常。  
+   独立启动的进程互相之间并不知道文件描述符，所以监听相同端口时就会失败。但对于 sed()发送的句柄还原出来的服务而言，它们的文件描述符是相同的，所以监听相同端口不会引起异常。
+
+   多个应用监听相同端口时，文件描述符同一时间只能被某个进程所用。换言之就是网络请求向服务器端发送时，只有一个幸运的进程能够抢到连接，也就是说只有它能为这个请求进行服务。
+
+## 集群稳定之路
+
+1. 进程事件
+   子进程事件：
+   - send();
+   - message();
+   - error:当子进程无法被复制创建、无法被杀死、无法发送消息时会触发该事件。
+   - exit:子进程退出时触发该事件;
+     子进程如果是正常退出，这个事件的第一个参数为退出码，否则为 null。
+     如果进程是通过 kill()方法被杀死的，会得到第二个参数，它表示杀死进程时的信号。
+   - close:在子进程的标准输入输出流中止时触发该事件，参数与 exit 相同。
+   - disconnect:在父进程或子进程中调用 disconnect()方法时触发该事件，在调用该方法时将关闭监听 PC 通道。
+
+还能通过 kill()方法给子进程发送消息。kill()方法并不能真正地将通过 PC 相连的子进程杀死，它只是给子进程发送了一个系统信号。默认情况下，父进程将通过 kill()方法给子进程发送一个 SIGTE 州信号。它与进程默认的 kill()方法类似，
+子进程：`child.kill([signal]);` 当前进程`process.kill(pid, [signal]);`
+
+每个信号事件有不同的含义，进程在收到响应信号时，应当做出约定的行为，如 SIGTERM 是软件终止信号，进程收到该信号时应当退出。
+
+```
+process.on('SIGTERM', function() {
+ console.log('Got a SIGTERM, exiting...');
+ process.exit(1);
+});
+console.log('server running with PID:', process.pid);
+process.kill(process.pid, 'SIGTERM');
+```
+
+2. 自动重启
+   - 自杀信号
+   - 限量重启
+3. 负载均衡
+4. 状态共享
+
+## Cluster 模块
+
+cluster 模块就是 child_process 和 net 模块的组合应用。  
+cluster 启动时，它会在内部启动 TCP 服务器，在 cluster.fork()子进程时，将这个 TCP 服务器端 socketf 的文件描述符发送给工作进程。  
+如果进程是通过 cluster.fork()复削出来的，那么它的环境变量里就存在 NODE_UNIOUE_ID,如果工作进程中存在 listen()侦听网络端口的调用，它
+将拿到该文件描述符，通过 S0_REUSEADDR 端口重用，从而实现多个子进程共享端口。  
+对于普通方式启动的进程，则不存在文件描述符传递共享等事情。
+
+1. Cluster 事件
+
+- fork:复制一个工作进程后触发该事件。
+- online:复制好一个工作进程后，工作进程主动发送一条 onlinei 消息给主进程，主进程收到消息后，触发该事件。
+- listening:工作进程中调用 listen()(共享了服务器端 Socket)后，发送一条 listening 消息给主进程，主进程收到消息后，触发该事件。
+- disconnect:主进程和工作进程之间 PC 通道断开后会触发该事件。
+- exit:有工作进程退出时触发该事件。
+- setup:cluster.setupMaster()执行后触发该事件。
