@@ -24,3 +24,13 @@ rs.on("end", function () {
   console.log(str);
 });
 //--------------------------------------------
+const num = 4;
+let arr = [];
+for (let i = 0; i < num; i++) {
+  if (!arr[i - 1] || !arr[i - 2]) {
+    arr[i] = 1;
+  } else {
+    arr[i] = arr[i - 1] + arr[i - 2];
+  }
+}
+console.log(arr);
