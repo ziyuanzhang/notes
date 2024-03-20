@@ -1,6 +1,19 @@
 # vue
 
-Nginx + vue 的 history： try_files $uri $uri/ /blog/index.html;
+1. Nginx + vue 的 history： try_files $uri $uri/ /blog/index.html;
+2. Nginx + react 的 history：
+
+```
+1、
+  location /XXX/ {
+        try_files $uri $uri/ /XXX/index.html;
+        root /geelyapp/web/;
+        index index.html;
+  }
+2、路由添加 basename:
+      * "/XXX" ---【<Link to="/" />; // results in <a href="/app" />】
+      * "/XXX/"---【<Link to="/" />; // results in <a href="/app/" />】
+```
 
 - 单页面初次加载过大：1.预渲染 2.单独渲染 3.服务端渲染 4.webpack 懒加载
 
