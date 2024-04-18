@@ -7,7 +7,7 @@
 1、nginx中：
   location /XXX/ {
         try_files $uri $uri/ /XXX/index.html;
-        root /geelyapp/web/;
+        root /html/;
         index index.html;
   }
 
