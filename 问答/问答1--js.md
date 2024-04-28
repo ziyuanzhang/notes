@@ -166,9 +166,9 @@ js 代码出现栈溢出错误: 通常是由于递归调用或者嵌套函数调
 
 ## null / undefined
 
-null:空值(变量没有值)
-undefined:变量未持有值(只声明未赋值/或者=未赋值的变量)
-typeof bb(bb 未声明，返回 undefined)
+null：空值(变量没有值)
+undefined：变量未持有值(只声明未赋值/或者=未赋值的变量)
+typeof bb -->(bb 未声明，返回 undefined)
 
 ## js 继承 <https://www.cnblogs.com/humin/p/4556820.html>
 
