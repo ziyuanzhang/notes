@@ -37,7 +37,7 @@
 1. typeof：获取变量类型；
 2. keyof：将类型的键联合起来；type P = "x" | "y"；
 3. in: 用来遍历枚举类型;
-4. as: 映射;
+4. as: 类型断言 -- 针对联合类型；
 5. 泛型:
 6. extends: 继承，`function longest<Type extends { length: number }>(a: Type, b: Type) {}`
 7. Partial<Type>: 把类型 Type 的所有属性设置为可选；
@@ -149,7 +149,7 @@ interface Person{
 
 interface 与 type 相同点：
 
-- 都可以米阿叔一个对象或函数
+- 都可以声明一个对象或函数
 - 都允许进行扩展
 
 interface 与 type 不同点：
@@ -182,8 +182,6 @@ class DigitalClock implements IClock{
     }
 }
 ```
-
-#### 类型断言 --- 针对联合类型
 
 #### 类型确定
 
