@@ -65,6 +65,16 @@ let、const 申明的变量不会被提升。在 js 引擎编译后，会保存�
   2. 函数.apply(对象，[arg1,arg2,...])  ----->会自执行
   3. var ss=函数.bind(对象,arg1,arg2,....)   ----->不会自执行，需要调用
 
+## 栈、堆、队列之间的区别是？
+
+动态语言：在使用时需要检查数据类型的语言。  
+弱类型语言：支持隐式转换的语言。
+
+1. 栈：基本数据类型，上下文切换之后，栈顶的空间会自动被回收（像 桶 先进后出）
+2. 堆：引用数据类型，需要垃圾回收机制不定时回收；变量存储的是指针，指向堆中（书架中的书，知道书名就可以拿到书，可以无序）
+3. 队列只能在队头做删除操作,在队尾做插入操作。（先进先出）
+   理解队列数据结构的目的主要是为了清晰的明白事件循环机制
+
 ## 调用栈：为什么 js 代码会出现栈溢出
 
 js 代码出现栈溢出错误: 通常发生在递归调用过深或者无限循环的情况下。
@@ -82,16 +92,6 @@ js 代码出现栈溢出错误: 通常发生在递归调用过深或者无限循
   5. 闭包函数：如果当前函数是一个闭包，执行上下文对象中还会包含闭包的引用和相关信息。
 
 当函数执行完毕后，执行上下文对象将被销毁，从执行栈中弹出。但是，如果函数是一个闭包并且被外部引用，它的执行上下文可能会被保留在内存中，以供后续访问和使用。
-
-## 栈、堆、队列之间的区别是？
-
-动态语言：在使用时需要检查数据类型的语言。
-弱类型语言：支持隐式转换的语言。
-
-1. 栈：基本数据类型，上下文切换之后，栈顶的空间会自动被回收（像 桶 先进后出）
-2. 堆：引用数据类型，需要垃圾回收机制不定时回收；变量存储的是指针，指向堆中（书架中的书，知道书名就可以拿到书，可以无序）
-3. 队列只能在队头做删除操作,在队尾做插入操作。（先进先出）
-   理解队列数据结构的目的主要是为了清晰的明白事件循环机制
 
 ## 作用域 / 作用域链
 
@@ -113,9 +113,9 @@ js 代码出现栈溢出错误: 通常发生在递归调用过深或者无限循
 
 1. 我们创建的每一个函数，js 引擎会为函数添加一个  prototype  属性，该属性指向一个对象。这个对象就是我们所说的原型。
 
-2. 查找对象的某个属性，如果对象本身没有，会通过`_proto`去它的构造函数的 prototype（原型对象）中查找；如果还没有找到，会继续通过原型对象的`_proto_`去【原型对象的原型】中查找，直到 Object.prototype 对象为止，这样就形成一个链式结构,  即原型链。
+2. 查找对象的某个属性，如果对象本身没有，会通过`__proto__`去它的构造函数的 prototype（原型对象）中查找；如果还没有找到，会继续通过原型对象的`__proto__`去【原型对象的原型】中查找，直到 Object.prototype 对象为止，这样就形成一个链式结构,  即原型链。
 
-3. 每个对象都有*proto*属性，但只有函数对象才有 prototype 属性
+3. 每个对象都有`__proto__`属性，但只有函数对象才有 prototype 属性
 
 ## constructor /prototype /`__proto__`   <https://www.jianshu.com/p/dee9f8b14771>
 
@@ -141,19 +141,21 @@ js 代码出现栈溢出错误: 通常发生在递归调用过深或者无限循
 ## typeof / Object.prototype.toString.call / instanceof
 
 1. typeof
-   基本类型，除 null 以外，均可以返回正确的结果；对于 null ，返回 object 类型。
-   引用类型，除 function 以外，一律返回 object 类型；对于 function 返回  function 类型。
-   //typeof (object、Function、Array、Date、Number、String、Bootlean)-->结果是:funciton
 
-2. Object.prototype.toString:判断某个对象属于哪种内置类型；但不能判断自定义类型.
+   - 基本类型，除 null 以外，均可以返回正确的结果；对于 null ，返回 object 类型。
+   - 引用类型，除 function 以外，一律返回 object 类型；对于 function 返回  function 类型。  
+     //typeof (object、Function、Array、Date、Number、String、Bootlean)-->结果是:funciton
+
+2. Object.prototype.toString:判断某个对象属于哪种内置类型；但不能判断自定义类型.  
    Object.prototype.toString.call(null); // "[object Null]"-- [Object type]，其中 type 为对象的类型。
 
-3. instanceof：检测构造函数的 prototype 属性是否出现在某个实例对象的原型链上。  
-   1.自定义类型; 2.只能用来判断对象类型，原始类型不可以。并且所有对象类型 instanceof Object 都是 true。
-   [] instanceof Array; // true; ------ [] instanceof Object; // true
-     //语法：object instanceof constructor ，
-     参数：object（实例对象）constructor（构造函数）
-   console.log(person instanceof Person); // true
+3. instanceof：检测构造函数的 prototype 属性是否出现在某个实例对象的原型链上。
+
+   - 1.自定义类型; 2.只能用来判断对象类型，原始类型不可以。并且所有对象类型 instanceof Object 都是 true。
+   - [] instanceof Array; // true; ------ [] instanceof Object; // true
+   - //语法：object instanceof constructor ，
+   - 参数：object（实例对象）constructor（构造函数）
+   - console.log(person instanceof Person); // true
 
 4. Array.isArray()方法。  Array.isArray([1, 2, 3]); // true
 
@@ -166,9 +168,9 @@ js 代码出现栈溢出错误: 通常发生在递归调用过深或者无限循
 
 ## null / undefined
 
-null：空值(变量没有值)
-undefined：变量未持有值(只声明未赋值/或者=未赋值的变量)
-typeof bb -->(bb 未声明，返回 undefined)
+- null：空值(变量没有值)
+- undefined：变量未持有值(只声明未赋值,或者=未赋值的变量)
+- typeof bb -->(bb 未声明，返回 undefined)
 
 ## js 继承 <https://www.cnblogs.com/humin/p/4556820.html>
 
@@ -206,9 +208,10 @@ JavaScript 代码的执行过程中，除了依靠“函数调用栈”来搞定
 ## js defer 和 async 区别
 
 defer(延迟脚本):立即下载，初始的 HTML 文档解析完成再执行（DOMContentLoaded 事件之前执行）
+
 async(异步脚本):立即下载，下载完在“浏览器空闲时”再执行(互不依赖；在 load 前)
 
-1、当初始的 HTML 文档被完全加载和解析完成之后，DOMContentLoaded 事件被触发，而无需等待样式表、图像和子框架的完成加载
+1、当初始的 HTML 文档被完全加载和解析完成之后，DOMContentLoaded 事件被触发，而无需等待样式表、图像和子框架的完成加载  
 2、页面上所有的资源（图片，音频，视频等）被加载以后才会触发 load 事件
 
 ## 跨域
@@ -222,7 +225,7 @@ async(异步脚本):立即下载，下载完在“浏览器空闲时”再执行
 
 ## 深 copy / 浅 copy
 
-深 copy：基础类型（字符串、数字、布尔、Null、Undefined、symbol）
+深 copy：基础类型（字符串、数字、布尔、Null、Undefined、symbol）  
 浅 copy：引用数据类型（包含普通对象-Object，数组对象-Array，正则对象-RegExp，日期对象-Date，数学函数-Math，函数对象-Function）
 
 ```code
@@ -232,20 +235,20 @@ async(异步脚本):立即下载，下载完在“浏览器空闲时”再执行
         return target
       }
 
-let hit = cache.filter(item => item.origin === target)[0];
+     let hit = cache.filter(item => item.origin === target)[0];
       if (hit) {
         return hit.copy;
       }
 
-if (Array.isArray(target)) {
-        return target.map(item => {
-          return deepClone(item, cache);
+      if (Array.isArray(target)) {
+         return target.map(item => {
+           return deepClone(item, cache);
         })
       }
       let copy = target.constructor === Object ? {} : Object.create(target.constructor.prototype)
       cache.push({
-        origin: target,
-        copy
+         origin: target,
+         copy
       })
       return [...Object.keys(target), ...Object.getOwnPropertySymbols(target)].reduce((clone, key) => {
         clone[key] = deepClone(target[key], cache);
@@ -298,7 +301,7 @@ function Person(name, age, job) {
      }
 }
 //-------当做构造函数使用
-var per = new Person('Nicholas', 29, 'Software'); //this-->Person
+var per = new Person('Nicholas', 29, 'Software'); //this-->实例（per）
 per.sayName(); //'Nicholas'    
 //-----当做普通函数调用          　　
   Person('Greg', 27, 'Doctor'); //this-->window         　　
@@ -309,11 +312,22 @@ per.sayName(); //'Nicholas'    
 
 // $.when().done().fail().then()
 
-## JS 中 prop 和 attr 的区别
+## JQ 中 prop、 attr、data 的区别
 
-prop(property) 方法: 对于元素本身就带有的固有属性(checked,selected 等);property 表示 JS 对象的属性
-attr(attribute) 方法: 对于元素我们自己自定义的 DOM 属性(id、class、data_id 等);attribute 表示 HTML 文档节点属性
-data()方法:把任意的值读取/存储到 DOM 元素对应的 jq 对象上
+1. prop(property) 方法: 用于操作元素本身固有属性【元素自身的状态或值】
+
+   - 比如 checked、selected、disabled 等布尔类型的属性，或者是像 value 这样的字符串属性;
+   - prop() 主要用来处理那些在程序运行时可能会改变状态的属性。
+
+2. attr(attribute) 方法: 用于操作 HTML 元素的属性值
+
+   - 比如 id、class 或者自定义的 `data-*` 属性；
+   - attr() 更多用于操作那些在 HTML 中定义的属性。
+
+3. 的 data()方法: 用于操作任意类型的数据到 jQuery 包装集合中的每个元素上。
+   - data() 是一种在元素之间传递信息的方式，而不需要使用全局变量或直接修改 DOM。
+   - 它可以存储任何类型的数据（如数字、字符串、对象等），并且这些数据不会出现在 HTML 中。
+   - 需要在页面间共享的数据或临时存储的信息，则 data() 是最佳选择。
 
 ## 排序：参考计算机基础系列 / 数据结构与算法
 
