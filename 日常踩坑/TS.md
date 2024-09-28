@@ -41,26 +41,32 @@
 5. &:交叉类型（Intersection types）
 6. |：联合类型（Union types）
 7. 泛型:
-8. extends: 继承，`function longest<Type extends { length: number }>(a: Type, b: Type) {}`
+8. =========================
 9. Partial<Type>: 把类型 Type 的所有属性设置为可选；
 10. Required<Type>: 把类型 Type 的所有属性设置为必选；
 11. Readonly<Type>: 把类型 Type 的所有属性设置为只读，不能重新赋值；【与 js 的冻结类似--Object.freeze】
-12. Record<Keys, Type>: 构造一个对象类型，其属性键为 Keys，其属性值为 Type。
-13. Pick<Type, Keys>: 从 Type 中选取一组属性 Keys 来构造一个类型。
+12. ========================
+13. Record<Keys, Type>: 构造一个对象类型，其属性键为 Keys，其属性值为 Type。
+    `{ keys:Type}`
+14. =====================================
+15. extends: 继承，`function longest<Type extends { length: number }>(a: Type, b: Type) {}`
+16. =========================
+17. Pick<Type, Keys>: 从 Type 中选取一组属性 Keys 来构造一个类型。
     `type TodoPreview = Pick<Todo, "title" | "completed">;`
-14. Omit<Type, Keys>: 从 Type 中 删除属性 Keys 来构造一个类型。
+18. Omit<Type, Keys>: 从 Type 中 删除属性 Keys 来构造一个类型。
     `type TodoInfo = Omit<Todo, "completed" | "createdAt">`
-15. Exclude<UnionType, ExcludedMembers>: 从 UnionType 中 排除 ExcludedMembers 来构造一个类型
+19. ======================================
+20. Exclude<UnionType, ExcludedMembers>: 从 UnionType 中 排除 ExcludedMembers 来构造一个类型
     `type T1 = Exclude<"a" | "b" | "c", "a" | "b">; type T1 = "c"`
-16. Extract<Type, Union> 取 Type 和 Union 共有的属性来构造一个类型
+21. Extract<Type, Union>: 取 Type 和 Union 共有的属性来构造一个类型
     `type T0 = Extract<"a" | "b" | "c", "a" | "f">; type T0 = "a"`
-
-17. NonNullable<Type>: 通过从 Type 中排除 null 和 undefined 来构造一个类型。
+22. =========================
+23. NonNullable<Type>: 通过从 Type 中排除 null 和 undefined 来构造一个类型。
     `type T0 = NonNullable<string | number | undefined>;type T0 = string | number`
 
-18. 元组: `let tuple:[number,string,boolean]=[1,'测试',true]`
+24. 元组: `let tuple:[number,string,boolean]=[1,'测试',true]`
 
-19. 枚举
+25. 枚举
 
 ```
 enum Days{
