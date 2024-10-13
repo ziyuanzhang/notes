@@ -255,44 +255,44 @@ user-scalable=no：是否允许用户自定义缩放
 
       思路是先放大、后缩小：在目标元素的后面追加一个 ::after 伪元素，让这个元素布局为 absolute 之后、整个伸展开铺在目标元素上，然后把它的宽和高都设置为目标元素的两倍，border 值设为 1px。接着借助 CSS 动画特效中的放缩能力，把整个伪元素缩小为原来的 50%。此时，伪元素的宽高刚好可以和原有的目标元素对齐，而 border 也缩小为了 1px 的二分之一，间接地实现了 0.5px 的效果。
 
-```
-.scale-1px{
-  position: relative;
-  margin-bottom: 20px;
-  border:none;
-}
-.scale-1px:after{
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  border: 1px solid #000;
-  -webkit-box-sizing: border-box;
-  box-sizing: border-box;
-  width: 200%;
-  height: 200%;
-  -webkit-transform: scale(0.5);
-  transform: scale(0.5);
-  -webkit-transform-origin: left top;
-  transform-origin: left top;
-}
-最好在使用前也判断一下，结合 JS 代码，判断是否 Retina 屏：
-if(window.devicePixelRatio && devicePixelRatio >= 2){
-   document.querySelector('ul').className = 'scale-1px';
- }
-```
+      ```
+      .scale-1px{
+        position: relative;
+        margin-bottom: 20px;
+        border:none;
+      }
+      .scale-1px:after{
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        border: 1px solid #000;
+        -webkit-box-sizing: border-box;
+        box-sizing: border-box;
+        width: 200%;
+        height: 200%;
+        -webkit-transform: scale(0.5);
+        transform: scale(0.5);
+        -webkit-transform-origin: left top;
+        transform-origin: left top;
+      }
+      最好在使用前也判断一下，结合 JS 代码，判断是否 Retina 屏：
+      if(window.devicePixelRatio && devicePixelRatio >= 2){
+         document.querySelector('ul').className = 'scale-1px';
+       }
+      ```
 
-3.  思路三：viewport + rem 实现
+  3.  思路三：viewport + rem 实现
 
-    同时通过设置对应 viewport 的 rem 基准值，这种方式就可以像以前一样轻松愉快的写 1px 了。
+      同时通过设置对应 viewport 的 rem 基准值，这种方式就可以像以前一样轻松愉快的写 1px 了。
 
-    在 devicePixelRatio = 2 时，输出 viewport：
-    `<meta name="viewport" content="initial-scale=0.5, maximum-scale=0.5, minimum-scale=0.5, user-scalable=no">`
+      在 devicePixelRatio = 2 时，输出 viewport：
+      `<meta name="viewport" content="initial-scale=0.5, maximum-scale=0.5, minimum-scale=0.5, user-scalable=no">`
 
-    在 devicePixelRatio = 3 时，输出 viewport：
-    `<meta name="viewport" content="initial-scale=0.3333333333333333, maximum-scale=0.3333333333333333, minimum-scale=0.3333333333333333, user-scalable=no">`
+      在 devicePixelRatio = 3 时，输出 viewport：
+      `<meta name="viewport" content="initial-scale=0.3333333333333333, maximum-scale=0.3333333333333333, minimum-scale=0.3333333333333333, user-scalable=no">`
 
-    这种兼容方案相对比较完美，适合新的项目，老的项目修改成本过大。
+      这种兼容方案相对比较完美，适合新的项目，老的项目修改成本过大。
 
 ## 水平垂直居中的实现
 
