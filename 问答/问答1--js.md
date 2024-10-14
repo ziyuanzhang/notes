@@ -34,6 +34,13 @@
 
 - 引用数据类型 对象(Object)【除了基本类型以外都是对象,数组,函数,正则表达式】
 
+## 基本数据类型和复杂数据类型的区别
+
+1. 存储位置不同（栈和堆）
+2. 访问机制不同（按值，引用访问）
+3. 变量赋值不同（值的副本，引用）
+4. 参数传递不同（传值，引用）
+
 ## 栈、堆、队列之间的区别是？
 
 动态语言：在使用时需要检查数据类型的语言。
@@ -73,36 +80,13 @@ js 先编译后解析；
 
 ## 块级作用域：var 缺陷以及为什么要引入 let 和 const
 
-let、const 申明的变量不会被提升。在 js 引擎编译后，会保存在词法环境中。
+let、const 声明的变量不会被提升。在 js 引擎编译后，会保存在词法环境中。
+
 词法环境内部维护一个小型的栈结构，作用域内部变量压入栈顶。作用域执行完，从栈顶弹出。
-
-## this：从 JavaScript 执行上下文视角讲 this
-
-- this 的指向，是在函数被调用的时候确定的:
-
-  1. 如果函数被某一个对象所拥有，那么该函数在调用时，内部的 this 指向该对象。
-  2. 如果函数独立调用：在严格模式下，this 值是 undefined；非严格模式下 this 指向的是全局对象 window；
-  3. 箭头函数没有自己的执行上下文，this 是外层函数的 this；
-  4. 谁调用函数，this 指向谁；
-
-- 当执行 new CreateObj 的时候，JavaScript 引擎做了四件事：
-
-  1. 首先创建一个空对象 tempObj；
-  2. 接着调用 CreateObj.call 方法，并将 tempObj 作为 call 方法的参数，这样当 createObj 的执行上下文创建时，它的 this 就指向 tempObj 对象；
-  3. 然后执行 CreateObj 函数，此时的 CreateObj 函数执行上下文中的 this 指向 tempObj 对象；
-  4. 最后返回 tempObj 对象。
-
-- call / apply / bind---改变 this 的指向
-
-  它们在功能上是没有区别的，它们的区别主要是在于方法的实现形式和参数传递上的不同；
-
-  1. 函数.call(对象,arg1,arg2....)  ----->会自执行
-  2. 函数.apply(对象，[arg1,arg2,...])  ----->会自执行
-  3. var ss=函数.bind(对象,arg1,arg2,....)   ----->不会自执行，需要调用
 
 ## 调用栈：为什么 js 代码会出现栈溢出
 
-js 代码出现栈溢出错误: 通常发生在递归调用过深或者无限循环的情况下。
+js 代码出现栈溢出错误: 通常发生在递归调用过深 或者 无限循环的情况下。
 
 这是因为 js 使用了一个有限大小的调用栈来跟踪函数调用。每次函数被调用时，都会有一个新的执行上下文被推入调用栈。当函数执行结束并返回时，其对应的执行上下文会被从栈中弹出。
 
@@ -184,18 +168,35 @@ js 代码出现栈溢出错误: 通常发生在递归调用过深或者无限循
 
 4. Array.isArray()方法。  Array.isArray([1, 2, 3]); // true
 
-## 基本数据类型和复杂数据类型的区别
-
-1. 存储位置不同（栈和堆）
-2. 访问机制不同（按值，引用访问）
-3. 变量赋值不同（值的副本，引用）
-4. 参数传递不同（传值，引用）
-
 ## null / undefined
 
-- null：空值(变量没有值)
-- undefined：变量未持有值(只声明未赋值,或者=未赋值的变量)
-- typeof bb -->(bb 未声明，返回 undefined)
+- null：空值（变量没有值）
+- undefined：变量未持有值（只声明未赋值,或者=未赋值的变量）
+- typeof bb -->（bb 未声明，返回 undefined）
+
+## this：从 JavaScript 执行上下文视角讲 this
+
+- this 的指向，是在函数被调用的时候确定的:
+
+  1. 如果函数被某一个对象所拥有，那么该函数在调用时，内部的 this 指向该对象。
+  2. 如果函数独立调用：在严格模式下，this 值是 undefined；非严格模式下 this 指向的是全局对象 window；
+  3. 箭头函数没有自己的执行上下文，this 是外层函数的 this；
+  4. 谁调用函数，this 指向谁；
+
+- 当执行 new CreateObj 的时候，JavaScript 引擎做了四件事：
+
+  1. 首先创建一个空对象 tempObj；
+  2. 接着调用 CreateObj.call 方法，并将 tempObj 作为 call 方法的参数，这样当 createObj 的执行上下文创建时，它的 this 就指向 tempObj 对象；
+  3. 然后执行 CreateObj 函数，此时的 CreateObj 函数执行上下文中的 this 指向 tempObj 对象；
+  4. 最后返回 tempObj 对象。
+
+- call / apply / bind---改变 this 的指向
+
+  它们在功能上是没有区别的，它们的区别主要是在于方法的实现形式和参数传递上的不同；
+
+  1. 函数.call(对象,arg1,arg2....)  ----->会自执行
+  2. 函数.apply(对象，[arg1,arg2,...])  ----->会自执行
+  3. var ss=函数.bind(对象,arg1,arg2,....)   ----->不会自执行，需要调用
 
 ## js 继承 <https://www.cnblogs.com/humin/p/4556820.html>
 
@@ -213,7 +214,7 @@ JavaScript 代码的执行过程中，除了依靠“函数调用栈”来搞定
 
 2. 任务队列又分为 macro-task（宏任务）与 micro-task（微任务）
    macro-task 大概包括：script(整体代码), setTimeout, setInterval。
-   micro-task 大概包括: Promise.then, MutationObserver(html5 新特性)
+   micro-task 大概包括: Promise.then, MutationObserver(html5 新特性-监听 DOM 节点变化)
 
 3. setTimeout/Promise 等我们称之为任务源。而进入任务队列的是他们指定的具体执行任务。（setTimeout 作为一个任务分发器，这个函数会立即执行，而它所要分发的任务，也就是它的第一个参数，才是延迟执行）
 
@@ -469,7 +470,7 @@ RegExpObject.test(string) // 匹配到，返回 true ，否则返回 false。
 var person = { name: "张三" };
 var proxy = new Proxy(person, {
     get: function (target, key) {
-        if (keyin target) {
+        if (key in target) {
             return target[key];
         } else {
             throw new ReferenceError(`Prop name ${propKey}does not exist.`);
@@ -534,11 +535,10 @@ let str = 'qwertyuilo.,mnbvcsarrrrrrrrtyuiop;l,mhgfdqrtyuio;.cvxsrtyiuo';
 
 ## 节流与防抖
 
-- 函数节流是指规定一个单位时间，在这个单位时间内，只能有一次触发事件的回调函数执行，如果在同一个单位时间内某事件被触发多次，
+- 函数节流：是指规定一个单位时间，在这个单位时间内，只能有一次触发事件的回调函数执行，如果在同一个单位时间内某事件被触发多次，
   只有一次能生效。
   1. 监控浏览器 resize；
   2. 元素拖拽
-- 函数防抖是指在事件被触发 n 秒后再执行回调，如果在这 n 秒内事
-  件又被触发，则重新计时。
+- 函数防抖：是指在事件被触发 n 秒后再执行回调，如果在这 n 秒内事件又被触发，则重新计时。
   1. 按钮提交
   2. input 输入
