@@ -75,35 +75,47 @@ div
 
 ## visibility:hidden -- 占位，但不可点击（click 事件没用）
 
-## css 清除浮动 / 高度塌陷：（子元素脱离文档流）
+## 对 BFC 的理解，如何创建 BFC
 
-1. 给父元素设置固定高度（不可取）
-2. 父级添加 overflow: hidden；
-3. 浮动元素后面添加一个块级元素并且 clear: both；
-4. 父元素 添加：after 伪类；
+BFC（Block Formatting Context）:即 区块格式化上下文;  
+研究 BFC：就是研究 普通文档流下的“块元素”的排布规则；
 
-   - 单伪元素 after 清除浮动
+- 普通块元素排版问题：-- 浏览器渲染规则导致的
 
-   ```code
-   .cc:after {
-             display: block;
-             content: '';
-             height: 0;
-             line-height: 0;
-             visibility: hidden;
-             clear: both;
-           }
-   ```
+  1.  水平方向：撑满，垂直方向：依次摆放；
+  2.  垂直方向相邻元素：margin 会合并；
+  3.  父子关系，可能会产生 margin 塌陷（子设置 margin，跑到父外面了）；
+  4.  父子关系，子元素浮动，父元素高度塌陷；
+  5.  兄弟关系，正常元素可能会被浮动元素覆盖；
 
-   - 使用双伪类；
+- 开启 BFC
 
-   ```code
-   .cc:after,.cc:before {
-               content: "";
-               display: block;
-               clear: both;
-           }
-   ```
+  1. 开启 BFC，就是开启一个独立的渲染区域；和浏览器默认渲染规则不一样；
+  2. 开启 BFC 后，空间内部和外部是隔开的；内部、外部 互不影响；
+  3. 不同 BFC 区域，渲染时互不干扰；
+
+- 创建 BFC 的条件：
+
+  1. 根元素：body；
+  2. 元素设置浮动：float （不能是 none）；
+  3. 元素设置绝对定位/固定定位：position (absolute、fixed)；
+  4. overflow 值为：hidden、auto、scroll（不能是 visible）；
+  5. 设置为行内块元素：display:inline-block；
+  6. 设置伸缩项目（flex 盒子内的 item -- 特殊需要是“祖元素”）
+  7. 多列容器（设置 column-count）；
+  8. 表格元素（table、thead、tbody、tfoot、tr、th、td 等）；
+
+```祖-父-子
+1. 祖:display:flex;
+2. 父：
+     float: left;
+     position: absolute;
+     overflow: auto;
+     display: inline-block;
+     display: flow-root;
+     column-count: 1;
+     display: table;
+```
 
 ## link 和@import 的区别 --用 link 不用@import
 
@@ -187,37 +199,6 @@ CSSSprites（精灵图/雪碧图），将一个页面涉及到的所有图片都
 1. em:相对父元素；
 2. rem:相对于根元素（html 元素）
 
-## 对 BFC 的理解，如何创建 BFC
-
-BFC（Block Formatting Context）:即 块级格式化上下文;
-
-BFC 是一个独立的布局环境，在这个环境中的元素布局不会影响到外面的环境。
-BFC 可以看作是一个独立的容器,其中包含了一个或多个块级元素。
-
-- 创建 BFC 的条件：
-
-  1. 根元素：body；
-  2. 元素设置浮动：float 除 none 以外的值；
-  3. 元素设置绝对定位：position (absolute、fixed)；
-  4. display 值为：inline-block、table-cell、table-caption、flex 等；
-  5. overflow 值为：hidden、auto、scroll；
-
-- BFC 的特点：
-
-  1. 垂直方向上，自上而下排列，和文档流的排列方式一致。
-  2. 在 BFC 中上下相邻的两个容器的 margin 会重叠
-  3. 计算 BFC 的高度时，需要计算浮动元素的高度
-  4. BFC 的区域不会与 float 元素区域重叠。
-  5. BFC 是独立的容器，容器内部元素不会影响外部元素
-  6. 每个元素的左 margin 值和容器的左 border 相接触
-
-- BFC 的作用：
-
-  1. 自适应两栏布局。
-  2. 清除内部浮动（解决高度塌陷的问题）。
-  3. 防止文字环绕。
-  4. 处理边距折叠问题。
-
 ## 元素的层叠顺序
 
 ![元素的层叠顺序](./img/css/元素的层叠顺序.png)
@@ -233,7 +214,7 @@ BFC 可以看作是一个独立的容器,其中包含了一个或多个块级元
 
 在手机上 viewport(视口)一般有：
 
-1. layout viewport（布局视口）：手机一般为了容纳为桌面浏览器设计的网站，默认布局 viewport 宽度远大于屏幕的宽度，为了让用户看到网站全貌，缩小网站。例如，apple 一般将 viewport 宽度定为 980px。
+1. layout viewport（布局视口）：手机一般为了容纳“为桌面浏览器设计的网站”，默认布局视口（viewport） 宽度远大于屏幕的宽度，为了让用户看到网站全貌，缩小网站。例如，apple 一般将 viewport 宽度定为 980px。
 
 2. visual viewport（可视视口）：屏幕的可视区域，即物理像素尺寸
 3. ideal viewport（理想视口）：最适合移动设备的 viewport，ideal viewport 的宽度等于移动设备的屏幕宽度
