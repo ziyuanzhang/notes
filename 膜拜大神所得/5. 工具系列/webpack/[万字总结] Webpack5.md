@@ -6,8 +6,8 @@
 2. loader 的作用；
 3. plugin 架构与常用套路；
 
-某种程度上可以将 webpack 架构简化为 compiler + compilation + plugins ，
-webpack 运行过程中只会有一个 compiler ；
+某种程度上可以将 webpack 架构简化为 compiler（编译者） + compilation（编译-名词） + plugins ，  
+webpack 运行过程中只会有一个 compiler ；  
 而每次编译 —— 包括调用 compiler.run 函数或者 watch = true 时文件发生变更，都会创建一个 compilation 对象。
 
 ## 核心流程：也就是将各种类型的资源，包括图片、css、js 等，转译、组合、拼接、生成 JS 格式的 bundler 文件
@@ -20,7 +20,7 @@ webpack 运行过程中只会有一个 compiler ；
    2. 创建编译器对象：用上一步得到的参数创建 `Compiler 对象`。
    3. 初始化编译环境：包括注入内置插件、注册各种模块工厂、初始化 RuleSet 集合、加载配置的插件等。
    4. 开始编译：执行 `compiler 对象`的 `run` 方法。
-   5. 确定入口：根据配置中的 `entry` 找出所有的入口文件，调用 `compilation.addEntry` 将入口文件转换为 `dependence 对象`。
+   5. 确定入口：根据配置中的 `entry` 找出所有的入口文件，调用 `compilation.addEntry` 将“入口文件”转换为 `dependence 对象（依赖对象）`。
 
 2. 构建阶段：
 
@@ -29,7 +29,7 @@ webpack 运行过程中只会有一个 compiler ；
 
 3. 生成阶段：
 
-   1. 输出资源(seal)：根据入口和模块之间的依赖关系，组装成一个个包含多个模块的 `Chunk`，再把每个 Chunk 转换成一个单独的文件加入到输出列表;这步是可以修改输出内容的最后机会。
+   1. 输出资源(seal)：根据入口和模块之间的依赖关系，组装成一个个包含多个模块的 `Chunk`，再把每个 Chunk 转换成一个单独的文件加入到输出列表；这步是可以修改输出内容的最后机会。
    2. 写入文件系统(emitAssets)：在确定好输出内容后，根据配置确定输出的路径和文件名，把文件内容写入到文件系统。
 
 **技术名词**:
