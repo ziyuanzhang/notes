@@ -144,16 +144,17 @@ diff 算法探讨的就是虚拟 DOM 树发生变化后，生成 DOM 树更新�
    - 如果不是则直接放入补丁中。
    - 只 要 父 组 件 类 型 不 同 ， 就 会 被 重 新渲染。这也就是为什么 shouldComponentUpdate、PureComponent 及 React.memo 可以提高性能的原因。
 3. 同一层级的子节点，可以通过标记 key 的方式进行列表对比。（基于节点进行对比）
+
    - 元素比对主要发生在同层级中，通过标记节点操作生成补丁。节点操作包含了插入、移动、删除等。
    - 其中节点重新排序同时涉及插入、移动、删除三个操作，所以效率消耗最大，此时策略三起到了至关重要的作用。通过标记 key 的方式，React 可以直接移动 DOM 节点，降低内耗。
+
+4. 自 React 16 起，引入了 Fiber 架构。为了使整个更新过程可随时暂停恢复，节点与树分别采用了 FiberNode 与 FiberTree 进行重构。
+   fiberNode 使用了双链表的结构，可以直接找到兄弟节点与子节点。
+   整个更新过程由 current 与 workInProgress 两株树双缓冲完成。workInProgress 更新完成后，再通过修改 current 相关指针指向新节点。
 
 ## React key 是干嘛用的 为什么要加？key 主要是解决哪一类问题的
 
 Keys 是 React 用于追踪哪些列表中元素被修改、被添加或者被移除的辅助标识。要保证 key 在其同级元素中具有唯一性
-
-自 React 16 起，引入了 Fiber 架构。为了使整个更新过程可随时暂停恢复，节点与树分别采用了 FiberNode 与 FiberTree 进行重构。
-fiberNode 使用了双链表的结构，可以直接找到兄弟节点与子节点。
-整个更新过程由 current 与 workInProgress 两株树双缓冲完成。workInProgress 更新完成后，再通过修改 current 相关指针指向新节点。
 
 vue3 没有乏时间切片能力（收益不高）；除了高频动画，都可以用用防抖和节流去提高
 
