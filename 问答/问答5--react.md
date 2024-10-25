@@ -80,7 +80,7 @@ PropTypes 检测 props
 ## React-Router 的实现原理是什么？
 
 - 基于 hash 的路由：
-  通过监听 hashchange 事件，感知 hash 的变化改变 hash 可以直接通过 location.hash=xxx
+  通过监听 hashChange 事件，感知 hash 的变化改变 hash 可以直接通过 location.hash=xxx
 
 - 基于 H5 history 路由：
   改变 url 可以通过 history.pushState 和 replaceState 等，会将 URL 压入堆栈，同时能够应用 history.go() 等 API 监听 url 的变化可以通过自定义事件触发实现
@@ -98,7 +98,7 @@ PropTypes 检测 props
 
 ## 对 Redux 的理解，主要解决什么问题
 
-Redux 提供了一个叫 store 的统一仓储库，组件通过 dispatch 将 state 直接传入 store，不用通过其他的组件。并且组件通过 subscribe 从 store 获取到 state 的改变。使
+Redux 提供了一个叫 store 的统一仓储库，组件通过 dispatch 将 state 直接传入 store，不用通过其他的组件。并且组件通过 subscribe（订阅） 从 store 获取到 state 的改变。
 
 ## Redux 和 Vuex 有什么区别，它们的共同思想
 
@@ -108,9 +108,14 @@ vuex 弱化 dispatch，通过 commit 进行 store 状态的一次更变；取消
 
 ## Redux 中间件是怎么拿到 store 和 action? 然后怎么处理?
 
-Store 的 getState 函数和 dispatch 函数，分别获得 store 和 action，最终返回一个函数；action 的新函数，这个函数可以直接调用 next（action），
+函数柯里化（Currying）‌ 是一种将接受多个参数的函数变换成接受一个单一参数的函数的技术。  
+最初，函数接收第一个参数，然后返回一个新的函数，这个新函数再接收下一个参数，依此类推，直到所有参数都被接收，函数才会执行并返回最终结果
 
-middleware 的函数签名是({ getState，dispatch })=> next => action
+redux 中间件本质就是一个函数柯里化。redux applyMiddlewareApi 源码中每个 middleware 接受 2 个参数（Store 的 getState 函数和 dispatch 函数，分别获得 store 和 action）最终返回一个函数。
+该函数会被传入 next 的下一个 middleware 的 dispatch 方法，并返回一个接收 action 的新函数，
+这个函数可以直接调用 next（action），或者在其他需要的时刻调用，甚至根本不去调用它。
+调用链中最后一个 middleware 会接受真实的 store 的 dispatch 方法作为 next 参数，并借此结束调用链。
+所以，middleware 的函数签名是（{ getState，dispatch }）=> next => action。
 
 ## React Hooks 解决了哪些问题？
 
@@ -168,7 +173,7 @@ Suspense:（解决网络 IO 问题）和 lazy 配合，实现异步加载组件;
 - useState
 - useEffect
 - useRef
-- useCalLback：缓存的是函数，有些函数没必要跟这 state 变化；
+- useCallback：缓存的是函数，有些函数没必要跟这 state 变化；
 - useMemo：缓存的结果是回调函数中 return 回来的“值”，主要用于缓存计算结果的；
 - useImperativeMethods：使用 ref 时公开给父组件的实例值
 
