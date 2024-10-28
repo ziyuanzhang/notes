@@ -170,12 +170,15 @@ Time Slicingg: 解决 CPU 速度问题;
 Suspense:（解决网络 IO 问题）和 lazy 配合，实现异步加载组件;
 提供了一个内置函数 componentDidCatch，当有错误发生时,捕获；
 
-- useState
-- useEffect
-- useRef
+- useRef：
+- useState：
+- useEffect：在渲染结束之后执行；
+- useLayoutEffect：在 DOM 更新之后执行；永远比 useEffect 先执行，这是因为 DOM 更新之后，渲染才结束；
+
 - useCallback：缓存的是函数，有些函数没必要跟这 state 变化；
 - useMemo：缓存的结果是回调函数中 return 回来的“值”，主要用于缓存计算结果的；
-- useImperativeMethods：使用 ref 时公开给父组件的实例值
+- useImperativeMethods：用于自定义暴露给父组件的实例值；
+- createContext/useContext：是让“后代组件”之间共享“祖代组件”的状态；
 
 ## 为什么使用 jsx 的组件中没有看到使用 react 却需要引入 react？
 
