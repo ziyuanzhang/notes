@@ -56,6 +56,42 @@
     5. 缓存一定要使用，但是请注意合理使用
     6. 最后可以借助一些工具进行性能评测，重点调优，例如 chrome 开发者工具的 performance 或 Google PageSpeed Insights 插件协助测试
 
+## vue/react 的 diff 算法比较
+
+- 不同点：  
+  vue: 1. 元素相同，key 相同，属性不同 --- 认为节点不同，删除重建； 2. 新旧 virtual DOM：两端到中间比较；  
+  react：1. 元素相同，key 相同，属性不同---认为节点相同，修改属性； 2. 新旧 virtual DOM：从左向右比较；
+
+- 相同点：都只同级比较；忽略跨级操作；
+
+- 模板语法的流程：  数据->模板->真实 dom；
+- 虚拟 DOM 的流程：数据->模版/算法/语法糖->虚拟 dom->一系列 js 操作->真实 dom；
+- 虚拟 DOM 是作为数据和真实 DOM 之间的缓冲层诞生的；
+- 虚拟 DOM 具有：1.差量更新（diff 算法）2. 批量更新（用户在短时间内对 dom 进行高频操作时，取最后一次的操作结果）
+-
+- 在数据量少的情况下，两者性能相差无几。
+- 数据量多的情况下，若是数据改变大，接近于全页面更新，模版语法性能更好。
+- 在局部更新为主的环境下，虚拟 DOM 的性能更好
+
+## Vue2.0 和 Vue3.0 有什么区别
+
+1. 重构响应式系统，使用 Proxy 替换 Object.defineProperty，使用 Proxy 优势：
+
+   - 可直接监听数组类型的数据变化；
+   - 监听的目标为对象本身，不需要像 Object.defineProperty 一样遍历每个属性，有一定的性能提升；
+   - 可拦截 apply、ownKeys、has 等 13 种方法，而 Object.defineProperty 不行；
+   - 直接实现对象属性的新增/删除；
+
+2. 新增 Composition API，更好的逻辑复用和代码组织；
+3. 重构 Virtual DOM；
+
+   - 模板编译时的优化，将一些静态节点编译成常量；
+   - slot 优化，将 slot 编译为 lazy 函数，将 slot 的渲染的决定权交给子组件；
+   - 模板中内联事件的提取并重用（原本每次渲染都重新生成内联函数）；
+
+4. 代码结构调整，更便于 Tree shaking，使得体积更小；
+5. 使用 Typescript 替换 Flow；
+
 ## Vue 的基本原理
 
 当 一 个 Vue 实 例 创 建 时 ， Vue 会 遍历 data 中的属性，用 Object.defineProperty （ vue3.0 使 用 proxy ）将它们转为 getter/setter，并且在内部追踪相关依赖，在属性被访问和修改时通知变化。  
@@ -457,44 +493,6 @@ vuex 中的 store 本质就是没有 template 的隐藏着的 vue 组件。
 
   而 vue.runtime.common.js 文件的最后一行是：module.exports = Vue;，就正好跟我们平时使用时的 new Vue({}) 是一致的，这就是 import vue from 'vue' 的过程了。
 
-## vue/react 的 diff 算法比较
-
-- 不同点：
-  vue: 1. 元素相同，key 相同，属性不同 --- 认为节点不同，删除重建； 2. 新旧 virtual DOM：两端到中间比较；
-  react：1. 元素相同，key 相同，属性不同---认为节点相同，修改属性； 2. 新旧 virtual DOM：从左向右比较；
-
-- 相同点：都只同级比较；忽略跨级操作；
-
-## 从 DOM 到虚拟 DOM：切图仔 --> JQuery --> 模板语法 -->虚拟 DOM
-
-- 模板语法的流程：  数据->模板->真实 dom；
-- 虚拟 DOM 的流程：数据->模版/算法/语法糖->虚拟 dom->一系列 js 操作->真实 dom；
-- 虚拟 DOM 是作为数据和真实 DOM 之间的缓冲层诞生的；
-- 虚拟 DOM 具有：1.差量更新（diff 算法）2. 批量更新（用户在短时间内对 dom 进行高频操作时，取最后一次的操作结果）
--
-- 在数据量少的情况下，两者性能相差无几。
-- 数据量多的情况下，若是数据改变大，接近于全页面更新，模版语法性能更好。
-- 在局部更新为主的环境下，虚拟 DOM 的性能更好
-
-## Vue2.0 和 Vue3.0 有什么区别
-
-1. 重构响应式系统，使用 Proxy 替换 Object.defineProperty，使用 Proxy 优势：
-
-   - 可直接监听数组类型的数据变化；
-   - 监听的目标为对象本身，不需要像 Object.defineProperty 一样遍历每个属性，有一定的性能提升；
-   - 可拦截 apply、ownKeys、has 等 13 种方法，而 Object.defineProperty 不行；
-   - 直接实现对象属性的新增/删除；
-
-2. 新增 Composition API，更好的逻辑复用和代码组织；
-3. 重构 Virtual DOM；
-
-   - 模板编译时的优化，将一些静态节点编译成常量；
-   - slot 优化，将 slot 编译为 lazy 函数，将 slot 的渲染的决定权交给子组件；
-   - 模板中内联事件的提取并重用（原本每次渲染都重新生成内联函数）；
-
-4. 代码结构调整，更便于 Tree shaking，使得体积更小；
-5. 使用 Typescript 替换 Flow；
-
 ## SSR 有了解吗？原理是什么？
 
 在客户端请求服务器的时候，服务器到数据库中获取到相关的数据，并且在服务器内部将 Vue 组件渲染成 HTML，并且将数据、HTML 一并返回给客户端，这个在服务器将数据和组件转化为 HTML 的过程，叫做服务端渲染 SSR。
@@ -506,3 +504,5 @@ vuex 中的 store 本质就是没有 template 的隐藏着的 vue 组件。
 1. 有利于 SEO：
 2. 白屏时间更短：
    服务端渲染在浏览器请求 URL 之后已经得到了一个带有数据的 HTML 文本，浏览器只需要解析 HTML，直接构建 DOM 树就可以。
+
+## 从 DOM 到虚拟 DOM：切图仔 --> JQuery --> 模板语法 -->虚拟 DOM
