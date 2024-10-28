@@ -59,8 +59,8 @@
 ## vue/react 的 diff 算法比较
 
 - 不同点：  
-  vue: 1. 元素相同，key 相同，属性不同 --- 认为节点不同，删除重建； 2. 新旧 virtual DOM：两端到中间比较；  
-  react：1. 元素相同，key 相同，属性不同---认为节点相同，修改属性； 2. 新旧 virtual DOM：从左向右比较；
+   vue: 1. 元素相同，key 相同，属性不同 --- 认为节点不同，删除重建； 2. 新旧 virtual DOM：两端到中间比较；  
+   react：1. 元素相同，key 相同，属性不同---认为节点相同，修改属性； 2. 新旧 virtual DOM：从左向右比较；
 
 - 相同点：都只同级比较；忽略跨级操作；
 
@@ -68,7 +68,7 @@
 - 虚拟 DOM 的流程：数据->模版/算法/语法糖->虚拟 dom->一系列 js 操作->真实 dom；
 - 虚拟 DOM 是作为数据和真实 DOM 之间的缓冲层诞生的；
 - 虚拟 DOM 具有：1.差量更新（diff 算法）2. 批量更新（用户在短时间内对 dom 进行高频操作时，取最后一次的操作结果）
--
+
 - 在数据量少的情况下，两者性能相差无几。
 - 数据量多的情况下，若是数据改变大，接近于全页面更新，模版语法性能更好。
 - 在局部更新为主的环境下，虚拟 DOM 的性能更好
@@ -210,49 +210,6 @@
 
 在子组件中的各个生命周期$emit 事件
 
-## vue 组件内部数据是观察者；自定义事件是发布订阅
-
-- vue 双向数据绑定（MVVM）：通过（数据劫持-vue2/代理-vue3）结合（观察者模式）来实现的
-- MVVM：Model-View-ViewModel; 数据变化更新视图，视图变化更新数据
-
-- 数据劫持：利用 Object.defineProperty()  给对象的各个属性添加 set/get；
-
-- view 层--->data:  通过事件监听；
-- data--->view 层：data 变化用 Object.defineProperty()劫持，通知观察者；
-
-  1. 对需要观察 （Observe） 的数据对象进行递归遍历，每个属性都加上 setter 和 getter。
-
-     - 这样的话，对某个属性赋值就会触发 setter，通知所有注册的观察者（watcher）进行相应的更新。
-
-  2. 实现一个编译器 compiler，扫描和解析每个节点的指令，并根据初始化时的模板数据-》初始化相应的观察者。
-
-     - 将模板中的变量替换成数据，并将每个指令“对应的节点”绑定更新函数；
-     - 注册对应的观察者；
-     - 然后初始化渲染页面视图；
-
-  3. 观察者（watcher）收到属性变化的通知,执行相应的函数，从而更新视图。
-
-* MVC:
-
-  1. Model：数据模型，用来存储数据
-  2. View：视图界面，用来展示 UI 界面和响应用户交互
-  3. Controller：控制器(大管家角色)，监听模型数据的改变和控制视图行为、处理用户交互
-
-* MVVM 是 MVC 的改进版；
-
-  1. 由于 Controller 主要用来处理各种逻辑和数据转化，复杂业务逻辑界面的 Controller 非常庞大，维护困难；
-  2. 所以有人想到把 Controller 的数据和逻辑处理部分从中抽离出来，用一个专门的对象去管理，这个对象就是 ViewModel，是 Model 和 Controller 之间的一座桥梁。
-  3. 当人们去尝试这种方式时，发现 Controller 中的代码变得非常少，变得易于测试和维护，只需要 Controller 和 ViewModel 做数据绑定即可，这也就催生了 MVVM 的热潮。
-
-- MVVM : Model-View-ViewModel
-
-  1. Model：数据模型，用来存储数据
-  2. View：视图界面，用来展示 UI 界面和响应用户交互
-  3. ViewModel：视图模型，是连接 view 和 model 的桥梁。它有两个方向：
-     - 一是将模型转化成视图，即将后端传递的数据转化成所看到的页面。实现的方式是：数据绑定。
-     - 二是将视图转化成模型，即将所看到的页面转化成后端的数据。实现的方式是：DOM 事件监听。
-     - 这两个方向都实现的，我们称之为数据的双向绑定。
-
 ## js 实现简单的双向绑定
 
 ```
@@ -382,11 +339,11 @@
   3. main.js 中使用 Vue.use(ToastPlugin)
   4. this.$showToast ('标题', '提示内容')
 
-## VueRouter
+## VueRouter-路由守卫
 
-1. 全局：前置 beforeEach ；后置 afterEach
+1. 全局：前置 beforeEach ；后置 afterEach（没有 next）；beforeResolve
 2. 路由内 ：独享 beforeEnter；
-3. 组件内：beforeRouteEnter，beforeRouteUpdate，beforeRouteLeave
+3. 组件内：beforeRouteEnter（唯一 next 有回调），beforeRouteUpdate，beforeRouteLeave
 
 ## vue hash 和 history 原理
 
@@ -401,12 +358,6 @@
    `<router-link :to="{ path: 'register', query: { plan: 'private' }}">Register</router-link>`
 2. params--history  模式  ：路径显示，参数不显示；刷新参数没有了；则类似于 post
    `<router-link :to="{ name: 'user', params: { userId: 123 }}">User</router-link>`
-
-## 路由守卫
-
-1. 全局守卫：beforeEach, beforeResolve, afterEach【没有 next】
-2. 路由独享守卫：beforeEnter
-3. 组件内守卫：beforeRouteEnter【唯一 next 有回调】, Update, Leave
 
 ## 完整的 Vue 路由生命周期
 
