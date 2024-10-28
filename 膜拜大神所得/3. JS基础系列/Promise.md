@@ -1,4 +1,4 @@
-# Promise
+# Promise \ 迭代器、生成器、promise、await/async
 
 - 静态方法：
 
