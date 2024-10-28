@@ -36,9 +36,9 @@
 
 ## null / undefined
 
-- null：空值（变量没有值）
-- undefined：变量未持有值（只声明未赋值,或者=未赋值的变量）
-- typeof bb -->（bb 未声明，返回 undefined）
+- null：空值（主要用于赋值给一些可能会返回对象的变量，作为初始化。）
+- undefined：变量未持有值（只声明未赋值,或者 =未赋值的变量）
+- typeof bb -->（返回 undefined）
 
 ## 基本数据类型和复杂数据类型的区别
 
@@ -110,8 +110,8 @@ js 代码出现栈溢出错误: 通常发生在递归调用过深 或者 无限�
 
 ## 作用域 / 作用域链 / 闭包
 
-1. 作用域(词法环境)：是一套约定好的规则。我们写代码，应该按照这个规则写，JS 引擎对 JS 源码进行词法分析，也是按照这个规则来。
-2. 作用域链是：在代码执行过程中"会动态变化的一条索引路径"。(由当前环境与上层环境的一系列变量对象组成，它保证了当前执行环境对符合访问权限的变量和函数的有序访问。)
+1. 作用域（词法环境）：是一套约定好的规则。我们写代码，应该按照这个规则写，JS 引擎对 JS 源码进行词法分析，也是按照这个规则来。
+2. 作用域链是：在代码执行过程中"会动态变化的一条索引路径"。(由当前环境与上层环境的一系列变量对象组成，它保证了当前执行环境对“符合访问权限的变量和函数”的有序访问。)
 3. 闭包：根据词法作用域的规则，内部函数总是可以访问其外部函数中声明的变量，当通过调用一个外部函数返回一个内部函数后，即使外部函数已经执行结束了，但是内部函数引用外部函数的变量依旧保存在内存中，把这些变量的集合称为闭包；
 
 ## 闭包： 一种特殊的对象，本质是当前环境中存在指向父级作用域的引用
@@ -154,9 +154,8 @@ js 代码出现栈溢出错误: 通常发生在递归调用过深 或者 无限�
 
 1. typeof
 
-   - 基本类型，除 null 以外，均可以返回正确的结果；对于 null ，返回 object 类型。
-   - 引用类型，除 function 以外，一律返回 object 类型；对于 function 返回  function 类型。  
-     //typeof (object、Function、Array、Date、Number、String、Bootlean)-->结果是:funciton
+   - 数组、对象、null 都会被判断为 object，其他判断都正确
+   - typeof (object、Function、Array、Date、Number、String、Bootlean)-->结果是:funciton
 
 2. Object.prototype.toString:判断某个对象属于哪种内置类型；但不能判断自定义类型.  
    Object.prototype.toString.call(null); // "[object Null]"-- [Object type]，其中 type 为对象的类型。
@@ -171,7 +170,7 @@ js 代码出现栈溢出错误: 通常发生在递归调用过深 或者 无限�
 
 4. Array.isArray()方法。  Array.isArray([1, 2, 3]); // true
 
-## this：从 JavaScript 执行上下文视角讲 this
+## this 、 new 、 call / apply / bind
 
 - this 的指向，是在函数被调用的时候确定的:
 
@@ -183,7 +182,7 @@ js 代码出现栈溢出错误: 通常发生在递归调用过深 或者 无限�
 - 当执行 new CreateObj 的时候，JavaScript 引擎做了四件事：
 
   1. 首先创建一个空对象 tempObj；
-  2. 接着调用 CreateObj.call 方法，并将 tempObj 作为 call 方法的参数，这样当 createObj 的执行上下文创建时，它的 this 就指向 tempObj 对象；
+  2. 接着调用 CreateObj.call 方法，并将 tempObj 作为 call 方法的参数；
   3. 然后执行 CreateObj 函数，此时的 CreateObj 函数执行上下文中的 this 指向 tempObj 对象；
   4. 最后返回 tempObj 对象。
 
@@ -280,38 +279,6 @@ async(异步脚本):立即下载，下载完在“浏览器空闲时”再执行
     }
 ```
 
-## js  链式调用
-
-我们都很熟悉 jQuery 了，只能 jQuery 中一种非常牛逼的写法叫链式操作;
-
-`$('#div').css('background','#ccc').removeClass('box').stop().animate({width:300});`
-
-一般的函数调用和链式调用的区别：调用完方法后，return this 返回当前调用方法的对象。
-
-```code
-        function Dog() {
-            this.run = function () {
-                console.log("The dog is running....");
-                return this; //返回当前对象  Dog
-            };
-            this.eat = function () {
-                console.log("After running the dog is eating ....");
-                return this; //返回当前对象  Dog        
-            };
-            this.sleep = function () {
-                console.log("After eating the dog is running....");
-                return this; //返回当前对象  Dog        
-            };
-        }
-        //一般的调用方式；
-        /*  var dog1 =new Dog();
-            dog1.run();
-            dog1.eat();
-            dog1.sleep();*/
-        var dog2 = new Dog();
-        dog2.run().eat().sleep();
-```
-
 ## 构造函数  /  普通函数 de 区别
 
 ```code
@@ -331,26 +298,11 @@ per.sayName(); //'Nicholas'    
   window.sayName(); //'Greg'
 ```
 
+## 迭代器、生成器、promise、await/async
+
 ## JQ 中类似 promise
 
 // $.when().done().fail().then()
-
-## JQ 中 prop、 attr、data 的区别
-
-1. prop(property) 方法: 用于操作元素本身固有属性【元素自身的状态或值】
-
-   - 比如 checked、selected、disabled 等布尔类型的属性，或者是像 value 这样的字符串属性;
-   - prop() 主要用来处理那些在程序运行时可能会改变状态的属性。
-
-2. attr(attribute) 方法: 用于操作 HTML 元素的属性值
-
-   - 比如 id、class 或者自定义的 `data-*` 属性；
-   - attr() 更多用于操作那些在 HTML 中定义的属性。
-
-3. 的 data()方法: 用于操作任意类型的数据到 jQuery 包装集合中的每个元素上。
-   - data() 是一种在元素之间传递信息的方式，而不需要使用全局变量或直接修改 DOM。
-   - 它可以存储任何类型的数据（如数字、字符串、对象等），并且这些数据不会出现在 HTML 中。
-   - 需要在页面间共享的数据或临时存储的信息，则 data() 是最佳选择。
 
 ## 排序：参考计算机基础系列 / 数据结构与算法
 
@@ -539,3 +491,52 @@ let str = 'qwertyuilo.,mnbvcsarrrrrrrrtyuiop;l,mhgfdqrtyuio;.cvxsrtyiuo';
 - 函数防抖：是指在事件被触发 n 秒后再执行回调，如果在这 n 秒内事件又被触发，则重新计时。
   1. 按钮提交
   2. input 输入
+
+## js  链式调用
+
+我们都很熟悉 jQuery 了，只能 jQuery 中一种非常牛逼的写法叫链式操作;
+
+`$('#div').css('background','#ccc').removeClass('box').stop().animate({width:300});`
+
+一般的函数调用和链式调用的区别：调用完方法后，return this 返回当前调用方法的对象。
+
+```code
+        function Dog() {
+            this.run = function () {
+                console.log("The dog is running....");
+                return this; //返回当前对象  Dog
+            };
+            this.eat = function () {
+                console.log("After running the dog is eating ....");
+                return this; //返回当前对象  Dog        
+            };
+            this.sleep = function () {
+                console.log("After eating the dog is running....");
+                return this; //返回当前对象  Dog        
+            };
+        }
+        //一般的调用方式；
+        /*  var dog1 =new Dog();
+            dog1.run();
+            dog1.eat();
+            dog1.sleep();*/
+        var dog2 = new Dog();
+        dog2.run().eat().sleep();
+```
+
+## JQ 中 prop、 attr、data 的区别
+
+1. prop(property) 方法: 用于操作元素本身固有属性【元素自身的状态或值】
+
+   - 比如 checked、selected、disabled 等布尔类型的属性，或者是像 value 这样的字符串属性;
+   - prop() 主要用来处理那些在程序运行时可能会改变状态的属性。
+
+2. attr(attribute) 方法: 用于操作 HTML 元素的属性值
+
+   - 比如 id、class 或者自定义的 `data-*` 属性；
+   - attr() 更多用于操作那些在 HTML 中定义的属性。
+
+3. 的 data()方法: 用于操作任意类型的数据到 jQuery 包装集合中的每个元素上。
+   - data() 是一种在元素之间传递信息的方式，而不需要使用全局变量或直接修改 DOM。
+   - 它可以存储任何类型的数据（如数字、字符串、对象等），并且这些数据不会出现在 HTML 中。
+   - 需要在页面间共享的数据或临时存储的信息，则 data() 是最佳选择。
