@@ -125,8 +125,11 @@ redux 中间件本质就是一个函数柯里化。redux applyMiddlewareApi 源�
 
 ## React Hook 的使用限制有哪些？
 
-- 不要在循环、条件或嵌套函数中调用 Hook
-- 在 React 的函数组件中调用 Hoo
+- 在 React 的函数组件中调用 Hook;
+- 不要在循环、条件或嵌套函数中调用 Hook;
+  1. 加载编译时会组成 3 部分；所有的 value 一个数组，所有 use 一个数组，还有一个光标指针；
+  2. 初次加载，把遇到的所有的 value 推进 state 数组中，遇到的所有 use 推进 set 数组中，光标指针从 0 开始每次加一；
+  3. 状态变化，二次加载，光标指针从 0 开始，遇到 use 光标指针加一，对应从 2 数组拿 value 和 use；假如遇到 if （少/多）了一个 use,后续拿到的 value 和 use 就不对应；
 
 ## React diff 算法的原理是什么
 
