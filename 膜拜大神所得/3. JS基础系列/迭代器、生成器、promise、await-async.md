@@ -16,9 +16,8 @@
 ## 迭代器(iterator)
 
 1. 在 js 中，迭代器是一个对象，它定义一个序列，并在终止时可能附带一个返回值;
-2. 迭代器是通过使用 next() 方法实现了迭代器协议的任何一个对象，该方法返回具有两个属性的对象：{value:"迭代序列的下一个值",done:"如果已经迭代到序列中的最后一个值，则它为 true"}
-3. 可迭代的对象有“Symbol.iterator”属性；
-4. 通过 obj.next()迭代；
+2. 可迭代的对象（在原型链上）有“Symbol.iterator”属性；
+3. 通过 obj.next()迭代，返回{value:"迭代序列的值",done: false}/{value: undefined, done: true}；
 
 ```
 let set = new Set([1,2,3,4]);
@@ -40,7 +39,7 @@ Symbol.iterator / for of
 允许定义一个非连续执行的函数作为迭代算法。生成器函数使用 `function*` 语法编写。
 
 1. 生成器函数中用 yield 关键字来“暂停”函数的执行。
-2. 生成器对象（在原型链上）包含一个 next()方法,用这个方法来迭代生成器对象;
+2. 生成器对象（在原型链上）包含一个 next()方法,用这个方法来迭代生成器对象，返回{value: '当前 yield 的值', done: false}/{value: undefined, done: true};
 
 ```
 function* genFun(){
