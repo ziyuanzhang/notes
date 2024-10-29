@@ -75,6 +75,16 @@ div
 
 ## visibility:hidden -- 占位，但不可点击（click 事件没用）
 
+## css 权重--优先级规则
+
+!important
+
+1. 内联样式的权重为 1000。
+2. ID 选择器（#id）的权重为 100。
+3. 类选择器（.class）、属性选择器（[type="radio"]）和 伪类（:hover）的权重为 10。
+4. 类型选择器（div） 和 伪元素选择器（::before）的权重为 1。
+5. 通配选择器（`*`）、关系选择器（如 +、>）和否定伪类（如 :not()）的权重为 0，但在 :not() 内部声明的选择器会影响优先级。
+
 ## 对 BFC 的理解，如何创建 BFC
 
 BFC（Block Formatting Context）:即 区块格式化上下文;  
