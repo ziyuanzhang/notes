@@ -1,5 +1,7 @@
 # react
 
+https://www.zhihu.com/question/394945080/answer/3248392880
+
 ## React 的事件和普通的 HTML 事件有什么不同？
 
 1. 对于事件名称命名方式，原生事件为全小写，react 事件采用小驼峰
