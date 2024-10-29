@@ -1,4 +1,4 @@
-# Promise 、迭代器(iterator)、生成器(generator)、promise、await/async
+# 迭代器(iterator)、生成器(generator)、promise、await/async
 
 - 静态方法：
 
