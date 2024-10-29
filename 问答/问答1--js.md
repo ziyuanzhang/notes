@@ -524,6 +524,8 @@ let str = 'qwertyuilo.,mnbvcsarrrrrrrrtyuiop;l,mhgfdqrtyuio;.cvxsrtyiuo';
         dog2.run().eat().sleep();
 ```
 
+## 迭代器(iterator)、生成器(generator)、promise、await/async
+
 ## JQ 中 prop、 attr、data 的区别
 
 1. prop(property) 方法: 用于操作元素本身固有属性【元素自身的状态或值】
