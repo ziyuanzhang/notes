@@ -193,3 +193,5 @@ JSX 是 React.createElement(component,props, ...children)方法的语法糖。
 Redux 的中间件提供的是位于 action 被发起之后，到达 reducer 之前的扩展点；换而言之，原本 view -→> action -> reducer->store 的数据流加上中间件后变成了 view -> action -> middleware-> reducer -> store ，在这一环节可以做一些"副作用"的操作，如异步请求、打印日志等
 
 柯里化函数两端一个是 middewares，一个是 store.dispatch
+
+## Next.js -- 服务端渲染

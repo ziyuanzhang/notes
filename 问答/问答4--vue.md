@@ -457,3 +457,5 @@ vuex 中的 store 本质就是没有 template 的隐藏着的 vue 组件。
    服务端渲染在浏览器请求 URL 之后已经得到了一个带有数据的 HTML 文本，浏览器只需要解析 HTML，直接构建 DOM 树就可以。
 
 ## 从 DOM 到虚拟 DOM：切图仔 --> JQuery --> 模板语法 -->虚拟 DOM
+
+## Nuxt.js -- 服务端渲染
