@@ -227,6 +227,33 @@ JavaScript 代码的执行过程中，除了依靠“函数调用栈”来搞定
 | requestAnimationFrame |  支持  |  不  |     |           process.nextTick |   不   | 支持 |
 |          setImmediate |   不   | 支持 |     |                            |        |      |
 
+```
+        console.log(2);
+        let doit;
+        const prom = new Promise((resolve, reject) => {
+            console.log(3);
+            doit = resolve;
+            console.log(6)
+        })
+        prom.then(n => console.log(4));
+        async function s1() {
+            console.log(7);
+            await s2();
+            console.log(1);
+            doit();
+            console.log(8);
+        }
+        async function s2() {
+            console.log(9)
+        }
+        s1();
+        console.log(5)
+        prom.then(n => console.log(10));
+
+   await：后面的同步函数会立即执行；在阻挡；
+   resolve执行后才执行then方法
+```
+
 ## js defer 和 async 区别
 
 defer(延迟脚本):立即下载，初始的 HTML 文档解析完成再执行（DOMContentLoaded 事件之前执行）
