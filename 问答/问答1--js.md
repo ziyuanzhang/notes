@@ -182,10 +182,24 @@ js 代码出现栈溢出错误: 通常发生在递归调用过深 或者 无限�
 - 当执行 new CreateObj 的时候，JavaScript 引擎做了四件事：
 
   1. 首先创建一个空对象 tempObj；
-  2. 接着调用 CreateObj.call 方法，并将 tempObj 作为 call 方法的参数；
-  3. 然后执行 CreateObj 函数，此时的 CreateObj 函数执行上下文中的 this 指向 tempObj 对象；
+  2. 将对象与构建函数通过原型链连接起来;
+  3. 将构建函数中的 this 绑定到新建的对象 tempObj；
   4. 最后返回 tempObj 对象。
 
+  ```
+  function myNew(Func, ...args) {
+      // 1.创建一个新对象
+      const obj = {}
+      // 2.新对象原型指向构造函数原型对象
+      obj.__proto__ = Func.prototype
+      // 3.将构建函数的this指向新对象
+      let result = Func.apply(obj, args)
+      // 4.根据返回值判断
+      return result instanceof Object ? result : obj
+  }
+  ```
+
+```
 - call / apply / bind---改变 this 的指向
 
   它们在功能上是没有区别的，它们的区别主要是在于方法的实现形式和参数传递上的不同；
@@ -228,6 +242,7 @@ JavaScript 代码的执行过程中，除了依靠“函数调用栈”来搞定
 |          setImmediate |   不   | 支持 |     |                            |        |      |
 
 ```
+
         console.log(2);
         let doit;
         const prom = new Promise((resolve, reject) => {
@@ -250,9 +265,10 @@ JavaScript 代码的执行过程中，除了依靠“函数调用栈”来搞定
         console.log(5)
         prom.then(n => console.log(10));
 
-   await：后面的同步函数会立即执行；在阻挡；
-   resolve执行后才执行then方法
-```
+await：后面的同步函数会立即执行；在阻挡；
+resolve 执行后才执行 then 方法
+
+````
 
 ## js defer 和 async 区别
 
@@ -260,7 +276,7 @@ defer(延迟脚本):立即下载，初始的 HTML 文档解析完成再执行（
 
 async(异步脚本):立即下载，下载完在“浏览器空闲时”再执行(互不依赖；在 load 前)
 
-1、当初始的 HTML 文档被完全加载和解析完成之后，DOMContentLoaded 事件被触发，而无需等待样式表、图像和子框架的完成加载  
+1、当初始的 HTML 文档被完全加载和解析完成之后，DOMContentLoaded 事件被触发，而无需等待样式表、图像和子框架的完成加载
 2、页面上所有的资源（图片，音频，视频等）被加载以后才会触发 load 事件
 
 ## 跨域
@@ -274,7 +290,7 @@ async(异步脚本):立即下载，下载完在“浏览器空闲时”再执行
 
 ## 深 copy / 浅 copy
 
-深 copy：基础类型（字符串、数字、布尔、Null、Undefined、symbol）  
+深 copy：基础类型（字符串、数字、布尔、Null、Undefined、symbol）
 浅 copy：引用数据类型（包含普通对象-Object，数组对象-Array，正则对象-RegExp，日期对象-Date，数学函数-Math，函数对象-Function）
 
 ```code
@@ -304,7 +320,7 @@ async(异步脚本):立即下载，下载完在“浏览器空闲时”再执行
         return clone;
       }, copy)
     }
-```
+````
 
 ## 构造函数  /  普通函数 de 区别
 
