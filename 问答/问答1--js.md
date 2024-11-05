@@ -182,24 +182,23 @@ js 代码出现栈溢出错误: 通常发生在递归调用过深 或者 无限�
 - 当执行 new CreateObj 的时候，JavaScript 引擎做了四件事：
 
   1. 首先创建一个空对象 tempObj；
-  2. 将对象与构建函数通过原型链连接起来;
-  3. 将构建函数中的 this 绑定到新建的对象 tempObj；
-  4. 最后返回 tempObj 对象。
+  2. 新对象 tempObj 原型指向构造函数 Func 原型对象；
+  3. 将构建函数 Func 中的 this 绑定到新建的对象 tempObj 上，并执行；
+  4. 如果构造函数返回非空对象，则返回该对象；否则，返回刚创建的新对象
 
   ```
   function myNew(Func, ...args) {
       // 1.创建一个新对象
-      const obj = {}
+      const obj = Object.create(null);
       // 2.新对象原型指向构造函数原型对象
       obj.__proto__ = Func.prototype
       // 3.将构建函数的this指向新对象
       let result = Func.apply(obj, args)
-      // 4.根据返回值判断
-      return result instanceof Object ? result : obj
+      // 4.如果构造函数返回非空对象，则返回该对象；否则，返回刚创建的新对象
+      return typeof result === 'object' ? result : obj;
   }
   ```
 
-```
 - call / apply / bind---改变 this 的指向
 
   它们在功能上是没有区别的，它们的区别主要是在于方法的实现形式和参数传递上的不同；
@@ -265,10 +264,10 @@ JavaScript 代码的执行过程中，除了依靠“函数调用栈”来搞定
         console.log(5)
         prom.then(n => console.log(10));
 
-await：后面的同步函数会立即执行；在阻挡；
+await：后面的同步函数会立即执行，再阻挡；
 resolve 执行后才执行 then 方法
 
-````
+```
 
 ## js defer 和 async 区别
 
@@ -320,7 +319,7 @@ async(异步脚本):立即下载，下载完在“浏览器空闲时”再执行
         return clone;
       }, copy)
     }
-````
+```
 
 ## 构造函数  /  普通函数 de 区别
 
