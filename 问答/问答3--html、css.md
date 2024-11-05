@@ -73,6 +73,8 @@ div
 1. 标准 content:  部分不包含其他部分;
 2. IE content:  部分包含 border  和  padding
 
+box-sizing : border-box;
+
 ## visibility:hidden -- 占位，但不可点击（click 事件没用）
 
 ## css 权重--优先级规则
