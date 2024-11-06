@@ -43,10 +43,7 @@
 
 * vue 如何优化首页的加载速度？vue 首页白屏是什么问题引起的？如何解决呢？
 
-  - 首页白屏的原因：
-
-    单页面应用的 html 是靠 js 生成，因为首屏需要加载很大的 js 文件(
-    的时候会产生一定程度的白屏
+  - 首页白屏的原因：单页面应用的 html 是靠 js 生成，因为首屏需要加载很大的 js 文件，加载的时候会产生一定程度的白屏
 
   - 解决办法：
     1. 将公用的 JS 库通过 script 标签外部引入，减小 app.bundle 的大小，让浏览器并行下载资源文件，提高下载速度；
@@ -60,7 +57,8 @@
 
 - 不同点：  
    vue: 1. 元素相同，key 相同，属性不同 --- 认为节点不同，删除重建； 2. 新旧 virtual DOM：两端到中间比较；  
-   react：1. 元素相同，key 相同，属性不同---认为节点相同，修改属性； 2. 新旧 virtual DOM：从左向右比较；
+   react：1. 元素相同，key 相同，属性不同---认为节点相同，修改属性； 2. 新旧 virtual DOM：从左向右比较；  
+   vue 双向数据绑定，react 单向的；
 
 - 相同点：都只同级比较；忽略跨级操作；
 
@@ -72,8 +70,6 @@
 - 在数据量少的情况下，两者性能相差无几。
 - 数据量多的情况下，若是数据改变大，接近于全页面更新，模版语法性能更好。
 - 在局部更新为主的环境下，虚拟 DOM 的性能更好
-
-1. 双向数据绑定，单向的；
 
 ## Vue2.0 和 Vue3.0 有什么区别
 
@@ -123,7 +119,7 @@
 
 双向数据绑定流程
 
-1. 数据劫持：Vue 在初始化时会对 data 中的数据进行劫持，将其转换为 getter/setter，以便在数据变化时能够捕获到变化。
+1. 数据劫持：Vue 在初始化时会对 data 中的数据进行劫持，将其转换为 getter/setter，以便在数据改变时能够捕获到变化。
 2. 模板编译：Vue 会对模板进行编译，找到其中动态绑定的数据，并初始化视图。同时，为每个数据绑定创建一个 Watcher 实例，并将其添加到对应的 Dep 中。
 3. 数据变化通知：当数据发生变化时，会触发 setter 方法，进而调用 Dep 的 notify 方法通知所有相关的 Watcher 进行更新。
 4. 视图更新：Watcher 在收到更新通知后，会调用相应的更新函数来更新视图。
@@ -211,10 +207,6 @@
 ## Vue 中父组件如何监听子组件的生命周期？
 
 在子组件中的各个生命周期$emit 事件
-
-## Vue 事件总线（EventBus）、$on、$emit、$off
-
-发布订阅模式
 
 ## js 实现简单的双向绑定
 
@@ -313,6 +305,10 @@
            });
     EventBus.$off('aMsg', {})
 
+## Vue 事件总线（EventBus）、$on、$emit、$off
+
+发布订阅模式
+
 ## Vue.extend 与 Vue.component（都是创建组件） 区别：
 
 1. let mv = new Vue({}) mv 是 vue 实例
@@ -345,12 +341,6 @@
   3. main.js 中使用 Vue.use(ToastPlugin)
   4. this.$showToast ('标题', '提示内容')
 
-## VueRouter-路由守卫
-
-1. 全局：前置 beforeEach ；后置 afterEach（没有 next）；beforeResolve
-2. 路由内 ：独享 beforeEnter；
-3. 组件内：beforeRouteEnter（唯一 next 有回调），beforeRouteUpdate，beforeRouteLeave
-
 ## vue hash 和 history 原理
 
 1. hash : `window.onhashchange` 事件,不会被包括在 HTTP 请求中，对后端完全没有影响，因此改变 hash 不会重新加载页面。
@@ -364,6 +354,12 @@
    `<router-link :to="{ path: 'register', query: { plan: 'private' }}">Register</router-link>`
 2. params--history  模式  ：路径显示，参数不显示；刷新参数没有了；则类似于 post
    `<router-link :to="{ name: 'user', params: { userId: 123 }}">User</router-link>`
+
+## VueRouter-路由守卫
+
+1. 全局：前置 beforeEach ；后置 afterEach（没有 next）；beforeResolve
+2. 路由内 ：独享 beforeEnter；
+3. 组件内：beforeRouteEnter（唯一 next 有回调），beforeRouteUpdate，beforeRouteLeave
 
 ## 完整的 Vue 路由生命周期
 
