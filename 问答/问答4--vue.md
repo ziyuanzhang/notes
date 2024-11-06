@@ -139,15 +139,67 @@
   4. Model 和 View 并无直接关联，而是通过 ViewModel 来进行联系的，
   5. 这种模式实现了 Model 和 View 的数据自动同步，因此开发者只需要专注于数据的维护操作即可，而不需要自己操作 DOM。
 
+## vue3.0 ref() 与 reactive() 主要有三个区别:
+
+1. ref() 函数接受“原始类型”和“对象”作为参数，而 reactive() 函数只能接受“对象”作为参数；
+2. ref() 有一个 .value 属性，你必须使用 .value 属性获取内容，但是使用 reactive() 的话可以直接访问；
+3. 使用 ref() 函数可以替换整个对象实例，但是在使用 reactive() 函数时就不行；
+
+   ```
+   // 无效 - x 的更改不会被 Vue 记录
+   let x = reactive({name: 'John'})
+   x = reactive({todo: true})
+
+   // 有效
+   const x = ref({name: 'John'})
+   x.value = {todo: true}
+
+   ```
+
+   **注**：应该盲目地选择 ref() 而不是 reactive()（保持风格一致）；
+
+## vue3.0 hook 编写
+
+```
+import { ref, watch } from 'vue';
+const useAdd= ({ num1, num2 })  =>{
+    const addNum = ref(0)
+    watch([num1, num2], ([num1, num2]) => {
+        addFn(num1, num2)
+    })
+    const addFn = (num1, num2) => {
+        addNum.value = num1 + num2
+    }
+    return {
+        addNum,
+        addFn
+    }
+}
+export default useAdd;
+
+<span>加法等于:{{ addNum }}</span>
+
+<script setup>
+ import { ref } from 'vue'
+ import useAdd from './useAdd.js'     //引入自动hook
+ const num1 = ref(2)
+ const num2 = ref(1)
+ //加法功能-自定义Hook（将响应式变量或者方法形式暴露出来）
+ const { addNum, addFn } = useAdd({ num1, num2 })
+ addFn(num1.value, num2.value)
+</script>
+
+```
+
 ## Vue 的生命周期
 
 - 创建期间：
 
-  1. beforeCreate: 组件实例初始化完成并且 props 被解析后立即调用；
+  1. beforeCreate -> setup: 组件实例初始化完成并且 props 被解析后立即调用；
 
      - 此时还没有初始化 data、methods
 
-  2. created: 组件实例处理完所有与状态相关的选项后调用；
+  2. created -> setup: 组件实例处理完所有与状态相关的选项后调用；
 
      - 此时 响应式数据（data）、计算属性、方法（methods）和侦听器 已经创建 OK；
      - 还没有开始编译模板；
@@ -171,18 +223,20 @@
 
      - 此时 data 中的状态值是最新的；但是界面上显示的 数据还是旧的，因为此时还没有开始重新渲染 DOM 节点
 
-  2. updated: ：组件更新完毕之后调用此函数;
+  2. updated: 组件更新完毕之后调用此函数;
 
      - 此时 data 中的状态值 和 界面上显示的数据 都已经完成了更新，界面已经被重新渲染好了
 
 - 销毁期间：
 
-  1. beforeDestroy（vue2）/beforeUnmount（vue3）： 组件实例被卸载之前调用。（在这一步，实例仍然完全可用）
+  1. beforeDestroy -> beforeUnmount： 组件实例被卸载之前调用。（在这一步，实例仍然完全可用）
 
-  2. destroyed（vue2）/unmounted（vue3）: 组件实例被卸载后调用；
+  2. destroyed -> unmounted: 组件实例被卸载后调用；
      - 其所有子组件都已经被卸载。
      - 所有相关的响应式作用都已经停止。
      - 可以在这个钩子中手动清理一些副作用，例如计时器、DOM 事件监听器或者与服务器的连接。
+
+- errorCaptured -> onErrorCaptured：当捕获一个来自子孙组件的错误时被调用
 
 ## Vue 的父组件和子组件生命周期钩子执行顺序是什么
 
@@ -237,7 +291,7 @@
             })
 
         }
-    </script>
+    </>
 </body>
 ```
 
