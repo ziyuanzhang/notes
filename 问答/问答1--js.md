@@ -30,7 +30,8 @@
 - （基本/原始）数据类型 ：String、Number、Boolean、Null（空）、Undefined（未定义）、Symbol 、Bigint
 
   1. Symbol: ES6 引入的，表示独一无二的值。
-  2. Bigint: ES6 引入的，表示任意大的整数--比 Number【2^53-1】 数据类型支持的范围更大的整数值
+  2. Bigint: ES6 引入的，表示任意大的整数--比 Number【2^53-1】 数据类型支持的范围更大的整数值；  
+     js-big-decimal.js / bignumber.js 库处理数据加减乘除
 
 - 引用数据类型 对象(Object)【除了基本类型以外都是对象,数组,函数,正则表达式】
 
