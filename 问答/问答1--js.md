@@ -585,3 +585,7 @@ let str = 'qwertyuilo.,mnbvcsarrrrrrrrtyuiop;l,mhgfdqrtyuio;.cvxsrtyiuo';
    - data() 是一种在元素之间传递信息的方式，而不需要使用全局变量或直接修改 DOM。
    - 它可以存储任何类型的数据（如数字、字符串、对象等），并且这些数据不会出现在 HTML 中。
    - 需要在页面间共享的数据或临时存储的信息，则 data() 是最佳选择。
+
+onClick 与 add 监听区别；
+事件代理；
+监听页面滚动，左右互动；性能；
