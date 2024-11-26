@@ -90,6 +90,12 @@
 4. 代码结构调整，更便于 Tree shaking，使得体积更小；
 5. 使用 Typescript 替换 Flow；
 
+## vue3.0 proxy
+
+Proxy 默认只代理一层对象的属性;
+proxy 代理深层属性:解决办法是，在 Reflect 返回的时候，判断是否是一个对象，如果是对象的话，再次用 Proxy 代理，返回代理对象
+![](./img/vue/proxy.webp)
+
 ## Vue 的基本原理
 
 当 一 个 Vue 实 例 创 建 时 ， Vue 会 遍历 data 中的属性，用 Object.defineProperty （ vue3.0 使 用 proxy ）将它们转为 getter/setter，并且在内部追踪相关依赖，在属性被访问和修改时通知变化。  
@@ -190,6 +196,14 @@ export default useAdd;
 </script>
 
 ```
+
+## Vue 中的三种 Watcher
+
+https://www.cnblogs.com/WindrunnerMax/p/14864214.html
+
+- 第一种是在定义 data 函数时定义数据的 render watcher；
+- 第二种是 computed watcher，是 computed 函数在自身内部维护的一个 watcher，配合其内部的属性 dirty 开关来决定 computed 的值是需要重新计算还是直接复用之前的值；
+- 第三种就是 watcher api 了，就是用户自定义的 export 导出对象的 watch 属性；当然实际上他们都是通过 class Watcher 类来实现的。
 
 ## Vue 的生命周期
 
