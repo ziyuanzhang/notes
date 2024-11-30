@@ -352,8 +352,8 @@ https://www.cnblogs.com/WindrunnerMax/p/14864214.html
 ## vue nextTick -- DOM 更新后调用 / vm.$forceUpdate---强制本组件和卡槽子组件更新
 
 - nextTick：分宏任务 和 微任务 （默认）
-- 宏任务：setImmediate --》MessageChannel --》setTimeout (DOM 交互事件走宏任务，v-on@)
 - 微任务：Promise --》宏任务
+- 宏任务：setImmediate --》MessageChannel --》setTimeout (DOM 交互事件走宏任务，v-on@)
 
 ## vue 组件通信
 

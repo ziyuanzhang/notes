@@ -29,17 +29,77 @@
 
 - （基本/原始）数据类型 ：String、Number、Boolean、Null（空）、Undefined（未定义）、Symbol 、Bigint
 
-  1. Symbol: ES6 引入的，表示独一无二的值。
-  2. Bigint: ES6 引入的，表示任意大的整数--比 Number【2^53-1】 数据类型支持的范围更大的整数值；  
-     js-big-decimal.js / bignumber.js 库处理数据加减乘除
+  1. Symbol: ES6 引入的，表示独一无二的值；
+  2. Bigint: ES6 引入的，表示任意大的整数；比 Number.MAX_SAFE_INTEGER 【2^53-1】 大的整数值；
 
-- 引用数据类型 对象(Object)【除了基本类型以外都是对象,数组,函数,正则表达式】
+     js-big-decimal.js / bignumber.js 库处理数据加减乘除；
 
-## null / undefined
+- 引用数据类型：对象(Object)【除了基本类型以外都是对象,数组,函数,正则表达式】
+
+## null / undefined / NaN
 
 - null：空值（主要用于赋值给一些可能会返回对象的变量，作为初始化。）
-- undefined：变量未持有值（只声明未赋值,或者 =未赋值的变量）
-- typeof bb -->（返回 undefined）
+- undefined：1、只声明未赋值；2、对象属性未定义；3、函数无返回值；4、 =未赋值的变量；
+- typeof bb -->（返回 undefined）；
+- NaN：不是一个数字（Not-a-Number）；
+
+```null
+ ==== 空对象指针 ====
+   let person = null;
+ ==== 清空对象引用 ====
+   let person ={name:"LiSi"}
+   person = null;
+ ==========================
+ console.log(undefined == null); //true
+ console.log(undefined === null); //false
+
+ Object.is(null,null); //true
+ Object.is(undefined,undefined); //true
+ Object.is(undefined,null); //false
+```
+
+```undefined
+ ====== 1、只声明未赋值 ========
+   let b
+   console.log(b); // 输出：undefined
+ ====== 2、对象属性未定义 ========
+   let obj={}
+   console.log(obj.name); // 输出：undefined
+ ====== 3、函数无返回值 ========
+   function say(){ console.log("H")}
+   let result = say(); // 调用函数
+   console.log(result); // 输出：undefined
+ ====== 4、=未赋值的变量； ========
+   let a;
+   let b = a;
+   console.log(b); // 输出：undefined
+```
+
+```NaN
+==== 1、非法数学运算 ======
+  let d = 0/0;
+  let e = Math.sqrt(-1);
+  console.log(d,e) // 输出：NaN , NaN
+==== 2、无效的类型转换 =====
+  let f = parseInt("Hello");
+  console.log(f); // 输出：NaN
+========================
+console.log(NaN === NaN); //false
+console.log(NaN == NaN); //false
+
+isNaN() 会对参数进行类型转换。
+Number.isNaN() 不进行类型转换，只在值本身是 NaN 时返回 true。
+
+console.log(isNaN("Hello")); //true
+console.log(isNaN(NaN)); //true
+console.log(Number.isNaN(NaN)); //true
+console.log(Number.isNaN("Hello")); //false
+Object.is(NaN,NaN); //true
+
+console.log(-0 == +0); //true
+console.log(-0 === +0); //true
+Object.is(-0,+0); //false
+```
 
 ## 基本数据类型和复杂数据类型的区别
 
@@ -71,6 +131,34 @@
 
 4. 队列只能在队头做删除操作,在队尾做插入操作。（先进先出）
    理解队列数据结构的目的主要是为了清晰的明白事件循环机制
+
+## const 对象的属性可以修改吗？
+
+const 保证的并不是变量的值不能改动，而是变量指向的那个内存地址不能改动。
+
+- 基本类型的数据（数值、字符串、布尔值）：其值保存在内存地址；
+- 引用类型的数据（主要是对象和数组）：内存地址保存的只是一个指针，const 只能保证这个指针是固定不变的，至于它指向的数据结构是不是可变的，就完全不能控制了。
+
+## JS 中的包装类；
+
+在 js 中，基本类型是没有属性和方法的，但是为了便于操作基本类型的值，在调用基本类型的属性或方法时 js 会在后台隐式地将基本类型的值转换为对象;
+
+- `let a ="abc"; a.length;` 当 访 问 'abc'.length 时 ， JavaScript 将'abc' 在后台转换成 String('abc')，然后再访问其 length 属性;
+
+- `let b = Object(a); //String{"abc"} ` JavaScript 也可以使用 Object 函数显式地将基本类型转换为包装类型;
+
+- `let c = b.valueOf(); //"abc"` 也可以使用 valueOf 方法将包装类型倒转成基本类型;
+
+- 如下代码会打印出什么：
+
+  ```
+    let a = new Boolean(false);
+    if(!a){
+       console.log("Oops"); //从不运行；
+    }
+  ```
+
+答案是什么都不会打印，因为虽然包裹的基本类型是 false，但是 false 被包裹成包装类型后就成了对象，所以其非值为 false，所以循环体中的内容不会运行。
 
 ## 进程、线程：参考 “计算机基础系列 / 进程-线程-协程-纤程”
 
@@ -109,11 +197,19 @@ js 代码出现栈溢出错误: 通常发生在递归调用过深 或者 无限�
 
 当函数执行完毕后，执行上下文对象将被销毁，从执行栈中弹出。但是，如果函数是一个闭包并且被外部引用，它的执行上下文可能会被保留在内存中，以供后续访问和使用。
 
-## 作用域 / 作用域链 / 闭包
+## 作用域（Scope） / 作用域链（Scope Chain） / 闭包
 
 1. 作用域（词法环境）：是一套约定好的规则。我们写代码，应该按照这个规则写，JS 引擎对 JS 源码进行词法分析，也是按照这个规则来。
-2. 作用域链是：在代码执行过程中"会动态变化的一条索引路径"。(由当前环境与上层环境的一系列变量对象组成，它保证了当前执行环境对“符合访问权限的变量和函数”的有序访问。)
-3. 闭包：根据词法作用域的规则，内部函数总是可以访问其外部函数中声明的变量，当通过调用一个外部函数返回一个内部函数后，即使外部函数已经执行结束了，但是内部函数引用外部函数的变量依旧保存在内存中，把这些变量的集合称为闭包；
+
+   - 全局作用域、函数作用域、块级作用域
+
+2. 作用域链是：在代码执行过程中"会动态变化的一条索引路径"(由当前环境与上层环境的一系列变量对象组成)。
+
+   在当前作用域中查找所需变量，如果在自己作用域找不到该变量就去父级作用域查找，依次向上级作用域查找，直到访问到 window 对象就被终止，这一层层的关系就是作用域链。
+
+3. 作用域链的作用是：它保证了当前执行环境对“符合访问权限的变量和函数”的有序访问。
+
+4. 闭包：根据词法作用域的规则，内部函数总是可以访问其外部函数中声明的变量，当通过调用一个外部函数返回一个内部函数后，即使外部函数已经执行结束了，但是内部函数引用外部函数的变量依旧保存在内存中，把这些变量的集合称为闭包；
 
 ## 闭包： 一种特殊的对象，本质是当前环境中存在指向父级作用域的引用
 
@@ -122,18 +218,38 @@ js 代码出现栈溢出错误: 通常发生在递归调用过深 或者 无限�
 
 闭包的问题在于，一旦有变量引用这个中间函数，这个中间函数将不会释放，同时也会使原始的作用域不会得到释放，作用域中产生的内存占用也不会得到释放。除非不再有引用，才会逐步释放。
 
+## 什么是尾调用，使用尾调用有什么好处？ 尾调用与闭包；
+
+尾调用指的是：函数的最后一步调用另一个函数。
+当函数执行的最后一步是返回一个函数的调用结果时，我们称之为尾递归。
+
+```demo
+function factorial(n, acc = 1) {
+  if (n === 0) return acc;
+  return factorial(n - 1, n * acc);
+}
+
+console.log(factorial(5)); // 输出：120
+```
+
+**好处：** 使用尾调用的话，因为已经是函数的最后一步，所以这时可以不必再保留当前的执行上下文，从而节省了内存，这就是尾调用优化。但是 ES6 的尾调用优化只在严格模式下开启，正常模式是无效的。
+
 ## 原型（原型对象） / 原型链
 
 1. 我们创建的每一个函数，js 引擎会为函数添加一个  prototype  属性，该属性指向一个对象。这个对象就是我们所说的原型。
 
 2. 查找对象的某个属性，如果对象本身没有，会通过`__proto__`去它的构造函数的 prototype（原型对象）中查找；如果还没有找到，会继续通过原型对象的`__proto__`去【原型对象的原型】中查找，直到 Object.prototype 对象为止，这样就形成一个链式结构,  即原型链。
 
-3. 每个对象都有`__proto__`属性，但只有函数对象才有 prototype 属性
+3. 每个对象都有`__proto__`属性，但只有函数对象才有 prototype 属性;
+
+4. 由于 Object 是构造函数，原型链终点 `Object.prototype.__proto__`，而 `Object.prototype.__proto__=== null` // true，所以，原型链的终点是 null。原型链上的所有原型都是对象，所有的对象最终都是由 Object 构造的，而 Object.prototype 的下一级是`Object.prototype.__proto__`。
+
+![原型链](./img/js/原型链.png)
 
 ## constructor /prototype /`__proto__`   <https://www.jianshu.com/p/dee9f8b14771>
 
 1. 原型对象（Person.prototype）有一个 constructor 属性（指向构造函数）。
-2. 实例没有 constructor,调用的是原型链上的 constructor
+2. 实例没有 constructor,调用的是原型上的 constructor
 
    ```code
       var person1 = new Person();
@@ -142,7 +258,7 @@ js 代码出现栈溢出错误: 通常发生在递归调用过深 或者 无限�
       person1.__proto__ == Person.prototype;
    ```
 
-3. getProtypeOf 是 Object 对象自带的一个方法，能够拿到参数的原型对象
+3. getPrototypeOf 是 Object 对象自带的一个方法，能够拿到参数的原型对象
       Object.getPrototypeOf(person1)=== Person.prototype;
 
 ## hasOwnProperty / isPrototypeOf / for...in
@@ -158,12 +274,15 @@ js 代码出现栈溢出错误: 通常发生在递归调用过深 或者 无限�
    - 数组、对象、null 都会被判断为 object，其他判断都正确
    - typeof (object、Function、Array、Date、Number、String、Bootlean)-->结果是:funciton
 
-2. Object.prototype.toString:判断某个对象属于哪种内置类型；但不能判断自定义类型.  
+2. Object.prototype.toString:判断某个对象属于哪种内置类型；但不能判断自定义类型.
+
    Object.prototype.toString.call(null); // "[object Null]"-- [Object type]，其中 type 为对象的类型。
+
+   【array、function 等 obj】.toString()的结果和 Object.prototype.toString.call(obj)的结果不一样， 这是因为 toString 是 Object 的原型方法，而 Array、function 等类型作为 Object 的实例，都重写了 toString 方法。
 
 3. instanceof：检测构造函数的 prototype 属性是否出现在某个实例对象的原型链上。
 
-   - 1.自定义类型; 2.只能用来判断对象类型，原始类型不可以。并且所有对象类型 instanceof Object 都是 true。
+   - 1、自定义类型; 2、只能用来判断对象类型，原始类型不可以；3、并且所有对象类型 instanceof Object 都是 true。
    - [] instanceof Array; // true; ------ [] instanceof Object; // true
    - //语法：object instanceof constructor ，
    - 参数：object（实例对象）constructor（构造函数）
@@ -207,6 +326,10 @@ js 代码出现栈溢出错误: 通常发生在递归调用过深 或者 无限�
   1. 函数.call( 对象,arg1,arg2.... )  ----->会自执行
   2. 函数.apply( 对象,[ ] )  ----->会自执行
   3. var ss=函数.bind(对象,arg1,arg2,....)   ----->不会自执行，需要调用
+
+## 箭头函数的 this 指向哪⾥？
+
+箭头函数并没有属于⾃⼰的 this，它所谓的 this 是捕获其所在上下⽂的 this 值，作为⾃⼰的 this 值
 
 ## js 继承 <https://www.cnblogs.com/humin/p/4556820.html>
 
@@ -270,9 +393,10 @@ resolve 执行后才执行 then 方法
 
 ```
 
-## js defer 和 async 区别
+## js defer 和 async / type="module" 区别
 
-- defer(延迟脚本):遇到后立即下载，初始的 HTML 文档解析完成再执行（DOMContentLoaded 事件之前执行）；
+- defer(延迟脚本):遇到后立
+  即下载，初始的 HTML 文档解析完成再执行（DOMContentLoaded 事件之前执行）；
 
   1. 有多个，按在页面出现的顺序执行；
 
@@ -352,8 +476,6 @@ per.sayName(); //'Nicholas'    
   window.sayName(); //'Greg'
 ```
 
-## 迭代器、生成器、promise、await/async
-
 ## JQ 中类似 promise
 
 // $.when().done().fail().then()
@@ -397,6 +519,8 @@ RegExpObject.test(string) // 匹配到，返回 true ，否则返回 false。
 
      3. ESM 模块的 import 命令是异步加载，有一个独立的模块依赖的解析阶段。
 
+## 迭代器(iterator)、生成器(generator)、promise、await(异步)/async(等待)
+
 ## 迭代与递归
 
 - 迭代：for 循环 ；
@@ -404,47 +528,15 @@ RegExpObject.test(string) // 匹配到，返回 true ，否则返回 false。
 - 递归中一定有迭代，但是迭代中不一定有递归；
 - 能用迭代的不用递归；递归调用函数，浪费空间，并且递归太深容易造成堆栈的溢出。
 
-## for -- setTimeout
+## 节流与防抖
 
-1. 添加个闭包
-
-   ```code
-           for (var i = 1; i <= 5; i++) {
-               (function (j) {
-                   setTimeout(function timer() {
-                       console.log(j)
-                   }, 0)
-               })(i)
-           }
-   ```
-
-2. 传第三个参
-
-   ```code
-           for (var i = 1; i <= 5; i++) {
-               setTimeout(function timer(j) {
-                   console.log(j)
-               }, 0, i)
-           }
-   ```
-
-3. let
-
-   ```code
-           for (let i = 0; i < 3; ++i) {
-               setTimeout(function () {
-                   console.log("let", i);
-               }, 100);
-           }
-   ```
-
-4. ***
-
-   ```code
-      for (var i = 0; i < 3; ++i) {
-               setTimeout(console.log("var", i), 100);
-           }
-   ```
+- 函数节流：是指规定一个单位时间，在这个单位时间内，只能有一次触发事件的回调函数执行，如果在同一个单位时间内某事件被触发多次，
+  只有一次能生效。
+  1. 监控浏览器 resize；
+  2. 元素拖拽
+- 函数防抖：是指在事件被触发 n 秒后再执行回调，如果在这 n 秒内事件又被触发，则重新计时。
+  1. 按钮提交
+  2. input 输入
 
 ## Object.defineproperty 与 proxy 区别
 
@@ -536,16 +628,6 @@ let str = 'qwertyuilo.,mnbvcsarrrrrrrrtyuiop;l,mhgfdqrtyuio;.cvxsrtyiuo';
   console.log('出现最多的值是' + number + '出现次数为' + num);
 ```
 
-## 节流与防抖
-
-- 函数节流：是指规定一个单位时间，在这个单位时间内，只能有一次触发事件的回调函数执行，如果在同一个单位时间内某事件被触发多次，
-  只有一次能生效。
-  1. 监控浏览器 resize；
-  2. 元素拖拽
-- 函数防抖：是指在事件被触发 n 秒后再执行回调，如果在这 n 秒内事件又被触发，则重新计时。
-  1. 按钮提交
-  2. input 输入
-
 ## js  链式调用
 
 我们都很熟悉 jQuery 了，只能 jQuery 中一种非常牛逼的写法叫链式操作;
@@ -578,8 +660,6 @@ let str = 'qwertyuilo.,mnbvcsarrrrrrrrtyuiop;l,mhgfdqrtyuio;.cvxsrtyiuo';
         dog2.run().eat().sleep();
 ```
 
-## 迭代器(iterator)、生成器(generator)、promise、await/async
-
 ## JQ 中 prop、 attr、data 的区别
 
 1. prop(property) 方法: 用于操作元素本身固有属性【元素自身的状态或值】
@@ -596,6 +676,48 @@ let str = 'qwertyuilo.,mnbvcsarrrrrrrrtyuiop;l,mhgfdqrtyuio;.cvxsrtyiuo';
    - data() 是一种在元素之间传递信息的方式，而不需要使用全局变量或直接修改 DOM。
    - 它可以存储任何类型的数据（如数字、字符串、对象等），并且这些数据不会出现在 HTML 中。
    - 需要在页面间共享的数据或临时存储的信息，则 data() 是最佳选择。
+
+## for -- setTimeout
+
+1. 添加个闭包
+
+   ```code
+           for (var i = 1; i <= 5; i++) {
+               (function (j) {
+                   setTimeout(function timer() {
+                       console.log(j)
+                   }, 0)
+               })(i)
+           }
+   ```
+
+2. 传第三个参
+
+   ```code
+           for (var i = 1; i <= 5; i++) {
+               setTimeout(function timer(j) {
+                   console.log(j)
+               }, 0, i)
+           }
+   ```
+
+3. let
+
+   ```code
+           for (let i = 0; i < 3; ++i) {
+               setTimeout(function () {
+                   console.log("let", i);
+               }, 100);
+           }
+   ```
+
+4. ***
+
+   ```code
+      for (var i = 0; i < 3; ++i) {
+               setTimeout(console.log("var", i), 100);
+           }
+   ```
 
 onClick 与 add 监听区别；
 事件代理；
