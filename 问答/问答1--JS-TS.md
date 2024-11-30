@@ -1,4 +1,6 @@
-# js 问题
+# TS 问题 参考“日常踩坑 / TS.md”
+
+# JS 问题
 
 ## array 与 string 方法
 

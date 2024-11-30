@@ -32,8 +32,8 @@
 3. source-map-loader：
 4. image-loader：
 5. babel-loader：
-6. css-loader：
-7. style-loader：
+6. css-loader：导入 CSS 模块，对 CSS 代码进行编译处理；
+7. style-loader：：创建 style 标签，把 CSS 内容写入标签。
 8. eslint-loader：
 
 ## 开发一个 loader 常用的 Api
