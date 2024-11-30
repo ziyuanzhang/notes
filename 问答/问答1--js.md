@@ -603,6 +603,26 @@ deleteProperty(target, propKey)：拦截 delete proxy[propKey]的操作，返回
   xhr.send('name=fox&age=18');
 ```
 
+## onClick 与 addEventListener 监听区别
+
+addEventListener 能够添加多个事件，且只能写在 js 中，易于控制和修改。
+
+用 onclick 容易造成覆盖问题，管理起来比较麻烦。
+
+## 事件代理的优点
+
+1. 提高性能；
+
+   在父元素上绑定一个事件处理程序，比为每个子元素单独绑定事件处理程序性能更高，尤其是在子元素数量较多时。
+
+2. 简化代码；
+
+   事件代理减少了事件处理程序的数量，使代码更简洁、更易于维护。
+
+3. 动态内容支持；
+
+   对于动态添加或删除的子元素，事件代理可以自动处理，不需要额外的事件绑定或解绑逻辑
+
 ## JS 中判断字符串中出现次数最多的字符及出现的次数:
 
 ```code
@@ -718,7 +738,3 @@ let str = 'qwertyuilo.,mnbvcsarrrrrrrrtyuiop;l,mhgfdqrtyuio;.cvxsrtyiuo';
                setTimeout(console.log("var", i), 100);
            }
    ```
-
-onClick 与 add 监听区别；
-事件代理；
-监听页面滚动，左右互动；性能；
