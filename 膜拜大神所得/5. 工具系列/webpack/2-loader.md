@@ -25,6 +25,17 @@
 7. 插件(plugin)可以为 loader 带来更多特性。
 8. loader 能够产生额外的任意文件。
 
+## 有哪些常⻅的 Loader
+
+1. file-loader：把⽂件输出到⼀个⽂件夹中，在代码中通过相对 URL 去引⽤输出的⽂件
+2. url-loader：和 file-loader 类似，但是能在⽂件很⼩的情况下以 base64 的⽅式把⽂件内容注⼊到代码中去
+3. source-map-loader：
+4. image-loader：
+5. babel-loader：
+6. css-loader：
+7. style-loader：
+8. eslint-loader：
+
 ## 开发一个 loader 常用的 Api
 
 1. this.async ：获取一个 callback 函数，处理异步。
