@@ -1,48 +1,65 @@
-## 安装
+# TS 安装
 
-1. ts-node-dev
-2. tsconfig.json
+- JS 类型都是大写；
+- TS 类型都是小写；例如（let num:number =10）number 小写
 
 ```
 写要求
 {
     "compilerOptions":{
-
         "lib":["ES6","DOM"],//支持书写的的东西;（console.log--属于DOM，TS默认不支持DOM，添加上）
         "target":["ES6"],//生成的东西
         "noTmplicitAny":true, //禁止使用Any
-        "strict":true, //开启严格模式检查
         "noTmplicitThis":true, // 禁止使用this
+        "strict":true, //开启严格模式检查
         "strictNullChecks":true, //禁止使用null
     }
 }
 
 ```
 
-| ES6 基础数据类型 | TS 基础数据类型 |
-| :--------------- | :-------------: |
-| Boolean          |      Vioid      |
-| Number           |       Any       |
-| Array            |      元组       |
-| Function         |      枚举       |
-| Object           |    高级类型     |
-| Symbol           |                 |
-| undefined        |                 |
-| null             |                 |
+## interface 与 type
 
-**注：** TS 类型都是小写；例如（let num:number =10）number 小写
+- 相同点：
+
+  1. 都可以声明一个对象或函数
+  2. 都允许进行扩展
+
+- 不同点：
+
+  1. type：类型别名可以用于其它类型 （联合类型、元组类型、基本类型（原始值）），interface 不支持；
+  2. type：能使用 in 关键字生成映射类型，但 interface 不行；
+  3. typeof：获取实例的对象；
+
+     ```
+      type Keys = 'firstname' | 'surname';
+      type DudeType = {
+        [key in Keys]: string;
+      };
+      const test: DudeType = {
+        firstname: 'Pawel',
+        surname: 'Grzybek',
+      };
+     ```
+
+  4. interface：可以多次定义 并被视为合并所有声明成员, type 不支持；
+     ```
+     interface Point { x: number;}
+     interface Point {  y: number;}
+     const point: Point = { x: 1, y: 2 };
+     ```
 
 #### Utility Types： 工具类
 
-1. typeof：获取变量类型；
-2. keyof：将类型的键联合起来；type P = "x" | "y"；
-3. in: 用来遍历枚举类型;
-4. as: 类型断言 -- 针对联合类型；
-5. &:交叉类型（Intersection types）
-6. |：联合类型（Union types）
-7. 泛型:
-8. =========================
-9. Partial<Type>: 把类型 Type 的所有属性设置为可选；
+1.  typeof：获取变量类型；
+2.  keyof：将类型的键联合起来；type P = "x" | "y"；
+3.  in: 用来遍历枚举类型;
+4.  as: 类型断言 -- 针对联合类型；
+5.  &:交叉类型（Intersection types）
+6.  |：联合类型（Union types）
+7.  泛型:
+8.  =========================
+9.  Partial<Type>: 把类型 Type 的所有属性设置为可选；
 10. Required<Type>: 把类型 Type 的所有属性设置为必选；
 11. Readonly<Type>: 把类型 Type 的所有属性设置为只读，不能重新赋值；【与 js 的冻结类似--Object.freeze】
 12. ========================
@@ -68,21 +85,21 @@
 
 25. 枚举
 
-```
-enum Days{
-    Sun = 7,
-    Mon = 1,
-    Tue = 2,
-    Wed = 3,
-    Thu = 4,
-    Fri = 5,
-    Sat = 6,
-}
-console.log("aaa:",Days["Sun"])
-console.log("aaa:",Days[7])
-```
+    ```
+    enum Days{
+        Sun = 7,
+        Mon = 1,
+        Tue = 2,
+        Wed = 3,
+        Thu = 4,
+        Fri = 5,
+        Sat = 6,
+    }
+    console.log("aaa:",Days["Sun"])
+    console.log("aaa:",Days[7])
+    ```
 
-13. 函数
+26. 函数
 
         1、
 
@@ -113,7 +130,7 @@ console.log("aaa:",Days[7])
         3.2 ()=>{}  ：-->表示函数
         ```
 
-14. 类
+27. 类
 
         1. 抽象类、类中的抽象方法（abstract）-->需要具体实现，不能直接用;
         2. 方法修饰符：
@@ -154,17 +171,6 @@ interface Person{
     [proName:string]:number //1.可以添加一个key为string类型的属性；2.Person的所有属性值必须为number型（因此一般number用any替换）
 }
 ```
-
-interface 与 type 相同点：
-
-- 都可以声明一个对象或函数
-- 都允许进行扩展
-
-interface 与 type 不同点：
-
-- type:声明基本类型别名、联合类型、元祖等
-- typeof：获取实例的对象
-- interface 可以被合并
 
 #### 接口实现
 
