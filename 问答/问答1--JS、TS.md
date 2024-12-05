@@ -4,26 +4,26 @@
 
 ## array 与 string 方法
 
-| array 与 string 共用方法         | string                                | array                                         |
-| -------------------------------- | :------------------------------------ | :-------------------------------------------- |
-| concat(" world","!");            | str.split(",") 分割                   | arr.join(",")  ---  arr.toString()            |
-| slice(0, 3) --3 下标,返回截取的; | =================                     | =========================                     |
-| length;                          | str.toUpperCase()                     | arr.splice(1,2,"d","e")                       |
-| arr[0] / str[0];                 | str.toLowerCase()                     | ========================                      |
-| indexOf('world');                | ================                      | arr.push('a','b') 添加                        |
-| includes;                        | str.trim()                            | arr.pop() 删除最后一个                        |
-|                                  | str.charAt()                          | arr.unshift("a","b") 添加                     |
-|                                  | ===============                       | arr.shift() 删除第一个                        |
-|                                  | str.substring(3,7) --7 为下标         | =======================                       |
-|                                  | str.substr(0, 5)  ---5 为长度         | arr.sort()  ---  对数组进行排序               |
-|                                  | ================                      | arr.reverse()  ---对数组进行反转              |
-|                                  | str.match（找到一个或多个正则的匹配） | ========================                      |
-|                                  | str.search(检索与正则匹配的值)        | arr.map()                                     |
-|                                  | str.replace(替换与正则匹配的子串)     | arr.forEach()                                 |
-|                                  | =========                             | arr.filter()                                  |
-|                                  | =========                             | arr.some()                                    |
-|                                  | =========                             | arr.every()                                   |
-|                                  | =========                             | arr.reduce(callBack(prev,cur,index,arr),init) |
+| array 与 string 共用方法         | string                                | array                                                          |
+| -------------------------------- | :------------------------------------ | :------------------------------------------------------------- |
+| concat(" world","!");            | str.split(",") 分割                   | arr.join(",")  ---  arr.toString()                             |
+| slice(0, 3) --3 下标,返回截取的; | =================                     | =========================                                      |
+| length;                          | str.toUpperCase()                     | arr.splice(1,2,"d","e")                                        |
+| arr[0] / str[0];                 | str.toLowerCase()                     | ========================                                       |
+| indexOf('world');                | ================                      | arr.push('a','b') 添加                                         |
+| includes;                        | str.trim()                            | arr.pop() 删除最后一个                                         |
+|                                  | str.charAt()                          | arr.unshift("a","b") 添加                                      |
+|                                  | ===============                       | arr.shift() 删除第一个                                         |
+|                                  | str.substring(3,7) --7 为下标         | =======================                                        |
+|                                  | str.substr(0, 5)  ---5 为长度         | arr.sort()  ---  对数组进行排序                                |
+|                                  | ================                      | arr.reverse()  ---对数组进行反转                               |
+|                                  | str.match（找到一个或多个正则的匹配） | ========================                                       |
+|                                  | str.search(检索与正则匹配的值)        | arr.map()                                                      |
+|                                  | str.replace(替换与正则匹配的子串)     | arr.forEach()                                                  |
+|                                  | =========                             | arr.filter()                                                   |
+|                                  | =========                             | arr.some()                                                     |
+|                                  | =========                             | arr.every()                                                    |
+|                                  | =========                             | arr.reduce( callBack(prevResult, curVal, curIndex, arr), init) |
 
 ## js 数据类型及区别
 
@@ -36,7 +36,7 @@
 
      js-big-decimal.js / bignumber.js 库处理数据加减乘除；
 
-- 引用数据类型：对象(Object)【除了基本类型以外都是对象,数组,函数,正则表达式】
+- 引用数据类型：对象(Object)【除了基本类型以外都是对象, 数组, 函数, 正则表达式】
 
 ## null / undefined / NaN
 
