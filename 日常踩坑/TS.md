@@ -236,12 +236,6 @@ type Route = { path: string; children?: Routes }
 type Routes = Record<string, Route>
 
 const routes = {
-    AUTH: {
-       path: "/auth",
-    },
-}
-
-const routes = {
    AUTH: {
     path: "/auth",
     children: {
@@ -254,4 +248,7 @@ const routes = {
     path: '/'
   }
 } as const satisfies Routes
+
+//--satisfies Routes：检查key
+//--as const:检查value
 ```
