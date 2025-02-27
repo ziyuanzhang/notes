@@ -61,12 +61,10 @@ hook 是 react16.8 更新的新的 API，让组件逻辑复用更简洁明了，
 2.  React 会以相对高效的方式根据新的状态构建 React 元素树;
 3.  在 React 得到元素树之后，React 会自动计算出新的树与老树的节点差异，然后根据差异对界面进行最小化重渲染。
 
-在源码中，通过 isBatchingUpdates 来判断 setState 是先存进 state 队列还是直接更新，如果值为 true 则执行异步操作，为 false 则直接更新。
+在源码中，通过 isBatchingUpdates 来判断 setState 是先存进 state 队列还是直接更新，如果值为 true 存到 state 队列中，为 false 则直接更新。
 
-- 异步：在 React 生命周期事件和合成事件中;
-- 同步：原生事件;
-
-一般认为是异步的；
+在 React `钩子函数及合成事件`中，它表现为异步（批量）；
+而在 `setTimeout、setInterval、promise.then`等函数中，包括在 `DOM 原生事件中`，它都表现为同步（单独）。这种差异，本质上是由 `React 事务机制`和`批量更新机制`的工作方式来决定的。
 
 ## React 中怎么检验 props？验证 props 的目的是什么？
 

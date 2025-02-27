@@ -276,7 +276,7 @@ console.log(factorial(5)); // 输出：120
    - 数组、对象、null 都会被判断为 object，其他判断都正确
    - typeof (object、Function、Array、Date、Number、String、Bootlean)-->结果是:funciton
 
-2. Object.prototype.toString:判断某个对象属于哪种内置类型；但不能判断自定义类型.
+2. Object.prototype.toString:判断某个对象属于哪种内置类型，但不能判断自定义类型。
 
    Object.prototype.toString.call(null); // "[object Null]"-- [Object type]，其中 type 为对象的类型。
 

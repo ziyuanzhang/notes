@@ -94,6 +94,7 @@
 
 Proxy 默认只代理一层对象的属性;
 proxy 代理深层属性:解决办法是，在 Reflect 返回的时候，判断是否是一个对象，如果是对象的话，再次用 Proxy 代理，返回代理对象
+
 ![](./img/vue/proxy.webp)
 
 ## Vue 的基本原理
@@ -121,7 +122,7 @@ proxy 代理深层属性:解决办法是，在 Reflect 返回的时候，判断�
 观察者模式
 
 - Watcher 类：负责更新视图。当一个属性被访问时，会创建一个 Watcher 实例，这个实例会自动订阅相关联的 Dep。当数据发生变化时，Dep 将通知所有相关的 Watcher 进行更新。
-- 视图更新：Vue 使用模板编译策略来解析模板字符串中的表达式。当模板被编译时，Vue 会识别出绑定表达式并创建 Watcher 实例来监听这些表达式的依赖。当数据发生变化时，Vue 的响应系统会触发视图的更新，这个过程通常是通过重新渲染组件来实现的。
+- 视图更新：Vue 使用“模板编译策略”来“解析”模板字符串中的表达式。当模板被编译时，Vue 会识别出绑定表达式并创建 Watcher 实例来监听这些表达式的依赖。当数据发生变化时，Vue 的响应系统会触发视图的更新，这个过程通常是通过重新渲染组件来实现的。
 
 双向数据绑定流程
 
@@ -365,7 +366,7 @@ https://www.cnblogs.com/WindrunnerMax/p/14864214.html
      export const EventBus = new Vue()
      Vue.prototype.$EventBus = new Vue()
 
-  2. EventBus.$emit("aMsg", '来自 A 页面的消息');
+  2. `EventBus.$emit("aMsg", '来自 A 页面的消息');`
 
   3. EventBus.$on("aMsg", (msg) => {
              // A发送来的消息
