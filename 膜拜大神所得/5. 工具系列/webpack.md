@@ -44,8 +44,14 @@ Webpack 底层的工作流程大致可以总结为这么几个阶段：
 **编译过程用到的 Webpack 基础对象：**
 
 - Entry：编译入口；
-- compiler 对象: 编译管理器，Webpack 启动后会创建 compiler 对象，该对象一直存活直到构建结束进程退出。Compiler 暴露许多钩子，插件根据不同的生命周期，在不同的 hook 中处理不同的事情。
+- compiler 对象: 全局编译管理器，Webpack 启动后会创建 compiler 对象，该对象一直存活直到构建结束进程退出。Compiler 暴露许多钩子，插件根据不同的生命周期，在不同的 hook 中处理不同的事情。
+
+  负责管理配置信息、Loader、Plugin 等
+
 - compilation 对象: 单次构建过程的管理器，比如 watch = true 时，运行过程中只有一个 compiler，但每次文件变更触发重新编译时，都会创建一个新的 compilation 对象。Compilation 负责构建编译模块并生成 chunk，并利用插件进行优化。
+
+  负责遍历模块，执行编译操作；当 watch = true 时，每次文件变更触发重新编译，都会创建一个新的 compilation 对象；
+
 - Dependence：依赖对象，记录模块间依赖关系；dependence 对象记录了 entry 的类型、路径等信息。
 - Module：Webpack 内部所有资源都会以 Module 对象形式存在，所有关于资源的操作、转译、合并都是以 Module 为单位进行的；
 - Chunk：编译完成准备输出时，将 Module 按特定的规则组织成一个一个的 Chunk。Chunk 是一个或多个 Module 的集合。Chunk 又分为 Entry Chunk（入口文件作为单独的 chunk）、Async Chunk（异步模块作为单独 chunk）、Runtime Chunk（收集的运行时作为单独的 chunk）
