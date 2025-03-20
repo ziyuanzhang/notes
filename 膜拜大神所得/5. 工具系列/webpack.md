@@ -124,7 +124,73 @@ Webpack HMR 特性的执行过程并不复杂，核心：
 3. Webpack 监听到文件变化后，增量构建发生变更的模块，并通过 WebSocket 发送 hash 事件；
 4. 浏览器接收到 hash 事件后，请求 manifest 资源文件，确认增量变更范围；
 5. 浏览器加载发生变更的增量模块；
-6. 经过上述步骤，浏览器加载完最新模块代码后，HMR 运行时会继续触发“变更模块的” module.hot.accept 回调，将最新代码替换到运行环境中
+6. 经过上述步骤，浏览器加载完最新模块代码后，HMR 运行时（Hot Module Replacement Runtime）会继续触发“变更模块的” module.hot.accept 回调，将最新代码替换到运行环境中
 7. done。
 
 当 HMR 失败后，回退到 live reload 操作，也就是进行浏览器刷新来获取最新打包代码。这就是 Webpack HMR 特性的执行过程
+
+HMR 运行时（Hot Module Replacement Runtime）是 Webpack 在打包时注入到客户端代码中的一部分逻辑，它的主要职责包括：
+
+- 监听服务端的更新通知：通过 WebSocket 接收服务端推送的模块更新信息。
+- 检查更新的模块：确定哪些模块发生了变化。
+- 处理模块的热替换：根据模块是否注册了 module.hot.accept，决定如何更新模块。
+
+## 热更新原理
+
+Webpack 的热更新（HMR）是 “客户端和服务端协同工作” 的结果，但触发热更新的核心逻辑是由 “客户端” 处理的。具体来说：
+
+1. 服务端的作用
+
+   Webpack 的开发服务器（通常是 webpack-dev-server 或 webpack-hot-middleware）负责以下工作：
+
+   - 监听文件系统的变化（通过 webpack 的 watch 模式）。
+   - 当文件发生变化时，重新编译模块。
+   - 通过 WebSocket 将更新的模块信息（通常是一个 JSON 文件或 JavaScript 代码块）推送到客户端。
+
+   服务端的职责是 “检测变化并推送更新”，但它并不直接决定如何处理这些更新。
+
+2. 客户端的作用
+
+   客户端（通常是浏览器中运行的 JavaScript 代码）负责以下工作：
+
+   - 通过 WebSocket 接收服务端推送的更新信息。
+   - 根据更新信息，决定是否接受热更新。
+   - 调用 module.hot.accept 来注册热更新回调，处理模块的替换逻辑。
+
+   客户端的职责是 “接收更新并决定如何处理”，这是热更新的核心逻辑所在。
+
+3. module.hot.accept 的调用
+
+   module.hot.accept 是 “客户端代码” 的一部分，它的调用是由客户端触发的。具体流程如下：
+
+   - 服务端检测到文件变化并重新编译模块。
+   - 服务端通过 WebSocket 通知客户端有新的更新。
+   - 客户端接收到更新后，检查是否有对应的模块调用了 module.hot.accept。
+   - 如果有，客户端会执行 module.hot.accept 中注册的回调函数，完成模块的热替换。
+
+4. 总结
+
+   - 服务端：负责检测文件变化、重新编译模块，并通过 WebSocket 推送更新信息。
+   - 客户端：负责接收更新信息，调用 module.hot.accept 处理热更新逻辑。
+
+   因此，module.hot.accept 是由 “客户端触发” 的，但它的执行依赖于服务端推送的更新信息。两者协同工作，才能实现完整的热更新功能。
+
+5. 示例
+
+   ```// index.js（入口文件）
+   import App from './App';
+   function render() {
+     ReactDOM.render(<App />, document.getElementById('root'));
+   }
+   render();
+   if (module.hot) {
+     module.hot.accept('./App', () => {
+       // 当 ./App 模块更新时，重新渲染
+       render();
+     });
+   }
+   ```
+
+   - 服务端检测到 App.js 文件发生变化，重新编译模块，并通过 WebSocket 推送更新信息到客户端。
+   - 客户端接收到更新信息后，HMR 运行时会检查 ./App 模块是否注册了 module.hot.accept。
+   - 发现 index.js 中为 ./App 模块注册了 module.hot.accept，于是执行回调函数 render()，重新渲染应用。
