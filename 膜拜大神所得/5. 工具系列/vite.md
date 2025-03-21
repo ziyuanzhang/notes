@@ -32,6 +32,10 @@
 1. vite 的目标场景是 web；node 没法用(可以直接用 esbuild)；
 2. Next 和 Gatsby 已经跟 webpack 强耦合，没法用 vite;
 
+- next.js : react 的 SSR 框架；
+- nuxt.js : vue 的 SSR 框架；
+- nest.js : node 的后台框架；
+
 ## 环境变量处理
 
 vite 对环境变量的处理是借助于第三方库 dotenv 实现的，执行命令的时候，dotenv 会去读取.env 文件，然后注入到 process 对象当中。当然用户配置大于默认，我们可以在 vite.config.js 里面配置 envDir 去指定环境变量的文件地址。
