@@ -115,17 +115,20 @@ webpack 运行过程中只会有一个 compiler， 而每次编译（包括调�
 
    ![](./img/webpack-tapable-Loop.webp "markdown")
 
+## HMR 热更新、模块联邦、并行构建、分包策略、代码压缩、Tree Shaking
+
 ## HMR--Hot Module Replacement（模块热更新） 热更新 原理
 
 Webpack HMR 特性的执行过程并不复杂，核心：
 
-1. 使用 webpack-dev-server （后面简称 WDS）托管静态资源，同时以 Runtime 方式注入一段处理 HMR 逻辑的客户端代码；
-2. 浏览器加载页面后，与 WDS 建立 WebSocket 连接；
-3. Webpack 监听到文件变化后，增量构建发生变更的模块，并通过 WebSocket 发送 hash 事件；
-4. 浏览器接收到 hash 事件后，请求 manifest 资源文件，确认增量变更范围；
-5. 浏览器加载发生变更的增量模块；
-6. 经过上述步骤，浏览器加载完最新模块代码后，HMR 运行时（Hot Module Replacement Runtime）会继续触发“变更模块的” module.hot.accept 回调，将最新代码替换到运行环境中
-7. done。
+1. Webpack 在打包时，会“根据配置”决定是否启用 HMR；如果启用了 HMR，Webpack 会向客户端代码注入 HMR 运行时（HotModuleReplacementRuntime）的逻辑；
+2. 使用 webpack-dev-server（WDS） 托管静态资源；
+3. 浏览器（客户端）加载页面后，与 WDS 建立 WebSocket 连接；
+4. Webpack 监听到文件变化后，会生成一个 JSON 文件（包含更新模块信息）和一个 JS 文件（包含新模块代码），通过 WebSocket 向客户端推送一个通知，告知 浏览器（客户端）有更新；
+5. 浏览器（客户端）接收到 WebSocket 通知后，根据通知中的信息，通过 HTTP 请求下载 hot-update.json 和 hot-update.js 文件；
+6. 浏览器（客户端）加载新的模块代码；并通过 HMR 运行时（HotModuleReplacementRuntime）应用更新。
+7. HMR 运行时（HotModuleReplacementRuntime）会检查“更新的模块”是否注册了 module.hot.accept（自己模块或父模块）；
+8. 如果注册了，HMR 运行时会执行注册的回调函数，完成模块的热替换；如果没有，HMR 运行时会尝试自动更新模块，或者回退到刷新页面。
 
 当 HMR 失败后，回退到 live reload 操作，也就是进行浏览器刷新来获取最新打包代码。这就是 Webpack HMR 特性的执行过程
 
@@ -182,11 +185,14 @@ Webpack 的热更新（HMR）是 “客户端和服务端协同工作” 的结�
    function render() {
      ReactDOM.render(<App />, document.getElementById('root'));
    }
+
    render();
+
    if (module.hot) {
      module.hot.accept('./App', () => {
-       // 当 ./App 模块更新时，重新渲染
-       render();
+       // 重新加载 App 模块并渲染
+       const NextApp = require('./App').default;
+       render(NextApp);
      });
    }
    ```
