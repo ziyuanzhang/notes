@@ -129,8 +129,7 @@ Webpack HMR 特性的执行过程并不复杂，核心：
 6. 浏览器（客户端）加载“新的模块代码”，之后；
 7. HMR 运行时（HotModuleReplacementRuntime）会检查“更新的模块”是否注册了 module.hot.accept（自己模块或父模块）；
 8. 如果注册了，HMR 运行时会执行注册的回调函数，完成模块的热替换；如果没有，HMR 运行时会尝试自动更新模块，或者回退到刷新页面。
-
-当 HMR 失败后，回退到 live reload 操作，也就是进行浏览器刷新来获取最新打包代码。这就是 Webpack HMR 特性的执行过程
+9. 当 HMR 失败后，回退到 live reload 操作（浏览器刷新）来获取最新打包代码。
 
 HMR 运行时（Hot Module Replacement Runtime）是 Webpack 在打包时注入到“客户端”代码中的一部分逻辑，它的主要职责包括：
 
