@@ -117,7 +117,7 @@ webpack 运行过程中只会有一个 compiler， 而每次编译（包括调�
 
 ## HMR 热更新、模块联邦、并行构建、分包策略、代码压缩、Tree Shaking
 
-## HMR--Hot Module Replacement（模块热更新） 热更新 原理
+## HMR（Hot Module Replacement-模块热更新） 原理
 
 Webpack HMR 特性的执行过程并不复杂，核心：
 
