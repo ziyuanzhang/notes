@@ -93,7 +93,7 @@ Suspense:（解决网络 IO 问题）和 lazy 配合，实现异步加载组件;
 
   1. render 阶段的核心：是如何创建 Fiber Node（节点） 以及 构建 Fiber Tree。
   2. 当组件更新，本质上是从 fiberRoot 开始深度调和 fiber 树。
-  3. Fiber Reconciler（协调器）通过“遍历的方式”实现“可中断的”递归；
+  3. React 通过深度优先遍历来生成 fiber 树，整个过程与递归是类似的，因此生成 fiber 树的过程又可以分为「递」阶段和「归」阶段。
 
      - “递”阶段：
 
@@ -169,16 +169,18 @@ https://juejin.cn/post/7092419515748712456
   2. Scheduler（调度器）： react 实现了一个类 requestIdleCallback 的函数；通过“时间切片”和“超时检查机制”来让出控制权；
   3. react 的 Fiber 也称虚拟栈帧（Virtual Stack Frame）模拟调用栈帧，保存节点处理的上下文信息，手动实现的，可控（可暂停/恢复）；
 
-  4. Fiber 也称协程或纤程；是一种流程控制； React 通过 Fiber 架构，让自己的 Reconciliation 过程变成可被中断。
+  4. Fiber 也称协程或纤程；是一种流程控制； React 通过 Fiber 架构，让自己的 Reconciliation（协调） 过程变成可被中断。
   5. Fiber 也是一种数据结构或者说执行单元；每次执行完一个'执行单元', React 就会检查现在还剩多少时间，如果没有时间就将控制权交回浏览器，让位给高优先级的任务，浏览器空闲后再恢复渲染；
-  6. 因为使用了链表结构，即使处理流程被中断了，我们随时可以从上次未处理完的 Fiber 继续遍历下去。
-  7. 双缓冲：为了使整个更新过程可随时暂停恢复，节点与树分别采用了 FiberNode 与 FiberTree 进行重构。
+  6. 因为 fiberNode 使用了双链表结构，即使处理流程被中断了，我们随时可以从上次未处理完的 Fiber 继续遍历下去。
 
-     - fiberNode 使用了双链表的结构，可以直接找到兄弟节点与子节点。
-     - “current” 指向的是当前被实际渲染为 DOM 的树，当进入 “Reconcile”阶段的时候，会拷贝一颗新的 Fiber 树，我们称之为 “workInProgress” 。
-     - 如果整个过程顺利完成，会将 “current” 指向新生成的这颗 Fiber 树 。
-     - 如果出现 渲染 要被 “中断” 的时候，它会直接放弃 “workInProgress” 的处理。
-     - 下一次更新依然依靠 “current” 即可，因为刚才的更新并没有更改任何 “current” 上的信息。（类似 git， 基于主分支，新建分支）
+  7. React 采用了双缓存的技术，在 React 中最多会存在两颗 fiber 树：
+
+     - 当前屏幕上显示内容对应的 fiber 树称为 current fiber 树；
+     - 正在内存中构建的 fiber 树称为 workInProgress fiber 树。
+
+     当 workInProgress fiber 树构建并渲染到页面上后，应用根节点的 current 指针指向 workInProgress Fiber 树，此时 workInProgress Fiber 树就变为 current Fiber 树。
+
+     在 render 阶段的 beginWork 函数中，会将上次更新产生的 Fiber 节点与本次更新的 JSX 对象（对应 ClassComponent 的 this.render 方法返回值，或者 FunctionComponent 执行的返回值）进行比较。根据比较的结果生成 workInProgress Fiber，即本次更新的 Fiber 节点。即，React 将上次更新的结果与本次更新的值比较，只将变化的部分体现在 DOM 上。这个比较的过程，就是 Diff。
 
   8. 保证状态的一致性和视图的一致性：所有更新任务“按照顺序”插入一个队列, “状态（变量）”必须按照插入顺序进行计算，但“任务”可以按优先级顺序执行；
 
