@@ -29,23 +29,6 @@ Hoc、render props 和 hook 都是为了解决代码复用的问题，
 
 hook 是 react16.8 更新的新的 API，让组件逻辑复用更简洁明了，同时也解决了 hoc 和 render props 的一些缺点。
 
-## React.createClass 和 extends Component 的区别有哪些？
-
-1. 语法区别
-   createClass 本质上是一个工厂函数，extends 的方式更加接近最新的 ES6 规范的 class 写法。
-2. propType 和 getDefaultProps
-   React.createClass：通过 proTypes 对象和 getDefaultProps()方法来设置和获取 props.
-   React.Component：通过设置两个属性 propTypes 和 defaultProps
-3. 状态的区别
-   React.createClass：通过 getInitialState()方法返回一个包含初始值的对象
-   React.Component：通过 constructor 设置初始状态
-4. this 区别
-   React.createClass：会正确绑定 this
-   React.Component：由于使用了 ES6，这里会有些微不同，属性并不会自动绑定到 React 类的实例上
-5. Mixins
-   React.createClass：使用 React.createClass 的话，可以在创建组件时添加一个叫做 mixins 的属性，并将可供混合的类的集合以数组的形式赋给 mixins。
-   如果使用 ES6 的方式来创建组件，那么 React mixins 的特性将不能被使用了。
-
 ## React 如何判断什么时候重新渲染组件
 
 组件状态的改变可以因为 props 的改变，或者直接通过 setState 方法改变;
@@ -57,18 +40,14 @@ hook 是 react16.8 更新的新的 API，让组件逻辑复用更简洁明了，
 
 ## React setState 调用之后发生了什么？是同步还是异步？
 
-1.  在代码中调用 setState 函数之后，合并 传入的参数对象与组件;
-2.  React 会以相对高效的方式根据新的状态构建 React 元素树;
-3.  在 React 得到元素树之后，React 会自动计算出新的树与老树的节点差异，然后根据差异对界面进行最小化重渲染。
+1. 在代码中调用 setState 函数之后，合并 传入的参数对象与组件;
+2. React 会以相对高效的方式根据新的状态构建 React 元素树;
+3. 在 React 得到元素树之后，React 会自动计算出新的树与老树的节点差异，然后根据差异对界面进行最小化重渲染。
 
 在源码中，通过 isBatchingUpdates 来判断 setState 是先存进 state 队列还是直接更新，如果值为 true 存到 state 队列中，为 false 则直接更新。
 
 在 React `钩子函数及合成事件`中，它表现为异步（批量）；
 而在 `setTimeout、setInterval、promise.then`等函数中，包括在 `DOM 原生事件中`，它都表现为同步（单独）。这种差异，本质上是由 `React 事务机制`和`批量更新机制`的工作方式来决定的。
-
-## React 中怎么检验 props？验证 props 的目的是什么？
-
-PropTypes 检测 props
 
 ## 为什么使用 jsx 的组件中没有看到使用 react 却需要引入 react？
 
@@ -110,10 +89,67 @@ Suspense:（解决网络 IO 问题）和 lazy 配合，实现异步加载组件;
 
 ![](./img/react/react16生命周期.png)
 
-- Pre-commit 阶段：所谓“commit”，这里指的是“更新真正的 DOM 节点”这个动作。所谓 Pre-commit，就是说我在这个阶段其实还并没有去更新真实的 DOM，不过 DOM 信息已经是可以读取的了；
-- Commit 阶段：在这一步，React 会完成真实 DOM 的更新工作。Commit 阶段，我们可以拿到真实 DOM（包括 refs）。
+- render 阶段（调和阶段 - 计算）：纯函数，不要有副作用；可能会被暂停、中止、重新启动；避免昂贵的计算（可以使用 useMemo 优化）
 
-## react 是怎么更新的；fiber 什么时候终止，什么情况下在继续渲染/重新渲染
+  1. render 阶段的核心：是如何创建 Fiber Node（节点） 以及 构建 Fiber Tree。
+  2. 当组件更新，本质上是从 fiberRoot 开始深度调和 fiber 树。
+  3. Fiber Reconciler（协调器）通过“遍历的方式”实现“可中断的”递归；
+
+     - “递”阶段：
+
+       1. 首先从 rootFiber 开始向下深度优先遍历。为遍历到的每个 Fiber 节点调用 beginWork 方法。该方法会根据传入的 Fiber 节点创建子 Fiber 节点，并将这两个 Fiber 节点连接起来。
+       2. 当遍历到叶子节点（即没有子组件的组件）时就会进入“归”阶段。
+
+     - “归”阶段
+
+       1. 在“归”阶段会调用 completeWork 方法 处理 Fiber 节点。当某个 Fiber 节点执行完 completeWork：
+
+          - 如果存在兄弟 Fiber 节点（即 fiber.sibling !== null），会进入其兄弟 Fiber 的“递”阶段；
+          - 如果不存在兄弟 Fiber，会进入父级 Fiber 的“归”阶段；
+
+       2. “递”和“归”阶段会交错执行，直到“归”到 rootFiber。至此，render 阶段的工作就结束了。
+
+- Commit 阶段（即 Renderer-渲染器 的工作流程）：主要分为三部分：
+
+  1. before mutation（Pre-commit） 阶段（执行 DOM 操作前）
+  2. mutation 阶段（执行 DOM 操作）
+  3. layout 阶段（执行 DOM 操作后）
+
+  Commit 阶段：不可中断的（同步执行）；直接操作真实 DOM；执行副作用（如生命周期方法调用）
+
+  ![Commit阶段](./img/react/Commit阶段.png)
+
+## 为什么要用 fiber
+
+在浏览器中，页面是一帧一帧绘制出来的，渲染的帧率与设备的刷新率保持一致。一般情况下，设备的屏幕刷新率为 1s 60 次，当每秒内绘制的帧数（FPS）超过 60 时，页面渲染是流畅的；而当 FPS 小于 60 时，会出现一定程度的卡顿现象。下面来看完整的一帧中，具体做了哪些事情：
+
+![浏览器一个完整的帧-1](./img/react/浏览器一个完整的帧-1.png)
+
+![浏览器一个完整的帧-2](./img/react/浏览器一个完整的帧-2.png)
+
+- 一帧 内可完成如下六个步骤的任务：
+
+1. 用户交互输入事件（Input events），能够让用户得到最早的反馈。
+
+   - Blocking input events（阻塞输入事件）：例如 touch 或 wheel
+   - Non-blocking input events（非阻塞输入事件）：例如 click 或 keypress
+
+2. JavaScript 引擎解析执行：执行定时器（Timers）事件等回调，需要检查定时器是否到时间，并执行对应的回调。
+3. 帧开始（Begin frame）：每一帧事件（Per frame events），例如 window resize、scroll 或 media query change
+4. 执行请求动画帧 rAF（requestAnimationFrame），即在每次绘制之前，会执行 rAF 回调。
+5. 页面布局（Layout）：计算样式（Recalculate style）和更新布局（Update Layout）。即这个元素的样式是怎样的，它应该在页面如何展示。
+6. 绘制渲染（Paint）：合成更新（Compositing update）、重绘部分节点（Paint invalidation）和 Record。得到树中每个节点的尺寸与位置等信息，浏览器针对每个元素进行内容填充。
+7. 上述 6 个阶段完成，就处于 空闲阶段（Idle Peroid）会执行 RIC (RequestIdelCallback)注册的任务。
+
+JS 引擎和页面渲染引擎是在同一个渲染线程(主线程)之内，两者是互斥关系。如果在某个阶段执行任务特别长，例如在定时器阶段或 Begin Frame 阶段执行时间非常长，时间已经明显超过了 16ms，那么就会阻塞页面的渲染，从而出现卡顿现象。
+
+在 Reactv15 以及之前的版本，React 对于虚拟 DOM 是采用自顶向下递归（深度优先遍历）对比虚拟 DOM 树，找出需要变动的节点，然后同步更新它们，这个过程 react 会一直占用浏览器资源，会导致用户触发的事件得不到响应。给前端交互上的体验就是卡顿
+
+为什么它能解决卡顿，React 将 2 层架构（协调器、渲染器）改为 3 层架构（调度器、协调器、渲染器），修改协调器流程引入 Fiber 架构；把更新、渲染过程拆分为一个个小块的任务（fiber），通过合理的调度机制来调控时间，指定任务执行的时机，实现异步可中断执行，从而降低页面卡顿的概率，提升页面交互体验。通过 Fiber 架构，让 reconcilation 过程变得可被中断，适时地让出 CPU 执行权，可以让浏览器及时地响应用户的交互。（就是使 JS 的执行变成可控，不希望 JS 不受控制地长时间执行）。
+
+更新 fiber 的过程叫做 Reconciler（调和器），每一个 fiber 都可以作为一个执行单元来处理，所以每一个 fiber 可以根据自身的过期时间 expirationTime（ v17 版本叫做优先级 lane ）来判断是否还有空间时间执行更新，如果没有时间更新，就要把主动权交给浏览器去渲染，做一些动画，重排（ reflow ），重绘 repaints 之类的事情，这样就能给用户感觉不是很卡。然后等浏览器空余时间，在通过 scheduler （调度器），再次恢复执行单元上来，这样就能本质上中断了渲染，提高了用户体验。
+
+Fiber 架构的核心思想就是“任务拆分”和“协同”，主动把执行权交给主线程，使主线程有时间空档处理其他高优先级任务。
 
 https://juejin.cn/post/6844903975112671239
 https://juejin.cn/post/7092419515748712456
@@ -122,23 +158,15 @@ https://juejin.cn/post/7092419515748712456
   并发：单核处理器；（一个真身，其余都是虚影）
   并行：多核处理器；（真身和分身，都是物理存在的）
 
-- 在 react v16 之前，架构可以分为两层：
-
-  Reconciler（协调器）—— 负责找出变化的组件；
-  Renderer（渲染器）—— 负责将变化的组件渲染到页面上；
-
-  React 会递归比对 VirtualDOM 树，找出需要变动的节点，然后同步更新它们, 一气呵成。这个过程 React 称为 Reconciliation(协调)；
-  问题：在 Reconciliation 期间，React 会霸占着浏览器资源，1、会导致用户触发的事件得不到响应, 2、会导致掉帧，用户可以感知到这些卡顿。
-
 - 在 react v16 之后，架构可以分为三层：
 
-  Scheduler（调度器）—— 调度任务的优先级，高优任务优先进入 Reconciler；
+  Scheduler（调度器）—— 调度任务的优先级，高优任务优先进入 Reconciler（协调器）；
   Reconciler（协调器）—— 负责找出变化的组件：更新工作从递归变成了可以中断的过程。Reconciler 内部采用了 Fiber 的架构；
   Renderer（渲染器）—— 负责将变化的组件渲染到页面上。
 
   1. 一帧理想时间是 16ms(1000ms/60)，如果浏览器处理完上述的任务(布局和绘制之后)，还有盈余时间，浏览器就会调用 requestIdleCallback 的回调，如果浏览器一直繁忙，requestIdleCallback 的第二个参数指定一个超时时间，超时则执行；
 
-  2. react 实现了一个类 requestIdleCallback 的函数；通过“时间切片”和“超时检查机制”来让出控制权；
+  2. Scheduler（调度器）： react 实现了一个类 requestIdleCallback 的函数；通过“时间切片”和“超时检查机制”来让出控制权；
   3. react 的 Fiber 也称虚拟栈帧（Virtual Stack Frame）模拟调用栈帧，保存节点处理的上下文信息，手动实现的，可控（可暂停/恢复）；
 
   4. Fiber 也称协程或纤程；是一种流程控制； React 通过 Fiber 架构，让自己的 Reconciliation 过程变成可被中断。
@@ -165,7 +193,7 @@ https://juejin.cn/post/7092419515748712456
 
 https://juejin.cn/post/7184747220036485177
 
-Fiber 采用链表数据结构的原因是因为链表可以方便地在列表的中间插入和删除元素。这在构建和更新用户界面时非常有用，因为可能会有大量的元素需要插入或删除。
+Fiber 采用链表数据结构的原因：是因为链表可以方便的在列表的中间插入和删除元素。
 
 与数组相比，链表具有更好的插入和删除性能，因为在数组中执行这些操作通常需要移动大量元素，而在链表中只需要修改一些指针即可。
 

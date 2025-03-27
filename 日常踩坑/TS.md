@@ -228,3 +228,27 @@ const [response] = useFetch;
 #### 装饰器 -- 元编程
 
 Parameters 特性
+
+##
+
+```
+type Route = { path: string; children?: Routes }
+type Routes = Record<string, Route>
+
+const routes = {
+   AUTH: {
+    path: "/auth",
+    children: {
+      LOGIN: {
+        path: '/login'
+      }
+    }
+  },
+  HOME: {
+    path: '/'
+  }
+} as const satisfies Routes
+
+//--satisfies Routes：检查key
+//--as const:检查value
+```
