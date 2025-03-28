@@ -23,36 +23,6 @@
    注：package.json 中的--base=/helper/ 会覆盖vite.config.ts中的base
 ```
 
-## 单页面的优缺点
-
-- 单页面初次加载过大：1.预渲染 2.单独渲染 3.服务端渲染 4.webpack 懒加载
-
-- 单页面的优点：
-
-  1. 对服务器压力较小
-  2. 前后端分离
-  3. 低耦合
-  4. 可重用性
-  5. 独立开发
-  6. 可测试
-
-- 单页面缺点：
-  1. 不利于 seo
-  2. 初次加载时耗时多
-  3. 页面复杂度提高很多
-
-* vue 如何优化首页的加载速度？vue 首页白屏是什么问题引起的？如何解决呢？
-
-  - 首页白屏的原因：单页面应用的 html 是靠 js 生成，因为首屏需要加载很大的 js 文件，加载的时候会产生一定程度的白屏
-
-  - 解决办法：
-    1. 将公用的 JS 库通过 script 标签外部引入，减小 app.bundle 的大小，让浏览器并行下载资源文件，提高下载速度；
-    2. 在配置路由时，页面和组件使用懒加载的方式引入，进一步缩小 app.bundle 的体积，在调用某个组件时再加载对应的 js 文件；
-    3. 上骨架屏或 loading 动画，提升用户体验；
-    4. 合理使用 web worker 优化一些计算
-    5. 缓存一定要使用，但是请注意合理使用
-    6. 最后可以借助一些工具进行性能评测，重点调优，例如 chrome 开发者工具的 performance 或 Google PageSpeed Insights 插件协助测试
-
 ## vue/react 的 diff 算法比较
 
 - 不同点：  
@@ -106,11 +76,12 @@ proxy 代理深层属性:解决办法是，在 Reflect 返回的时候，判断�
 
 首先要对数据进行劫持监听，所以我们需要设置一个监听器 Observer，用来监听所有属性。如果属性发上变化了，就需要告诉订阅者 Watcher 看是否需要更新。因为订阅者是有很多个，所以我们需要有一个消息订阅器 Dep 来专门收集这些订阅者，然后在监听器 Observer 和订阅者 Watcher 之间进行统一管理的。接着，我们还需要有一个指令解析器 Compile，对每个节点元素进行扫描和解析，将相关指令对应初始化成一个订阅者 Watcher，并替换模板数据或者绑定相应的函数，此时当订阅者 Watcher 接收到相应属性的变化，就会执行对应的更新函数，从而更新视图。因此接下去我们执行以下 3 个步骤，实现数据的双向绑定：
 
-1.实现一个监听器 Observer，用来劫持并监听所有属性，如果有变动的，就通知订阅者。
+1. 实现一个监听器 Observer，用来劫持并监听所有属性，如果有变动的，就通知订阅者；
+2. 实现一个订阅器 Dep，用来收集订阅者，对监听器 Observer 和 订阅者 Watcher 进行统一管理；
+3. 实现一个订阅者 Watcher，可以收到属性的变化通知并执行相应的函数，从而更新视图；
+4. 实现一个解析器 Compile，可以解析每个节点的相关指令，对模板数据和订阅器进行初始化；
 
-2.实现一个订阅者 Watcher，可以收到属性的变化通知并执行相应的函数，从而更新视图。
-
-3.实现一个解析器 Compile，可以扫描和解析每个节点的相关指令，并根据初始化模板数据以及初始化相应的订阅器。
+![vue响应式原理](./img/vue/vue响应式原理.png)
 
 ![双向绑定](./img/vue/vue双向绑定.png)
 
@@ -130,21 +101,6 @@ proxy 代理深层属性:解决办法是，在 Reflect 返回的时候，判断�
 2. 模板编译：Vue 会对模板进行编译，找到其中动态绑定的数据，并初始化视图。同时，为每个数据绑定创建一个 Watcher 实例，并将其添加到对应的 Dep 中。
 3. 数据变化通知：当数据发生变化时，会触发 setter 方法，进而调用 Dep 的 notify 方法通知所有相关的 Watcher 进行更新。
 4. 视图更新：Watcher 在收到更新通知后，会调用相应的更新函数来更新视图。
-
-## MVVM、MVC、MVP 的区别
-
-- MVC 通过分离 Model、View 和 Controller 的方式来组织代码结构。
-
-  1. View 负责页面的显示逻辑；
-  2. Model 负责存储页面的业务数据，以及对相应数据的操作；并且 View 和 Model 应用了观察者模式，当 Model 层发生改变的时候它会通知有关 View 层更新页面。
-  3. Controller 层是 View 层和 Model 层的纽带，它主要负责用户与应用的响应操作，当用户与页面产生交互的时候，Controller 中的事件触发器就开始工作了，通过调用 Model 层，来完成对 Model 的修改，然后 Model 层再去通知 View 层更新；
-
-* MVVM 分为 Model、View、ViewModel：
-  1. Model 代表数据模型，数据和业务逻辑都在 Model 层中定义；
-  2. View 代表 UI 视图，负责数据的展示；
-  3. ViewModel 负责监听 Model 中数据的改变并且控制视图的更新，处理用户交互操作；
-  4. Model 和 View 并无直接关联，而是通过 ViewModel 来进行联系的，
-  5. 这种模式实现了 Model 和 View 的数据自动同步，因此开发者只需要专注于数据的维护操作即可，而不需要自己操作 DOM。
 
 ## vue3.0 ref() 与 reactive() 主要有三个区别:
 
@@ -358,27 +314,13 @@ https://www.cnblogs.com/WindrunnerMax/p/14864214.html
 
 ## vue 组件通信
 
-1.vuex； 2.vue.prototype； 3.props/emit； 4.卡槽； 5.自定义事件；6.provide - inject
+1. 父子通信：Props/$emit，provide/inject，$refs，Vuex，$emit/$on，$attrs/$listeners，$parent/$children，
 
-- 自定义事件：
+2. 兄弟通信：$emit/$on，Vuex
 
-  1. import Vue from 'vue'
-     export const EventBus = new Vue()
-     Vue.prototype.$EventBus = new Vue()
+3. 隔代（跨级）通信：$emit/$on，Vuex，provide/inject，$attrs/$listeners
 
-  2. `EventBus.$emit("aMsg", '来自 A 页面的消息');`
-
-  3. EventBus.$on("aMsg", (msg) => {
-             // A发送来的消息
-                this.msg = msg;
-           });
-    EventBus.$off('aMsg', {})
-
-## Vue 事件总线（EventBus）、$on、$emit、$off
-
-发布订阅模式
-
-## Vue.extend 与 Vue.component（都是创建组件） 区别：
+## Vue.extend 与 Vue.component（都是创建组件） 区别
 
 1. let mv = new Vue({}) mv 是 vue 实例
 2. 没有组件名字
@@ -412,10 +354,20 @@ https://www.cnblogs.com/WindrunnerMax/p/14864214.html
 
 ## vue hash 和 history 原理
 
-1. hash : `window.onhashchange` 事件,不会被包括在 HTTP 请求中，对后端完全没有影响，因此改变 hash 不会重新加载页面。
-2. history : 切换和修改。
-   - 切换历史状态包括 back、forward、go 三个方法
-   - 修改历史状态包括了 `pushState(),replaceState()`,它们提供了对历史记录进行修改的功能。虽然改变了当前的 URL，但浏览器不会立即向后端发送请求。只是当它们执行修改时，才发请求。
+1. Hash 模式：地址栏 URL 中有 #。vue-router 优先判断浏览器是否支持 pushState：
+
+   - 若支持，则通过 pushState 改变 hash 值，进行目标路由匹配，渲染组件；通过 popstate 事件监听浏览器操作，完成导航功能；
+   - 若不支持，使用 location.hash 设置 hash 值，onhashchange 事件 监听 URL 变化完成路由导航（如 IE9 及以下）。
+
+   Hash 模式不需要在服务器层面上进行任何特殊处理。
+
+1. History 模式：利用了 html5 History Interface 中新增的 pushState() 和 replaceState() 方法。
+
+   - 在当前已有的 back、forward、go 的基础之上，pushState() 和 replaceState()方法 提供了对历史记录进行修改的功能。
+   - pushState() 和 replaceState()方法不会触发页面刷新，只是导致了 history 对象发生变化，地址栏会有反应。
+
+   * popState 事件：
+     - 仅仅调用 pushState 方法或 replaceState 方法，并不会触发 popState 事件；只有用户点击浏览器后退和前进按钮时，或者使用 js 调用 back、forward、go 方法时才会触发。
 
 ## vue link 传值
 
