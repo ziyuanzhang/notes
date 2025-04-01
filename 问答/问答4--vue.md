@@ -67,6 +67,13 @@ proxy 代理深层属性:解决办法是，在 Reflect 返回的时候，判断�
 
 ![](./img/vue/proxy.webp)
 
+## vue2.x 为什么不监听数组
+
+1. Object.defineProperty 劫持的是对象的属性，所以“新增属性时，需要重新遍历对象”；
+2. 数组的作用就是不断的增删数据，这就得不断的调用 set 方法，这必然是成本高于回报的事情
+
+由于 Object.defineProperty 只能对属性进行劫持，“需要遍历对象的每个属性，如果属性值也是对象，则需要深度遍历”；而 Proxy 直接代理对象，不需要遍历操作。
+
 ## Vue 的基本原理
 
 - 在 new Vue() 后， Vue 会调用 `_init` 函数进行初始化，在 `_init` 过程 data 通过 Observer 转换成了 getter/setter 的形式，来追踪数据变化；当 “被设置的对象” 被读取的时候会执行 getter 函数，被赋值的时候会执行 setter 函数。
@@ -235,11 +242,6 @@ https://www.cnblogs.com/WindrunnerMax/p/14864214.html
 
 每个组件都是 vue 的一个实例；组件内的 data 其实是 vue 原型上的属性;
 如果是对象的话，在组件上修改 data 会互相影响的
-
-## vue 为什么不监听数组: Object.defineproperty 劫持的是对象属性
-
-1. vue 不能监听"动态添加的属性"，这是数据劫持的一个缺陷，动态添加的属性只能手动调用 Vue.set 方法进行注册监听;
-2. 数组的作用就是不断的增删数据，这就得不断的调用 set 方法，这必然是成本高于回报的事情
 
 ## vue watch 和 compute 的区别
 
@@ -425,7 +427,7 @@ export default useAdd;
 
 ## 为什么要用 vuex
 
-解决不同组件通信,
+Vuex 主要解决 “深层嵌套” 和 “非直接关联组件之间” 的通信。
 
 ## Vuex 是通过什么方式提供响应式数据的？
 
