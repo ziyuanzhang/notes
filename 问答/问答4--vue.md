@@ -43,22 +43,32 @@
 
 ## Vue2.0 和 Vue3.0 有什么区别
 
-1. 重构响应式系统，使用 Proxy 替换 Object.defineProperty，使用 Proxy 优势：
+1. 响应式系统方面：
 
-   - 可直接监听数组类型的数据变化；
-   - 监听的目标为对象本身，不需要像 Object.defineProperty 一样遍历每个属性，有一定的性能提升；
-   - 可拦截 apply、ownKeys、has 等 13 种方法，而 Object.defineProperty 不行；
-   - 直接实现对象属性的新增/删除；
+   - 重构响应式系统，使用 Proxy 替换 Object.defineProperty，使用 Proxy 优势：
 
-2. 新增 Composition API，更好的逻辑复用和代码组织；
-3. 重构 Virtual DOM；
+     - 可直接监听数组类型的数据变化；
+     - 监听的目标为对象本身，不需要像 Object.defineProperty 一样遍历每个属性，有一定的性能提升（深层次也需要递归）；
+     - 可拦截 apply、ownKeys、has 等 13 种方法，而 Object.defineProperty 不行；
+     - 直接实现对象属性的新增/删除；
 
-   - 模板编译时的优化，将一些静态节点编译成常量；
-   - slot 优化，将 slot 编译为 lazy 函数，将 slot 的渲染的决定权交给子组件；
-   - 模板中内联事件的提取并重用（原本每次渲染都重新生成内联函数）；
+2. 功能方面
 
-4. 代码结构调整，更便于 Tree shaking，使得体积更小；
-5. 使用 Typescript 替换 Flow；
+   - 新增 Composition API：更好的逻辑复用和代码组织；
+   - 代码复用新方式；
+   - Fragments（片段）；
+   - 多个 v-model；
+   - Teleport；
+   - 新的自定义指令 API；
+
+3. 性能方面
+
+   - diff 算法的优化--静态标记（patchflag）与上次虚拟节点对比时，只对比带有 patch flag 的节点（动态数据所在的节点）；可通过 flag 信息得知当前节点要对比的具体内容。
+   - 事件侦听器缓存--模板中内联事件的提取并重用（vue2 原本每次渲染都重新生成内联函数）；
+   - 自定义渲染 API（针对跨平台/小程序的）；
+   - 按需编译；
+   - tree-shaking
+   - 更好的 TS 支持；
 
 ## vue3.0 proxy
 
