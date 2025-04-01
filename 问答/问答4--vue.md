@@ -374,7 +374,7 @@ export default useAdd;
   3. main.js 中使用 Vue.use(ToastPlugin)
   4. this.$showToast ('标题', '提示内容')
 
-## vue 路由
+## vue 路由 ========
 
 ## vue hash 和 history 原理
 
@@ -409,7 +409,7 @@ export default useAdd;
 ## 完整的 Vue 路由生命周期
 
 1. 导航被触发。
-2. 在失活的组件里调用离开守卫。
+2. 在失活的组件里调用 beforeRouteLeave 守卫。
 3. 调用全局的 beforeEach 守卫。
 4. 在重用的组件里调用 beforeRouteUpdate 守卫 (2.2+)。
 5. 在路由配置里调用 beforeEnter 。
@@ -419,9 +419,9 @@ export default useAdd;
 9. 导航被确认。
 10. 调用全局的 afterEach 钩子。
 11. 触发 DOM 更新。
-12. 用创建好的实例调用 beforeRouteEnter 守卫中传给 next 的回调函数。
+12. 调用 beforeRouteEnter 守卫中“传给 next” 的回调函数，创建好的组件实例会作为回调函数的参数传入。
 
-## Vuex
+## Vuex ==========
 
 ## 为什么要用 vuex
 
