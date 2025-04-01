@@ -73,6 +73,13 @@ proxy 代理深层属性:解决办法是，在 Reflect 返回的时候，判断�
 - 当 render function 执行的时候，因为会读取所需对象的值，所以会触发 getter 函数从而将 Watcher 添加到依赖中，进行依赖收集。
 - 在修改对象的值的时候，会触发对应的 setter， setter 通知之前依赖收集得到的 Dep 中的每一个 Watcher，告诉它们自己的值改变了，需要重新渲染视图。这时候这些 Watcher 就会开始调用 update 来更新视图。
 
+- 模板编译：
+
+1. vue 会把在`<template></template>` 标签中写的类似于 `原生 HTML` 的内容进行编译，把 `原生 HTML` 的内容找出来，再把 `非原生 HTML` 找出来，经过一系列的逻辑处理生成渲染函数（`render 函数`）
+2. 而 `render 函数` 会将模板内容生成对应的 `VNode`，而 VNode 再经过前几篇文章介绍的 `patch（补丁、修补） 过程`从而得到将要渲染的视图中的 `VNode`，最后根据 VNode 创建 `真实的 DOM 节点` 并插入到视图中， 最终完成视图的渲染更新。
+
+![模板编译与渲染](./img/vue/模板编译与渲染.png)
+
 ## 双向数据绑定的原理
 
 首先要对数据进行劫持监听，所以我们需要设置一个监听器 Observer，用来监听所有属性。如果属性发上变化了，就需要告诉订阅者 Watcher 看是否需要更新。因为订阅者是有很多个，所以我们需要有一个消息订阅器 Dep 来专门收集这些订阅者，然后在监听器 Observer 和订阅者 Watcher 之间进行统一管理的。接着，我们还需要有一个指令解析器 Compile，对每个节点元素进行扫描和解析，将相关指令对应初始化成一个订阅者 Watcher，并替换模板数据或者绑定相应的函数，此时当订阅者 Watcher 接收到相应属性的变化，就会执行对应的更新函数，从而更新视图。因此接下去我们执行以下 4 个步骤，实现数据的双向绑定：
@@ -212,21 +219,30 @@ https://www.cnblogs.com/WindrunnerMax/p/14864214.html
 
 ## Vue 的父组件和子组件生命周期钩子执行顺序是什么
 
-1. 加载渲染过程
+- 加载渲染过程
 
-   父 beforeCreate->父 created->父 beforeMount->子 beforeCreate->子 created->子 beforeMount->子 mounted->父 mounted
+  1. parent beforeCreate
+  2. parent created
+  3. parent beforeMounte
+     1. child beforeCreate
+     2. child created
+     3. child beforeMounte
+     4. child mounted
+  4. parent mounted
 
-1. 子组件更新过程
+- 组件更新过程
 
-   父 beforeUpdate->子 beforeUpdate->子 updated->父 updated
+  1. parent beforeUpdate
+     1. child beforeUpdate
+     2. child updated
+  2. parent updated
 
-1. 父组件更新过程
+- 销毁过程
 
-   父 beforeUpdate->父 updated
-
-1. 销毁过程
-
-   父 beforeDestroy->子 beforeDestroy->子 destroyed->父 destroyed
+  1. parent beforeDestroy
+     1. child beforeDestroy
+     2. child destroyed
+  2. parent destroyed
 
 总结：从外到内，再从内到外
 
@@ -307,11 +323,16 @@ https://www.cnblogs.com/WindrunnerMax/p/14864214.html
 
 ## keep-alive ：include（组件 name，包括） ，exclude（排除）
 
+`<keep-alive>` 包裹动态组件时，会缓存不活动的组件实例，而不是销毁它们。
+
 ## vue nextTick -- DOM 更新后调用 / vm.$forceUpdate---强制本组件和卡槽子组件更新
 
 - nextTick：分宏任务 和 微任务 （默认）
 - 微任务：Promise --》宏任务
 - 宏任务：setImmediate --》MessageChannel --》setTimeout (DOM 交互事件走宏任务，v-on@)
+
+* Vue 在内部对异步队列尝试使用原生的 Promise.then、MutationObserver(监测 DOM 树，在 DOM 发生变化时异步执行回调函数) 和 setImmediate(DOM 交互事件走宏任务，v-on@)，如果执行环境不支持，则会采用 setTimeout(fn, 0) 代替。
+* 在数据变化之后立即使用 Vue.nextTick(callback)
 
 ## vue 组件通信
 
