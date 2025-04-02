@@ -207,14 +207,6 @@ proxy 代理深层属性:解决办法是，在 Reflect 返回的时候，判断�
 
 - errorCaptured -> onErrorCaptured：当捕获一个来自子孙组件的错误时被调用
 
-## Vue 中的三种 Watcher
-
-https://www.cnblogs.com/WindrunnerMax/p/14864214.html
-
-- 第一种是在定义 data 函数时定义数据的 render watcher；
-- 第二种是 computed watcher，是 computed 函数在自身内部维护的一个 watcher，配合其内部的属性 dirty 开关来决定 computed 的值是需要重新计算还是直接复用之前的值；
-- 第三种就是 watcher api 了，就是用户自定义的 export 导出对象的 watch 属性；当然实际上他们都是通过 class Watcher 类来实现的。
-
 ## Vue 的父组件和子组件生命周期钩子执行顺序是什么
 
 - 加载渲染过程
@@ -253,16 +245,72 @@ https://www.cnblogs.com/WindrunnerMax/p/14864214.html
 每个组件都是 vue 的一个实例；组件内的 data 其实是 vue 原型上的属性;
 如果是对象的话，在组件上修改 data 会互相影响的
 
-## vue watch 和 compute 的区别
+## vue 中 computed
 
-- watch 是监听动作，computed 是计算属性
-- watch 没缓存，只要数据变化就执行。computed 有缓存，只在属性变化的时候才去计算。
-- watch 可以执行异步操作，而 computed 不能
-- watch 擅长处理：一个数据影响多个数据，computed 则擅长处理多个数据影响一个数据
+- computed 本质是一个惰性求值的观察者。computed 内部实现了一个惰性的 watcher，也就是 computed watcher；
+- computed watcher 不会立刻求值，同时持有一个 dep 实例，其内部通过 this.dirty 属性标记计算属性是否需要重新求值。
+  当 computed 的依赖状态发生改变时，就会通知这个惰性的 watcher，computed watcher 通过 this.dep.subs.length 判断有没有订阅者：
 
-* watch 对象：
-  1. deep: true 。监听对象； 注：数组不需要。
-  2. immediate：true  将立即以表达式的当前值触发回调
+  - 有的话会重新计算，然后对比新旧值，如果变化了会重新渲染。
+  - 没有的话，仅仅把 this.dirty = true。
+  - 当计算属性依赖于其他数据时，属性并不会立即重新计算，只有之后其他地方需要读取属性的时候，它才会真正计算，即具备 lazy（懒计算）特性。
+
+Vue 想确保的不仅仅是计算属性依赖的值发生变化，而是当计算属性最终计算的值发生变化时才会触发渲染 watcher 重新渲染，本质上是一种优化。
+
+## Vue 中 Watch 、WatchEffect （watchPostEffect，watchSyncEffect）
+
+1. watchEffect：
+
+   - 立即执行传入的函数，并在其执行过程中 “自动追踪” 其 “依赖的响应式数据”。当这些依赖的数据发生变化时，watchEffect 会重新执行函数。
+   - 不提供新旧值的比较，因为它不追踪具体的数据源，而是追踪执行过程中“访问的所有响应式数据”。
+   - 执行时机是在依赖变化时同步执行，除非通过配置项 flush 来指定不同的执行时机。
+
+2. watchPostEffect：
+   - watchEffect 的一个变体，它会在 Vue 更新 DOM 之后执行副作用。
+3. watchSyncEffect：
+   - watchEffect 的另一个变体，它会在响应式数据变化时同步执行副作用，而不是等待下一个事件循环。
+4. watch：
+   - 允许你明确指定要侦听的响应式引用或 getter 函数，并在数据变化时执行回调函数。
+   - 提供了新旧值的比较，允许你在回调函数中访问变化前后的值。
+   - 可以根据配置项 flush 来控制副作用的刷新时机，可以是 pre（默认，组件更新前执行）、post（组件更新后执行）或 sync（同步执行）。
+
+watch 提供了更精确的控制，允许你指定“侦听的数据源”并比较“变化前后的值”，而 watchEffect 及其变体则提供了一种更自动化的方式来追踪依赖和执行副作用，适用于不同的场景和需求
+
+- deep watcher：对象做深度观测的时候；
+- user watcher：用户自定义的 watcher；
+- computed watcher： 几乎就是为计算属性量身定制的；
+- sync watcher：在当前 Tick（事件循环） 中同步执行 watcher 的回调函数
+
+  1. 当响应式数据发送变化后，触发了 watcher.update()，只是把这个 watcher 推送到一个队列中，在 nextTick 后才会真正执行 watcher 的回调函数。
+  2. 而一旦我们设置了 sync，就可以在当前 Tick 中同步执行 watcher 的回调函数。
+  3. 只有当我们需要 watch 的值的变化到执行 watcher 的回调函数是一个同步过程的时候才会去设置该属性为 true。
+
+## vue watch 和 computed 的区别
+
+- computed（计算属性）：依赖其它属性值， 有缓存，只有依赖的属性值变化，下一次获取 computed 的值时才会重新计算；
+- watch（侦听器）：侦听属性，无缓存性，类似于某些数据的监听回调 ，每当监听的数据变化时都会执行回调进行后续操作；
+
+## Vue.extend 与 Vue.component（都是创建组件） 区别
+
+1. let mv = new Vue({}) mv 是 vue 实例
+2. 没有组件名字
+
+   ```code
+   var myVue = Vue.extend(这里可以是一个.vue 单文件组件，也可以是一个包含组件选项的对象)
+   var vm = new myVue({
+   //其他选项
+   })
+   new vm().$mount('#mount-point') 或 document.body.appendChild(vm.$mount().$el);
+   ```
+
+3. 有组件名字；
+
+   - 注册组件，传入一个扩展过的构造器
+     `Vue.component('my-component', Vue.extend({ /* ... */ }))`
+   - 注册组件，传入一个选项对象 (自动调用 Vue.extend)
+     `Vue.component('my-component', { /* ... */ })`
+   - 获取注册的组件 (始终返回构造器)
+     `var MyComponent = Vue.component('my-component')`
 
 ## filter 过滤器--纯函数
 
@@ -281,7 +329,7 @@ https://www.cnblogs.com/WindrunnerMax/p/14864214.html
 
 避免将 v-if 和 v-for 放在同一个元素上，因为 v-for 优先级比 v-if 更高。
 
-## keep-alive ：include（组件 name，包括） ，exclude（排除）
+## keep-alive ：include（组件 name，包括），exclude（排除）
 
 `<keep-alive>` 包裹动态组件时，会缓存不活动的组件实例，而不是销毁它们。
 
@@ -296,9 +344,9 @@ https://www.cnblogs.com/WindrunnerMax/p/14864214.html
 
 ## vue3.0 ref() 与 reactive() 主要有三个区别
 
-1. ref() 函数接受“原始类型”和“对象”作为参数，而 reactive() 函数只能接受“对象”作为参数；
+1. ref() 可以存储“原始类型”，而 reactive 不能。
 2. ref() 有一个 .value 属性，你必须使用 .value 属性获取内容，但是使用 reactive() 的话可以直接访问；
-3. 使用 ref() 函数可以替换整个对象实例，但是在使用 reactive() 函数时就不行；
+3. 使用 ref() 函数可以替换整个对象实例，但是在使用 reactive() 函数时就不行；【ref 类型为 Ref<T>，而 reactive 返回的反应类型为原始类型本身】
 
    ```
    // 无效 - x 的更改不会被 Vue 记录
@@ -353,28 +401,6 @@ export default useAdd;
 2. 兄弟通信：$emit/$on，Vuex
 
 3. 隔代（跨级）通信：$emit/$on，Vuex，provide/inject，$attrs/$listeners
-
-## Vue.extend 与 Vue.component（都是创建组件） 区别
-
-1. let mv = new Vue({}) mv 是 vue 实例
-2. 没有组件名字
-
-   ```code
-   var myVue = Vue.extend(这里可以是一个.vue 单文件组件，也可以是一个包含组件选项的对象)
-   var vm = new myVue({
-   //其他选项
-   })
-   new vm().$mount('#mount-point') 或 document.body.appendChild(vm.$mount().$el);
-   ```
-
-3. 有组件名字；
-
-   - 注册组件，传入一个扩展过的构造器
-     `Vue.component('my-component', Vue.extend({ /* ... */ }))`
-   - 注册组件，传入一个选项对象 (自动调用 Vue.extend)
-     `Vue.component('my-component', { /* ... */ })`
-   - 获取注册的组件 (始终返回构造器)
-     `var MyComponent = Vue.component('my-component')`
 
 ## vue 组件--插件
 
