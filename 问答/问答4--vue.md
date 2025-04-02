@@ -259,6 +259,8 @@ Vue 想确保的不仅仅是计算属性依赖的值发生变化，而是当计�
 
 ## Vue 中 Watch 、WatchEffect （watchPostEffect，watchSyncEffect）
 
+不能用箭头函数，this 指向问题
+
 1. watchEffect：
 
    - 立即执行传入的函数，并在其执行过程中 “自动追踪” 其 “依赖的响应式数据”。当这些依赖的数据发生变化时，watchEffect 会重新执行函数。
@@ -478,6 +480,28 @@ vuex 中的 store 本质就是没有 template 的隐藏着的 vue 组件。
 - commit，其底层通过执行 this.withCommit(fn) 设置 committing 标志变量为 true，然后才能修改 state，修改完毕还需要还原 committing 变量。
 - 外部修改虽然能够直接修改 state，但是并没有修改 committing 标志位;
 - 以只要 watch 一下 state，state change 时判断是否\_committing 值为 true，即可判断修改的合法性。
+
+## Pinia ==========
+
+## pinia 或者 vuex5 中 为什么 state 必须是一个函数？
+
+当你定义 state 为一个函数时，每次创建一个新的 store 实例时，都会返回一个新的状态对象，从而确保每个组件实例都有自己的独立状态。这样，多个组件或模块使用相同的 store 时，不会互相影响，保证了数据的隔离性和一致性。此外，这种方式使得状态在热重载时也能保持一致性，提升了开发体验。（这其实与 Vue 实例中的 data 遵循同样的规则一个道理。）
+
+## pinia 中状态是为什么能共享，怎么实现的？
+
+Pinia 的状态管理是全局的，所有组件实例共享同一个状态。这是通过以下机制实现的：
+
+1. 全局注册和依赖注入：
+   - Pinia 使用 Vue 3 的 “provide 和 inject 机制” 来全局注册 store，子组件都可以通过 inject 获取这些 store。
+   - 在根组件中安装 Pinia 后，所有子组件都可以通过 useStore 钩子来获取 store 实例，相同 id 的 store 被不同组件引用，引用的是同一个 store 实例。
+2. 响应式状态：
+   - Pinia 使用 reactive 来创建响应式状态对象。
+   - 当组件通过 useStore 获取 store 实例时，实际上获取的是同一个响应式对象的引用。
+
+## 为什么访问 defineStore 创建的 state 不需要 .value
+
+state 的数据都会被处理为 ref，访问 ref 是需要 .value，但 pinia 从来没有 .value。  
+原因就是 reactive 中嵌套 ref 的时候，修改 reactive 内的值不需要 .value。将一个 ref 赋值给一个 reactive 属性时，该 ref 会被自动解包
 
 ## 当执行 import vue from "vue" 时发生了什么？
 
