@@ -1,6 +1,4 @@
-# TS 问题 参考“日常踩坑 / TS.md”
-
-# JS 问题
+# JS、TS; TS 问题 参考“日常踩坑 / TS.md”
 
 ## array 与 string 方法
 
@@ -24,6 +22,8 @@
 |                                  | =========                             | arr.some()                                                     |
 |                                  | =========                             | arr.every()                                                    |
 |                                  | =========                             | arr.reduce( callBack(prevResult, curVal, curIndex, arr), init) |
+
+str 是不变对象，而 array 是可变对象。
 
 ## js 数据类型及区别
 
