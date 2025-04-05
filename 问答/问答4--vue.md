@@ -23,36 +23,6 @@
    注：package.json 中的--base=/helper/ 会覆盖vite.config.ts中的base
 ```
 
-## 单页面的优缺点
-
-- 单页面初次加载过大：1.预渲染 2.单独渲染 3.服务端渲染 4.webpack 懒加载
-
-- 单页面的优点：
-
-  1. 对服务器压力较小
-  2. 前后端分离
-  3. 低耦合
-  4. 可重用性
-  5. 独立开发
-  6. 可测试
-
-- 单页面缺点：
-  1. 不利于 seo
-  2. 初次加载时耗时多
-  3. 页面复杂度提高很多
-
-* vue 如何优化首页的加载速度？vue 首页白屏是什么问题引起的？如何解决呢？
-
-  - 首页白屏的原因：单页面应用的 html 是靠 js 生成，因为首屏需要加载很大的 js 文件，加载的时候会产生一定程度的白屏
-
-  - 解决办法：
-    1. 将公用的 JS 库通过 script 标签外部引入，减小 app.bundle 的大小，让浏览器并行下载资源文件，提高下载速度；
-    2. 在配置路由时，页面和组件使用懒加载的方式引入，进一步缩小 app.bundle 的体积，在调用某个组件时再加载对应的 js 文件；
-    3. 上骨架屏或 loading 动画，提升用户体验；
-    4. 合理使用 web worker 优化一些计算
-    5. 缓存一定要使用，但是请注意合理使用
-    6. 最后可以借助一些工具进行性能评测，重点调优，例如 chrome 开发者工具的 performance 或 Google PageSpeed Insights 插件协助测试
-
 ## vue/react 的 diff 算法比较
 
 - 不同点：  
@@ -73,22 +43,32 @@
 
 ## Vue2.0 和 Vue3.0 有什么区别
 
-1. 重构响应式系统，使用 Proxy 替换 Object.defineProperty，使用 Proxy 优势：
+1. 响应式系统方面：
 
-   - 可直接监听数组类型的数据变化；
-   - 监听的目标为对象本身，不需要像 Object.defineProperty 一样遍历每个属性，有一定的性能提升；
-   - 可拦截 apply、ownKeys、has 等 13 种方法，而 Object.defineProperty 不行；
-   - 直接实现对象属性的新增/删除；
+   - 重构响应式系统，使用 Proxy 替换 Object.defineProperty，使用 Proxy 优势：
 
-2. 新增 Composition API，更好的逻辑复用和代码组织；
-3. 重构 Virtual DOM；
+     - 可直接监听数组类型的数据变化；
+     - 监听的目标为对象本身，不需要像 Object.defineProperty 一样遍历每个属性，有一定的性能提升（深层次也需要递归）；
+     - 可拦截 apply、ownKeys、has 等 13 种方法，而 Object.defineProperty 不行；
+     - 直接实现对象属性的新增/删除；
 
-   - 模板编译时的优化，将一些静态节点编译成常量；
-   - slot 优化，将 slot 编译为 lazy 函数，将 slot 的渲染的决定权交给子组件；
-   - 模板中内联事件的提取并重用（原本每次渲染都重新生成内联函数）；
+2. 功能方面
 
-4. 代码结构调整，更便于 Tree shaking，使得体积更小；
-5. 使用 Typescript 替换 Flow；
+   - 新增 Composition API：更好的逻辑复用和代码组织；
+   - 代码复用新方式；
+   - Fragments（片段）；
+   - 多个 v-model；
+   - Teleport；
+   - 新的自定义指令 API；
+
+3. 性能方面
+
+   - diff 算法的优化--静态标记（patchflag）与上次虚拟节点对比时，只对比带有 patch flag 的节点（动态数据所在的节点）；可通过 flag 信息得知当前节点要对比的具体内容。
+   - 事件侦听器缓存--模板中内联事件的提取并重用（vue2 原本每次渲染都重新生成内联函数）；
+   - 自定义渲染 API（针对跨平台/小程序的）；
+   - 按需编译；
+   - tree-shaking
+   - 更好的 TS 支持；
 
 ## vue3.0 proxy
 
@@ -97,20 +77,36 @@ proxy 代理深层属性:解决办法是，在 Reflect 返回的时候，判断�
 
 ![](./img/vue/proxy.webp)
 
+## vue2.x 为什么不监听数组
+
+1. Object.defineProperty 劫持的是对象的属性，所以“新增属性时，需要重新遍历对象”；
+2. 数组的作用就是不断的增删数据，这就得不断的调用 set 方法，这必然是成本高于回报的事情
+
+由于 Object.defineProperty 只能对属性进行劫持，“需要遍历对象的每个属性，如果属性值也是对象，则需要深度遍历”；而 Proxy 直接代理对象，不需要遍历操作。
+
 ## Vue 的基本原理
 
-当 一 个 Vue 实 例 创 建 时 ， Vue 会 遍历 data 中的属性，用 Object.defineProperty （ vue3.0 使 用 proxy ）将它们转为 getter/setter，并且在内部追踪相关依赖，在属性被访问和修改时通知变化。  
-每个组件实例都有相应的 watcher 程序实例，它会在组件渲染的过程中把属性记录为依赖，之后当依赖项的 setter 被调用时，会通知 watcher 重新计算，从而致使它关联的组件得以更新。
+- 在 new Vue() 后， Vue 会调用 `_init` 函数进行初始化，在 `_init` 过程 data 通过 Observer 转换成了 getter/setter 的形式，来追踪数据变化；当 “被设置的对象” 被读取的时候会执行 getter 函数，被赋值的时候会执行 setter 函数。
+- 当 render function 执行的时候，因为会读取所需对象的值，所以会触发 getter 函数从而将 Watcher 添加到依赖中，进行依赖收集。
+- 在修改对象的值的时候，会触发对应的 setter， setter 通知之前依赖收集得到的 Dep 中的每一个 Watcher，告诉它们自己的值改变了，需要重新渲染视图。这时候这些 Watcher 就会开始调用 update 来更新视图。
+
+- 模板编译：
+
+1. vue 会把在`<template></template>` 标签中写的类似于 `原生 HTML` 的内容进行编译，把 `原生 HTML` 的内容找出来，再把 `非原生 HTML` 找出来，经过一系列的逻辑处理生成渲染函数（`render 函数`）
+2. 而 `render 函数` 会将模板内容生成对应的 `VNode`，而 VNode 再经过前几篇文章介绍的 `patch（补丁、修补） 过程`从而得到将要渲染的视图中的 `VNode`，最后根据 VNode 创建 `真实的 DOM 节点` 并插入到视图中， 最终完成视图的渲染更新。
+
+![模板编译与渲染](./img/vue/模板编译与渲染.png)
 
 ## 双向数据绑定的原理
 
-首先要对数据进行劫持监听，所以我们需要设置一个监听器 Observer，用来监听所有属性。如果属性发上变化了，就需要告诉订阅者 Watcher 看是否需要更新。因为订阅者是有很多个，所以我们需要有一个消息订阅器 Dep 来专门收集这些订阅者，然后在监听器 Observer 和订阅者 Watcher 之间进行统一管理的。接着，我们还需要有一个指令解析器 Compile，对每个节点元素进行扫描和解析，将相关指令对应初始化成一个订阅者 Watcher，并替换模板数据或者绑定相应的函数，此时当订阅者 Watcher 接收到相应属性的变化，就会执行对应的更新函数，从而更新视图。因此接下去我们执行以下 3 个步骤，实现数据的双向绑定：
+首先要对数据进行劫持监听，所以我们需要设置一个监听器 Observer，用来监听所有属性。如果属性发上变化了，就需要告诉订阅者 Watcher 看是否需要更新。因为订阅者是有很多个，所以我们需要有一个消息订阅器 Dep 来专门收集这些订阅者，然后在监听器 Observer 和订阅者 Watcher 之间进行统一管理的。接着，我们还需要有一个指令解析器 Compile，对每个节点元素进行扫描和解析，将相关指令对应初始化成一个订阅者 Watcher，并替换模板数据或者绑定相应的函数，此时当订阅者 Watcher 接收到相应属性的变化，就会执行对应的更新函数，从而更新视图。因此接下去我们执行以下 4 个步骤，实现数据的双向绑定：
 
-1.实现一个监听器 Observer，用来劫持并监听所有属性，如果有变动的，就通知订阅者。
+1. 实现一个监听器 Observer，用来劫持并监听所有属性，如果有变动的，就通知订阅者；
+2. 实现一个订阅器 Dep，用来收集订阅者，对监听器 Observer 和 订阅者 Watcher 进行统一管理；
+3. 实现一个订阅者 Watcher，可以收到属性的变化通知并执行相应的函数(update)，从而更新视图；
+4. 实现一个解析器 Compile，可以解析每个节点的相关指令，对模板数据和订阅器进行初始化；
 
-2.实现一个订阅者 Watcher，可以收到属性的变化通知并执行相应的函数，从而更新视图。
-
-3.实现一个解析器 Compile，可以扫描和解析每个节点的相关指令，并根据初始化模板数据以及初始化相应的订阅器。
+![vue响应式原理](./img/vue/vue响应式原理.png)
 
 ![双向绑定](./img/vue/vue双向绑定.png)
 
@@ -127,84 +123,42 @@ proxy 代理深层属性:解决办法是，在 Reflect 返回的时候，判断�
 双向数据绑定流程
 
 1. 数据劫持：Vue 在初始化时会对 data 中的数据进行劫持，将其转换为 getter/setter，以便在数据改变时能够捕获到变化。
-2. 模板编译：Vue 会对模板进行编译，找到其中动态绑定的数据，并初始化视图。同时，为每个数据绑定创建一个 Watcher 实例，并将其添加到对应的 Dep 中。
+2. 模板编译：Vue 会对模板进行编译，找到其中动态绑定的数据，并初始化视图；同时，为每个数据绑定创建一个 Watcher 实例，并将其添加到对应的 Dep 中。
 3. 数据变化通知：当数据发生变化时，会触发 setter 方法，进而调用 Dep 的 notify 方法通知所有相关的 Watcher 进行更新。
 4. 视图更新：Watcher 在收到更新通知后，会调用相应的更新函数来更新视图。
 
-## MVVM、MVC、MVP 的区别
-
-- MVC 通过分离 Model、View 和 Controller 的方式来组织代码结构。
-
-  1. View 负责页面的显示逻辑；
-  2. Model 负责存储页面的业务数据，以及对相应数据的操作；并且 View 和 Model 应用了观察者模式，当 Model 层发生改变的时候它会通知有关 View 层更新页面。
-  3. Controller 层是 View 层和 Model 层的纽带，它主要负责用户与应用的响应操作，当用户与页面产生交互的时候，Controller 中的事件触发器就开始工作了，通过调用 Model 层，来完成对 Model 的修改，然后 Model 层再去通知 View 层更新；
-
-* MVVM 分为 Model、View、ViewModel：
-  1. Model 代表数据模型，数据和业务逻辑都在 Model 层中定义；
-  2. View 代表 UI 视图，负责数据的展示；
-  3. ViewModel 负责监听 Model 中数据的改变并且控制视图的更新，处理用户交互操作；
-  4. Model 和 View 并无直接关联，而是通过 ViewModel 来进行联系的，
-  5. 这种模式实现了 Model 和 View 的数据自动同步，因此开发者只需要专注于数据的维护操作即可，而不需要自己操作 DOM。
-
-## vue3.0 ref() 与 reactive() 主要有三个区别:
-
-1. ref() 函数接受“原始类型”和“对象”作为参数，而 reactive() 函数只能接受“对象”作为参数；
-2. ref() 有一个 .value 属性，你必须使用 .value 属性获取内容，但是使用 reactive() 的话可以直接访问；
-3. 使用 ref() 函数可以替换整个对象实例，但是在使用 reactive() 函数时就不行；
-
-   ```
-   // 无效 - x 的更改不会被 Vue 记录
-   let x = reactive({name: 'John'})
-   x = reactive({todo: true})
-
-   // 有效
-   const x = ref({name: 'John'})
-   x.value = {todo: true}
-
-   ```
-
-   **注**：应该盲目地选择 ref() 而不是 reactive()（保持风格一致）；
-
-## vue3.0 hook 编写
+## js 实现简单的双向绑定
 
 ```
-import { ref, watch } from 'vue';
-const useAdd= ({ num1, num2 })  =>{
-    const addNum = ref(0)
-    watch([num1, num2], ([num1, num2]) => {
-        addFn(num1, num2)
-    })
-    const addFn = (num1, num2) => {
-        addNum.value = num1 + num2
-    }
-    return {
-        addNum,
-        addFn
-    }
-}
-export default useAdd;
+<body>
+    <div id="app">
+        <input type="text" id="txt">
+        <p id="show"></p>
+        <button>click</button>
+    </div>
+    <script>
+        window.onload = function () {
+            var obj = {};
+            Object.defineProperty(obj, "txt", {
+                get: function () {
+                    return obj;
+                },
+                set: function (newValue) {
+                    document.getElementById("txt").value = newValue;
+                    document.getElementById("show").innerHTML = newValue;
+                }
+            })
+            document.addEventListener("keyup", function (e) {
+                obj.txt = e.target.value;
+            })
+            document.querySelector("button").addEventListener("click", function () {
+                obj.txt = "btn"
+            })
 
-<span>加法等于:{{ addNum }}</span>
-
-<script setup>
- import { ref } from 'vue'
- import useAdd from './useAdd.js'     //引入自动hook
- const num1 = ref(2)
- const num2 = ref(1)
- //加法功能-自定义Hook（将响应式变量或者方法形式暴露出来）
- const { addNum, addFn } = useAdd({ num1, num2 })
- addFn(num1.value, num2.value)
-</script>
-
+        }
+    </>
+</body>
 ```
-
-## Vue 中的三种 Watcher
-
-https://www.cnblogs.com/WindrunnerMax/p/14864214.html
-
-- 第一种是在定义 data 函数时定义数据的 render watcher；
-- 第二种是 computed watcher，是 computed 函数在自身内部维护的一个 watcher，配合其内部的属性 dirty 开关来决定 computed 的值是需要重新计算还是直接复用之前的值；
-- 第三种就是 watcher api 了，就是用户自定义的 export 导出对象的 watch 属性；当然实际上他们都是通过 class Watcher 类来实现的。
 
 ## Vue 的生命周期
 
@@ -255,21 +209,30 @@ https://www.cnblogs.com/WindrunnerMax/p/14864214.html
 
 ## Vue 的父组件和子组件生命周期钩子执行顺序是什么
 
-1. 加载渲染过程
+- 加载渲染过程
 
-   父 beforeCreate->父 created->父 beforeMount->子 beforeCreate->子 created->子 beforeMount->子 mounted->父 mounted
+  1. parent beforeCreate
+  2. parent created
+  3. parent beforeMounte
+     1. child beforeCreate
+     2. child created
+     3. child beforeMounte
+     4. child mounted
+  4. parent mounted
 
-1. 子组件更新过程
+- 组件更新过程
 
-   父 beforeUpdate->子 beforeUpdate->子 updated->父 updated
+  1. parent beforeUpdate
+     1. child beforeUpdate
+     2. child updated
+  2. parent updated
 
-1. 父组件更新过程
+- 销毁过程
 
-   父 beforeUpdate->父 updated
-
-1. 销毁过程
-
-   父 beforeDestroy->子 beforeDestroy->子 destroyed->父 destroyed
+  1. parent beforeDestroy
+     1. child beforeDestroy
+     2. child destroyed
+  2. parent destroyed
 
 总结：从外到内，再从内到外
 
@@ -277,108 +240,59 @@ https://www.cnblogs.com/WindrunnerMax/p/14864214.html
 
 在子组件中的各个生命周期$emit 事件
 
-## js 实现简单的双向绑定
-
-```
-<body>
-    <div id="app">
-        <input type="text" id="txt">
-        <p id="show"></p>
-        <button>click</button>
-    </div>
-    <script>
-        window.onload = function () {
-            var obj = {};
-            Object.defineProperty(obj, "txt", {
-                get: function () {
-                    return obj;
-                },
-                set: function (newValue) {
-                    document.getElementById("txt").value = newValue;
-                    document.getElementById("show").innerHTML = newValue;
-                }
-            })
-            document.addEventListener("keyup", function (e) {
-                obj.txt = e.target.value;
-            })
-            document.querySelector("button").addEventListener("click", function () {
-                obj.txt = "btn"
-            })
-
-        }
-    </>
-</body>
-```
-
-## vue 为什么不监听数组: Object.defineproperty 劫持的是对象属性
-
-1. vue 不能监听"动态添加的属性"，这是数据劫持的一个缺陷，动态添加的属性只能手动调用 Vue.set 方法进行注册监听;
-2. 数组的作用就是不断的增删数据，这就得不断的调用 set 方法，这必然是成本高于回报的事情
-
 ## vue data 为什么是函数不是对象
 
 每个组件都是 vue 的一个实例；组件内的 data 其实是 vue 原型上的属性;
 如果是对象的话，在组件上修改 data 会互相影响的
 
-## filter 过滤器--纯函数
+## vue 中 computed
 
-1. filter 中的 this 是什么？
+- computed 本质是一个惰性求值的观察者。computed 内部实现了一个惰性的 watcher，也就是 computed watcher；
+- computed watcher 不会立刻求值，同时持有一个 dep 实例，其内部通过 this.dirty 属性标记计算属性是否需要重新求值。
+  当 computed 的依赖状态发生改变时，就会通知这个惰性的 watcher，computed watcher 通过 this.dep.subs.length 判断有没有订阅者：
 
-   this 是 undefined，在 filter 中拿不到 vue 实例。
+  - 有的话会重新计算，然后对比新旧值，如果变化了会重新渲染。
+  - 没有的话，仅仅把 this.dirty = true。
+  - 当计算属性依赖于其他数据时，属性并不会立即重新计算，只有之后其他地方需要读取属性的时候，它才会真正计算，即具备 lazy（懒计算）特性。
 
-   如果需要用到 this，可以用 computed 或者 method 代替。
+Vue 想确保的不仅仅是计算属性依赖的值发生变化，而是当计算属性最终计算的值发生变化时才会触发渲染 watcher 重新渲染，本质上是一种优化。
 
-## vue watch 和 compute 的区别
+## Vue 中 Watch 、WatchEffect （watchPostEffect，watchSyncEffect）
 
-- watch 是监听动作，computed 是计算属性
-- watch 没缓存，只要数据变化就执行。computed 有缓存，只在属性变化的时候才去计算。
-- watch 可以执行异步操作，而 computed 不能
-- watch 擅长处理：一个数据影响多个数据，computed 则擅长处理多个数据影响一个数据
+不能用箭头函数，this 指向问题
 
-* watch 对象：
-  1. deep: true 。监听对象； 注：数组不需要。
-  2. immediate：true  将立即以表达式的当前值触发回调
+1. watchEffect：
 
-## vue v-model
+   - 立即执行传入的函数，并在其执行过程中 “自动追踪” 其 “依赖的响应式数据”。当这些依赖的数据发生变化时，watchEffect 会重新执行函数。
+   - 不提供新旧值的比较，因为它不追踪具体的数据源，而是追踪执行过程中“访问的所有响应式数据”。
+   - 执行时机是在依赖变化时同步执行，除非通过配置项 flush 来指定不同的执行时机。
 
-`<input  v-bind:value="mes"  v-on:input="mes= $event.target.value"/>`
-指令，管道
+2. watchPostEffect：
+   - watchEffect 的一个变体，它会在 Vue 更新 DOM 之后执行副作用。
+3. watchSyncEffect：
+   - watchEffect 的另一个变体，它会在响应式数据变化时同步执行副作用，而不是等待下一个事件循环。
+4. watch：
+   - 允许你明确指定要侦听的响应式引用或 getter 函数，并在数据变化时执行回调函数。
+   - 提供了新旧值的比较，允许你在回调函数中访问变化前后的值。
+   - 可以根据配置项 flush 来控制副作用的刷新时机，可以是 pre（默认，组件更新前执行）、post（组件更新后执行）或 sync（同步执行）。
 
-## vue v-for 的 key: 与 diff 算法有关，相同的 key 直接复用
+watch 提供了更精确的控制，允许你指定“侦听的数据源”并比较“变化前后的值”，而 watchEffect 及其变体则提供了一种更自动化的方式来追踪依赖和执行副作用，适用于不同的场景和需求
 
-避免将 v-if 和 v-for 放在同一个元素上，因为 v-for 优先级比 v-if 更高。
+- deep watcher：对象做深度观测的时候；
+- user watcher：用户自定义的 watcher；
+- computed watcher： 几乎就是为计算属性量身定制的；
+- sync watcher：在当前 Tick（事件循环） 中同步执行 watcher 的回调函数
 
-## keep-alive ：include（组件 name，包括） ，exclude（排除）
+  1. 当响应式数据发送变化后，触发了 watcher.update()，只是把这个 watcher 推送到一个队列中，在 nextTick 后才会真正执行 watcher 的回调函数。
+  2. 而一旦我们设置了 sync，就可以在当前 Tick 中同步执行 watcher 的回调函数。
+  3. 只有当我们需要 watch 的值的变化到执行 watcher 的回调函数是一个同步过程的时候才会去设置该属性为 true。
 
-## vue nextTick -- DOM 更新后调用 / vm.$forceUpdate---强制本组件和卡槽子组件更新
+## vue watch 和 computed 的区别
 
-- nextTick：分宏任务 和 微任务 （默认）
-- 微任务：Promise --》宏任务
-- 宏任务：setImmediate --》MessageChannel --》setTimeout (DOM 交互事件走宏任务，v-on@)
+- computed（计算属性）：依赖其它属性值， 有缓存，只有依赖的属性值变化，下一次获取 computed 的值时才会重新计算；
+- watch（侦听器）：侦听属性，无缓存性，类似于某些数据的监听回调 ，每当监听的数据变化时都会执行回调进行后续操作；
 
-## vue 组件通信
-
-1.vuex； 2.vue.prototype； 3.props/emit； 4.卡槽； 5.自定义事件；6.provide - inject
-
-- 自定义事件：
-
-  1. import Vue from 'vue'
-     export const EventBus = new Vue()
-     Vue.prototype.$EventBus = new Vue()
-
-  2. `EventBus.$emit("aMsg", '来自 A 页面的消息');`
-
-  3. EventBus.$on("aMsg", (msg) => {
-             // A发送来的消息
-                this.msg = msg;
-           });
-    EventBus.$off('aMsg', {})
-
-## Vue 事件总线（EventBus）、$on、$emit、$off
-
-发布订阅模式
-
-## Vue.extend 与 Vue.component（都是创建组件） 区别：
+## Vue.extend 与 Vue.component（都是创建组件） 区别
 
 1. let mv = new Vue({}) mv 是 vue 实例
 2. 没有组件名字
@@ -400,6 +314,96 @@ https://www.cnblogs.com/WindrunnerMax/p/14864214.html
    - 获取注册的组件 (始终返回构造器)
      `var MyComponent = Vue.component('my-component')`
 
+## filter 过滤器--纯函数
+
+1. filter 中的 this 是什么？
+
+   this 是 undefined，在 filter 中拿不到 vue 实例。
+
+   如果需要用到 this，可以用 computed 或者 method 代替。
+
+## vue v-model
+
+`<input  v-bind:value="mes"  v-on:input="mes= $event.target.value"/>`
+指令，管道
+
+## vue v-for 的 key: 与 diff 算法有关，相同的 key 直接复用
+
+避免将 v-if 和 v-for 放在同一个元素上，因为 v-for 优先级比 v-if 更高。
+
+## keep-alive ：include（组件 name，包括），exclude（排除）
+
+`<keep-alive>` 包裹动态组件时，会缓存不活动的组件实例，而不是销毁它们。
+
+## vue nextTick -- DOM 更新后调用 / vm.$forceUpdate---强制本组件和卡槽子组件更新
+
+- nextTick：分宏任务 和 微任务 （默认）
+- 微任务：Promise --》宏任务
+- 宏任务：setImmediate --》MessageChannel --》setTimeout (DOM 交互事件走宏任务，v-on@)
+
+* Vue 在内部对异步队列尝试使用原生的 Promise.then、MutationObserver(监测 DOM 树，在 DOM 发生变化时异步执行回调函数) 和 setImmediate(DOM 交互事件走宏任务，v-on@)，如果执行环境不支持，则会采用 setTimeout(fn, 0) 代替。
+* 在数据变化之后立即使用 Vue.nextTick(callback)
+
+## vue3.0 ref() 与 reactive() 主要有三个区别
+
+1. ref() 可以存储“原始类型”，而 reactive 不能。
+2. ref() 有一个 .value 属性，你必须使用 .value 属性获取内容，但是使用 reactive() 的话可以直接访问；
+3. 使用 ref() 函数可以替换整个对象实例，但是在使用 reactive() 函数时就不行；【ref 类型为 Ref<T>，而 reactive 返回的反应类型为原始类型本身】
+
+   ```
+   // 无效 - x 的更改不会被 Vue 记录
+   let x = reactive({name: 'John'})
+   x = reactive({todo: true})
+
+   // 有效
+   const x = ref({name: 'John'})
+   x.value = {todo: true}
+
+   ```
+
+   **注**：应该盲目地选择 ref() 而不是 reactive()（保持风格一致）；
+
+## vue3.0 hook 编写
+
+```demo
+import { ref, watch } from 'vue';
+const useAdd= ({ num1, num2 }) =>{
+    const addNum = ref(0)
+    watch([num1, num2], ([num1, num2]) => {
+       addFn(num1, num2)
+    })
+    const addFn = (num1, num2) => {
+       addNum.value = num1 + num2
+    }
+    return {
+       addNum,
+       addFn
+    }
+}
+export default useAdd;
+
+<span>加法等于:{{ addNum }}</span>
+
+<script setup>
+ import { ref } from 'vue'
+ import useAdd from './useAdd.js'     //引入自动hook
+ const num1 = ref(2)
+ const num2 = ref(1)
+ //加法功能-自定义Hook（将响应式变量或者方法形式暴露出来）
+ const { addNum, addFn } = useAdd({ num1, num2 })
+ addFn(num1.value, num2.value)
+</script>
+
+```
+
+## vue 组件通信
+
+1. 父子通信：Props/$emit，provide/inject，$refs，Vuex，$emit/$on，$attrs/$listeners，$parent/$children，
+
+2. 兄弟通信：$emit/$on，Vuex
+
+3. 隔代（跨级）通信：$emit/$on，Vuex，provide/inject，$attrs/$listeners
+
 ## vue 组件--插件
 
 - 组件（component）： 用来构成 App 的业务模块；
@@ -410,12 +414,24 @@ https://www.cnblogs.com/WindrunnerMax/p/14864214.html
   3. main.js 中使用 Vue.use(ToastPlugin)
   4. this.$showToast ('标题', '提示内容')
 
+## vue 路由 ========
+
 ## vue hash 和 history 原理
 
-1. hash : `window.onhashchange` 事件,不会被包括在 HTTP 请求中，对后端完全没有影响，因此改变 hash 不会重新加载页面。
-2. history : 切换和修改。
-   - 切换历史状态包括 back、forward、go 三个方法
-   - 修改历史状态包括了 `pushState(),replaceState()`,它们提供了对历史记录进行修改的功能。虽然改变了当前的 URL，但浏览器不会立即向后端发送请求。只是当它们执行修改时，才发请求。
+1. Hash 模式：地址栏 URL 中有 #。vue-router 优先判断浏览器是否支持 pushState：
+
+   - 若支持，则通过 pushState 改变 hash 值，进行目标路由匹配，渲染组件；通过 popstate 事件监听浏览器操作，完成导航功能；
+   - 若不支持，使用 location.hash 设置 hash 值，onhashchange 事件 监听 URL 变化完成路由导航（如 IE9 及以下）。
+
+   Hash 模式不需要在服务器层面上进行任何特殊处理。
+
+1. History 模式：利用了 html5 History Interface 中新增的 pushState() 和 replaceState() 方法。
+
+   - 在当前已有的 back、forward、go 的基础之上，pushState() 和 replaceState()方法 提供了对历史记录进行修改的功能。
+   - pushState() 和 replaceState()方法不会触发页面刷新，只是导致了 history 对象发生变化，地址栏会有反应。
+
+   * popState 事件：
+     - 仅仅调用 pushState 方法或 replaceState 方法，并不会触发 popState 事件；只有用户点击浏览器后退和前进按钮时，或者使用 js 调用 back、forward、go 方法时才会触发。
 
 ## vue link 传值
 
@@ -433,7 +449,7 @@ https://www.cnblogs.com/WindrunnerMax/p/14864214.html
 ## 完整的 Vue 路由生命周期
 
 1. 导航被触发。
-2. 在失活的组件里调用离开守卫。
+2. 在失活的组件里调用 beforeRouteLeave 守卫。
 3. 调用全局的 beforeEach 守卫。
 4. 在重用的组件里调用 beforeRouteUpdate 守卫 (2.2+)。
 5. 在路由配置里调用 beforeEnter 。
@@ -443,13 +459,13 @@ https://www.cnblogs.com/WindrunnerMax/p/14864214.html
 9. 导航被确认。
 10. 调用全局的 afterEach 钩子。
 11. 触发 DOM 更新。
-12. 用创建好的实例调用 beforeRouteEnter 守卫中传给 next 的回调函数。
+12. 调用 beforeRouteEnter 守卫中“传给 next” 的回调函数，创建好的组件实例会作为回调函数的参数传入。
 
-## Vuex
+## Vuex ==========
 
 ## 为什么要用 vuex
 
-解决不同组件通信,
+Vuex 主要解决 “深层嵌套” 和 “非直接关联组件之间” 的通信。
 
 ## Vuex 是通过什么方式提供响应式数据的？
 
@@ -464,6 +480,28 @@ vuex 中的 store 本质就是没有 template 的隐藏着的 vue 组件。
 - commit，其底层通过执行 this.withCommit(fn) 设置 committing 标志变量为 true，然后才能修改 state，修改完毕还需要还原 committing 变量。
 - 外部修改虽然能够直接修改 state，但是并没有修改 committing 标志位;
 - 以只要 watch 一下 state，state change 时判断是否\_committing 值为 true，即可判断修改的合法性。
+
+## Pinia ==========
+
+## pinia 或者 vuex5 中 为什么 state 必须是一个函数？
+
+当你定义 state 为一个函数时，每次创建一个新的 store 实例时，都会返回一个新的状态对象，从而确保每个组件实例都有自己的独立状态。这样，多个组件或模块使用相同的 store 时，不会互相影响，保证了数据的隔离性和一致性。此外，这种方式使得状态在热重载时也能保持一致性，提升了开发体验。（这其实与 Vue 实例中的 data 遵循同样的规则一个道理。）
+
+## pinia 中状态是为什么能共享，怎么实现的？
+
+Pinia 的状态管理是全局的，所有组件实例共享同一个状态。这是通过以下机制实现的：
+
+1. 全局注册和依赖注入：
+   - Pinia 使用 Vue 3 的 “provide 和 inject 机制” 来全局注册 store，子组件都可以通过 inject 获取这些 store。
+   - 在根组件中安装 Pinia 后，所有子组件都可以通过 useStore 钩子来获取 store 实例，相同 id 的 store 被不同组件引用，引用的是同一个 store 实例。
+2. 响应式状态：
+   - Pinia 使用 reactive 来创建响应式状态对象。
+   - 当组件通过 useStore 获取 store 实例时，实际上获取的是同一个响应式对象的引用。
+
+## 为什么访问 defineStore 创建的 state 不需要 .value
+
+state 的数据都会被处理为 ref，访问 ref 是需要 .value，但 pinia 从来没有 .value。  
+原因就是 reactive 中嵌套 ref 的时候，修改 reactive 内的值不需要 .value。将一个 ref 赋值给一个 reactive 属性时，该 ref 会被自动解包
 
 ## 当执行 import vue from "vue" 时发生了什么？
 

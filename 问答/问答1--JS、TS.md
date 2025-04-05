@@ -1,6 +1,4 @@
-# TS 问题 参考“日常踩坑 / TS.md”
-
-# JS 问题
+# JS、TS; TS 问题 参考“日常踩坑 / TS.md”
 
 ## array 与 string 方法
 
@@ -25,6 +23,18 @@
 |                                  | =========                             | arr.every()                                                    |
 |                                  | =========                             | arr.reduce( callBack(prevResult, curVal, curIndex, arr), init) |
 
+str 是不变对象，而 array 是可变对象。
+
+```code
+   let a = 'abc';
+   let b = a.replace('a', 'A');
+   console.log(a); // 输出：abc
+   console.log(b); // 输出：Abc
+```
+
+当我们调用 a.replace('a', 'A')时，实际上调用方法 replace 是作用在字符串对象'abc'上的，而这个方法虽然名字叫 replace，但却没有改变字符串'abc'的内容。
+相反，replace 方法创建了一个新字符串'Abc'并返回，如果我们用变量 b 指向该新字符串，就容易理解了，变量 a 仍指向原有的字符串'abc'，但变量 b 却指向新字符串'Abc'了：
+
 ## js 数据类型及区别
 
 共 8 中：是 Undefined、Null、Boolean、Number、String、Object、Symbol、BigInt；
@@ -37,6 +47,20 @@
      js-big-decimal.js / bignumber.js 库处理数据加减乘除；
 
 - 引用数据类型：对象(Object)【除了基本类型以外都是对象, 数组, 函数, 正则表达式】
+
+1. 基本类型的数据（数值、字符串、布尔值）：其值保存在内存地址；
+2. 引用类型的数据（主要是对象和数组）：内存地址保存的只是一个指针，const 只能保证这个指针是固定不变的，至于它指向的数据结构是不是可变的，就完全不能控制了。
+
+## const 对象的属性可以修改吗？
+
+const 保证的并不是`变量的值`不能改动，而是变量指向的`那个内存地址`不能改动。
+
+## 基本数据类型和复杂数据类型的区别
+
+1. 存储位置不同（栈和堆）
+2. 访问机制不同（按值，引用访问）
+3. 变量赋值不同（值的副本，引用）
+4. 参数传递不同（传值，引用）
 
 ## null / undefined / NaN
 
@@ -103,12 +127,26 @@ console.log(-0 === +0); //true
 Object.is(-0,+0); //false
 ```
 
-## 基本数据类型和复杂数据类型的区别
+## JS 中的包装类
 
-1. 存储位置不同（栈和堆）
-2. 访问机制不同（按值，引用访问）
-3. 变量赋值不同（值的副本，引用）
-4. 参数传递不同（传值，引用）
+在 js 中，基本类型是没有属性和方法的，但是为了便于操作基本类型的值，在调用基本类型的属性或方法时 js 会在后台隐式地将基本类型的值转换为对象;
+
+- `let a ="abc"; a.length;` 当 访 问 'abc'.length 时 ， JavaScript 将'abc' 在后台转换成 String('abc')，然后再访问其 length 属性;
+
+- `let b = Object(a); //String{"abc"} ` JavaScript 也可以使用 Object 函数显式地将基本类型转换为包装类型;
+
+- `let c = b.valueOf(); //"abc"` 也可以使用 valueOf 方法将包装类型倒转成基本类型;
+
+- 如下代码会打印出什么：
+
+  ```code
+    let a = new Boolean(false);
+    if(!a){
+       console.log("Oops"); //从不运行；
+    }
+  ```
+
+答案是什么都不会打印，因为虽然包裹的基本类型是 false，但是 false 被包裹成包装类型后就成了对象，所以其非值为 false，所以循环体中的内容不会运行。
 
 ## 栈、堆、队列之间的区别是？
 
@@ -133,34 +171,6 @@ Object.is(-0,+0); //false
 
 4. 队列只能在队头做删除操作,在队尾做插入操作。（先进先出）
    理解队列数据结构的目的主要是为了清晰的明白事件循环机制
-
-## const 对象的属性可以修改吗？
-
-const 保证的并不是变量的值不能改动，而是变量指向的那个内存地址不能改动。
-
-- 基本类型的数据（数值、字符串、布尔值）：其值保存在内存地址；
-- 引用类型的数据（主要是对象和数组）：内存地址保存的只是一个指针，const 只能保证这个指针是固定不变的，至于它指向的数据结构是不是可变的，就完全不能控制了。
-
-## JS 中的包装类
-
-在 js 中，基本类型是没有属性和方法的，但是为了便于操作基本类型的值，在调用基本类型的属性或方法时 js 会在后台隐式地将基本类型的值转换为对象;
-
-- `let a ="abc"; a.length;` 当 访 问 'abc'.length 时 ， JavaScript 将'abc' 在后台转换成 String('abc')，然后再访问其 length 属性;
-
-- `let b = Object(a); //String{"abc"} ` JavaScript 也可以使用 Object 函数显式地将基本类型转换为包装类型;
-
-- `let c = b.valueOf(); //"abc"` 也可以使用 valueOf 方法将包装类型倒转成基本类型;
-
-- 如下代码会打印出什么：
-
-  ```
-    let a = new Boolean(false);
-    if(!a){
-       console.log("Oops"); //从不运行；
-    }
-  ```
-
-答案是什么都不会打印，因为虽然包裹的基本类型是 false，但是 false 被包裹成包装类型后就成了对象，所以其非值为 false，所以循环体中的内容不会运行。
 
 ## 进程、线程：参考 “计算机基础系列 / 进程-线程-协程-纤程”
 
@@ -355,7 +365,7 @@ JavaScript 代码的执行过程中，除了依靠“函数调用栈”来搞定
 
 4. 来自不同任务源的任务会进入到不同的任务队列。其中 setTimeout 与 setInterval 是同源的。
 
-5. 事件循环的顺序，决定了 js 代码的执行顺序。它从 script(整体代码)开始第一次循环。之后全局上下文进入函数调用栈,直到调用栈清空(只剩全局)。然后执行所有的 micro-task(微任务中套微任务，执行)。当所有可执行的 micro-task 执行完毕之后。循环再次从 macro-task 开始，找到其中一个任务队列执行完毕，然后再执行所有的 micro-task，这样一直循环下去
+5. 事件循环的顺序，决定了 js 代码的执行顺序。它从 script(整体代码)开始第一次循环。之后全局上下文进入函数调用栈，直到调用栈清空(只剩全局)。然后执行所有的 micro-task（微任务中套微任务，执行）。当所有可执行的 micro-task 执行完毕之后。循环再次从 macro-task 开始，找到其中一个任务队列执行完毕，然后再执行所有的 micro-task，这样一直循环下去
 
 6. 其中每一个任务的执行，无论是 macro-task 还是 micro-task，都是借助函数调用栈来完成
 
@@ -521,7 +531,7 @@ RegExpObject.test(string) // 匹配到，返回 true ，否则返回 false。
 
      3. ESM 模块的 import 命令是异步加载，有一个独立的模块依赖的解析阶段。
 
-## 迭代器(iterator)、生成器(generator)、promise、await(异步)/async(等待)
+## 迭代器(iterator)、生成器(generator)、promise、await(异步)/async(等待) ：参考 js 基础系列 / 迭代器、生成器、promise、await-async
 
 ## 迭代与递归
 
@@ -625,7 +635,7 @@ addEventListener 能够添加多个事件，且只能写在 js 中，易于控�
 
    对于动态添加或删除的子元素，事件代理可以自动处理，不需要额外的事件绑定或解绑逻辑
 
-## JS 中判断字符串中出现次数最多的字符及出现的次数:
+## JS 中判断字符串中出现次数最多的字符及出现的次数
 
 ```code
 let str = 'qwertyuilo.,mnbvcsarrrrrrrrtyuiop;l,mhgfdqrtyuio;.cvxsrtyiuo';

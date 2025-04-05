@@ -2,16 +2,16 @@
 
 - 静态方法：
 
-1. Promise.all() ; 所有返回
-2. Promise.race() ; 最快的返回
-3. Promise.reject();
-4. Promise.resolve();
+  1. Promise.all() ; 所有返回
+  2. Promise.race() ; 最快的返回
+  3. Promise.reject();
+  4. Promise.resolve();
 
 - 实例方法：
 
-5. Promise.then();
-6. Promise.catch()
-7. Promise.finally()
+  1. Promise.then();
+  2. Promise.catch()
+  3. Promise.finally()
 
 ## 迭代器(iterator)
 
@@ -19,11 +19,11 @@
 2. 可迭代的对象（在原型链上）有“Symbol.iterator”属性；
 3. 通过 obj.next()迭代，返回{value:"迭代序列的值",done: false}/{value: undefined, done: true}；
 
-```
-let set = new Set([1,2,3,4]);
-let iter = set[Symbol.iterator]();
-iter.next()
-```
+   ```code
+   let set = new Set([1,2,3,4]);
+   let iter = set[Symbol.iterator]();
+   iter.next()
+   ```
 
 Array、Map、Set、String、TypeArray、arguments、nodeList
 
@@ -41,13 +41,13 @@ Symbol.iterator / for of
 1. 生成器函数中用 yield 关键字来“暂停”函数的执行。
 2. 生成器对象（在原型链上）包含一个 next()方法,用这个方法来迭代生成器对象，返回{value: '当前 yield 的值', done: false}/{value: undefined, done: true};
 
-```
-function* genFun(){
-    yield "*"
-    console.log("111")
-    yield "!"
-     console.log("222")
-}
-const genObj = genFun();
-genObj.next()
+```code
+   function* genFun(){
+       yield "*"
+       console.log("111")
+       yield "!"
+        console.log("222")
+   }
+   const genObj = genFun();
+   genObj.next()
 ```
