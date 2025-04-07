@@ -1,5 +1,7 @@
 # 迭代器(iterator)、生成器(generator)、promise、await/async
 
+## promise
+
 - 静态方法：
 
   1. Promise.all() ; 所有返回
@@ -25,7 +27,7 @@
    iter.next()
    ```
 
-Array、Map、Set、String、TypeArray、arguments、nodeList
+内置可迭代对象有： Array、Map、Set、String、TypeArray、arguments、nodeList
 
 Symbol.iterator / for of
 
