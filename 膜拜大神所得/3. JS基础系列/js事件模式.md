@@ -2,35 +2,29 @@
 
 ## JS 常用事件（默认事件，自定义事件，观察者模式，发布订阅模式）
 
-## 1. 默认事件 (click，input...)
+## 1.事件监听模式 (Event Listener Pattern)
 
-## 2. 自定义事件 （Event，CustomEvent）
-
-Event：IE 不支持，定义事件时不能传参数  
-CustomEvent：可以在 Web Workers 中使用，定义事件时能传参数
-
-```code
-    var event = new CustomEvent('myevent', {detail:123});
-    event.detail = 456; // Ignored in sloppy mode, throws in strict mode
-    console.log(event.detail); // 123
-
-    var event = new Event('myevent');
-    event.detail = 123; // It's not readonly
-    event.detail = 456;
-    console.log(event.detail); // 456
+```DOM 元素事件监听
+const button = document.getElementById('myButton');
+button.addEventListener('click', function(event) {
+   console.log('按钮被点击了', event);
+});
 ```
 
-```code
-// 创建一个事件
-li:var event = new CustomEvent("myEvent", {"detail":{"hazcheeseburger":true}})
-li:var myEvent = new Event("look", {"bubbles":false, "cancelable":false});
-    1. document.dispatchEvent(myEvent);
-    2. myDiv.dispatchEvent(myEvent);// 事件可以在任何元素触发，不仅仅是document
- document.addEventListener("myEvent", function (e) {
-            console.log(e);
-        })
-        document.removeEventListener
+```自定义事件监听
+const eventTarget = new EventTarget();
+eventTarget.addEventListener('customEvent', (e) => {
+    console.log('自定义事件触发', e.detail);
+});
+eventTarget.dispatchEvent(new CustomEvent('customEvent', { detail: { data: 'test' } }));
+
 ```
+
+特点：
+
+1. 支持多个监听器
+2. 可以精确控制事件捕获和冒泡阶段
+3. 使用 removeEventListener 移除监听
 
 ## 3.观察者模式---（目标对象-->观察者）
 
@@ -84,7 +78,7 @@ Subject 添加一系列 Observer， Subject 负责维护与这些 Observer 之�
   //目标对象通知我了，我是后端
 ```
 
-## 4.发布订阅模式--（发布者-->消息代理/调度中心/中间件 -->订阅者）
+## 2.发布订阅模式--（发布者-->消息代理/调度中心/中间件 -->订阅者）
 
 发布订阅模式：发布者，并不会直接通知订阅者，换句话说，发布者和订阅者，彼此互不相识。  
 由一个调度中心来做中间人，发布者更新(publish)主题，由主题(调度中心)来进行通知(noticy)订阅者更新(update)。
@@ -156,3 +150,20 @@ Subject 添加一系列 Observer， Subject 负责维护与这些 Observer 之�
     // 更新之后结果:4
     // 更新之后结果:9
 ```
+
+## 比较总结
+
+| 模式                        | 耦合度 | 适用场景           | 特点                 |
+| --------------------------- | ------ | ------------------ | -------------------- |
+| 事件监听 （Event Listener） | 较高   | DOM 交互、简单事件 | 原生支持，简单直接   |
+| 发布-订阅（Pub/Sub）        | 低     | 组件通信、全局事件 | 完全解耦，灵活       |
+| Promise                     | 中     | 单次异步操作       | 链式调用，状态明确   |
+| 观察者 （Observer）         | 中高   | 状态变化通知       | 目标维护观察者       |
+| 异步迭代器（async-await）   | 中     | 异步数据流         | 流式数据处理         |
+| 反应式编程（RxJS）          | 低     | 复杂事件流         | 功能强大，学习曲线陡 |
+
+选择哪种事件模式取决于具体应用场景和复杂度。
+
+1. 简单交互可用原生事件监听；
+2. 组件通信适合发布-订阅；
+3. 复杂异步流处理可考虑 RxJS 等反应式库；
