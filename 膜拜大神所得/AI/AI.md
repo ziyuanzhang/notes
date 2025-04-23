@@ -2,6 +2,8 @@
 
 思维导图 xmind、流程图 ProcessOn/draw.io、组织架构图
 
+![AI职业分层](./img/AI职业分层.png)
+
 - 读取物料库；
 - 检索-相关语句；
 - LLM-大模型；
