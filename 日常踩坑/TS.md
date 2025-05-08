@@ -3,8 +3,7 @@
 - JS 类型都是大写；
 - TS 类型都是小写；例如（let num:number =10）number 小写
 
-```
-写要求
+```写要求 tsconfig.json
 {
     "compilerOptions":{
         "lib":["ES6","DOM"],//支持书写的的东西;（console.log--属于DOM，TS默认不支持DOM，添加上）
@@ -17,6 +16,19 @@
 }
 
 ```
+
+| ES6 基础数据类型 | TS 基础数据类型 |
+| :--------------- | :-------------: |
+| Boolean          |      Vioid      |
+| Number           |       Any       |
+| Array            |      元组       |
+| Function         |      枚举       |
+| Object           |    高级类型     |
+| Symbol           |                 |
+| undefined        |                 |
+| null             |                 |
+
+**注：** TS 类型都是小写；例如（let num\:number =10）number 小写
 
 ## interface 与 type
 
@@ -31,7 +43,7 @@
   2. type：能使用 in 关键字生成映射类型，但 interface 不行；
   3. typeof：获取实例的对象；
 
-     ```
+     ```code
       type Keys = 'firstname' | 'surname';
       type DudeType = {
         [key in Keys]: string;
@@ -43,13 +55,13 @@
      ```
 
   4. interface：可以多次定义 并被视为合并所有声明成员, type 不支持；
-     ```
+     ```code
      interface Point { x: number;}
      interface Point {  y: number;}
      const point: Point = { x: 1, y: 2 };
      ```
 
-#### Utility Types： 工具类
+### Utility Types： 工具类
 
 1.  typeof：获取变量类型；
 2.  keyof：将类型的键联合起来；type P = "x" | "y"；
@@ -161,7 +173,7 @@
         }
         ```
 
-#### 接口
+### 接口
 
 ```
 interface Person{
@@ -172,7 +184,7 @@ interface Person{
 }
 ```
 
-#### 接口实现
+### 接口实现
 
 1.基本实现（前端--后台接口）
 
@@ -197,7 +209,7 @@ class DigitalClock implements IClock{
 }
 ```
 
-#### 类型确定
+### 类型确定
 
 1、用 as const； 转换类型（固定类型）
 
@@ -225,7 +237,7 @@ function tuplify<T extends unknown[]>(...elements:T):T{
 const [response] = useFetch;
 ```
 
-#### 装饰器 -- 元编程
+### 装饰器 -- 元编程
 
 Parameters 特性
 

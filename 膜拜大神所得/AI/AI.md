@@ -227,3 +227,4 @@ Transformer：主要分为 编码器（Encoder）和 解码器（Decoder）；
 
 python 代码 --》python 解释器 --》机器；
 python 运行过程：翻译一行执行一行；
+python 代码 --》编译器 --》机器码；
