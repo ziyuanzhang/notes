@@ -229,4 +229,61 @@ python 代码 --》python 解释器 --》机器；
 python 运行过程：翻译一行执行一行；
 python 代码 --》编译器 --》机器码；
 
-Jupyter Notebook 介绍、安装及使用教程
+## Jupyter Notebook 介绍、安装及使用教程
+
+## key : openai / 通义千问（Qwen 阿里云兼容 openai）
+
+1. 密钥保存本地：
+
+   - win: 电脑--》属性--》高级系统设置--》环境变量--》系统变量--》新建：OPENAI_API_KEY:"密钥";
+   - mac: 终输入 ps -p $$ ; 查看 CMD 是 bash？还是 zsh？
+     1. bash：配置类别位于: ~/.bash_profile “/” zsh：配置类别位于: ~/.zshrc
+     1. 打开配置文件，添加：export OPENAI_API_KEY="密钥"
+     1. source ~/.zshrc “/” source ~/.bash_profile
+
+2. 代码：
+
+   ```python
+   import os
+   from openai import OpenAI
+   client = OpenAI() #调用 openai直接这样就可以
+   #  client = OpenAI(api_key=os.getenv("ALI_API_KEY"),base_url="https://dashscope.ali.com/v1") #调用阿里的通义千问：传 api_key 和 base_url
+   response  =client.chat.completions.create(
+       model="XXXX", ## 模型版本类型；例如：gpt-3.5-turbo; qwen-1-1-turbo;
+       response_format={"type":"json_object"}, ## 部分模型支持：返回格式；例如：json、yaml、xml；
+       messages=[
+           {
+               "role":"user", ## system: 给系统提示；user:用户；assistant:chatGPT的回复；
+               "content":"内容",
+           }
+       ],
+       max_tokens=1024, ## 生成内容的最大 token 数量(到达直接截断)；
+       temperature=0.9, ## 0-2 之间(默认:1)；改变的是各个token的概率分布；数值越大，越随机，创造性越高；数值越小，越确定，创造性越低；
+       top_p=1, ## 0-1 之间(默认:1)，获取词汇表中概率有大到小之和，不超过设定值；数值越大，越随机；数值越小，越确定；
+       ## temperature / top_p 二选一调整；
+       frequency_penalty=0, ## -2~2 之间(默认:0)，惩罚重复出现的 token；数值越大，惩罚越重（出现过多，降低出现概率）；
+       presence_penalty=0, ## -2~2 之间(默认:0)，惩罚不出现的 token；数值越大，惩罚越重（只看是否出现，出现了，就降低概率）；
+
+   )
+   print(response.choice[0].message.content)
+   ```
+
+3. tiktoken：计算 token 数量；
+
+   ```python
+   import tiktoken
+   encoding = tiktoken.encoding_for_model("gpt-3.5-turbo")
+   len(encoding.encode("内容"))  ## 长度就是token个数；
+   ```
+
+## 提示词工程
+
+1. 使用最新的模型；
+2. 把指令放在提示的开头，并且用###或者“”“来分割指令和上下文；例：“”“文本”“”；
+3. 尽可能对上下文和输出的长度、格式、风格等给出具体、描述性、详情的要求；
+4. 通过一些例子来阐明想要的输出“格式”；
+5. 先从零样本提示开始，效果不好，则用小样本提示；
+   - 零样本：不给 AI 任何示范；
+   - 小样本：给 AI 一些参考例子；
+6. 减少空洞和不严谨的描述；
+7. 告诉应该做什么，而不是：不能做什么
