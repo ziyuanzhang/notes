@@ -127,6 +127,17 @@ https --> tls/ssl -->tcp/ip
 2. webSocket 协议:只需建立一次 Request/Response 消息对，之后都是 TCP 连接 （客服端和浏览器可以同时发送信息）;
    - 好处：降低服务器的压力;减少部分多余的信息(不必带 head 的部分信息)。
 
+## Server-Sent Events (SSE)：这是一种服务器向客户端推送数据的技术
+
+与 WebSocket 不同的是，SSE 是单向的：只能从服务器向客户端发送数据。这使得 SSE 对于一些用例（例如，服务器向客户端推送实时数据）非常有用。
+SSE 可以使用 JavaScript 的 EventSource(html5 新增的) 对象来访问。
+
+- SSE 是一种轻量级协议，相对简单。
+- SSE 部署在 HTTP 协议之上，现有的服务器软件都支持 SSE。
+- SSE 默认支持断线重连。
+- SSE 支持自定义发送的数据类型。
+- SSE 单向通讯
+
 ## 状态码
 
 - 301: 永久转移（和 308 对应；post 变 get）；

@@ -57,18 +57,24 @@
    - 新增 Composition API：更好的逻辑复用和代码组织；
    - 代码复用新方式；
    - Fragments（片段）；
-   - 多个 v-model；
+   - 多个 v-model：`<InviteeForm  v-model:name="inviteeName"  v-model:email="inviteeEmail"/>`；
    - Teleport；
    - 新的自定义指令 API；
 
 3. 性能方面
 
-   - diff 算法的优化--静态标记（patchflag）与上次虚拟节点对比时，只对比带有 patch flag 的节点（动态数据所在的节点）；可通过 flag 信息得知当前节点要对比的具体内容。
-   - 事件侦听器缓存--模板中内联事件的提取并重用（vue2 原本每次渲染都重新生成内联函数）；
+   - diff 算法的优化：静态标记（patchflag）与上次虚拟节点对比时，只对比带有 patch flag 的节点（动态数据所在的节点）；可通过 flag 信息得知当前节点要对比的具体内容。
+   - 事件侦听器缓存：模板中内联事件的提取并重用（vue2 原本每次渲染都重新生成内联函数）；
    - 自定义渲染 API（针对跨平台/小程序的）；
    - 按需编译；
    - tree-shaking
    - 更好的 TS 支持；
+
+## Vue 2 升级 Vue 3 注意事项
+
+1. 破坏性变更
+2. 迁移步骤: 更新 Vue 2 到最新版本(2.7)-->使用官方迁移构建 ,逐步修复兼容性警告-->工具链更新
+3. 检查依赖
 
 ## vue3.0 proxy
 
@@ -129,7 +135,7 @@ proxy 代理深层属性:解决办法是，在 Reflect 返回的时候，判断�
 
 ## js 实现简单的双向绑定
 
-```
+```code
 <body>
     <div id="app">
         <input type="text" id="txt">
