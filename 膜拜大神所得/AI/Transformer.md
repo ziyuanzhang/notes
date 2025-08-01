@@ -1,4 +1,6 @@
-# Transformer
+# Transformer - 含量参数的函数
+
+![transformer](./img/transformer/transformer.png)
 
 ## Transformer 架构（2017 年谷歌推出的）
 
@@ -8,7 +10,7 @@
   2. 权重是模型在训练过程中通过大量文本逐渐习得的，因此 Transformer 有能力知道当前词和其他词的相关性有多强，然后专注输入里真正重要的部分。
   3. 即使 2 个词位置隔得很远 Transformer 也能捕捉到它们之间的依赖关系。从而更好地理解文本的含义。
 
-  ![Transformer-自注意力机制](./img/Transformer-自注意力机制.png)
+  ![Transformer-自注意力机制](./img/img/transformer/Transformer-自注意力机制.png)
 
 - 位置编码
 
@@ -18,9 +20,9 @@
   借助位置编码，词可以不按顺序输入给 Transformer，模型可以同时处理输入序列里的所有位置，不需要像 RNN 那样一次处理；
   在计算时，每个输出都可以独立计算，不需要依赖其他位置的计算结果，从而大大提高了计算效率（训练速度）；
 
-  ![Transformer-位置编码-1](./img/Transformer-位置编码-1.png)
+  ![Transformer-位置编码-1](./img/img/transformer/Transformer-位置编码-1.png)
 
-  ![Transformer-位置编码-2](./img/Transformer-位置编码-2.png)
+  ![Transformer-位置编码-2](./img/img/transformer/Transformer-位置编码-2.png)
 
 ## Transformer 处理流程
 
@@ -43,7 +45,7 @@ Transformer：主要分为 编码器（Encoder）和 解码器（Decoder）；
 
      * 原因：计算机内部无法储存文字，任何字符最终都得用数字表示，最终都会被转化为二进制
 
-     ![Transformer-token化](./img/Transformer-token化.png)
+     ![Transformer-token化](./img/img/transformer/Transformer-token化.png)
 
   2. 向量嵌入：嵌入层的作用是：让每个 token 都用向量表示；
 
@@ -51,7 +53,7 @@ Transformer：主要分为 编码器（Encoder）和 解码器（Decoder）；
      - 将每个词（或子词）映射为一个高维向量（如 512 维），转化为模型可处理的数字形式。
      - 例如："cat" → [0.2, -0.5, 0.7, ...]（通过查找`预训练的嵌入表` 或 `随机初始化后学习`）。
 
-     ![Transformer-向量嵌入](./img/Transformer-向量嵌入.png)
+     ![Transformer-向量嵌入](./img/img/transformer/Transformer-向量嵌入.png)
 
   3. 位置编码：把各个词在文本里的顺序向量化；
 
@@ -61,9 +63,9 @@ Transformer：主要分为 编码器（Encoder）和 解码器（Decoder）；
      - 位置编码是固定的（基于数学公式计算，不参与训练），不会随着训练过程改变；
      - 与词向量 相加后，输入既包含语义，又包含位置信息；模型即可以理解每个词的意义，又可以捕获词在句子中的位置，从而理解不同词之间的顺序关系。
 
-     ![Transformer-编码器-1](./img/Transformer-位置编码-1.png)
+     ![Transformer-编码器-1](./img/img/transformer/Transformer-位置编码-1.png)
 
-     ![Transformer-位置编码-2](./img/Transformer-位置编码-2.png)
+     ![Transformer-位置编码-2](./img/img/transformer/Transformer-位置编码-2.png)
 
   4. 编码器--核心部分：包括 2 部分：自注意力机制、前馈神经网络；
 
@@ -81,11 +83,11 @@ Transformer：主要分为 编码器（Encoder）和 解码器（Decoder）；
 
      - 前馈神经网络：对多头自注意力机制的输出进行进一步处理，增强模型的表达能力
 
-     ![Transformer-编码器-1](./img/Transformer-编码器-1.png)
+     ![Transformer-编码器-1](./img/img/transformer/Transformer-编码器-1.png)
 
-     ![Transformer-编码器-2](./img/Transformer-编码器-2.png)
+     ![Transformer-编码器-2](./img/img/transformer/Transformer-编码器-2.png)
 
-     ![多头自注意力](./img/Transformer-多头自注意力.png)
+     ![多头自注意力](./img/img/transformer/Transformer-多头自注意力.png)
 
   5. 编码器在 Transformer 有 N 个；每个编码器内部结构一样，但不共享权重；这样模型能更深入理解数据，处理更复杂的文本语言内容；
 
@@ -114,4 +116,4 @@ Transformer：主要分为 编码器（Encoder）和 解码器（Decoder）；
      - 解码器本质是在猜下一个输出；
   6. 解码器的整个流程会重复多次，新的 token 会持续生成，直到生成的是一个用来表示输出序列结束的特殊 token;
 
-![Transformer-流程图](./img/Transformer-流程图.png)
+![Transformer-流程图](./img/img/transformer/Transformer-流程图.png)
