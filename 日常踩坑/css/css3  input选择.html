@@ -1,0 +1,36 @@
+css
+
+<style type="text/css">
+    #div1 label input {
+        opacity: 0.4;
+        filter: alpha(opacity=40)
+    }
+
+    #div1 label span {
+        font-size: 15px;
+        background: url(input.png) 1px -89px no-repeat;
+        height: 16px;
+        width: 16px;
+        padding-left: 30px;
+        vertical-align: middle;
+        line-height: 16px;
+    }
+
+    #div1 label input:checked+span {
+        color: aqua;
+        background: url(input.png) 1px -140px no-repeat;
+    }
+</style>
+
+html
+
+<div id=div1>
+    <label><input type="radio" name="in" checked><span>哈啊哈</span></label>
+    <label><input type="radio" name="in"><span>呵呵呵</span></label>
+    <label><input type="radio" name="in"><span>啊啊啊</span></label>
+</div>
+
+
+js
+
+$("input[type='radio']:checked").next().text();

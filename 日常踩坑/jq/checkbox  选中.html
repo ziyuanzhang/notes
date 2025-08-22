@@ -1,0 +1,55 @@
+<!doctype html>
+<html>
+
+<head>
+    <title>Socket.IO chat</title>
+    <meta charset="utf-8">
+
+    <style type="text/css">
+        table {
+            border: 1px solid #000
+        }
+
+        table td {
+            border: 1px solid #000
+        }
+    </style>
+    <script type="text/javascript" src="jquery-1.11.3.min.js"></script>
+</head>
+
+<body>
+    <table>
+        <tr>
+            <td><input type="checkbox" name="aaa"></td>
+            <td>商品名字</td>
+            <td class="price">19000</td>
+        </tr>
+        <tr>
+            <td><input type="checkbox" name="aaa"></td>
+            <td>商品名字</td>
+            <td class="price">1000</td>
+        </tr>
+    </table>
+
+    <div>
+        <label>总价格：<span class="totalPrice">0</span></label>
+    </div>
+
+    <script type="text/javascript">
+        $("table").delegate("[name='aaa']:checkbox", "click", function () {
+            var flags = $(this).prop("checked");
+            var price = $(this).parent().nextAll(".price").text();
+            var totalPrice = $(".totalPrice").text();
+
+            if (flags) {
+                totalPrice = parseInt(totalPrice) + parseInt(price);
+            } else {
+                totalPrice = parseInt(totalPrice) - parseInt(price);
+            }
+            $(".totalPrice").text(totalPrice);
+        })
+
+    </script>
+</body>
+
+</html>

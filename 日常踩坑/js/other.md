@@ -23,3 +23,5 @@ ulObj.bind('DOMNodeRemoved', function(e) {  
   }  
 });  
 ```
+
+## 对象冻结：Object.freeze
