@@ -1,4 +1,4 @@
-#
+# 综合
 
 ## JS DOMNodeInserted，DOMNodeRemoved 和监听内容变化插件
 
@@ -6,22 +6,22 @@ DOMNodeInserted，DOMNodeRemoved
 今天想对某个 div 的变化做监听，发现了这两个方法，还是很好使的。
 具体从字面就能看出其意义，但是有个地方需要注意，这个方法的调用时机在 jQuery 的对 dom 操作之前执行。
 
-```code
-ulObj.bind('DOMNodeInserted', function(e) {  
-  var obj = jQuery(e.target);  
-  if (obj.hasClass("rhHome__item")) {  
-      fixHomeUlHei();  
-  }  
-});  
+```js code
+ulObj.bind("DOMNodeInserted", function (e) {
+  var obj = jQuery(e.target);
+  if (obj.hasClass("rhHome__item")) {
+    fixHomeUlHei();
+  }
+});
 ```
 
-```code
-ulObj.bind('DOMNodeRemoved', function(e) {  
-  var obj = jQuery(e.target);  
-  if (obj.hasClass("rhHome__item")) {  
-      fixHomeUlHei();  
-  }  
-});  
+```js code
+ulObj.bind("DOMNodeRemoved", function (e) {
+  var obj = jQuery(e.target);
+  if (obj.hasClass("rhHome__item")) {
+    fixHomeUlHei();
+  }
+});
 ```
 
 ## 对象冻结：Object.freeze
@@ -30,23 +30,29 @@ ulObj.bind('DOMNodeRemoved', function(e) {  
 
 body{cursor:pointer}
 
+## 移动端穿透
+
+html，body {height:100%;overflow:hidden;position: fixed;}
+
+css:display:flex 布局将影响孙子元素的旋转；子元素要加 display：flex
+
 ## JS+H5 新标签 classList。删除添加 class
 
 经常要兼容不得不用老方法，总要还下新方法来尝试的
 直接上代码：
 
-```code
-  window.onload = function() {
-      var abox = document.querySelectorAll(".sub");
+```js code
+window.onload = function () {
+  var abox = document.querySelectorAll(".sub");
+  for (var i = 0; i < abox.length; i++) {
+    abox[i].onclick = function () {
       for (var i = 0; i < abox.length; i++) {
-          abox[i].onclick = function() {
-              for (var i = 0; i < abox.length; i++) {
-                  abox[i].classList.remove('active')
-              }
-              this.classList.add("active");
-          }
-    }
- }
+        abox[i].classList.remove("active");
+      }
+      this.classList.add("active");
+    };
+  }
+};
 ```
 
 - 简单说明：
@@ -59,12 +65,12 @@ body{cursor:pointer}
 
 如果存在就移除：
 
-```code
+```js code
 var x = document.getElementById("myDIV");
 if (x.classList.contains("mystyle")) {
-    x.classList.remove("anotherClass");
+  x.classList.remove("anotherClass");
 } else {
-    alert("Could not find it.");
+  alert("Could not find it.");
 }
 ```
 
@@ -98,29 +104,29 @@ if (x.classList.contains("mystyle")) {
 
 - 手机端：
 
-```code
-var jz=0;//全局
-$(".nav_click").click(function(){
-    t++;
-    var jz=t%2;
-    if (document.addEventListener){
-          document.removeEventListener("touchmove", fun, false);
-    } else{
-         document.addEventListener("touchmove",fun,false);
-    }
+```js code
+var jz = 0; //全局
+$(".nav_click").click(function () {
+  t++;
+  var jz = t % 2;
+  if (document.addEventListener) {
+    document.removeEventListener("touchmove", fun, false);
+  } else {
+    document.addEventListener("touchmove", fun, false);
+  }
 });
 
-function fun(){
-  if(jz!=0){
+function fun() {
+  if (jz != 0) {
     e.preventDefault();
     e.stopPropagation();
-   }
+  }
 }
 ```
 
 ## 对话框拖动--移动端、PC
 
-```移动端
+```js code1 移动端
 mobileDragEvent: function(dragTarget, moveTarget) {
     var dragextend = {
         //判断设备是否支持touch事件
@@ -181,14 +187,46 @@ mobileDragEvent: function(dragTarget, moveTarget) {
 }
 ```
 
-```PC
+```js code2 移动端
+function mobile(dragTarget, moveTarget) {
+  var dragTarget = document.getElementById(dragTarget);
+  var moveTargets = document.getElementById(moveTarget);
+
+  var startX;
+  var startY;
+  dragTarget.addEventListener("touchstart", touchStart, false);
+
+  function touchStart(event) {
+    event.preventDefault();
+    if (!event.touches.length) return;
+    var touch = event.touches[0];
+    startX = touch.pageX;
+    startY = touch.pageY;
+    dragTarget.addEventListener("touchmove", touchMove, false);
+  }
+
+  function touchMove(event) {
+    event.preventDefault();
+    if (!event.touches.length) return;
+    var touch = event.touches[0];
+    var x = touch.pageX - startX;
+    var y = touch.pageY - startY;
+    console.log(touch.pageY + "****startY:" + startY);
+    document.getElementById(moveTarget).style.left = x + "px";
+    document.getElementById(moveTarget).style.top = y + "px";
+  }
+  dragTarget.addEventListener("touchend", touchEnd, false);
+  function touchEnd(event) {}
+}
+```
+
+```js PC1
 dragEvent: function(dragTarget, moveTarget) {
     $(dragTarget).mousedown(function(e) {
         var isMove = true;
         var abs_x = e.pageX - $(moveTarget).offset().left;
         var abs_y = e.pageY - $(moveTarget).offset().top;
         $(document).mousemove(function(e) {
-            $.IM.isClick = false;
             if (isMove) {
                 var obj = $(moveTarget);
                 obj.css({
@@ -198,12 +236,35 @@ dragEvent: function(dragTarget, moveTarget) {
             }
             return false;
         }).mouseup(function(e) {
-            $.IM.isClick = true;
             isMove = false;
             $(document).unbind('mousemove');
             $(document).unbind('mouseup');
         });
        //return false;
     });
+}
+```
+
+```js PC2
+function dragEvent(dragTarget, moveTarget) {
+  $(dragTarget).mousedown(function (event) {
+    var isMove = true;
+    var abs_x = event.pageX - $(dragTarget).offset().left;
+    var abs_y =
+      $(document).scrollTop() + event.pageY - $(dragTarget).offset().top;
+    $(document)
+      .mousemove(function (event) {
+        if (isMove) {
+          var obj = $(moveTarget);
+          obj.css({
+            left: event.pageX - abs_x,
+            top: event.pageY - abs_y
+          });
+        }
+      })
+      .mouseup(function () {
+        isMove = false;
+      });
+  });
 }
 ```
