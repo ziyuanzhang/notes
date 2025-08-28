@@ -1,6 +1,8 @@
-# CentOS—— 关机重启命令
+# jenkins 自动构建
 
-## jenkins 自动构建 shutdown 命令
+## CentOS—— 关机重启命令
+
+shutdown 命令
 
 命令格式： shutdown  [选项]    时间
    - -c：取消前一个关机命令
@@ -48,16 +50,16 @@
 
 2. jenkins 添加对应 jdk 支持
 
-   vim /etc/init.d/jenkins
-   candidates="
-   /usr/java/jdk1.8.0_171/bin/java
-   /etc/alternatives/java
-   /usr/lib/jvm/java-1.8.0/bin/java
-   /usr/lib/jvm/jre-1.8.0/bin/java
-   /usr/lib/jvm/java-1.7.0/bin/java
-   /usr/lib/jvm/jre-1.7.0/bin/java
-   /usr/bin/java
-   "
+   - vim /etc/init.d/jenkins
+   - candidates="
+     /usr/java/jdk1.8.0_171/bin/java
+     /etc/alternatives/java
+     /usr/lib/jvm/java-1.8.0/bin/java
+     /usr/lib/jvm/jre-1.8.0/bin/java
+     /usr/lib/jvm/java-1.7.0/bin/java
+     /usr/lib/jvm/jre-1.7.0/bin/java
+     /usr/bin/java
+     "
 
 3. 默认用户名(admin)、 密码
 
