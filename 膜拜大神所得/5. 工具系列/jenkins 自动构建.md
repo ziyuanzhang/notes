@@ -11,66 +11,74 @@
 
 ## 接下来我们就来看几个常见的处理目录的命令吧
 
-- ls: 列出目录
-- cd：切换目录
-- pwd：显示目前的目录
-- mkdir：创建一个新的目录
-- rmdir：删除一个空的目录
-- cp: 复制文件或目录
-- rm: 移除文件或目录
-- mv: 移动文件与目录，或修改文件与目录的名称
+1. ls: 列出目录
+2. cd：切换目录
+3. pwd：显示目前的目录
+4. mkdir：创建一个新的目录
+5. rmdir：删除一个空的目录
+6. cp: 复制文件或目录
+7. rm: 移除文件或目录
+8. mv: 移动文件与目录，或修改文件与目录的名称
 
 ## Linux 系统中使用以下命令来查看文件的内容
 
-- cat  由第一行开始显示文件内容
-- tac  从最后一行开始显示，可以看出 tac 是 cat 的倒著写！
-- nl    显示的时候，顺道输出行号！
-- more 一页一页的显示文件内容
-- less 与 more 类似，但是比 more 更好的是，他可以往前翻页！
-- head 只看头几行
-- tail 只看尾巴几行
-- 你可以使用  man [命令]来查看各个命令的使用文档，如 ：man cp。
-- ip 地址：ip addr
+1. cat  由第一行开始显示文件内容
+2. tac  从最后一行开始显示，可以看出 tac 是 cat 的倒著写！
+3. nl    显示的时候，顺道输出行号！
+4. more 一页一页的显示文件内容
+5. less 与 more 类似，但是比 more 更好的是，他可以往前翻页！
+6. head 只看头几行
+7. tail 只看尾巴几行
+8. 你可以使用  man [命令]来查看各个命令的使用文档，如 ：man cp。
+9. ip 地址：ip addr
 
 ## linux 下删除文件夹及下面所有文件
 
-- 使用 rm -rf 目录名字 命令即可
-- -r 就是向下递归，不管有多少级目录，一并删除
-- -f 就是直接强行删除，不作任何提示的意思
-- rm 不带参数 只能删除文件
-- rm test.txt
+1. 使用 rm -rf 目录名字 命令即可
+2. -r 就是向下递归，不管有多少级目录，一并删除
+3. -f 就是直接强行删除，不作任何提示的意思
+4. rm 不带参数 只能删除文件
+5. rm test.txt
 
 ## jenkins 安装
 
 1. jenkins 启动一直显示 Jenkins 正在启动,请稍后...
-      cd /var/lib/jenkins/updates
+
+   cd /var/lib/jenkins/updates
+
 2. jenkins 添加对应 jdk 支持
-      vim /etc/init.d/jenkins
-      candidates="
-      /usr/java/jdk1.8.0_171/bin/java
-      /etc/alternatives/java
-      /usr/lib/jvm/java-1.8.0/bin/java
-      /usr/lib/jvm/jre-1.8.0/bin/java
-      /usr/lib/jvm/java-1.7.0/bin/java
-      /usr/lib/jvm/jre-1.7.0/bin/java
-      /usr/bin/java
-      "
+
+   vim /etc/init.d/jenkins
+   candidates="
+   /usr/java/jdk1.8.0_171/bin/java
+   /etc/alternatives/java
+   /usr/lib/jvm/java-1.8.0/bin/java
+   /usr/lib/jvm/jre-1.8.0/bin/java
+   /usr/lib/jvm/java-1.7.0/bin/java
+   /usr/lib/jvm/jre-1.7.0/bin/java
+   /usr/bin/java
+   "
+
 3. 默认用户名(admin)、 密码
-      cd /var/lib/jenkins/secrets
-      vim initialAdminPassword(a2ea5110bfd04166874ca908201277df)
-      zzy123
+
+   cd /var/lib/jenkins/secrets
+   vim initialAdminPassword(a2ea5110bfd04166874ca908201277df)
+
 4. 默认端口：
-      vim /etc/sysconfig/jenkins
+
+   vim /etc/sysconfig/jenkins
+
 5. jenkins -》系统管理-》
-      - 插件配置 : nodejs Plugin
-      - 全局工具配置: nodejs （填别名，以后用到，jenkins 同时支持多个版本的 node）
-      - 系统配置（Configure System）：Publish over SSH【在配置服务器之前需要安装 Publish over SSH 插件】 --》SSH Servers --》
-        SSH Server name : 目标服务器名字
-        Hostname：目标服务器 IP
-        Username：root(用户)
-        Remote Directory：/（根目录）
-         高级：Passphrase / Password （用户密码）
-         高级：Port 端口号
+
+   - 插件配置 : nodejs Plugin
+   - 全局工具配置: nodejs （填别名，以后用到，jenkins 同时支持多个版本的 node）
+   - 系统配置（Configure System）：Publish over SSH【在配置服务器之前需要安装 Publish over SSH 插件】 --》SSH Servers --》
+     1. SSH Server name : 目标服务器名字
+     2. Hostname：目标服务器 IP
+     3. Username：root(用户)
+     4. Remote Directory：/（根目录）
+     5. 高级：Passphrase / Password （用户密码）
+     6. 高级：Port 端口号
 
 ## jenkins 构建
 
@@ -78,14 +86,17 @@
 
 1. 新建任务（item）
 2. 名字 -->自由风格
-3. General：
-       参数化构建过程(This project is parameterized) --> boolean parameter（还有其他类型可选）
-      - 名称：npm_install ；
-      - 描述：是否强制安装 npm 依赖包
+3. General：参数化构建过程(This project is parameterized) --> boolean parameter（还有其他类型可选）
+
+   - 名称：npm_install ；
+   - 描述：是否强制安装 npm 依赖包
+
 4. 源码管理 :git
-      - url:git 地址；
-      - 用户名密码；(添加按钮新增)
-      - 分支
+
+   - url:git 地址；
+   - 用户名密码；(添加按钮新增)
+   - 分支
+
 5. 构建环境-->Provide Node & npm bin/ folder to PATH
 6. 构建--执行 shell（excute shell）
 
@@ -123,29 +134,34 @@
    ```
 
    注：全局配置 node；git 版本过低
-   tar -zxvf /usr/local/nginx/html/ship-front/dist.tar.gz -C /usr/local/nginx/html/ship-front
-   \cp -r /usr/local/nginx/html/ship-front/dist/\_ /usr/local/nginx/html/ship-front
-   文件夹名字和压缩后的包名字不是同一个：包里面是文件夹
-   tar -zcvf zzWechatEdit_build.tar.gz -C ./build . 【加-C、最后面的“.” 打压缩包时不带文件夹那层】
+
+   - tar -zxvf /usr/local/nginx/html/ship-front/dist.tar.gz -C /usr/local/nginx/html/ship-front
+   - \cp -r /usr/local/nginx/html/ship-front/dist/\_ /usr/local/nginx/html/ship-front
+   - 文件夹名字和压缩后的包名字不是同一个：包里面是文件夹
+     `tar -zcvf zzWechatEdit_build.tar.gz -C ./build . 【加-C、最后面的“.” 打压缩包时不带文件夹那层】`
 
 ### 流水线风格 -- Groovy 语法
 
 1. 新建任务（item）
 2. 名字 -->流水线
-3. General：
-       参数化构建过程(This project is parameterized) --> boolean parameter
-      - 名称：npm_install ；
-      - 描述：是否强制安装 npm 依赖包
+3. General：参数化构建过程(This project is parameterized) --> boolean parameter
+   - 名称：npm_install ；
+   - 描述：是否强制安装 npm 依赖包
 4. 流水线：pipeline script
-    - 选择 使用 Groovy 沙盒
-    - 流水线语法--》 示例步骤——》
-   1、git:Git --》 url -->分支-->凭据（添加凭据） --》生成的 git 流水线语法
-   git branch: "${branch}", credentialsId: "${git_auth}", url: "${git_url}"
-   2、sshPublisher: Send build artifacts over SSH
-   SSH Server Name：目标服务器
-   Transfer Set Source files：要放到目标服务器的文件【jenkins 流水线打包后的文件，例如 dist/\*\*】
-   Remote directory: 目标服务器的文件夹
-   Exec command：放到目标文件夹后执行的 shell 脚本
+
+   - 选择 使用 Groovy 沙盒
+   - 流水线语法--》 示例步骤——》
+
+     1. git:Git --》 url -->分支-->凭据（添加凭据） --》生成的 git 流水线语法
+
+        `git branch: "${branch}", credentialsId: "${git_auth}", url: "${git_url}"`
+
+     2. sshPublisher: Send build artifacts over SSH
+
+        - SSH Server Name：目标服务器
+        - Transfer Set Source files：要放到目标服务器的文件【jenkins 流水线打包后的文件，例如 `dist/**`】
+        - Remote directory: 目标服务器的文件夹
+        - Exec command：放到目标文件夹后执行的 shell 脚本
 
    ```code
    pipeline {
