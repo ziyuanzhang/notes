@@ -201,10 +201,10 @@
                            cleanRemote: false,
                            excludes: '',
                            execCommand: '''cd /tmp/html-test
-   if [ -d "xxx" ]; then
+                            if [ -d "xxx" ]; then
                                tar -czvf xxx*$(date +%Y.%m.%d-%H:%M:%S).tar.gz xxx
-                              rm -rf xxx
-   fi
+                               rm -rf xxx
+                            fi
                               mkdir xxx
                               tar -xzvf xxx_build.tar.gz -C xxx
                               rm -rf xxx_build.tar.gz''',
