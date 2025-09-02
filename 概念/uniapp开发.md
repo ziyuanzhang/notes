@@ -1,7 +1,7 @@
 http://ask.dcloud.net.cn/article/182
 https://blog.csdn.net/qq_31093755/article/details/81668924
 
-# uniapp 开发注意事项：
+# uniApp 开发注意事项
 
 - 开发 app 时：input 有默认 mix-height；
 - 用 sqlite 插入多条数据时：用“；”必要用字符串数组；
