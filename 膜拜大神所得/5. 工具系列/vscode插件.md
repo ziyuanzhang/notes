@@ -44,56 +44,162 @@ npm install serve -g ; 本地服务：serve
 
 ## 用户设置配置
 
+```json
 {
-  "workbench.iconTheme": "material-icon-theme",
-  "window.zoomLevel": 0,
-  "editor.formatOnSave": true,
-  "editor.wordWrap": "on",
-  "git.confirmSync": false,
-  "git.autofetch": true,
-  "terminal.integrated.rendererType": "dom",
-  "workbench.activityBar.visible": true,
-  "workbench.sideBar.location": "left",
-  "vsicons.dontShowNewVersionMessage": true,
-  "sync.forceUpload": true,
-  "sync.gist": "681738001926e4a0cdd54a3daa2c5636",
-  "liveServer.settings.donotShowInfoMsg": true,
-  "prettier.jsxBracketSameLine": true,
-  "prettier.trailingComma": "none",
-  "prettier.bracketSpacing": false,
-  "prettier.arrowParens": "avoid",
-  "files.autoSave": "off",
-  "[vue]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode"
-  },
-  "[html]": {
-    // "editor.defaultFormatter": "vscode.html-language-features"
-    "editor.defaultFormatter": "esbenp.prettier-vscode"
-  },
-  "[less]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode"
-  },
-  "[css]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode"
-  },
-  "[json]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode"
-  },
-  "[javascript]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode"
-  },
-  "javascript.updateImportsOnFileMove.enabled": "always",
-  "[typescript]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode"
-  },
-  "typescript.updateImportsOnFileMove.enabled": "always",
-  "[javascript|react]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode"
-  },
-  "[typescript|react]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode"
-  },
-  "[typescriptreact]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode"
-  }
+  "workbench.iconTheme": "material-icon-theme",
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "explicit" //自动进行 ESlint 修复代码
+  },
+  // #每次保存的时候自动格式化
+  "editor.formatOnSave": true,
+  "editor.wordWrap": "on",
+  "git.confirmSync": false,
+  "git.autofetch": true,
+  "terminal.integrated.rendererType": "dom",
+  "prettier.trailingComma": "none",
+  "prettier.singleQuote": false,
+  "prettier.semi": true,
+  "prettier.jsxBracketSameLine": true,
+  "files.autoSave": "off",
+  "[css]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[scss]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[less]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[json]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[jsonc]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[html]": {
+    "editor.defaultFormatter": "vscode.html-language-features"
+    //"editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[vue]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[javascript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "javascript.updateImportsOnFileMove.enabled": "always",
+  "[typescript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "typescript.updateImportsOnFileMove.enabled": "always",
+  "[javascript|react]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[typescript|react]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[typescriptreact]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "update.mode": "manual",
+  "diffEditor.ignoreTrimWhitespace": false,
+  "[javascriptreact]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "bracketPairColorizer.depreciation-notice": false,
+  "less.compile": {
+    "compress": true, // true => remove surplus whitespace
+    "sourceMap": false, // true => generate source maps (.css.map files)
+    "out": true // false => DON'T output .css files (overridable per-file, see below)
+  },
+  "[markdown]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "git.suggestSmartCommit": false,
+  "security.workspace.trust.untrustedFiles": "open",
+  "leek-fund.stocks": [
+    "sh000001",
+    "sh000300",
+    "sh000016",
+    "sh000688",
+    "hk03690",
+    "hk00700",
+    "usr_ixic",
+    "usr_dji",
+    "usr_inx",
+    "nf_IF0",
+    "nf_IH0",
+    "nf_IC0",
+    "nf_IM0",
+    "hf_OIL",
+    "hf_CHA50CFD"
+  ],
+  "yaml.schemas": {
+    "file:///c%3A/Users/26615/.vscode/extensions/docsmsft.docs-yaml-1.0.5/dist/toc.schema.json": "/toc\\.yml/i"
+  },
+  "[yaml]": {
+    "editor.defaultFormatter": "redhat.vscode-yaml"
+  },
+  "window.customTitleBarVisibility": "windowed",
+  "path-intellisense.mappings": {
+    "/": "${workspaceFolder}/public/", // ”/“ 系统根目录
+    "@": "${workspaceFolder}/src" // ”.“ 设置 VScode 的 workspaceFolder，作为插件的 workspaceFolder
+  },
+  "settingsSync.ignoredExtensions": ["vue.volar"],
+  "vsicons.dontShowNewVersionMessage": true,
+  "Codegeex.License": "",
+  "Codegeex.Privacy": false,
+  "breadcrumbs.enabled": false,
+  "git.openRepositoryInParentFolders": "never"
 }
+```
+
+## .eslintrc.cjs 文件
+
+```code
+extends: [
+  "@vue/prettier"
+]
+rules: {
+  "prettier/prettier": [
+    "error",
+    {
+      endOfLine: "auto"
+    }
+  ]
+}
+```
+
+## package.json 文件
+
+```code
+"lint-staged": {
+  "*.{vue,js,jsx,ts,tsx}": [
+    "eslint --fix",
+    "prettier --write"
+  ],
+  "*.{css,less,scss,html,md}": [
+    "prettier --write"
+  ],
+  "package.json": [
+    "prettier --write"
+  ]
+}
+```
+
+## Git 提交规范
+
+现在社区一般都大致遵循这个规范：
+
+- feat: 增加新的业务功能
+- fix: 修复业务问题/BUG
+- perf: 优化性能
+- style: 更改代码风格, 不影响运行结果
+- refactor: 重构代码
+- revert: 撤销更改
+- test: 测试相关, 不涉及业务代码的更改
+- docs: 文档和注释相关
+- chore: 更新依赖/修改脚手架配置等琐事
+- workflow: 工作流改进
+- ci: 持续集成相关
+- types: 类型定义文件更改
+- wip: 开发中
