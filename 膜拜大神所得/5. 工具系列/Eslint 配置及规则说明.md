@@ -27,3 +27,19 @@
 1. 检查且修复 `eslint * --fix`
 
 2. 检查指定文件 `eslint app.js --fix`
+
+## .eslintrc.cjs 文件
+
+```code
+extends: [
+  "@vue/prettier"
+]
+rules: {
+  "prettier/prettier": [
+    "error",
+    {
+      endOfLine: "auto"
+    }
+  ]
+}
+```

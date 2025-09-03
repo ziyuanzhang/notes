@@ -1,6 +1,6 @@
 npm install serve -g ; 本地服务：serve
 
-## vscode 插件 https://github.com/varHarrie/YmxvZw/issues/10
+# vscode 插件 https://github.com/varHarrie/YmxvZw/issues/10
 
 1. Auto Close Tag: 自动补全标签； （新版已内置-2023-09-19）
 2. Auto Rename Tag: 同步修改标签； （新版已内置-2023-09-19）
@@ -33,14 +33,6 @@ npm install serve -g ; 本地服务：serve
 29. sourcetree
 30. MarkDown All in One：开发+预览（右键-打开预览）
 31. Debugger for Chrome
-
-## 检测
-
-1. commitlint/cli + commitlint/config-conventional: git 提交检测
-2. stylelint / stylelint-order / stylelint-config-standard: css 检测
-3. stylelint-scss / stylelint-config-recommended-scss: 支持 scss 检测
-4. husky / lint-staged: git 提交前回调
-5. conventional-changelog-cli: 约定式提交和自动生成 changelog
 
 ## 用户设置配置
 
@@ -152,54 +144,3 @@ npm install serve -g ; 本地服务：serve
   "git.openRepositoryInParentFolders": "never"
 }
 ```
-
-## .eslintrc.cjs 文件
-
-```code
-extends: [
-  "@vue/prettier"
-]
-rules: {
-  "prettier/prettier": [
-    "error",
-    {
-      endOfLine: "auto"
-    }
-  ]
-}
-```
-
-## package.json 文件
-
-```code
-"lint-staged": {
-  "*.{vue,js,jsx,ts,tsx}": [
-    "eslint --fix",
-    "prettier --write"
-  ],
-  "*.{css,less,scss,html,md}": [
-    "prettier --write"
-  ],
-  "package.json": [
-    "prettier --write"
-  ]
-}
-```
-
-## Git 提交规范
-
-现在社区一般都大致遵循这个规范：
-
-- feat: 增加新的业务功能
-- fix: 修复业务问题/BUG
-- perf: 优化性能
-- style: 更改代码风格, 不影响运行结果
-- refactor: 重构代码
-- revert: 撤销更改
-- test: 测试相关, 不涉及业务代码的更改
-- docs: 文档和注释相关
-- chore: 更新依赖/修改脚手架配置等琐事
-- workflow: 工作流改进
-- ci: 持续集成相关
-- types: 类型定义文件更改
-- wip: 开发中
