@@ -97,50 +97,42 @@
 
 25. 枚举
 
-    ```
-    enum Days{
-        Sun = 7,
-        Mon = 1,
-        Tue = 2,
-        Wed = 3,
-        Thu = 4,
-        Fri = 5,
-        Sat = 6,
+    ```ts
+    enum Days {
+      Sun = 7,
+      Mon = 1,
+      Tue = 2,
+      Wed = 3,
+      Thu = 4,
+      Fri = 5,
+      Sat = 6
     }
-    console.log("aaa:",Days["Sun"])
-    console.log("aaa:",Days[7])
+    console.log("aaa:", Days["Sun"]);
+    console.log("aaa:", Days[7]);
     ```
 
 26. 函数
 
-        1、
+        * 1、
 
-        ```
-        let myFn:(x:number,y:number) =>number = function(x:number,y:number):number{
-            return x+y
-        }
-        注：
-        (x:number,y:number) =>number  -->为类型
-        let myFn = function(x:number,y:number):number{
-            return x+y
-        }
+          ``` ts
+            let myFn:(x:number,y:number) =>number = function(x:number,y:number):number{return x+y}
+            // 注： (x:number,y:number) =>number  -->为类型
+            let myFn = function(x:number,y:number):number{return x+y}
+          ```
 
-        ```
+        * 2、可选参数
 
-        2、可选参数
+          ``` ts
+            function build(fistName:strign,lastName?:string){}
+          ```
 
-        ```
-        function build(fistName:strign,lastName?:string){
+        * 3、函数表现形式
 
-        }
-        ```
-
-        3、函数表现形式
-
-        ```
-        3.1 {} ：-->表示函数，和ES6中的代码模块冲突（不要用）
-        3.2 ()=>{}  ：-->表示函数
-        ```
+          ```
+            3.1 {} ：-->表示函数，和ES6中的代码模块冲突（不要用）
+            3.2 ()=>{}  ：-->表示函数
+          ```
 
 27. 类
 
@@ -175,12 +167,12 @@
 
 ### 接口
 
-```
-interface Person{
-    readonly id:number; //只读（可以赋值，不能改）
-    name:string,
-    age:number,
-    [proName:string]:number //1.可以添加一个key为string类型的属性；2.Person的所有属性值必须为number型（因此一般number用any替换）
+```ts
+interface Person {
+  readonly id: number; //只读（可以赋值，不能改）
+  name: string;
+  age: number;
+  [proName: string]: number; //1.可以添加一个key为string类型的属性；2.Person的所有属性值必须为number型（因此一般number用any替换）
 }
 ```
 
@@ -188,24 +180,24 @@ interface Person{
 
 1.基本实现（前端--后台接口）
 
-```
-interface IPrice{
-    id:number;
-    msg:string;
+```ts
+interface IPrice {
+  id: number;
+  msg: string;
 }
-type IPriceArr =IPrice[]
+type IPriceArr = IPrice[];
 ```
 
 2.类实现接口（nodejs）
 
-```
-interface IClock{
-    tick():void;
+```ts
+interface IClock {
+  tick(): void;
 }
-class DigitalClock implements IClock{
-    public tick():void{
-        console.log("--beep--")
-    }
+class DigitalClock implements IClock {
+  public tick(): void {
+    console.log("--beep--");
+  }
 }
 ```
 
@@ -213,26 +205,26 @@ class DigitalClock implements IClock{
 
 1、用 as const； 转换类型（固定类型）
 
-```
-function useFetch(){
-    const response : string="hahha"
-    const age : number=30;
-    return [response,age] as const; // 确定类型
+```ts
+function useFetch() {
+  const response: string = "hahha";
+  const age: number = 30;
+  return [response, age] as const; // 确定类型
 }
 const [response] = useFetch;
 ```
 
 2、用泛型
 
-```
-function useFetch(){
-    const response : string="hahha"
-    const age : number=30;
-    return tuplify(response,age) // 确定类型
+```ts
+function useFetch() {
+  const response: string = "hahha";
+  const age: number = 30;
+  return tuplify(response, age); // 确定类型
 }
 //-------tuplify 泛型，先继承数组（unknown -- 数组类型不知道）
-function tuplify<T extends unknown[]>(...elements:T):T{
-   return elements
+function tuplify<T extends unknown[]>(...elements: T): T {
+  return elements;
 }
 const [response] = useFetch;
 ```
@@ -243,23 +235,23 @@ Parameters 特性
 
 ##
 
-```
-type Route = { path: string; children?: Routes }
-type Routes = Record<string, Route>
+```ts
+type Route = { path: string; children?: Routes };
+type Routes = Record<string, Route>;
 
 const routes = {
-   AUTH: {
+  AUTH: {
     path: "/auth",
     children: {
       LOGIN: {
-        path: '/login'
+        path: "/login"
       }
     }
   },
   HOME: {
-    path: '/'
+    path: "/"
   }
-} as const satisfies Routes
+} as const satisfies Routes;
 
 //--satisfies Routes：检查key
 //--as const:检查value
