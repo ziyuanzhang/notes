@@ -55,38 +55,6 @@
 
    **注意：**for..of 只能用在迭代器上，会自动调用迭代器的 next()函数
 
-   ```js
-   let something = (function () {
-     let nextVal;
-     return {
-       [Symbol.iterator]: function () {
-         return this;
-       },
-       next: function () {
-         if (nextVal === undefined) {
-           nextVal = 1;
-         } else {
-           nextVal = 3 * nextVal + 6;
-         }
-         return { done: false, value: nextVal };
-       }
-     };
-   })();
-   // ---------
-   for (let v of something) {
-     console.log(v);
-     if (v > 500) {
-       break;
-     }
-   }
-   ```
-
-   let res = something.next();
-
-   - 第一个 next()调用，不传参数
-   - 第二个 next(6)调用，向等待的 yield 传入 6；
-   - yield 把值传出去，next()把值传进去
-
 3. 可迭代协议 (Iterable Protocol):
 
    可迭代协议定义了一种标准方式，使对象可以被迭代（例如，可以使用 for...of 循环）。一个对象如果要符合可迭代协议，必须实现一个特殊的方法 [Symbol.iterator]，该方法返回一个迭代器对象。
