@@ -237,7 +237,7 @@ const [response] = useFetch;
 
 Parameters 特性
 
-##
+## 安全检查
 
 ```ts
 type Route = { path: string; children?: Routes };
