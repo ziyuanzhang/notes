@@ -3,18 +3,17 @@
 - JS 类型都是大写；
 - TS 类型都是小写；例如（let num:number =10）number 小写
 
-```写要求 tsconfig.json
+```json 写要求 tsconfig.json
 {
-    "compilerOptions":{
-        "lib":["ES6","DOM"],//支持书写的的东西;（console.log--属于DOM，TS默认不支持DOM，添加上）
-        "target":["ES6"],//生成的东西
-        "noTmplicitAny":true, //禁止使用Any
-        "noTmplicitThis":true, // 禁止使用this
-        "strict":true, //开启严格模式检查
-        "strictNullChecks":true, //禁止使用null
-    }
+  "compilerOptions": {
+    "lib": ["ES6", "DOM"], //支持书写的的东西;（console.log--属于DOM，TS默认不支持DOM，添加上）
+    "target": ["ES6"], //生成的东西
+    "noTmplicitAny": true, //禁止使用Any
+    "noTmplicitThis": true, // 禁止使用this
+    "strict": true, //开启严格模式检查
+    "strictNullChecks": true //禁止使用null
+  }
 }
-
 ```
 
 | ES6 基础数据类型 | TS 基础数据类型 |
@@ -43,21 +42,26 @@
   2. type：能使用 in 关键字生成映射类型，但 interface 不行；
   3. typeof：获取实例的对象；
 
-     ```code
-      type Keys = 'firstname' | 'surname';
-      type DudeType = {
-        [key in Keys]: string;
-      };
-      const test: DudeType = {
-        firstname: 'Pawel',
-        surname: 'Grzybek',
-      };
+     ```ts code
+     type Keys = "firstname" | "surname";
+     type DudeType = {
+       [key in Keys]: string;
+     };
+     const test: DudeType = {
+       firstname: "Pawel",
+       surname: "Grzybek"
+     };
      ```
 
   4. interface：可以多次定义 并被视为合并所有声明成员, type 不支持；
-     ```code
-     interface Point { x: number;}
-     interface Point {  y: number;}
+
+     ```ts code
+     interface Point {
+       x: number;
+     }
+     interface Point {
+       y: number;
+     }
      const point: Point = { x: 1, y: 2 };
      ```
 
