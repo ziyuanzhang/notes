@@ -41,4 +41,23 @@
    - 类默认自带一个无参数构造器；如果写了有参构造器，默认的无参构造器就失效，还想用无参构造器，需要再手写一个；
 
 2. this 关键字：this 就是一个变量，可以在方法中，来拿到当前对象
+
    - this 主要用来解决：变量名冲突的问题
+
+3. 封装：
+
+   - 面向对象的三大特征：封装、继承、多态
+   - 类就是一种封装，方法也是一种封装
+   - private(私有)：只能在本类中使用；
+
+     ```java
+     public class Student{
+        private int age;
+        public void setAge (int age){
+          this.age = age; //this 区分用的
+        }
+        public int getAge(){
+          return age; //私有变量可以“在本类”中直接用
+        }
+     }
+     ```
