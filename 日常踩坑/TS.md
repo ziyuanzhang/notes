@@ -3,18 +3,17 @@
 - JS 类型都是大写；
 - TS 类型都是小写；例如（let num:number =10）number 小写
 
-```写要求 tsconfig.json
+```json 写要求 tsconfig.json
 {
-    "compilerOptions":{
-        "lib":["ES6","DOM"],//支持书写的的东西;（console.log--属于DOM，TS默认不支持DOM，添加上）
-        "target":["ES6"],//生成的东西
-        "noTmplicitAny":true, //禁止使用Any
-        "noTmplicitThis":true, // 禁止使用this
-        "strict":true, //开启严格模式检查
-        "strictNullChecks":true, //禁止使用null
-    }
+  "compilerOptions": {
+    "lib": ["ES6", "DOM"], //支持书写的的东西;（console.log--属于DOM，TS默认不支持DOM，添加上）
+    "target": ["ES6"], //生成的东西
+    "noTmplicitAny": true, //禁止使用Any
+    "noTmplicitThis": true, // 禁止使用this
+    "strict": true, //开启严格模式检查
+    "strictNullChecks": true //禁止使用null
+  }
 }
-
 ```
 
 | ES6 基础数据类型 | TS 基础数据类型 |
@@ -43,21 +42,26 @@
   2. type：能使用 in 关键字生成映射类型，但 interface 不行；
   3. typeof：获取实例的对象；
 
-     ```code
-      type Keys = 'firstname' | 'surname';
-      type DudeType = {
-        [key in Keys]: string;
-      };
-      const test: DudeType = {
-        firstname: 'Pawel',
-        surname: 'Grzybek',
-      };
+     ```ts code
+     type Keys = "firstname" | "surname";
+     type DudeType = {
+       [key in Keys]: string;
+     };
+     const test: DudeType = {
+       firstname: "Pawel",
+       surname: "Grzybek"
+     };
      ```
 
   4. interface：可以多次定义 并被视为合并所有声明成员, type 不支持；
-     ```code
-     interface Point { x: number;}
-     interface Point {  y: number;}
+
+     ```ts code
+     interface Point {
+       x: number;
+     }
+     interface Point {
+       y: number;
+     }
      const point: Point = { x: 1, y: 2 };
      ```
 
@@ -97,50 +101,42 @@
 
 25. 枚举
 
-    ```
-    enum Days{
-        Sun = 7,
-        Mon = 1,
-        Tue = 2,
-        Wed = 3,
-        Thu = 4,
-        Fri = 5,
-        Sat = 6,
+    ```ts
+    enum Days {
+      Sun = 7,
+      Mon = 1,
+      Tue = 2,
+      Wed = 3,
+      Thu = 4,
+      Fri = 5,
+      Sat = 6
     }
-    console.log("aaa:",Days["Sun"])
-    console.log("aaa:",Days[7])
+    console.log("aaa:", Days["Sun"]);
+    console.log("aaa:", Days[7]);
     ```
 
 26. 函数
 
-        1、
+        * 1、
 
-        ```
-        let myFn:(x:number,y:number) =>number = function(x:number,y:number):number{
-            return x+y
-        }
-        注：
-        (x:number,y:number) =>number  -->为类型
-        let myFn = function(x:number,y:number):number{
-            return x+y
-        }
+          ``` ts
+            let myFn:(x:number,y:number) =>number = function(x:number,y:number):number{return x+y}
+            // 注： (x:number,y:number) =>number  -->为类型
+            let myFn = function(x:number,y:number):number{return x+y}
+          ```
 
-        ```
+        * 2、可选参数
 
-        2、可选参数
+          ``` ts
+            function build(fistName:strign,lastName?:string){}
+          ```
 
-        ```
-        function build(fistName:strign,lastName?:string){
+        * 3、函数表现形式
 
-        }
-        ```
-
-        3、函数表现形式
-
-        ```
-        3.1 {} ：-->表示函数，和ES6中的代码模块冲突（不要用）
-        3.2 ()=>{}  ：-->表示函数
-        ```
+          ```
+            3.1 {} ：-->表示函数，和ES6中的代码模块冲突（不要用）
+            3.2 ()=>{}  ：-->表示函数
+          ```
 
 27. 类
 
@@ -175,12 +171,12 @@
 
 ### 接口
 
-```
-interface Person{
-    readonly id:number; //只读（可以赋值，不能改）
-    name:string,
-    age:number,
-    [proName:string]:number //1.可以添加一个key为string类型的属性；2.Person的所有属性值必须为number型（因此一般number用any替换）
+```ts
+interface Person {
+  readonly id: number; //只读（可以赋值，不能改）
+  name: string;
+  age: number;
+  [proName: string]: number; //1.可以添加一个key为string类型的属性；2.Person的所有属性值必须为number型（因此一般number用any替换）
 }
 ```
 
@@ -188,24 +184,24 @@ interface Person{
 
 1.基本实现（前端--后台接口）
 
-```
-interface IPrice{
-    id:number;
-    msg:string;
+```ts
+interface IPrice {
+  id: number;
+  msg: string;
 }
-type IPriceArr =IPrice[]
+type IPriceArr = IPrice[];
 ```
 
 2.类实现接口（nodejs）
 
-```
-interface IClock{
-    tick():void;
+```ts
+interface IClock {
+  tick(): void;
 }
-class DigitalClock implements IClock{
-    public tick():void{
-        console.log("--beep--")
-    }
+class DigitalClock implements IClock {
+  public tick(): void {
+    console.log("--beep--");
+  }
 }
 ```
 
@@ -213,26 +209,26 @@ class DigitalClock implements IClock{
 
 1、用 as const； 转换类型（固定类型）
 
-```
-function useFetch(){
-    const response : string="hahha"
-    const age : number=30;
-    return [response,age] as const; // 确定类型
+```ts
+function useFetch() {
+  const response: string = "hahha";
+  const age: number = 30;
+  return [response, age] as const; // 确定类型
 }
 const [response] = useFetch;
 ```
 
 2、用泛型
 
-```
-function useFetch(){
-    const response : string="hahha"
-    const age : number=30;
-    return tuplify(response,age) // 确定类型
+```ts
+function useFetch() {
+  const response: string = "hahha";
+  const age: number = 30;
+  return tuplify(response, age); // 确定类型
 }
 //-------tuplify 泛型，先继承数组（unknown -- 数组类型不知道）
-function tuplify<T extends unknown[]>(...elements:T):T{
-   return elements
+function tuplify<T extends unknown[]>(...elements: T): T {
+  return elements;
 }
 const [response] = useFetch;
 ```
@@ -241,25 +237,25 @@ const [response] = useFetch;
 
 Parameters 特性
 
-##
+## 安全检查
 
-```
-type Route = { path: string; children?: Routes }
-type Routes = Record<string, Route>
+```ts
+type Route = { path: string; children?: Routes };
+type Routes = Record<string, Route>;
 
 const routes = {
-   AUTH: {
+  AUTH: {
     path: "/auth",
     children: {
       LOGIN: {
-        path: '/login'
+        path: "/login"
       }
     }
   },
   HOME: {
-    path: '/'
+    path: "/"
   }
-} as const satisfies Routes
+} as const satisfies Routes;
 
 //--satisfies Routes：检查key
 //--as const:检查value

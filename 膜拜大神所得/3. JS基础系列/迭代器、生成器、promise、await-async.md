@@ -30,34 +30,38 @@
 
    迭代器是一个`实现了迭代器协议`的 “对象”。它的核心是 next() 方法，该方法用于 “逐步” 返回序列中的值，而不需要暴露集合的底层表示
 
-   ```code
-     function createIterator(array) {
-       let index = 0;
-       return {
-         next: function() {
-           if (index < array.length) {
-             return { value: array[index++], done: false };
-           } else {
-             return { value: undefined, done: true };
-           }
+   ```js code
+   function createIterator(array) {
+     let index = 0;
+     return {
+       next: function () {
+         if (index < array.length) {
+           return { value: array[index++], done: false };
+         } else {
+           return { value: undefined, done: true };
          }
-       };
-     }
+       }
+     };
+   }
 
-     const iterator = createIterator([1, 2, 3]);
-     console.log(iterator.next()); // { value: 1, done: false }
-     console.log(iterator.next()); // { value: 2, done: false }
-     console.log(iterator.next()); // { value: 3, done: false }
-     console.log(iterator.next()); // { value: undefined, done: true }
+   const iterator = createIterator([1, 2, 3]);
+   console.log(iterator.next()); // { value: 1, done: false }
+   console.log(iterator.next()); // { value: 2, done: false }
+   console.log(iterator.next()); // { value: 3, done: false }
+   console.log(iterator.next()); // { value: undefined, done: true }
    ```
+
+   迭代器必须有： 1.可迭代的属性，2.next()函数并且执行后返回{done:Boolen 值,value:迭代值}
+
+   **注意：**for..of 只能用在迭代器上，会自动调用迭代器的 next()函数
 
 3. 可迭代协议 (Iterable Protocol):
 
    可迭代协议定义了一种标准方式，使对象可以被迭代（例如，可以使用 for...of 循环）。一个对象如果要符合可迭代协议，必须实现一个特殊的方法 [Symbol.iterator]，该方法返回一个迭代器对象。
 
-   ```code
+   ```js code
    const iterable = {
-     [Symbol.iterator]: function() {
+     [Symbol.iterator]: function () {
        let index = 0;
        return {
          next: () => {
@@ -82,7 +86,7 @@
    一个对象如果实现了“可迭代协议”（即具有 [Symbol.iterator] 方法），它就是一个可迭代对象。“Symbol.iterator” 方法返回一个迭代器。
    内置可迭代对象有： Array、String、Map、Set、String、arguments、nodeList；这些对象可以使用 for...of 循环进行迭代。
 
-   ```code1
+   ```js code1
    const iterable = [1, 2, 3];
    const iterator = iterable[Symbol.iterator]();
    console.log(iterator.next()); // { value: 1, done: false }
@@ -91,13 +95,13 @@
    console.log(iterator.next()); // { value: undefined, done: true }
    ```
 
-   ```code2
-   let set = new Set([1,2,3,4]);
+   ```js code2
+   let set = new Set([1, 2, 3, 4]);
    let iter = set[Symbol.iterator]();
-   iter.next()
+   iter.next();
    ```
 
-   ```code3
+   ```js code3
    const array = [1, 2, 3];
    for (const value of array) {
      console.log(value); // 输出 1, 2, 3
@@ -108,7 +112,7 @@
 
    迭代器对象是通过调用可迭代对象的 Symbol.iterator 方法生成的对象。它实现了迭代器协议，并且可以通过 next() 方法逐步访问可迭代对象的元素。
 
-   ```code
+   ```js code
    const array = [10, 20, 30];
    const iterator = array[Symbol.iterator]();
 
@@ -147,15 +151,15 @@
 
 生成器对象（在原型链上）包含一个 next()方法，用这个方法来迭代生成器对象，返回{value: '当前 yield 的值', done: false}/{value: undefined, done: true};
 
-```code
- function* genFun(){
-     yield "*"
-     console.log("111")
-     yield "!"
-      console.log("222")
- }
- const genObj = genFun();
- genObj.next()
+```js code
+function* genFun() {
+  yield "*";
+  console.log("111");
+  yield "!";
+  console.log("222");
+}
+const genObj = genFun();
+genObj.next();
 ```
 
 **注：**生成器和迭代器为 js 提供了强大的“控制流程”和“数据生成”能力，特别是在处理大型数据集或异步操作时非常有用。

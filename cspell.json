@@ -1,53 +1,52 @@
 // cSpell Settings
 {
-    // Version of the setting file.  Always 0.2
-    "version": "0.2",
-    // language - current active spelling language
-    "language": "en",
-    // words - list of words to be always considered correct
-    "words": [
-        "mkdirp",
-        "tsmerge",
-        "githubusercontent",
-        "streetsidesoftware",
-        "vsmarketplacebadge",
-        "visualstudio",
-        "Etag",
-        "CSSOM",
-        "mainfest",
-        "Serviceworker",
-        "proto",
-        "instanceof",
-        "typeof",
-        "Bootlean",
-        "funciton",
-        "defineproperty",
-        "vuex",
-        "chunkhash",
-        "adduser",
-        "libuv",
-        "querystring",
-        "concat",
-        "Bigpipe",
-        "Struct",
-        "SNMP",
-        "RAPP",
-        "sname",
-        "BCNF",
-        "CMMI",
-        "Gantt",
-        "McCabe",
-        "dragstart",
-        "dragenter",
-        "dragover",
-        "dragleave",
-        "dragend",
-        "iconfont"
-    ],
-    // flagWords - list of words to be always considered incorrect
-    // This is useful for offensive words and common spelling errors.
-    // For example "hte" should be "the"
-    "flagWords": [
-        "hte"
-    ]
+  // Version of the setting file.  Always 0.2
+  "version": "0.2",
+  // language - current active spelling language
+  "language": "en",
+  // words - list of words to be always considered correct
+  "words": [
+    "mkdirp",
+    "tsmerge",
+    "githubusercontent",
+    "streetsidesoftware",
+    "vsmarketplacebadge",
+    "visualstudio",
+    "Etag",
+    "CSSOM",
+    "mainfest",
+    "Serviceworker",
+    "proto",
+    "instanceof",
+    "typeof",
+    "Bootlean",
+    "funciton",
+    "defineproperty",
+    "vuex",
+    "chunkhash",
+    "adduser",
+    "libuv",
+    "querystring",
+    "concat",
+    "Bigpipe",
+    "Struct",
+    "SNMP",
+    "RAPP",
+    "sname",
+    "BCNF",
+    "CMMI",
+    "Gantt",
+    "McCabe",
+    "dragstart",
+    "dragenter",
+    "dragover",
+    "dragleave",
+    "dragend",
+    "iconfont",
+    "javabean"
+  ],
+  // flagWords - list of words to be always considered incorrect
+  // This is useful for offensive words and common spelling errors.
+  // For example "hte" should be "the"
+  "flagWords": ["hte"]
 }
