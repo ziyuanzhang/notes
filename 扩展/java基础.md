@@ -97,6 +97,67 @@
      }
      // 类名.静态变量（推荐）
      // 对象.静态变量（不推荐）
+     //
      // 对象.实例变量
      // 自己类中 访问类变量可以省略类名
      ```
+
+2. 成员方法：按照有无 static 修饰，分为 2 中：
+
+   - 静态方法：有 static 修饰，属于类。
+   - 实例方法：无 static 修饰，
+
+     ```java
+        public class Student{
+          public static void printHW(){
+            System.out println("Hello Word")
+          }
+        }
+        // 类名。静态方法（推荐）
+        // 对象名。静态方法（不推荐）
+        //
+        // 对象。实例方法
+        //只是为了做一个功能，且不需要访问对象的数据，就定义静态方法
+        //对象的行为，且要访问对象的数据，定义为实力方法；
+        //在自己类中，访问类方法可以省略类名；
+     ```
+
+### 静态方法：常见应用场景--做工具类
+
+工具类没有创建对象的需求，建议将工具类的构造器方法进行私有化（好处，私有化后，强制用户不能实例化，减少实例化的内存占用）
+
+### 静态方法/实例方法：注意事项
+
+- 静态方法中：可直接访问静态成员，不可直接访问实例成员
+- 实例方法中：可直接访问静态成员，也可直接访问实例成员
+- 静态方法中不可出现 this 关键字，实例方法中可出现 this 关键字；
+
+```java
+    public class test{
+       public static int count =100;
+       public static void printAA(){
+         System.out.println("AA")
+       }
+
+       private String name;
+       public void run(){}
+
+       public static void main(String[] args){}
+       // 静态方法中：可直接访问静态成员，不可直接访问实例成员
+       public static void printHW(){
+         System.out.println(count)
+         printAA()
+         System.out.println(name) //---报错
+         System.out.println(this);//--报错
+       }
+       // 实例方法中：可直接访问静态成员，也可直接访问实例成员
+       public void go(){
+         System.out.println(count)
+         printAA();
+         System.out.println(name)
+         run();
+         System.out.println(this);
+       }
+    }
+
+```
