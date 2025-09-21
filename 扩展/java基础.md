@@ -199,3 +199,38 @@
      System.out.println("啊啊啊啊")
    }
    ```
+
+5. 子类构造器：子类的构造函数会默认调用父类的构造器（supper()必须写在第一行）
+
+   ```java
+   class Child extends Parent{
+     public Child(){ //子类构造函数
+       // supper() //即使子类不写，程序也会默认调用一边
+       // supper(6666)
+       System.out.println("----")
+     }
+   }
+   ```
+
+6. 构造器中的 this：调用本类中的兄弟构造器
+
+   **注：** “supper(...)”与“this(...)”必须写在构造器的第一行，并且两者不能同时出现
+
+   ```java
+     public class Student{
+      private String nam;
+      private char sex;
+      private int age;
+      private String schoolName;
+      public Student(){} //构造器函数
+      public Student(){
+        this(name,sex,age,"初中")
+      }
+      public Student(String name, char sex,int age,String schoolName){
+         this.name=name
+         this.sex=sex
+         this.age =age
+         this.schoolName = schoolName
+      }
+     }
+   ```
