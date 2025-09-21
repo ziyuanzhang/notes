@@ -236,3 +236,51 @@
    ```
 
 ## 多态
+
+1. 多态的前提条件：1、有继承/实现关系；2、存在父类引用子类对象；3、存在方法重写；
+
+   - 对象多态，行为多态
+   - 方法：编译看左边，运行看右边；
+   - 成员变量：编译看左边，运行看左边；
+
+     **注：** 多态是对象、行为的多态，java 中的属性（成员变量）不谈多态；
+
+   ```java
+   public class Animal{
+     String name="动物"
+     public void run(){
+       System.out.println("动物会跑。。。")
+     }
+   }
+   public class Wolf extends Animal{
+     String name="狼"
+     @Override
+     public void run(){
+       System.out.println("狼跑的快~~~")
+     }
+   }
+   public class Tortoise extends Animal{
+     String name="乌龟"
+     @Override
+     public void run(){
+       System.out.println("乌龟跑的慢---")
+     }
+   }
+   public class Test{
+     public static void main(String[] args){
+       Animal a1 = new Wolf();
+       a1.run(); //狼跑的快~~~
+       System.out.println(a1.name); //动物
+
+       Animal a2 = new Tortoise();
+       a2.run(); //乌龟跑的快~~~
+       System.out.println(a2.name); //动物
+
+     }
+   }
+
+   ```
+
+2. 多态的好处：多态形式下：右边对象是解耦合的，便于扩展和维护
+
+3. 多态问题：不能调用子类独有功能
