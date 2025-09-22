@@ -322,3 +322,9 @@
    ```
 
 ## 单例类（设计模式）：确保类对外只能创建一个实例
+
+## 枚举类
+
+```java
+public enum Color {RED, GREEN, BLUE}
+```
