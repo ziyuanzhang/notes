@@ -323,8 +323,16 @@
 
 ## 单例类（设计模式）：确保类对外只能创建一个实例
 
-## 枚举类
+## 枚举类（enum）
 
 ```java
 public enum Color {RED, GREEN, BLUE}
+```
+
+## 抽象类（abstract）：修饰”类”和“方法“
+
+```java
+   修饰符 abstract class 类名 {
+     修饰符 abstract 返回值类型 方法名(形参列表);
+   }
 ```
