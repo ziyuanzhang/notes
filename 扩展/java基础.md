@@ -23,6 +23,7 @@
 ## arr[2]
 
 先根据“索引”找 arr 的内存地址，再找偏移量 1，才能找到数据
+`String[] arr = new String[3];`
 
 ## 对象（数据结构）：本质上是一种特殊的数据结构（可以理解成一张表）
 
@@ -369,3 +370,35 @@ abstract 关键字：用来修饰”方法“ --》“抽象方法“
    ```
 
 2. 接口好处
+
+   ```java
+      public class test{
+        public static void main(String[] args){
+          Person p = new Student();
+          A SA =new Student();
+          B SB =new Student();
+
+          A TA = new Teacher();
+          B TB = new Teacher();
+        }
+      }
+      interface A{}
+      interface B{}
+      class Person{}
+      class Student extends Person implements A,B{}
+      class Teacher extends Person implements A,B{}
+   ```
+
+3. jdk8 开始，接口新增的 3 中方法（基本用不到）
+
+   1. 默认方法（实例方法）：使用 default 修饰,默认会被加上 public 修饰；
+
+      **注：** 只能使用接口的实现类对象调用
+
+   2. 私有方法：必须用 private 修饰（jdk9 开始有）；
+
+      **注：** 给接口内部调用
+
+   3. 类方法（静态方法）：使用 static 修饰，默认会被加上 public 修饰；
+
+      **注：** 只能用接口名来调用
