@@ -455,3 +455,56 @@ abstract 关键字：用来修饰”方法“ --》“抽象方法“
      5. 接口更适合做功能的解耦合：解耦合性更强更灵活。-- 最佳实践
 
 ## 4、====面向对象高级： 代码块、内部类、函数式编程、常用 api、GUI 编程 ==============
+
+类的 5 大成分：1.成员变量、2.构造器（构造方法）、3.方法、4.代码块、5.内部类
+
+## 代码块（不常用）
+
+1. 静态代码块：
+
+   - 特点：类加载时自动执行，由于类只会加载 1 次，所以静态代码块也只会执行 1 次；
+   - 作用：完成类的初始化，例：对静态变量的初始化赋值
+
+   ```java
+   public class Test {
+    public static String schoolName;
+    public static String[] cardArr = new String[10];
+    static{ // 不是必须的，main中也可以，构造器中也可以
+      System.out.println("静态代码块");
+      schoolName = "上海大学";
+      cardArr[0] = "1234567890";
+      cardArr[1] = "1234567891";
+      //......
+    }
+    public static void main(String[] args) {}
+   }
+   ```
+
+2. 实例代码块：
+
+   - 特点：每次创建对象（实例）时，执行实例代码块，并在构建前执行；
+   - 作用：和构造器一样，都是用来完成对象的初始化，例：对实例变量的初始化赋值
+
+   ```java
+   public class Test {
+     private String name;
+     private String[] direction = new String[10];
+     {
+      System.out.println("实例代码块");
+      name="张三";
+      direction[0] = "上海";
+      direction[1] = "北京";
+      //.....
+     }
+     public static void main(String[] args) {}
+   }
+   ```
+
+## 内部类：（不常用）一个类定义在另一个类的内部
+
+按特点分为：成员内部类、局部内部类、静态内部类、匿名内部类
+
+- 成员内部类
+- 局部内部类
+- 静态内部类
+- 匿名内部类
