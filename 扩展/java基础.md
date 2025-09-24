@@ -615,3 +615,121 @@ abstract 关键字：用来修饰”方法“ --》“抽象方法“
 1. 参数类型 和 返回值类型 可以省略，因为编译器会自动推断；
 2. 参数列表只有一个参数时，括号可以省略；
 3. Lambda 函数体只有一条语句时，大括号、return 和分号(;) 可以省略；
+
+## 函数式编程：方法引用 （Lambda 表达式 的简化）
+
+```java
+  @Data
+  @AllArgsConstructor
+  @NoArgsConstructor
+  public class Student {
+    private String name;
+    private int age;
+    private double height;
+    private String sex;
+    public static int compareByAge(Student s1, Student s2) {
+      return s1.getAge() - s2.getAge();
+    }
+    public int compareByHeight(Student s1, Student s2) {
+     // return s1.getHeight() - s2.getHeight();
+     return Double.compare(s1.getHeight(), s2.getHeight());
+    }
+  }
+```
+
+- 静态方法的引用：`类名::静态方法名`
+
+  ```java
+  public class Test {
+    public static void main(String[] args) {
+        test1()
+        test2()
+    }
+    public static void test1() {
+        Student[] students = new Student[10];
+        students[0] = new Student("张三", 18, 1.7, "男");
+        // ......
+        Arrays.sort(students, new Comparator<Student>() { //Comparator: sort自带的
+          @Override
+          public int compare(Student o1, Student o2) {
+            return o1.getAge()-o2.getAge();
+          }
+        })
+        Arrays.sort(students, (o1,o2)->o1.getAge()-o2.getAge())
+        Arrays.sort(students, (o1,o2)->Student.compareByAge(o1,o2));
+        Arrays.sort(students, Student::compareByAge);
+    }
+  }
+
+  ```
+
+- 实例方法的引用：`对象名::实例方法名`
+
+  ```java
+    {
+      public static void test2() {
+          Student[] students = new Student[10];
+          students[0] = new Student("张三", 18, 1.7, "男");
+          // ......
+          Student t = new Student();
+          Arrays.sort(students, (o1,o2)->t.compareByHeight(o1,o2));
+          Arrays.sort(students, t::compareByHeight);
+      }
+    }
+  ```
+
+- 特定类型方法的引用：`特定类的名称::方法`
+
+  ```java
+  public class Test {
+    public static void main(String[] args) {
+      String[] names={"Tom","Jerry","Harry","Potter","Jack","andy"};
+      Arrays.sort(names,new Comparator<String>() {
+        @Override
+        public int compare(String o1, String o2) {
+          return o1.compareToIgnoreCase(o2);
+        }
+      })
+      Arrays.sort(names,(s1,s2)->s1.compareToIgnoreCase(s2));
+      Arrays.sort(names,String::compareToIgnoreCase);
+    }
+  }
+  ```
+
+- 构造器的引用：`类名::new`
+
+  ```java
+   @Data
+   @AllArgsConstructor
+   @NoArgsConstructor
+   class Car {
+     private String name;
+   }
+   //--------------
+   interface CarFactory {
+     Car getCar(String name);
+   }
+   //------------
+   public class Test {
+    public static void main(String[] args) {
+
+      // CarFactory factory = new CarFactory() {    // 1-------
+      //   @Override
+      //   public Car getCar(String name) {
+      //     return new Car(name);
+      //   }
+      // }
+
+      // CarFactory factory = (name)->new Car(name);    //2--------
+
+      CarFactory factory = Car::new;    //3--------
+
+      Car c1 = factory.getCar("BMW");
+      System.out.println(c1);
+    }
+   }
+  ```
+
+## 常用 api
+
+## GUI 编程
