@@ -525,5 +525,48 @@ abstract 关键字：用来修饰”方法“ --》“抽象方法“
 
   1. 静态内部类：只能访问外部类的静态成员，不能访问外部类的实例成员；
 
-- 局部内部类
-- 匿名内部类
+- 局部内部类：没毛用！！！
+- 匿名内部类：所谓匿名：指的是程序员不需要为这个类声明名字，默认有一个隐藏的名字（`编译后能看到自动生成的类名`）。
+
+  1. 特点：匿名内部类本质上就是一个子类，并会立即创建出一个子类对象
+  2. 作用：更方便创建一个子类对象
+
+  ```java
+    new 类或接口 (参数值...){
+      类体(一般是方法重写);
+    }
+    //----------
+    new A(){
+      @Override
+      public void show(){}
+    }
+  ```
+
+  ```java
+    // 创建一个抽象类
+     public abstract class Animal {
+      public abstract void cry();
+     }
+
+     // 创建一个子类
+     // public class Cat extends Animal {
+     //    @Override
+     //    public void cry() {
+     //      System.out.println("喵喵喵");
+     //    }
+     //}
+
+     // 创建一个匿名内部类
+     public class Test {
+         public static void main(String[] args) {
+              Animal a = new Animal() {
+                   @Override
+                   public void cry() {
+                        System.out.println("喵喵喵");
+                   }
+              }
+              a.cry();
+         }
+     }
+
+  ```
