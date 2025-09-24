@@ -732,6 +732,22 @@ abstract 关键字：用来修饰”方法“ --》“抽象方法“
 
 ## 常用 api
 
-两个字符串内容比较： "==" 默认比较的是字符串地址
+1. String(字符串)：两个字符串内容比较： "==" 默认比较的是字符串地址
+2. 集合：用来装数据，类似数组；大小可变，功能丰富；
+
+   java 中的集合：HashSet、Set、TreeSet、Map 等等。。。。
+
+   ```java
+   //---没有添加类型限制-------------
+     ArrayList list = new ArrayList();
+     list.add("java");
+     list.add(222);
+   //---添加了类型限制--只能添加String类型-----------
+    ArrayList<String> Arr = new ArrayList<String>();
+    Arr.add("java");
+    Arr.add("python");
+    // Arr.add(333); // 报错
+
+   ```
 
 ## GUI 编程
