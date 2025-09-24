@@ -530,6 +530,7 @@ abstract 关键字：用来修饰”方法“ --》“抽象方法“
 
   1. 特点：匿名内部类本质上就是一个子类，并会立即创建出一个子类对象
   2. 作用：更方便创建一个子类对象
+  3. 抽象类和接口 都可以创建匿名内部类
 
   ```java
     new 类或接口 (参数值...){
@@ -542,7 +543,7 @@ abstract 关键字：用来修饰”方法“ --》“抽象方法“
     }
   ```
 
-  ```java
+  ```java demo1
     // 创建一个抽象类
      public abstract class Animal {
       public abstract void cry();
@@ -570,3 +571,28 @@ abstract 关键字：用来修饰”方法“ --》“抽象方法“
      }
 
   ```
+
+  ```java demo2
+  public interface A {
+    public void show();
+  }
+  public class Test {
+    public static void main(String[] args) {
+      A a = new A() {
+        @Override
+        public void show() {}
+      }
+      start(a);
+      //-----------------------------
+      start(new A() {
+        @Override
+        public void show() {}
+      });
+    }
+    public static void start(A a) {
+      a.show();
+    }
+  }
+  ```
+
+## mvc 模式: 对象回调
