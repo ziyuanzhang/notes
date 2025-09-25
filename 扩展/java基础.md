@@ -758,4 +758,7 @@ abstract 关键字：用来修饰”方法“ --》“抽象方法“
 
   ```
 
-## GUI 编程
+## GUI 编程：现在没啥用
+
+AWT(Abstract Window Toolkit)：依赖操作系统 -- `淘汰了`
+Swing：不依赖操作系统
