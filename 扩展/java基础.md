@@ -854,4 +854,32 @@ Swing：不依赖操作系统（推荐）
      int i = list.get(0); //自动拆箱;取得是对象，然后自动拆箱；
      ```
 
+     - 包装类功能:
+
+     ```java
+     // 1、把”基本类型的数据“转换成”字符串“；
+     int j = 23;
+     String s = Integer.toString(j); // "23"
+     System.out.println(s + 1); // 231
+     //------------------------
+     Integer i = j;
+     String s2 = i.toString(); // "23"
+     System.out.println(s2 + 1); // 231
+     //------------------------
+     String s3 = j+""; "23"
+     System.out.println(s3 + 1); //231
+
+     //2、把”字符串数值“转换成”基本类型数据“
+     String str = "98"
+     // int i = Integer.parseInt(str);
+     int i = Integer.valueOf(str); // 98
+     System.out.println(i + 2); // 100
+
+     String str2 = "98.9"
+     // double d = Double.parseDouble(str2); // 98.9
+     double d = Double.valueOf(str2); // 98.9
+     System.out.println(d + 2); // 100.9
+
+     ```
+
 ## 集合框架
