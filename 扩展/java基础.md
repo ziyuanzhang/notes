@@ -817,18 +817,41 @@ Swing：不依赖操作系统（推荐）
   2. 泛型擦除：泛型工作在编译阶段，编译后泛型会被替换对应类型；
   3. 包装类：把”基本类型的数据“包装成”对象类型“；
 
+     - 自动装箱：基本类型的数据可以直接变成包装对象的数据，不需要额外操作；
+
      | 基本数据类型 | 对应的包装类（引用数据类型）对象类型 |
      | ------------ | ------------------------------------ |
      | byte         | Byte                                 |
      | short        | Short                                |
-     | int          | Integer【==】                        |
+     | int          | Integer【=】                         |
      | long         | Long                                 |
-     | char         | Character 【==】                     |
+     | char         | Character【=】                       |
      | float        | Float                                |
      | double       | Double                               |
      | boolean      | Boolean                              |
 
-     - Integer i = new Integer(100); // `淘汰了`
-     - Integer it = Integer.valueOf(100); // `推荐`
+     ```java
+      Integer i = new Integer(100); // `淘汰了`-- 占内存
+      Integer t1 = Integer.valueOf(100); // `推荐` -- 封装好了（-128 到 127）的固定值
+      Integer t1 = Integer.valueOf(100);
+      System.out.println(t1 == t2); // true
+      Integer T1 = Integer.valueOf(130); // 超过（-128到127）的数字，会重新创建对象
+      Integer T2 = Integer.valueOf(130);
+      System.out.println(T1 == T2); //false
+      //-----以上写法不考虑；用以下的--自动装箱-------------
+      Integer s1 = 100; //自动装箱
+      Integer s2 = 100;
+      System.out.println(s1 == s2); //true
+      Integer S1 = 130;
+      Integer S2 = 130;
+      System.out.println(S1 == S2); //false
+      //----自动拆箱---------------
+      int i = s1;
+      System.out.println(i);//100
+     //---------------------------
+     ArrayList<Integer> list = new ArrayList<Integer>();
+     list.add(100); //自动装箱；这里的100是Integer对象，不是int类型；
+     int i = list.get(0); //自动拆箱;取得是对象，然后自动拆箱；
+     ```
 
 ## 集合框架
