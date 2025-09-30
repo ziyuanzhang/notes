@@ -786,4 +786,10 @@ Swing：不依赖操作系统（推荐）
 
 `ArrayList<String> list = new ArrayList<String>();`
 
+- 泛型类：常用字母； `修饰符 class 类名 <类型变量，类型变量，...> {}`
+  1. E:元素类型
+  2. T：返回值类型
+  3. K：键类型
+  4. V：值类型
+
 ## 集合框架
