@@ -899,3 +899,5 @@ Swing：不依赖操作系统（推荐）
      - `LinkedHashSet<E>`:【实现类】“有序”、不可重复、无索引；
 
 - Map - `双列集合`：每个元素都包含两个值（数据），一个作为键，一个作为值；
+
+![集合_Collection](./img/java_集合_Collection.png)
