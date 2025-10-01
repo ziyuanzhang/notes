@@ -2,6 +2,8 @@
 
 ## mvc 模式: 对象回调
 
+## 并发：就是“同时”
+
 ## 项目--模块--包--类
 
 ## 1、====基础类型转换==================
@@ -886,6 +888,8 @@ Swing：不依赖操作系统（推荐）
 
 ## 集合框架
 
+### 集合分类
+
 - Collection - `单列集合【祖宗接口】`：每个元素只包含一个值（数据）；
 
   1. `List<E>`:【接口】添加的数据是 有序（指添加先后顺序）、可重复、有索引；
@@ -901,3 +905,41 @@ Swing：不依赖操作系统（推荐）
 - Map - `双列集合`：每个元素都包含两个值（数据），一个作为键，一个作为值；
 
 ![集合_Collection](./img/java_集合_Collection.png)
+
+### 集合变量
+
+- Collection 遍历方式：
+
+  1. 迭代器遍历：迭代器是用来遍历集合的专用方式（数组没有迭代器），在 java 中迭代器代表是：Iterator
+
+     ```java
+        Collection<String> list = new ArrayList<>();
+        list.add("张三");
+        list.add("李四");
+        list.add("王五");
+        Iterator<String> it = list.iterator();
+        // String str = it.next();
+        // it.next();// 取值并移到下一个位置；
+        System.out.println(it.next());
+        while (it.hasNext()) {} //it.hasNext()：判断当前是否有值（根据下标是否==长度）；
+     ```
+
+  2. 增强 for 遍历：迭代器的简化写法
+     语法：`for(数据类型 变量名 : 数组或集合名)`
+
+     ```java
+     String[] list = {"张三", "李四", "王五"};
+     for(String str : list) {
+       System.out.println(str);
+      }
+     ```
+
+  3. forEach + Lambda 表达式：
+
+### 认识并发修改异常问题：遍历集合的同时又存在增删集合元素的行为，可能出现业务异常
+
+原因：for 循环，每删除一个，后面的数据填位，下标又+1（跳过了填位的数据）；
+解决方法 1：删除数据 i--；
+解决方法 2：倒序删除；
+
+解决方法 3：使用迭代器删除数据，迭代器删除数据时，迭代器会自动跳过已删除的数据；
