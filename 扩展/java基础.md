@@ -919,9 +919,7 @@ Swing：不依赖操作系统（推荐）
      int i = Integer.parseInt(str3); // 报错
      ```
 
-## 集合框架
-
-### 集合分类
+## 集合
 
 - Collection - `单列集合【祖宗接口】`：每个元素只包含一个值（数据）；
 
@@ -933,44 +931,42 @@ Swing：不依赖操作系统（推荐）
   2. `Set<E>`:【接口】添加的数据是 无序（打印顺序和添加顺序不一致）、不可重复、无索引；
 
      - `HashSet<E>`:【实现类】无序、不可重复、无索引；
-     - `TreeSet<E>`:【实现类】“按照大小默认升序排序”、不可重复、无索引；
      - `LinkedHashSet<E>`:【实现类】“有序”、不可重复、无索引；
+     - `TreeSet<E>`:【实现类】“按照大小默认升序排序”、不可重复、无索引；
 
 - Map - `双列集合`：每个元素都包含两个值（数据），一个作为键，一个作为值；
 
 ![集合_Collection](./img/java_集合_Collection.png)
 
-### 集合遍历
+### Collection 集合 -- 遍历方式
 
-- Collection 遍历方式：
+1. 迭代器遍历：迭代器是用来遍历集合的专用方式（数组没有迭代器），在 java 中迭代器代表是：Iterator
 
-  1. 迭代器遍历：迭代器是用来遍历集合的专用方式（数组没有迭代器），在 java 中迭代器代表是：Iterator
+   ```java
+      Collection<String> list = new ArrayList<>();
+      list.add("张三");
+      list.add("李四");
+      list.add("王五");
+      Iterator<String> it = list.iterator();
+      // String str = it.next();
+      // it.next();// 取值并移到下一个位置；
+      System.out.println(it.next());
+      while (it.hasNext()) {} //it.hasNext()：判断当前是否有值（根据下标是否==长度）；
+   ```
 
-     ```java
-        Collection<String> list = new ArrayList<>();
-        list.add("张三");
-        list.add("李四");
-        list.add("王五");
-        Iterator<String> it = list.iterator();
-        // String str = it.next();
-        // it.next();// 取值并移到下一个位置；
-        System.out.println(it.next());
-        while (it.hasNext()) {} //it.hasNext()：判断当前是否有值（根据下标是否==长度）；
-     ```
+2. 增强 for 遍历：迭代器的简化写法
+   语法：`for(数据类型 变量名 : 数组或集合名)`
 
-  2. 增强 for 遍历：迭代器的简化写法
-     语法：`for(数据类型 变量名 : 数组或集合名)`
+   ```java
+      String[] list = {"张三", "李四", "王五"};
+      for(String str : list) {
+        System.out.println(str);
+      }
+   ```
 
-     ```java
-        String[] list = {"张三", "李四", "王五"};
-        for(String str : list) {
-          System.out.println(str);
-        }
-     ```
+3. forEach + Lambda 表达式：
 
-  3. forEach + Lambda 表达式：
-
-- List 遍历 （共 4 种）：Collection 遍历方式 + for 循环（有索引）；
+### List 集合 -- 遍历方式（共 4 种）：Collection 遍历方式 + for 循环（有索引）
 
 ### 认识并发修改异常问题：遍历集合的同时又存在增删集合元素的行为，可能出现业务异常
 
@@ -991,3 +987,36 @@ Swing：不依赖操作系统（推荐）
      }
    }
    ```
+
+### set 集合
+
+- 哈希值
+
+  1. 就是一个 int 类型的`随机数`,JAVA 中每个对象都有一个哈希值；
+  2. java 中的所有对象，都可以调用 Object 类提供的`hashCode`方法，返回该对象自己的希值
+
+  - 特点：
+    1. 同一个对象多次调用 "hashCode" 方法，返回的哈希值是相同的；
+    2. 不同对象的哈希值，大概率不相等，但也可能相等；
+
+- 哈希表
+
+  1. jdk8 之前，哈希表 = 数组 + 链表
+  2. jdk8 之后，哈希表 = 数组 + 链表 + 红黑树（当链表长度超过 8 且数组长度 >=64 时，自动将链表转成红黑树）
+
+- 二叉树
+
+  普通二叉树 --》二叉查找树（二叉排序树）--》二叉平衡树 --》红黑树（可以自平衡的二叉树）
+
+- 哈希表存储数据的详细流程
+  1. 创建一个默认长度 16，默认加载因为 0.75 的数组，数组名 table
+  2. 根据元素的哈希值跟数组的长度计算出应存入的位置
+  3. 判断当前位置是否为 null，如果是 null 直接存入，如果位置不为 null，表示有元素，
+     则调用 equals 方法比较属性值，如果一样，则不存，如果不一样，则存入数组。
+  4. 当数组存满到 `16*0.75=12` 时，就自动扩容，每次扩容成原先的两倍
+
+### Map 集合
+
+## Stream 流
+
+- Stream 流：`java8`新增的流式处理接口，用于处理集合数据；
