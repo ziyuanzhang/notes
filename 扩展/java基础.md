@@ -967,7 +967,7 @@ Swing：不依赖操作系统（推荐）
 
   3. forEach + Lambda 表达式：
 
-- List 遍历 ：Collection 遍历方式，再加 for 循环（有索引）；有 4 种遍历方式；
+- List 遍历 （共 4 种）：Collection 遍历方式 + for 循环（有索引）；
 - ArrayList（基于数组） 与 LinkedList（基于链表）：
 
 ### 认识并发修改异常问题：遍历集合的同时又存在增删集合元素的行为，可能出现业务异常
