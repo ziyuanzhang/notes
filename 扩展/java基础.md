@@ -962,10 +962,10 @@ Swing：不依赖操作系统（推荐）
      语法：`for(数据类型 变量名 : 数组或集合名)`
 
      ```java
-     String[] list = {"张三", "李四", "王五"};
-     for(String str : list) {
-       System.out.println(str);
-     }
+        String[] list = {"张三", "李四", "王五"};
+        for(String str : list) {
+          System.out.println(str);
+        }
      ```
 
   3. forEach + Lambda 表达式：
