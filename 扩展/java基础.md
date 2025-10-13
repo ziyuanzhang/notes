@@ -1046,6 +1046,12 @@ Swing：不依赖操作系统（推荐）
   3. Lambda 表达式：JDK1.8 开始出现的新特性，可以简化集合遍历；
      map 的 forEach()方法：
 
+* HashMap 底层与 HashSet 一样，都是基于哈希表实现的（数组+链表+红黑树）
+  1. 实际上 Set 集合底层也是基于 HashMap 实现的，只不过 Set 集合中的元素只要键数据，不要值数据
+* LinkedHashMap 底层与 LinkedHashSet 一样, LinkedHashSet 底层原理就是 LinkedHashMap；
+  1. 底层数据结构依然是基于哈希表实现的，只是每个键值对元素又额外的多了一个双链表机制记录元素顺序（保证有序）
+* TreeMap 底层与 TreeSet 一样，都是基于红黑树实现的
+
 ## Stream 流
 
-- Stream 流：`java8`新增的流式处理接口，用于处理集合数据；
+- Stream 流：`java8`新增的流式 API 接口，用于操作集合或数组的数据；
