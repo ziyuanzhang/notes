@@ -1041,6 +1041,8 @@ Swing：不依赖操作系统（推荐）
   1. 键找值：先获取 Map 集合全部的键，再通过遍历键来找值；
   2. 键值对：把“键值对”看成一个整体进行遍历（每项“整体”转为 set）
 
+     `map.entrySet()`：将 map 对象 转为 set；
+
      ![Map_遍历_键值对](./img/java_集合_Map遍历_键值对.png)
 
   3. Lambda 表达式：JDK1.8 开始出现的新特性，可以简化集合遍历；
@@ -1052,6 +1054,51 @@ Swing：不依赖操作系统（推荐）
   1. 底层数据结构依然是基于哈希表实现的，只是每个键值对元素又额外的多了一个双链表机制记录元素顺序（保证有序）
 * TreeMap 底层与 TreeSet 一样，都是基于红黑树实现的
 
-## Stream 流
+## Stream 流 -- 操作集合与数组
+
+`public interface Stream<T>...{ }`
 
 - Stream 流：`java8`新增的流式 API 接口，用于操作集合或数组的数据；
+
+- 使用步骤：
+
+  1. 获取（创建） Stream 流；
+  2. 使用中间方法: 中间方法可以有多个，可以连续使用；
+  3. 获取处理结果；
+     - 终结方法：调用完后，不返回新的 Stream 流，没法继续使用流；
+     - 收集 Stream 流：把流中的操作结果返回到集合或数组中；
+
+- 获取（创建） Stream 流：
+
+  1. Collection 接口：获取集合流的流;
+     - `default Stream<E> stream()`
+     - 用法：`collection.stream()`
+  2. 数组：获取数组的流：
+     - `public static <T> Stream<T> stream(T[] array)`
+     - 用法：`Arrays.stream(arr)`
+  3. Stream 接口：Stream 类提供的静态方法；
+     - `public static <T> Stream<T> of(T... values)`
+     - 用法：`Stream.of(arr)`
+
+- 获取处理结果
+
+  1. Stream 流:终结方法：
+
+     - forEach()
+     - count()
+     - max()
+     - min()
+
+  2. Stream 流:收集方法：
+
+     - toArray() //把处理结果收集到数组中
+     - collect(collector) //把处理结果收集到集合中；Stream 流只能收集一次
+       1. toList()
+       2. toSet()
+       3. toMap(Function keyMapper, Function valueMapper)
+
+### 方法中的可变参数:只能放后面
+
+`public static void main(int age,String... args){}`
+
+### Collections 工具类：用来操作集合的工具类
