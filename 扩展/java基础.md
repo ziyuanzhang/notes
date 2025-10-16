@@ -1102,3 +1102,16 @@ Swing：不依赖操作系统（推荐）
 `public static void main(int age,String... args){}`
 
 ### Collections 工具类：用来操作集合的工具类
+
+## File、IO
+
+File：是 java.io 包下的类，用于操作文件或目录（只能对文件本身进行操作）不能读取文件里面存储的数据
+IO：用于读写数据（文件中的数据或网络中的数据等）
+
+### File
+
+### 方法递归
+
+### 字符集
+
+### IO 流
