@@ -1202,30 +1202,53 @@ Swing：不依赖操作系统（推荐）
 
 #### 缓冲流 -- 提高字节输入流读取数据的性能
 
-缓冲字节流：BufferedInputStream 、 BufferedOutputStream
+- 缓冲字节流：BufferedInputStream 、 BufferedOutputStream
 
-原理：缓冲字节输入流自带 8KB 缓冲池；缓冲字节输入流也自带 8KB 缓冲池
+  原理：缓冲字节输入流自带 8KB 缓冲池；缓冲字节输入流也自带 8KB 缓冲池
 
-- 读取：
+  - 读取：
 
-  1. 在磁盘（D 盘）中，数据装到缓冲池；
-  2. 缓冲池运到内存
-  3. 在内存中，字节数组从缓存池拿数据（快）
+    1.  在磁盘（D 盘）中，数据装到缓冲池；
+    2.  缓冲池运到内存
+    3.  在内存中，字节数组从缓存池拿数据（快）
 
-- 写入：
+  - 写入：
 
-  1. 在内存中，字节数组写入缓存池；
-  2. 缓存池运到磁盘
-  3. 在磁盘中，从缓冲池拿数据，写入磁盘；
+    1.  在内存中，字节数组写入缓存池；
+    2.  缓存池运到磁盘
+    3.  在磁盘中，从缓冲池拿数据，写入磁盘；
 
-缓冲字符流：BufferedReader、BufferedWriter
+- 缓冲字符流：BufferedReader、BufferedWriter
 
-**注：** 同 缓冲字节流一样
+  **注：** 同 缓冲字节流一样
 
-多了按行读取
+  多了按行读取，换行写入
 
 #### 性能分析
 
+- 加大低级管道的大小，速度提升；过分大，反而提升有限；
+- 建议使用字节缓冲输入流、字节缓冲输出流，结合字节数组的方式；
+
 #### 其他流
+
+- 字符输入转换流：InputStreamReader、OutputStreamWriter
+
+  解决不同编码时，字符流读取文本内容乱码的问题
+
+  思路：先获取文件的“原始字节流”，再将其按“真实的字符集编码”转成“字符输入流”，这样字符输入流中的字符就不乱码了，
+
+  ```java
+    InputStream is = new FileInputStream("d:/a.txt");
+    InputStreamReader isr = new InputStreamReader(InputStream, "GBK");
+    BufferedReader br = new BufferedReader(isr);
+  ```
+
+- 打印流：PrintStream 、PrintWriter
+
+  作用:打印流可以实现更方便、更高效的打印数据出去，能实现打印啥出去就是啥出去。
+
+- 数据输出流：DataInputStream 、DataOutputStream
+
+  作用：允许把数据和其他类型一并写出去
 
 #### IO 框架
