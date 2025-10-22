@@ -1369,7 +1369,7 @@ Swing：不依赖操作系统（推荐）
 
 - ThreadPoolExecutor 的 7 个参数：有公式；
 
-- 线程池处理 2 种任务：Runnable 和 Callable
+- 线程池处理 2 种任务：Runnable 和 Callable； Thread 线程继承 Runnable
 
 - 什么时候开始创建临时线程?
   新任务提交时发现核心线程都在忙，任务队列也满了，并且还可以创建临时线程，此时才会创建临时线程。
