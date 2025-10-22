@@ -27,6 +27,15 @@
 
 - 引用类型：类、接口、数组、String : null
 
+### String 对象 -- 不可变
+
+- StringBuilder
+
+  1. StringBuilder 代表可变字符串对象，相当于是一个容器，它里面装的字符串是可以改变的，就是用来操作字符；
+  2. 好处:StringBuilder 比 String 更适合做字符串的修改操作，效率会更高，代码也会更简洁；
+
+- BigDecimal：用于解决浮点型运算时，出现结果失真的问题。
+
 ## 数组 -- 连续存储; 寻址较快，增删较慢（把后面数据位置进行移动 -- 扩容、缩减）
 
 `String[] arr = new String[3];`
