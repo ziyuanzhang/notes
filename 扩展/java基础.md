@@ -1569,4 +1569,4 @@ public @interface 注解名称{
   3. 比如要解析成员方法上的注解，则应该获取到该成员方法的 Method 对象，再通过 Method 对象解析其上面的注解。
   4. Class、Method、Field,Constructor、都实现了 AnnotatedElement 接口，它们都拥有解析注解的能力,
 
-## 动态代理
+## 代理 -- java.lang.reflect.Proxy 类
