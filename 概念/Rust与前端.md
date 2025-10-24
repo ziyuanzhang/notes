@@ -17,13 +17,13 @@ Vite 的底层即将用 Rust 重写，即开发一个基于 Rust 的打包工具
 
 ## 编译器---JavaScript 编译器和 CSS 编译器
 
-1.  JavaScript 编译器
+1. JavaScript 编译器
 
-    - Babel /SWC ：随着项目规模的扩大，Babel 的性能问题也逐渐暴露出来，随后基于 Rust 的 JavaScript 编译器 SWC 也应运而生。
-    - SWC 的性能在单核机器上比 Babel 快 20 倍，而在多核机器上比 Babel 快 70 倍，相当惊人
+   - Babel /SWC ：随着项目规模的扩大，Babel 的性能问题也逐渐暴露出来，随后基于 Rust 的 JavaScript 编译器 SWC 也应运而生。
+   - SWC 的性能在单核机器上比 Babel 快 20 倍，而在多核机器上比 Babel 快 70 倍，相当惊人
 
-2.  CSS 编译器
-    这个领域当中 Lightning CSS 可以说一骑绝尘，它的性能比原有的 JS 开发的 CSS 工具链快了 100 多倍！
+2. CSS 编译器
+   这个领域当中 Lightning CSS 可以说一骑绝尘，它的性能比原有的 JS 开发的 CSS 工具链快了 100 多倍！
 
 ## 代码检查器
 
