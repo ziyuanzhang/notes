@@ -828,7 +828,7 @@ Swing：不依赖操作系统（推荐）
      - RuntimeException(运行时异常)：编译器不检查，运行时检查(例：数组索引越界)；
      - 其他异常：（例 编译时异常）编译阶段就会出现的错误提醒（例：缺少文件 ）-- 在逐渐摈弃，转向运行时异常
 
-  ![java_异常体系](./img/java_异常体系.png)
+  ![java_异常体系](./img/java/java_异常体系.png)
 
 - 异常的基本处理：抛出异常（throws）、捕获异常（try catch 【catch catch。。。】）
 - 自定义异常：继承 Exception 或 RuntimeException
@@ -957,8 +957,9 @@ Swing：不依赖操作系统（推荐）
   - `LinkedHashMap<K,V>`:【实现类】有序、不重复、无索引；
   - `TreeMap<K,V>`:【实现类】按照“键值大小”默认升序排序、不重复、无索引；
 
-![集合_Collection](./img/java_集合_Collection.png)
-![集合_Map](./img/java_集合_Map.png)
+![集合_Collection](./img/java/java_集合_Collection.png)
+
+![集合_Map](./img/java/java_集合_Map.png)
 
 ### Collection 集合 -- 遍历方式
 
@@ -1060,7 +1061,7 @@ Swing：不依赖操作系统（推荐）
 
      `map.entrySet()`：将 map 对象 转为 set；
 
-     ![Map_遍历_键值对](./img/java_集合_Map遍历_键值对.png)
+     ![Map_遍历_键值对](./img/java/java_集合_Map遍历_键值对.png)
 
   3. Lambda 表达式：JDK1.8 开始出现的新特性，可以简化集合遍历；
      map 的 forEach()方法：
@@ -1193,7 +1194,7 @@ Swing：不依赖操作系统（推荐）
        2、资源：一般指的是最终实现了AutoCloseable接口
      ```
 
-![IO流体系](./img/java_IO流体系.png)
+![IO流体系](./img/java/java_IO流体系.png)
 
 #### 字节流 -- 适合做数据的转移，比如：文件复制
 
@@ -1548,7 +1549,7 @@ public @interface 注解名称{
 1. 注解本质是一个接口，Java 中所有注解都是继承了 Annotation 接口的。
 2. @注解(...):其实就是一个实现类对象，实现了该注解以及 Annotation 接口。
 
-![注解原理](./img/java_注解原理.png)
+![注解原理](./img/java/java_注解原理.png)
 
 ### 元注解：注解“注解的注解”
 
