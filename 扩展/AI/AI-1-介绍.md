@@ -189,10 +189,6 @@
 
 ## python
 
-python 代码 --》python 解释器 --》机器；
-python 运行过程：翻译一行，执行一行；
-python 代码 --》编译器 --》机器码；
-
 ## Jupyter Notebook 介绍、安装及使用教程
 
 ## key : openai / 通义千问（Qwen 阿里云兼容 openai）
