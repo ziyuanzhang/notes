@@ -51,6 +51,10 @@
 
 ![python_数据类型](./img/python_数据类型.png)
 
+1. None 是类型'NoneType’的字面量，用于表示: 空的、无意义的;
+
+   - 函数中无返回值，返回 none。
+
 ## 循环
 
 range(start, stop, step)
