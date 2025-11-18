@@ -128,3 +128,14 @@ str[0]="H" ❎：字符串不能改变值，会报错；
 
 - 字符串：转 ASCII 码比较；
 - 汉字：转 UTF-8 或 GBK 码比较；
+
+## 函数
+
+1. 多返回值:
+
+   ```python
+     def get_info(name, age):
+       return name, age
+
+     name, age = get_info("张三", 18)
+   ```
