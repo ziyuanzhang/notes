@@ -173,3 +173,18 @@ str[0]="H" ❎：字符串不能改变值，会报错；
 3. 定义
    - def 关键字
    - lambda 匿名函数
+
+## 文件 -- 打开 --> 读/写 --> 关闭
+
+1. open(name,mode,encoding)
+
+   - name：文件名；
+   - mode：打开模式(只读-r、写入-w、追加-a 等)；
+   - encoding：编码格式；
+
+2. 用 with 语句打开文件，会自动关闭文件：
+
+   ```python
+      with open(name,node) as f:
+         f.readlines()
+   ```
