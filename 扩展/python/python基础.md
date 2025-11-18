@@ -55,12 +55,12 @@
 
    - 函数中无返回值，返回 none。
 
-## 循环
+### 循环
 
 range(start, stop, step)
 step：步长
 
-## list 列表
+### list 列表
 
 列表的下标
 [1，2，3，4，5]
@@ -69,7 +69,7 @@ step：步长
 
 1. 在 Python 中，如果将函数定义为 class(类)的成员，那么函数会称之为:方法
 
-## tuple 元组
+### tuple 元组
 
 - 定义 1 个元素的元组
   t2 =('Hello',) 注意，必须带有逗号，否则不是元组类型;
@@ -79,7 +79,7 @@ step：步长
   t = ((1,2),(3,4)) 元组嵌套元组
   t=(1,2,['a','b']) 元组嵌套列表,列表可以改变值；
 
-## string 字符串
+### string 字符串
 
 str = "hello world"
 str2 = str.replace("l","L")
@@ -87,3 +87,17 @@ print(str) --> hello world # 字符串本身没改，
 print(str2) --> heLLo worLd # 在原来的字符串的基础上，复制一份修改，返回新的；
 
 str[0]="H" ❎：字符串不能改变值，会报错；
+
+### 切片
+
+序列：列表、元组、字符串；
+
+1. 列表切片：list[start:stop:step]
+2. 元组切片：tuple[start:stop:step]
+3. 字符串切片：str[start:stop:step]
+
+### set 集合
+
+{1,2,3,"哈哈"，true}
+
+空集合：set() 只能这么写，不能用 {}；原因：与字典共用"{}"符号，被字典占了；
