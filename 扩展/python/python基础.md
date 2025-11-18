@@ -78,3 +78,12 @@ step：步长
 
   t = ((1,2),(3,4)) 元组嵌套元组
   t=(1,2,['a','b']) 元组嵌套列表,列表可以改变值；
+
+## string 字符串
+
+str = "hello world"
+str2 = str.replace("l","L")
+print(str) --> hello world # 字符串本身没改，
+print(str2) --> heLLo worLd # 在原来的字符串的基础上，复制一份修改，返回新的；
+
+str[0]="H" ❎：字符串不能改变值，会报错；
