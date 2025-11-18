@@ -207,4 +207,14 @@ str[0]="H" ❎：字符串不能改变值，会报错；
 
 ## 异常
 
-1. try except 语句：
+```python
+try:
+   1+1
+except Exception as e:
+   print("有问题：",e)
+else:
+   print("没有异常")
+finally:
+   print("不管有没有异常，都会执行")
+
+```
