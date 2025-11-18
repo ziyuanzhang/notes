@@ -188,3 +188,14 @@ str[0]="H" ❎：字符串不能改变值，会报错；
       with open(name,node) as f:
          f.readlines()
    ```
+
+3. 写 模式
+
+   mode="w"时：文件不存在则自动新建；存在则清空，写心的；
+
+   ```python
+      f= open(name,mode,encoding)
+      f.write("hello world")
+      f.flush() #  刷新缓冲区: 写在缓存区，刷新后，才会写入文件；
+      f.close()
+   ```
