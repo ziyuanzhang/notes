@@ -117,3 +117,14 @@ str[0]="H" ❎：字符串不能改变值，会报错；
 - 空字典：
   1. my_dict={}
   2. my_dict=dict()
+
+### 通用
+
+- len(容器)、max(容器)、min(容器)
+- sorted(容器，reverse=True)：排序
+- 相互转换：list(容器)、tuple(容器)、str(容器)、set(容器)
+
+### 比较
+
+- 字符串：转 ASCII 码比较；
+- 汉字：转 UTF-8 或 GBK 码比较；
