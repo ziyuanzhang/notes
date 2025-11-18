@@ -151,6 +151,9 @@ str[0]="H" ❎：字符串不能改变值，会报错；
    - 不定长参数：放 缺省参数前面；传递的其余参数 都会被 args 变量收集（元组）；
 
      ```python
-       def user_info(name, age, *args , grade="二年级"):
-           print(name, age, args, grade="三年级")
+       def user_info(name, age, *args , grade="二年级"):     # 一般不这么写
+           print(name, age, args, grade)
+
+      user_info("小明", 20, "男", "娃娃","玩具", grade="三年级") # ✅ （一般不这么写）
+      user_info("小明", 20, "男", "娃娃","玩具","三年级") # ❎
      ```
