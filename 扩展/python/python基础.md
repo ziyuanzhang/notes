@@ -218,3 +218,15 @@ finally:
    print("不管有没有异常，都会执行")
 
 ```
+
+## 导入
+
+模块在使用前需要先导入 导入的语法如下，
+
+`[from 模块名] import [模块 | 类|变量 | 函数 |*][as 别名]`常用的组合形式如:
+
+- import 模块名
+- from 模块名 import 类、变量、方法等
+- from 模块名 import \*
+- import 模块名 as 别名
+- from 模块名 import 功能名 as 别名
