@@ -137,5 +137,20 @@ str[0]="H" ❎：字符串不能改变值，会报错；
      def get_info(name, age):
        return name, age
 
-     name, age = get_info("张三", 18)
+     name, age = get_info("张三", 18) # --> 自动拆包
+     person = get_info("张三", 18)  # -->返回元组
    ```
+
+2. 传参：
+
+   `def user_info(name, age, gender):`
+
+   - 按顺序：user_info("小明",20,"男")
+   - 关键字参数：user_info("小明",age=20,gender="男") ; # 顺序传参写前面，剩余的 关键字参数 可乱序；
+   - 缺省参数（默认参数）：放最后；
+   - 不定长参数：放最后；传递的其余参数 都会被 args 变量收集（元组）；
+
+     ```python
+     def user_info(name, age, *args):
+         print(name, age, args)
+     ```
