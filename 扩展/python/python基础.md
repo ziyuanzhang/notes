@@ -148,7 +148,8 @@ str[0]="H" ❎：字符串不能改变值，会报错；
    - 按顺序：user_info("小明",20,"男")
    - 关键字参数：user_info("小明",age=20,gender="男") ; # 顺序传参写前面，剩余的 关键字参数 可乱序；
    - 缺省参数（默认参数）：放最后；
-   - 不定长参数：放 缺省参数前面；传递的其余参数 都会被 args 变量收集（元组）；
+   - 不定长参数：`*args`(元组接收)、`**kwargs`(字典接收)
+     放 缺省参数前面；
 
      ```python
        def user_info(name, age, *args , grade="二年级"):     # 一般不这么写
@@ -156,4 +157,15 @@ str[0]="H" ❎：字符串不能改变值，会报错；
 
       user_info("小明", 20, "男", "娃娃","玩具", grade="三年级") # ✅ （一般不这么写）
       user_info("小明", 20, "男", "娃娃","玩具","三年级") # ❎
+      # ==========================================================================
+      def func(name, age, *args, **kwargs):
+          print(name, age)
+
+          for arg in args:
+               print(arg)
+
+          for key in kwargs:
+              print(key, kwargs[key])
+
+      func("小明", 20, "男", "娃娃","玩具", grade="三年级",address="北京")
      ```
