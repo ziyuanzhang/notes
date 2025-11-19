@@ -219,14 +219,58 @@ finally:
 
 ```
 
-## 导入
+## 模块：就是一个一个的 python 文件
 
-模块在使用前需要先导入 导入的语法如下，
+1. 导入
 
-`[from 模块名] import [模块 | 类|变量 | 函数 |*][as 别名]`常用的组合形式如:
+   模块在使用前需要先导入 导入的语法如下，
 
-- import 模块名
-- from 模块名 import 类、变量、方法等
-- from 模块名 import \*
-- import 模块名 as 别名
-- from 模块名 import 功能名 as 别名
+   `[from 模块名] import [模块 | 类|变量 | 函数 |*][as 别名]`常用的组合形式如:
+
+   - import 模块名
+   - from 模块名 import 类、变量、方法等
+   - from 模块名 import \*
+   - import 模块名 as 别名
+   - from 模块名 import 功能名 as 别名
+
+2. `__name__`: 内置变量
+
+   - 如果本文件被直接执行，则内置变量`__name__`会被赋值为:`"__main__"`;
+   - 如果本文件被 import 或 from 导入，则内置变量`__name__`会被赋值为:`文件名称`;
+
+   ```python
+       if __name__ == "__main__":
+           print("程序被直接执行")
+   ```
+
+3. `__all__`： 内置变量
+
+   `__all__` 变量可以 控制`import * `的时候哪些功能可以被导入
+
+   ```python
+       __all__ = ["add","sub"]
+   ```
+
+## package(包)：一个包是一个文件夹，里面可以有多个模块，一个模块是一个 python 文件
+
+包含一个`__init__.py`文件，`__init__.py`文件可以不写内容，也可以写内容，内容可以执行一些初始化操作；
+
+1. 导入
+
+   - import 包名.模块名: 包名.模块名.目标
+   - from 包名 import \*: 模块名.目标
+
+     **注**：必须在`__init__.py`文件中添加`__all__=[xx,yy,...]`，控制允许导入的模块列表；
+
+   - from 包名 import 模块名: 模块名.目标
+
+2. 安装第三方包：pip install 包名(uv pip install 包名)
+
+   在 Python 程序的生态中，有许多非常多的第三方包(非 Pvthon 官方)，可以极大的帮助我们提高开发效率，如:
+
+   - 科学计算中常用的: numpy 包
+   - 数据分析中常用的: pandas 包
+   - 大数据计算中常用的: pyspark、apache-flink 包
+   - 图形可视化常用的: matplotlib、pyecharts
+   - 人工智能常用的: tensorflow
+   - 等
