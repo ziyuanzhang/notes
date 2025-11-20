@@ -18,3 +18,170 @@
 ## 虚拟机
 
 ## 容器化
+
+## 命令行
+
+- Linux 命令基础格式：
+
+  无论是什么命令，用于什么用途，在 Linux 中，命令有其通用的格式：
+
+  command [-options] [parameter]
+
+  1. command：命令本身
+  2. -options：[可选，非必填]命令的一些选项，可以通过选项控制命令的行为细节
+  3. parameter：[可选，非必填]命令的参数，多数用于命令的指向目标等
+
+  **注：**语法中的[]，表示可选的意思
+
+1. ls : list(列出目录内容)
+
+   ls [-a -l -h] [Linux 路径]
+
+   - -a：显示全部（包括隐藏文件）
+   - -l：显示文件详细信息（列表形式显示）
+   - -h：显示文件大小（人性化显示）
+   - 组合写法，如：ls -alh
+
+2. cd : change directory(改变目录)
+
+   cd [Linux 路径]
+
+   - 特殊路径符:cd
+     - cd 或者 cd /home/“username” ：表示当前用户目录
+     - cd / ：表示根目录
+     - cd . ：表示当前目录
+     - cd ..：表示上一级目录
+     - cd ~ ：表示 HOME 目录
+     - cd -: 返回上一级目录
+
+3. pwd : print work directory(打印当前目录，现示当前工作目录的绝对路径)
+
+## 命令行=
+
+1. 【目录|文件】
+   ls : list(列出目录内容)
+
+   pwd : print work directory(打印当前目录，现示当前工作目录的绝对路径)
+
+   cd : change directory(改变目录)
+
+   rmdir: remove directory(删除目录)
+
+   mkdir: make directory(创建目录)
+
+   rm : remove(删除目录或文件)
+
+   mv : move file (移动文件)
+
+   cp : copy file(复制文件)
+
+   cat : concatenate(连锁)
+   cat file 1 file 2 >> file 3(把文件 1 和文件 2 的内容联合起来放进 文件 3 中)
+
+2. 【系统|权限】
+   su : switch user(切换用户)
+
+   uname: unix name(用于打印当前系统相关信息)
+
+   chown: change owner(改变某和文件或目录所有者和所属的组，，)
+
+   chgrp: change group(用于改变文件或所属的用户组)
+
+   chmod: change mode(用于变更文件或目录的权限)
+
+3. 【进程|磁盘】
+   ps : process status(进程状态，类似于 wins 任务管理器)
+
+   常用参数: -auxf ps -auxf (进程现示状态)
+
+   df : disk free(显示磁盘可用空间数目信息及空间节点信息。换句话说，就是查看在任何安装的设备或目录中还剩多少自由空间)
+
+   du : disk usage(查看已使用空间)
+
+4. 【打包管理】
+   rpm : redhat package manger(红帽子打包管理器)
+
+   dpkg: debian package manager
+
+   apt: advanced package tool
+
+5. 【文件后缀】
+   文件结尾的 rc: resource configratin(如 .xinitrc, .bashrc 等)
+
+   knnxxx/snnxxx(位于 rcx.d 目录下):k(kill),s(service);nn(执行顺序号);xxx(服务标识)
+
+   .a(扩展名 a): archive ,static library
+
+   .s(扩展名 so): shared object,dynamically linked library
+
+   .o(扩展名 o): olbject file, compiled result of c/c++ source file
+
+6. 【部分 linux 目录|参数 缩写】
+   bin = binarines
+
+   /dev = devices
+
+   /dev = etcetera
+
+   /lib = library
+
+   /proc = processes
+
+   /sbin= superuser binaries
+
+   /tmp= temporary
+
+   /usr= unix shared resources
+
+   /var= variable
+
+   ? fifo= first in ,fitst out
+
+   grub= grand unified bootloader
+
+   ifs= internal field seperators
+
+   lilo= linux loader
+
+   mysql= my 是最初作者的女儿的名字，sql=structured query language
+
+   php= personal home page tools=php hypertext preprocessor
+
+   ps = prompt string
+
+   perl= pratical extraction and report language=pathologically eclectic rubbish lister python 得名于电视剧 monty python's flying circus
+
+   tcl= tool command language
+
+   tk = toolkit
+
+   vt = video terminal
+
+   yast= yet another
+
+7. 【other】
+   insmod: install module(载入模块)
+
+   lsmod: list modules(用于显示已加载到内核模块的状态信息)
+
+   rmmod:remove module
+
+   in -s : link -soft(创建一个软链接，相当于创建一个快捷方式)
+
+   touch man:manual
+
+   mkfs: make file system (创建 linux 系统文件)
+
+   fsck: file system check(用于检查并试图修复文件系统中错误)
+
+   ln : link file(用于文件创建连接分为硬盘连接和符号连接)
+
+   fg : foreground(用于后台作业放到前台终端运行)
+
+   bg : background(用于将作业放到后台运行)
+
+   umount: unmount(用于卸载已经加载的系统文件)
+
+   tar : tape archive
+
+   ldd : list dynamic dependencies
