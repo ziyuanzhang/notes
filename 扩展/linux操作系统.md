@@ -55,6 +55,11 @@
      - cd -: 返回上一级目录
 
 3. pwd : print work directory(打印当前目录，现示当前工作目录的绝对路径)
+4. mkdir: make directory(创建目录)
+
+   mkdir [ -p ] Linux 路径
+
+   - -p 选项可选，表示自动创建不存在的父目录，适用于创建连续多层级的目录
 
 ## 命令行=
 
