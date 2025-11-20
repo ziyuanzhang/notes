@@ -37,7 +37,7 @@
 
 1. ls : list(列出目录内容)
 
-   ls [-a -l -h] [Linux 路径]
+   语法: ls [-a -l -h] [Linux 路径]
 
    - -a：显示全部（包括隐藏文件）
    - -l：显示文件详细信息（列表形式显示）
@@ -46,7 +46,7 @@
 
 2. cd : change directory(改变目录)
 
-   cd [Linux 路径]
+   语法: cd [Linux 路径]
 
    - 特殊路径符:cd
      - cd 或者 cd /home/“username” ：表示当前用户目录
@@ -59,36 +59,50 @@
 3. pwd : print work directory(打印当前目录，现示当前工作目录的绝对路径)
 4. mkdir: make directory(创建目录)
 
-   mkdir [ -p ] Linux 路径
+   语法: mkdir [ -p ] Linux 路径
 
    - -p 选项可选，表示自动创建不存在的父目录，适用于创建连续多层级的目录
 
 5. touch : 创建空白文件
 
-   touch Linux 路径（文件全名）；例 touch 1.txt
+   语法: touch Linux 路径（文件全名）；例 touch 1.txt
 
 6. cat : concatenate(连锁 -- 查看文件内容)
 
-   cat Linux 路径（文件全名）；例： cat 1.txt
+   语法: cat Linux 路径（文件全名）；例： cat 1.txt
 
    - cat 直接将内容全部显示出来
 
 7. more : 查看文件内容
 
-   more Linux 路径
+   语法: more Linux 路径
 
    - more 支持翻页；内容过多，可以一页页的展示；
    - 使用空格翻页，使用 q 退出
 
 8. cp : copy file(复制文件)
 
-   cp [-r] 参数 1 参数 2
+   语法: cp [-r] 参数 1 参数 2
 
-   - -r 选项，可选，用于复制文件夹使用，表示递归；
+   - -r 选项，可选，用于”复制文件夹”使用，表示递归；
    - 参数 1，Linux 路径，表示被复制的文件或文件夹
    - 参数 2，Linux 路径，表示要复制去的地方
 
-9. mv : move file (移动文件)
+9. mv : move file (移动目录或文件)
+
+   语法: mv 参数 1 参数 2；例：mv 1.txt 2.txt（移动＋改名）
+
+   - 参数 1，Linux 路径，表示被移动的文件或文件夹
+   - 参数 2，Linux 路径，表示要移动去的地方，如果目标不存在，则进行改名，确保目标存在
+
+10. rm : remove(删除目录或文件)
+
+    语法: rm[-r -f]参数 1 参数 2 参数 N
+
+    - 同 cp 命令一样，-r 选项用于“删除文件夹”
+    - -f 表示 force，强制删除(不会弹出提示确认信息)
+      普通用户删除内容不会弹出提示，只有 root 管理员用户删除内容会有提示，所以一般普通用户用不到-f 选项
+    - 参数 1、参数 2、参数 N 表示要删除的文件或文件夹路径，按照空格隔开
 
 ## 命令行=
 
