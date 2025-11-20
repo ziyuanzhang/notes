@@ -35,7 +35,11 @@
   1、语法中的[]，表示可选的意思；
   2、默认在“/home/username”目录下操作，其他目录不可以（除非 root 权限）
 
-1. ls : list(列出目录内容)
+1. 切换到 root 用户：sudo su - ;然后输入密码；
+
+2. 强制停止：ctrl + c(cancel)
+
+3. ls : list(列出目录内容)
 
    语法: ls [-a -l -h] [Linux 路径]
 
@@ -44,7 +48,7 @@
    - -h：显示文件大小（人性化显示）
    - 组合写法，如：ls -alh
 
-2. cd : change directory(改变目录)
+4. cd : change directory(改变目录)
 
    语法: cd [Linux 路径]
 
@@ -56,46 +60,46 @@
      - cd ~ ：表示 HOME 目录
      - cd -: 返回上一级目录
 
-3. pwd : print work directory(打印当前目录，现示当前工作目录的绝对路径)
-4. mkdir: make directory(创建目录)
+5. pwd : print work directory(打印当前目录，现示当前工作目录的绝对路径)
+6. mkdir: make directory(创建目录)
 
    语法: mkdir [ -p ] Linux 路径
 
    - -p 选项可选，表示自动创建不存在的父目录，适用于创建连续多层级的目录
 
-5. touch : 创建空白文件
+7. touch : 创建空白文件
 
    语法: touch Linux 路径（文件全名）；例 touch 1.txt
 
-6. cat : concatenate(连锁 -- 查看文件内容)
+8. cat : concatenate(连锁 -- 查看文件内容)
 
    语法: cat Linux 路径（文件全名）；例： cat 1.txt
 
    - cat 直接将内容全部显示出来
 
-7. more : 查看文件内容
+9. more : 查看文件内容
 
    语法: more Linux 路径
 
    - more 支持翻页；内容过多，可以一页页的展示；
    - 使用空格翻页，使用 q 退出
 
-8. cp : copy file(复制文件)
+10. cp : copy file(复制文件)
 
-   语法: cp [-r] 参数 1 参数 2
+    语法: cp [-r] 参数 1 参数 2
 
-   - -r 选项，可选，用于”复制文件夹”使用，表示递归；
-   - 参数 1，Linux 路径，表示被复制的文件或文件夹
-   - 参数 2，Linux 路径，表示要复制去的地方
+    - -r 选项，可选，用于”复制文件夹”使用，表示递归；
+    - 参数 1，Linux 路径，表示被复制的文件或文件夹
+    - 参数 2，Linux 路径，表示要复制去的地方
 
-9. mv : move file (移动目录或文件)
+11. mv : move file (移动目录或文件)
 
-   语法: mv 参数 1 参数 2；例：mv 1.txt 2.txt（移动＋改名）
+    语法: mv 参数 1 参数 2；例：mv 1.txt 2.txt（移动＋改名）
 
-   - 参数 1，Linux 路径，表示被移动的文件或文件夹
-   - 参数 2，Linux 路径，表示要移动去的地方，如果目标不存在，则进行改名，确保目标存在
+    - 参数 1，Linux 路径，表示被移动的文件或文件夹
+    - 参数 2，Linux 路径，表示要移动去的地方，如果目标不存在，则进行改名，确保目标存在
 
-10. rm : remove(删除目录或文件)
+12. rm : remove(删除目录或文件)
 
     语法: rm [-r -f] 参数 1 参数 2 参数 N
 
@@ -108,7 +112,32 @@
       - `rm *.txt (删除所有 txt 文件)`
       - `rm * (删除所有文件)`
 
-11. 切换到 root 用户：sudo su -
+13. which : 查看命令的绝对路径
+
+    语法: which 要查找的命令; 例：which ls
+
+14. find : 查找文件（没权限的搜不到）
+
+    1. 语法: find 起始路径 -name "被查找文件名"
+
+       - `find / -name "*.txt"` (查找所有 txt 文件)
+       - `find / -name "*test"` (查找所有 以 test 结尾的文件)
+
+    2. 语法:find 起始路径 -size +|-n[kMG]
+
+       - +、-表示大于和小于
+       - n 表示大小数字
+       - kMG 表示大小单位，k(小写字母)表示 kb，M 表示 MB，G 表示 GB
+       - 查找小于 10KB 的文件:find / -size -10k
+       - 查找大于 100MB 的文件:find / -size +100M
+
+15. grep : search file(搜索“带有关键字”的行)
+
+    语法：grep [-n] 关键字 文件路径
+
+    - 选项-n，可选，表示在结果中显示“匹配到的行”的行号，
+    - 参数，关键字，必填，表示过滤的关键字，带有空格或其它特殊符号，建议使用””将关键字包围起来
+    - 参数，文件路径，必填，表示要过滤内容的文件路径，可作为内容输入端口
 
 ## 命令行=
 
