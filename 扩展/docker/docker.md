@@ -67,29 +67,6 @@
 5. 使用 Docker Compose 来编排和管理多个相关联的容器。
 6. 将构建好的镜像 推送到 Registry，以便在其他环境拉取和部署。
 
-## dockerfile
-
-- 常见指令：
-
-  1. FROM：指定基础镜像（例如 ubuntu:20.04）。
-  2. RUN：在镜像内执行命令（例如 RUN apt-get update && apt-get install -y python3）。
-  3. COPY / ADD：将本地文件复制到镜像中。
-  4. WORKDIR：设置后续指令的工作目录。
-  5. ENV：设置环境变量。
-  6. EXPOSE：声明容器运行时监听的端口。
-  7. CMD / ENTRYPOINT：指定容器启动时运行的默认命令。
-  8. （alpine:基于 linux 的 alpine 发行版构建的，小几十 M）
-
-  ```Dockerfile demo
-    FROM python:3.9
-    COPY . /app
-    WORKDIR /app
-    RUN pip install -r requirements.txt
-    CMD ["python", "app.py"]
-  ```
-
-- node:14-alpine（alpine:基于 linux 的 alpine 发行版构建的，小几十 M）
-
 ## 流程
 
 1. 下载镜像
@@ -228,9 +205,22 @@ compose.yaml ：代替命令行
 
    - FROM：基础环境；例：node:14-alpine
    - LABEL：author=xiaoming （打标签）
-   - COPY：xx /yy （xx：linux 中的软件包；/yy：镜像中的位置）
-   - EXPOSE：8080 本镜像，生成的容器 暴露的端口号是 8080
-   - ENTRYPOINT：本镜像，容器固定的启动命令
+   - RUN：在镜像内执行命令（例: RUN apt-get update && apt-get install -y python3）。
+   - COPY/ADD：xx /yy （xx：linux 中的软件包；/yy：镜像中的位置）
+   - WORKDIR：设置后续指令的工作目录。
+   - ENV：设置环境变量。
+   - EXPOSE：声明容器运行时监听的端口。
+   - CMD / ENTRYPOINT：指定容器启动时运行的默认命令。
+
+   alpine:基于 linux 的 alpine 发行版构建的，小几十 M
+
+   ```Dockerfile demo
+     FROM python:3.9
+     COPY . /app
+     WORKDIR /app
+     RUN pip install -r requirements.txt
+     CMD ["python", "app.py"]
+   ```
 
 4. 构建镜像：`docker build -f Dockerfile -t myapp:v1.0 .` 最后的点（.）指当前文件夹，相对应 COPY 中的 xx
 
