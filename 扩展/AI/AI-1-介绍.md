@@ -184,8 +184,8 @@
 1. 分词化（Tokenization） 与 词表映射
    - 颗粒度：类似总结的笔记中的知识点；
 
-![agents流程图](./img/aa/agents流程图.png)
-![agents决策流程](./img/aa/agents决策流程.png)
+![agents流程图](./img/operating_process/agents流程图.png)
+![agents决策流程](./img/operating_process/agents决策流程.png)
 
 ## python
 
