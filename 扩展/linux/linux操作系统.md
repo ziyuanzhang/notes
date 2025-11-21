@@ -19,7 +19,7 @@
 
 ## 容器化
 
-## 命令行
+## 命令行 -- 常用
 
 - 切换到 root 用户：sudo su - ;然后输入密码；
 
@@ -201,132 +201,88 @@
     - 选项，-f（follow），表示持续跟踪；(看日志)
     - 选项,-num，表示，查看尾部多少行，不填默认 10 行
 
-## 命令行=
+## 命令行 more
 
 1. 【目录|文件】
-   ls : list(列出目录内容)
 
-   pwd : print work directory(打印当前目录，现示当前工作目录的绝对路径)
-
-   cd : change directory(改变目录)
-
-   rmdir: remove directory(删除目录)
-
-   mkdir: make directory(创建目录)
-
-   rm : remove(删除目录或文件)
-
-   mv : move file (移动文件)
-
-   cp : copy file(复制文件)
-
-   cat : concatenate(连锁)
-   cat file 1 file 2 >> file 3(把文件 1 和文件 2 的内容联合起来放进 文件 3 中)
+   - ls : list(列出目录内容)
+   - pwd : print work directory(打印当前目录，现示当前工作目录的绝对路径)
+   - cd : change directory(改变目录)
+   - rmdir: remove directory(删除目录)
+   - mkdir: make directory(创建目录)
+   - rm : remove(删除目录或文件)
+   - mv : move file (移动文件)
+   - cp : copy file(复制文件)
+   - cat : concatenate(连锁)
+   - cat file 1 file 2 >> file 3(把文件 1 和文件 2 的内容联合起来放进 文件 3 中)
 
 2. 【系统|权限】
-   su : switch user(切换用户)
 
-   uname: unix name(用于打印当前系统相关信息)
-
-   chown: change owner(改变某和文件或目录所有者和所属的组，，)
-
-   chgrp: change group(用于改变文件或所属的用户组)
-
-   chmod: change mode(用于变更文件或目录的权限)
+   - su : switch user(切换用户)
+   - uname: unix name(用于打印当前系统相关信息)
+   - chown: change owner(改变某和文件或目录所有者和所属的组，，)
+   - chgrp: change group(用于改变文件或所属的用户组)
+   - chmod: change mode(用于变更文件或目录的权限)
 
 3. 【进程|磁盘】
-   ps : process status(进程状态，类似于 wins 任务管理器)
 
-   常用参数: -auxf ps -auxf (进程现示状态)
+   - ps : process status(进程状态，类似于 wins 任务管理器)
 
-   df : disk free(显示磁盘可用空间数目信息及空间节点信息。换句话说，就是查看在任何安装的设备或目录中还剩多少自由空间)
+     常用参数: -auxf ps -auxf (进程现示状态)
 
-   du : disk usage(查看已使用空间)
+   - df : disk free(显示磁盘可用空间数目信息及空间节点信息。换句话说，就是查看在任何安装的设备或目录中还剩多少自由空间)
+   - du : disk usage(查看已使用空间)
 
 4. 【打包管理】
-   rpm : redhat package manger(红帽子打包管理器)
 
-   dpkg: debian package manager
-
-   apt: advanced package tool
+   - rpm : redhat package manger(红帽子打包管理器)
+   - dpkg: debian package manager
+   - apt: advanced package tool
 
 5. 【文件后缀】
-   文件结尾的 rc: resource configratin(如 .xinitrc, .bashrc 等)
 
-   knnxxx/snnxxx(位于 rcx.d 目录下):k(kill),s(service);nn(执行顺序号);xxx(服务标识)
-
-   .a(扩展名 a): archive ,static library
-
-   .s(扩展名 so): shared object,dynamically linked library
-
-   .o(扩展名 o): olbject file, compiled result of c/c++ source file
+   - 文件结尾的 rc: resource configratin(如 .xinitrc, .bashrc 等)
+   - knnxxx/snnxxx(位于 rcx.d 目录下):k(kill),s(service);nn(执行顺序号);xxx(服务标识)
+   - .a(扩展名 a): archive ,static library
+   - .s(扩展名 so): shared object,dynamically linked library
+   - .o(扩展名 o): olbject file, compiled result of c/c++ source file
 
 6. 【部分 linux 目录|参数 缩写】
-   bin = binarines
 
-   /dev = devices
-
-   /dev = etcetera
-
-   /lib = library
-
-   /proc = processes
-
-   /sbin= superuser binaries
-
-   /tmp= temporary
-
-   /usr= unix shared resources
-
-   /var= variable
-
-   ? fifo= first in ,fitst out
-
-   grub= grand unified bootloader
-
-   ifs= internal field seperators
-
-   lilo= linux loader
-
-   mysql= my 是最初作者的女儿的名字，sql=structured query language
-
-   php= personal home page tools=php hypertext preprocessor
-
-   ps = prompt string
-
-   perl= pratical extraction and report language=pathologically eclectic rubbish lister python 得名于电视剧 monty python's flying circus
-
-   tcl= tool command language
-
-   tk = toolkit
-
-   vt = video terminal
-
-   yast= yet another
+   - bin = binarines
+   - /dev = devices
+   - /dev = etcetera
+   - /lib = library
+   - /proc = processes
+   - /sbin= superuser binaries
+   - /tmp= temporary
+   - /usr= unix shared resources
+   - /var= variable
+   - ? fifo= first in ,fitst out
+   - grub= grand unified bootloader
+   - ifs= internal field seperators
+   - lilo= linux loader
+   - mysql= my 是最初作者的女儿的名字，sql=structured query language
+   - php= personal home page tools=php hypertext preprocessor
+   - ps = prompt string
+   - perl= pratical extraction and report language=pathologically eclectic rubbish lister python 得名于电视剧 monty python's flying circus
+   - tcl= tool command language
+   - tk = toolkit
+   - vt = video terminal
+   - yast= yet another
 
 7. 【other】
-   insmod: install module(载入模块)
 
-   lsmod: list modules(用于显示已加载到内核模块的状态信息)
-
-   rmmod:remove module
-
-   in -s : link -soft(创建一个软链接，相当于创建一个快捷方式)
-
-   touch man:manual
-
-   mkfs: make file system (创建 linux 系统文件)
-
-   fsck: file system check(用于检查并试图修复文件系统中错误)
-
-   ln : link file(用于文件创建连接分为硬盘连接和符号连接)
-
-   fg : foreground(用于后台作业放到前台终端运行)
-
-   bg : background(用于将作业放到后台运行)
-
-   umount: unmount(用于卸载已经加载的系统文件)
-
-   tar : tape archive
-
-   ldd : list dynamic dependencies
+   - insmod: install module(载入模块)
+   - lsmod: list modules(用于显示已加载到内核模块的状态信息)
+   - rmmod:remove module
+   - in -s : link -soft(创建一个软链接，相当于创建一个快捷方式)
+   - touch man:manual
+   - mkfs: make file system (创建 linux 系统文件)
+   - fsck: file system check(用于检查并试图修复文件系统中错误)
+   - ln : link file(用于文件创建连接分为硬盘连接和符号连接)
+   - fg : foreground(用于后台作业放到前台终端运行)
+   - bg : background(用于将作业放到后台运行)
+   - umount: unmount(用于卸载已经加载的系统文件)
+   - tar : tape archive
+   - ldd : list dynamic dependencies
