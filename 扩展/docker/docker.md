@@ -46,9 +46,19 @@
 
    - Docker Client(Docker 客户端)：用户使用的命令行工具，客户端通过 REST API 与守护进程通信，并指示它该做什么。
    - Docker Daemon（Docker 守护进程）：一个长期运行在后台的进程（dockerd），负责管理镜像、容器、网络和卷。
-     1. 接受客户端的请求，将结果返回给客户端
+     1. 接受客户端的请求，将结果返回给客户端；
+     2. 进程名：dockerd
 
-8. docker Desktop 桌面化 操作
+8. Docker Desktop: 面向开发者的一体化桌面应用程序，用于在 Windows 和 macOS 上轻松使用 Docker。
+
+   包含组件：
+
+   - Docker Client（docker CLI）
+   - Docker Daemon（运行在后台 VM 中，如 WSL2 或 Hyper-V）
+   - Docker Compose
+   - Kubernetes（可选）
+   - GUI 界面（查看容器、镜像、资源使用等）
+
 9. Docker Hub / Registry（镜像仓库）：用于存储和分发镜像的服务。
 
    - Docker Hub 是官方公共仓库（https://hub.docker.com）
