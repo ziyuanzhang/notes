@@ -14,45 +14,81 @@
 
 ## 概念
 
-1. 镜像（image）：（模板-雕版印刷的雕版）就像 java 的类；
-2. 容器（container）：（实例-印出来的书）就像 java 的实例；
-3. 仓库：存放 docker 镜像的地方，可以用来分享；
-4. 逻辑卷（volumes）：可以把容器中的目录映射到宿主机中的目录上，可以把数据保存到宿主机的磁盘上；
+1. 镜像（image）：一个只读模板，包含运行应用程序所需的所有内容：代码、运行时、库、环境变量和配置文件。
 
-   docker 以干净文件系统开始，可以在容器中创建、修改数据，容器停止后，容器中的所有数据都会丢失；
+   - 例：雕版印刷的雕版
 
-5. docker Daemon: 服务端的守护进程，负责管理 Docker 的各种资源；（接受客户端的请求，将结果返回给客户端）
-6. Dockerfile：构建镜像需要的步骤和配置；使用 Dockerfile 构建镜像；使用镜像创建和运行容器；
+2. 容器（container）：镜像的运行实例。
 
-7. Docker Compose：用于定义和运行多个容器的工具；使用 YAML 配置；一条命令即可创建并启动所有服务；（前端、后端、数据库、缓存 redis、负载均衡等多个服务器）
+   - 容器是轻量、可移植、隔离的运行环境。
+   - 同一镜像可以启动多个容器，彼此隔离。
+   - 例：用雕版印出的书页；
+
+3. Dockerfile：一个文本文件，包含一系列指令，用于自动构建镜像。
+
+4. Volume(卷，又称：逻辑卷、存储卷)：用于持久化容器数据；卷独立于容器生命周期，即使容器删除，数据仍保留。
+
+   - docker 以干净文件系统开始，可以在容器中创建、修改数据，容器停止后，容器中的所有数据都会丢失；
+   - 卷：可以把容器中的目录 映射到 宿主机中的目录上，可以把数据保存到宿主机的磁盘上；
+   - 支持命名卷、绑定挂载（bind mount）等。
+
+5. 网络（Network）: 解决容器与外界、与容器之间通信；
+
+   - Docker 提供多种网络驱动（bridge、host、overlay 等）。
+   - 默认使用 bridge 网络，容器间可通过名称通信（需自定义网络）。
+
+6. Docker Compose：用于定义和运行多容器 应用程序的工具。
+
+   - 使用 docker-compose.yml 文件配置服务(容器)、网络、卷等；
+   - 通过 docker-compose up 一条命令，就可以启动整个应用栈；（前端、后端、数据库、缓存 redis、负载均衡等多个服务器）
+
+7. Docker Daemon 与 Client:
+
+   - Docker Client(Docker 客户端)：用户使用的命令行工具，客户端通过 REST API 与守护进程通信，并指示它该做什么。
+   - Docker Daemon（Docker 守护进程）：一个长期运行在后台的进程（dockerd），负责管理镜像、容器、网络和卷。
+     1. 接受客户端的请求，将结果返回给客户端
 
 8. docker Desktop 桌面化 操作
+9. Docker Hub / Registry（镜像仓库）：用于存储和分发镜像的服务。
 
-   - Dev Environments: 配置开发环境，然后共享
+   - Docker Hub 是官方公共仓库（https://hub.docker.com）
+   - 也可以搭建私有 Registry。
+
+10. Namespace 与 Cgroups（底层技术）
+    - Namespaces：实现进程、网络、用户、挂载点等的隔离。
+    - Cgroups（Control Groups）：限制、记录和隔离资源使用（CPU、内存等）。
+
+## 开发流程
+
+1. 编写 Dockerfile。
+2. 使用 docker build 命令根据 Dockerfile 构建出一个镜像。
+3. 使用 docker run 命令从镜像 运行一个或多个容器。
+4. 使用 卷 来持久化容器中的数据。
+5. 使用 Docker Compose 来编排和管理多个相关联的容器。
+6. 将构建好的镜像 推送到 Registry，以便在其他环境拉取和部署。
 
 ## dockerfile
 
-```dockerfile
-   Dockerfile文件：
-   FROM node:14-alpine
-   COPY index.js /index.js
-   CMD node /index.js
+- 常见指令：
 
-   终端：
-   构建镜像：docker build -t hello-docker .
-   查看镜像：docker image ls 或 docker images
-   运行应用程序：docker run hello-docker
+  1. FROM：指定基础镜像（例如 ubuntu:20.04）。
+  2. RUN：在镜像内执行命令（例如 RUN apt-get update && apt-get install -y python3）。
+  3. COPY / ADD：将本地文件复制到镜像中。
+  4. WORKDIR：设置后续指令的工作目录。
+  5. ENV：设置环境变量。
+  6. EXPOSE：声明容器运行时监听的端口。
+  7. CMD / ENTRYPOINT：指定容器启动时运行的默认命令。
+  8. （alpine:基于 linux 的 alpine 发行版构建的，小几十 M）
 
-   在另一个环境运行应用程序：只需要把镜像文件复制过去，运行上面命令；也可以上传到DockerHub/Harbor镜像仓库中；docker pull下载，运行
-```
+  ```Dockerfile demo
+    FROM python:3.9
+    COPY . /app
+    WORKDIR /app
+    RUN pip install -r requirements.txt
+    CMD ["python", "app.py"]
+  ```
 
-- FROM：基于一个基础镜像来修改
-- WORKDIR：指定当前工作目录
-- COPY：把容器外的内容复制到容器内
-- EXPOSE：声明当前容器要访问的网络端口，比如这里起服务会用到 8080
-- RUN：在容器内执行命令
-- CMD：容器启动的时候执行的命令
-- （alpine:基于 linux 的 alpine 发行版构建的，小几十 M）
+- node:14-alpine（alpine:基于 linux 的 alpine 发行版构建的，小几十 M）
 
 ## 流程
 
@@ -118,7 +154,9 @@
 
      1. `docker push zzy/mynginx:v1.0`
 
-## 存储 --目录挂载 / 券映射 --容器数据不再丢失
+## 存储：容器数据不再丢失
+
+2 种实现：目录挂载 / 券映射
 
 - 目录挂载：用宿主机的空间存储，挂载到 docker 空间对应位置；
 
@@ -142,7 +180,7 @@
   - 创建卷：`docker volume create ngconf`
   - 查看卷详情：`docker volume inspect ngconf`
 
-## 网络--自定义网络 / Redis 主从集群
+## 网络: 自定义网络 / Redis 主从集群
 
 - 自定义网络
 
@@ -159,9 +197,9 @@
 
 - 主从集群
 
-## 最佳实践 （命令） -- 网络、存储、环境变量
+## 最佳实践（命令）: 网络、存储、环境变量
 
-## docker Compose -- docker 批量管理容器的工具
+## docker Compose：docker 批量管理容器的工具
 
 compose.yaml ：代替命令行
 
@@ -182,7 +220,7 @@ compose.yaml ：代替命令行
 
   [docker-compose.yaml](./img/docker-compose.yaml)
 
-## Dockerfile -- 制作镜像 / 镜像分层机制
+## Dockerfile：制作镜像 / 镜像分层机制
 
 1. 镜像包含：基础环境、软件包、启动命令
 2. 本地文件上传 Linux，Linux 中的 docker 命令 copy 文件到镜像中；
