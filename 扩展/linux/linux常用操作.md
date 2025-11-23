@@ -61,3 +61,16 @@
    - docker restart$(docker ps -q)(重启所有服务)
 
 10. ssh -CNg -L 6006:127.0.0.1:9001 root@connect.westb.seetacloud.com -p 12933（ssh 隧穿命令）
+
+## 服务器 购买
+
+1. 腾讯的按流浪计费（便宜）
+2. 不用时关机，每次开机公网 IP 会变化
+3. 安全组添加端口号，不加无法访问
+4. ls:
+5. cat index.html：查看 index.html 内容
+6. echo 2222 > index.html： 写入
+7. exit：退出容器
+
+- python 教程中服务器购买
+- docker 教程中服务器购买

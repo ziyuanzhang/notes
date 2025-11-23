@@ -1,38 +1,39 @@
 # docker
 
-[docker 部署前端项目](https://blog.csdn.net/weixin_42907150/article/details/135942906)
+![docker_架构示意图](./img/docker_架构示意图.png)
 
-## 服务器
-
-1. 腾讯的按流浪计费（便宜）
-2. 不用时关机，每次开机公网 IP 会变化
-3. 安全组添加端口号，不加无法访问
-4. ls:
-5. cat index.html：查看 index.html 内容
-6. echo 2222 > index.html： 写入
-7. exit：退出容器
+Docker 使用客户端-服务器架构；Docker 客户端和守护进程使用 REST API 通过 UNIX 套接字或网络接口进行通信。
 
 ## 概念
 
-![docker_架构示意图](./img/docker_架构示意图.png)
-
-1. 镜像（image）：一个只读模板，包含运行应用程序所需的所有内容：代码、运行时、库、环境变量和配置文件。
+1. Dockerfile：一个文本文件，包含一系列指令，用于自动构建镜像。
+2. 镜像（image）：一个只读模板，包含运行应用程序所需的所有内容：代码、运行时、库、环境变量和配置文件。
 
    - 例：雕版印刷的雕版
 
-2. 容器（container）：镜像的运行实例。
+3. 容器（container）：镜像的运行实例。
 
    - 容器是轻量、可移植、隔离的运行环境。
    - 同一镜像可以启动多个容器，彼此隔离。
    - 例：用雕版印出的书页；
 
-3. Dockerfile：一个文本文件，包含一系列指令，用于自动构建镜像。
-
 4. Volume(卷，又称：逻辑卷、存储卷)：用于持久化容器数据；卷独立于容器生命周期，即使容器删除，数据仍保留。
 
-   - docker 以干净文件系统开始，可以在容器中创建、修改数据，容器停止后，容器中的所有数据都会丢失；
-   - 卷：可以把容器中的目录 映射到 宿主机中的目录上，可以把数据保存到宿主机的磁盘上；
-   - 支持命名卷、绑定挂载（bind mount）等。
+   - 券：分为命名卷、绑定挂载（bind mount）、tmpfs 挂载（内存中）。
+
+     1. 命名卷：把数据保存到宿主机的磁盘上
+
+        - 由 Docker 创建和管理；
+        - 存储路径通常在 /var/lib/docker/volumes/ 下（Linux）；
+        - 跨容器共享方便；
+        - 支持 volume driver 扩展。
+        - demo: `-v my-vol:/app/data`
+
+     2. 绑定挂载：直接映射 宿主机的指定路径 到容器内；
+
+        - 可挂载文件或目录；
+        - 修改宿主机文件 = 修改容器内文件（双向同步）；
+        - 路径必须绝对路径。
 
 5. 网络（Network）: 解决容器与外界、与容器之间通信；
 
@@ -44,7 +45,7 @@
    - 使用 docker-compose.yml 文件配置服务(容器)、网络、卷等；
    - 通过 docker-compose up 一条命令，就可以启动整个应用栈；（前端、后端、数据库、缓存 redis、负载均衡等多个服务器）
 
-7. Docker Daemon 与 Client:
+7. Docker Daemon(守护进程) 与 Client(客户端):
 
    - Docker Client(Docker 客户端)：用户使用的命令行工具，客户端通过 REST API 与守护进程通信，并指示它该做什么。
    - Docker Daemon（Docker 守护进程）：一个长期运行在后台的进程（dockerd）；
@@ -63,8 +64,8 @@
 
 9. Docker Hub / Registry（镜像仓库）：用于存储和分发镜像的服务。
 
-   - Docker Hub 是官方公共仓库（https://hub.docker.com）
-   - 也可以搭建私有 Registry。
+- Docker Hub 是官方公共仓库（https://hub.docker.com）
+- 也可以搭建私有 Registry。
 
 10. Namespace 与 Cgroups（底层技术）
     - Namespaces：实现进程、网络、用户、挂载点等的隔离。
@@ -91,6 +92,8 @@
 2. 启动容器
 
    - 运行：docker run xxx == 运行镜像
+
+     docker run [OPTIONS] IMAGE [COMMAND] [ARG...]
 
      1. docker run -d --name mynginx -p 88:80 nginx
      2. -d： 后台运行；
