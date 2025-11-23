@@ -47,9 +47,9 @@
 7. Docker Daemon 与 Client:
 
    - Docker Client(Docker 客户端)：用户使用的命令行工具，客户端通过 REST API 与守护进程通信，并指示它该做什么。
-   - Docker Daemon（Docker 守护进程）：一个长期运行在后台的进程（dockerd），负责管理镜像、容器、网络和卷。
-     1. 接受客户端的请求，将结果返回给客户端；
-     2. 进程名：dockerd
+   - Docker Daemon（Docker 守护进程）：一个长期运行在后台的进程（dockerd）；
+     1. 侦听 Docker API 请求并管理 Docker 对象（例：镜像、容器、网络和卷）。
+     2. 还可以与其他守护进程通信来管理 Docker 服务。
 
 8. Docker Desktop: 面向开发者的一体化桌面应用程序，用于在 Windows 和 macOS 上轻松使用 Docker。
 
@@ -72,12 +72,12 @@
 
 ## 开发流程
 
-1. 编写 Dockerfile。
-2. 使用 docker build 命令根据 Dockerfile 构建出一个镜像。
-3. 使用 docker run 命令从镜像 运行一个或多个容器。
-4. 使用 卷 来持久化容器中的数据。
-5. 使用 Docker Compose 来编排和管理多个相关联的容器。
-6. 将构建好的镜像 推送到 Registry，以便在其他环境拉取和部署。
+1. 构建镜像：使用 Dockerfile 创建镜像。
+2. 推送镜像到注册表：将镜像上传到 Docker Hub 或私有注册表中。
+3. 拉取镜像：通过 docker pull 从注册表中拉取镜像。
+4. 运行容器：使用镜像创建并启动容器。
+5. 管理容器：使用 Docker 客户端命令管理正在运行的容器（例如查看日志、停止容器、查看资源使用情况等）。
+6. 网络与存储：容器之间通过 Docker 网络连接，数据通过 Docker 卷或绑定挂载进行持久化。
 
 ## 流程
 
