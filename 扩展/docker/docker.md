@@ -65,8 +65,8 @@ Docker 使用客户端-服务器架构；Docker 客户端和守护进程使用 R
 
 9. Docker Hub / Registry（镜像仓库）：用于存储和分发镜像的服务。
 
-- Docker Hub 是官方公共仓库（https://hub.docker.com）
-- 也可以搭建私有 Registry。
+   - Docker Hub 是官方公共仓库（https://hub.docker.com）
+   - 也可以搭建私有 Registry。
 
 10. Namespace 与 Cgroups（底层技术）
     - Namespaces：实现进程、网络、用户、挂载点等的隔离。
@@ -81,116 +81,75 @@ Docker 使用客户端-服务器架构；Docker 客户端和守护进程使用 R
 5. 管理容器：使用 Docker 客户端命令管理正在运行的容器（例如查看日志、停止容器、查看资源使用情况等）。
 6. 网络与存储：容器之间通过 Docker 网络连接，数据通过 Docker 卷或绑定挂载进行持久化。
 
-## 流程
+## Dockerfile：制作镜像 / 镜像分层机制
 
-1. 下载镜像
+1. 常见指令：
 
-   - 检索：docker search xxx
-   - 下载：docker pull xxx
-   - 列表：docker images == 查看镜像
-   - 删除：docker rmi xxx == 删除镜像
+   - FROM: 基础环境；例: node:14-alpine`【必须】`
+   - LABEL: 为镜像添加键值对形式的标签（如作者、版本、描述）。
+   - RUN: 在镜像构建过程中执行 shell 命令（每条 RUN 创建一个新层，例：yarn install --production）。
+   - COPY: 将宿主机的文件或目录复制到镜像中。
+   - ADD: 高级复制（慎用）
+   - WORKDIR: 设置工作目录,如果不存在会自动创建。(后续 RUN、CMD、COPY 等指令的默认目录，例：/usr/local/app)
+   - ENV: 设置环境变量。
+   - EXPOSE: 声明容器运行时监听的端口。
+   - CMD / ENTRYPOINT: 指定容器启动时运行的默认命令`【必需其一】`（例如：CMD ["python", "app.py"]）。
+   - .dockerignore（配套文件）
+   - VOLUME: 数据持久化提示(仅提示)
+   - USER: 指定用户（安全推荐， 非 root 运行）
+   - HEALTHCHECK:健康探测（生产推荐）
 
-2. 启动容器
+   alpine:基于 linux 的 alpine 发行版构建的，小几十 M
 
-   - 运行：docker run xxx == 运行镜像
+   ```Dockerfile demo
+     FROM python:3.9
+     COPY . /app
+     WORKDIR /app
+     RUN pip install -r requirements.txt
+     CMD ["python", "app.py"]
+   ```
 
-     docker run [OPTIONS] IMAGE [COMMAND] [ARG...]
+2. 构建镜像: -t === -tag(标签)
 
-     1. docker run -d --name mynginx -p 88:80 nginx
-     2. -d： 后台运行；
-     3. --name mynginx： 自定义容器名；
-     4. -p 88:80： 暴露端口，把宿主机的 88 端口映射到单个 docker 容器的 80 端口
+   - 在构建期间给镜像打标签： `docker build -t my-username/my-image .` 最后的点（.）指当前文件夹;
+   - 如果已经构建了镜像，则可以使用以下 `docker image tag`命令向图像添加另一个标签：
+     `docker image tag my-username/my-image another-username/another-image:v1`
 
-   - 查看：docker ps == 查看容器
-   - 停止：docker stop xxx == xxx（容器名字/id）
-   - 启动：docker start xxx == （停止的）再次启动
-   - 重启：docker restart xxx == （运行的/停止的）再次启动
-   - 状态：docker stats xxx == 查看占用内存情况
-   - 日志：docker logs xxx ==
-   - 进入：docker exec == 进入容器内修改
+3. 发布镜像：`docker push my-username/my-image`
 
-     1. `docker exec -it mynginx /bin/bash`
-     2. -it：以交互模式进入（容器名/id）
-     3. /bin/bash：以哪种方式交互，以 bash 控制台
+![容器与镜像存储机制-1](./img/docker-容器与镜像存储机制-1.png)
+![容器与镜像存储机制-2](./img/docker-容器与镜像存储机制-2.png)
+![docker-应用](./img/docker-应用.png)
 
-   - 删除：docker rm == 删除容器（先停止，后删除）
+## 启动容器 -- 命令行 （了解，不做重点）
 
-3. 修改页面
-4. 保存镜像修改
+docker run [OPTIONS] IMAGE [COMMAND] [ARG...]
 
-   - 提交：docker commit == 改变后的容器打包成一个镜像
+docker run -dp 127.0.0.1:3000:3000 getting-started
 
-     1. `docker commit -m "update index.html" mynginx mynginx:v1.0`
-     2. mynginx：容器名
-     3. mynginx:v1.0：打包后的 镜像名:版本号
+docker run -dp 0.0.0.0:3000:3000 YOUR-USER-NAME/getting-started
 
-   - 保存：docker save == 把镜像保存成文件（给他人用）
+绑定 127.0.0.1 仅将容器的端口公开给环回接口。但是，绑定到 0.0.0.0 会在主机的所有接口上公开容器的端口，使其可供外界使用。
 
-     1. `docker save -o mynginx.tar mynginx:v1.0`
-     2. -o mynginx.tar：打压缩包并给其命名；
-
-   - 加载：docker load == 加载压缩包中的镜像
-
-     1. `docker load -i mynginx.tar`
-     2. -i：加载压缩包地址
-
-5. 分享社区
-
-   - 登录：docker login
-   - 命名：docker tag
-
-     1. `docker tag mynginx:v1.0 zzy/mynginx:v1.0`
-     2. mynginx:v1.0：打包后的 镜像名:版本号
-     3. zzy/mynginx:v1.0：用户名/镜像名:版本号
-
-   - 推送：docker push
-
-     1. `docker push zzy/mynginx:v1.0`
-
-## 存储：容器数据不再丢失
-
-2 种实现：目录挂载 / 券映射
-
-- 目录挂载：用宿主机的空间存储，挂载到 docker 空间对应位置；
-
-  1. docker 启动时：宿主机没有初始化文件夹会自动创建（不会创建具体文件）；
-  2. docker 启动后：docker 内部修改，会同步到外部（宿主机）；外部（宿主机）修改，会同步到 docker 内部；
-
-  - `docker run -d -p 89:80 -v /app/nghtml:/usr/share/nginx/html --name app01 nginx`
-  - `-v /app/nghtml:/usr/share/nginx/html`：挂载内容
-  - 特性：
-
-- 卷映射： 起卷名，docker 会自动创建存储在“宿主机的位置”；
-
-  1. docker 启动时：把 docker 内部的指定文件夹及所有内容，映射到外部（宿主机）中的文件夹中；
-  2. docker 启动后：docker 内部修改，会同步到外部（宿主机）；外部（宿主机）修改，会同步到 docker 内部；
-  3. 与挂载路径的区别：不以“/”或“./”开始；
-
-  - `docker run -d -p 89:80 -v /app/nghtml:/usr/share/nginx/html -v ngconf:/etc/nginx --name app01 nginx`
-  - 卷映射： `-v ngconf:/etc/nginx`：ngconf：卷名；
-  - 保存在宿主机的位置：`/var/lib/docker/volumes/<volume-name>`
-  - 查看卷列表： `docker volume ls`
-  - 创建卷：`docker volume create ngconf`
-  - 查看卷详情：`docker volume inspect ngconf`
-
-## 网络: 自定义网络 / Redis 主从集群
-
-- 自定义网络
-
-  1. 查看容器细节：`docker container inspect xxx`
-  2. docker 为每个容器分配唯一 IP，使用“容器 IP+容器端口”可以互相访问；
-  3. 容器迁移、重启、删除 IP 会变；创建自定义网络，容器名就是稳定的域名；
-  4. docker0 默认不支持主机域名；
-
-  - 帮助：`docker network --help`
-  - 创建自定义网络`docker network create mynet`
-  - 查看：`docker network ls`
-  - 容器使用自定义网络：`docker run -d -p 88:80 --name app1 --network mynet nginx`
-  - “容器内部”访问“兄弟容器”：`docker exec -it app1 bash`；`curl http://app2:80`
-
-- 主从集群
-
-## 最佳实践（命令）: 网络、存储、环境变量
+-d: 后台运行
+-p: 端口映射
+-it: 交互式运行
+-v: 挂载卷
+-e: 设置环境变量
+--name: 容器名称
+--restart: 容器启动失败时重启
+--network: 容器网络
+--rm: 容器退出时自动删除容器
+--detach: 后台运行
+--publish: 端口映射
+--mount: 挂载卷
+--volume: 挂载卷
+--env: 设置环境变量
+--entrypoint: 容器启动时执行的命令
+--detach-keys: 容器退出时自动删除容器
+--interactive: 交互式运行
+--tty: 交互式运行
+--env-file: 读取环境变量
 
 ## docker Compose：docker 批量管理容器的工具
 
@@ -212,37 +171,6 @@ compose.yaml ：代替命令行
   6. secrets：密钥
 
   [docker-compose.yaml](./img/docker-compose.yaml)
-
-## Dockerfile：制作镜像 / 镜像分层机制
-
-1. 镜像包含：基础环境、软件包、启动命令
-2. 本地文件上传 Linux，Linux 中的 docker 命令 copy 文件到镜像中；
-3. 常见指令：
-
-   - FROM：基础环境；例：node:14-alpine
-   - LABEL：author=xiaoming （打标签）
-   - RUN：在镜像内执行命令（例: RUN apt-get update && apt-get install -y python3）。
-   - COPY/ADD：xx /yy （xx：linux 中的软件包；/yy：镜像中的位置）
-   - WORKDIR：设置后续指令的工作目录。
-   - ENV：设置环境变量。
-   - EXPOSE：声明容器运行时监听的端口。
-   - CMD / ENTRYPOINT：指定容器启动时运行的默认命令。
-
-   alpine:基于 linux 的 alpine 发行版构建的，小几十 M
-
-   ```Dockerfile demo
-     FROM python:3.9
-     COPY . /app
-     WORKDIR /app
-     RUN pip install -r requirements.txt
-     CMD ["python", "app.py"]
-   ```
-
-4. 构建镜像：`docker build -f Dockerfile -t myapp:v1.0 .` 最后的点（.）指当前文件夹，相对应 COPY 中的 xx
-
-![容器与镜像存储机制-1](./img/docker-容器与镜像存储机制-1.png)
-![容器与镜像存储机制-2](./img/docker-容器与镜像存储机制-2.png)
-![docker-应用](./img/docker-应用.png)
 
 ## 本地安装
 
