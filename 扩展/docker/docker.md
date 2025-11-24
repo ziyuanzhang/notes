@@ -116,6 +116,9 @@ Docker 使用客户端-服务器架构；Docker 客户端和守护进程使用 R
      `docker image tag my-username/my-image another-username/another-image:v1`
 
 3. 发布镜像：`docker push my-username/my-image`
+4. 多阶段构建：CI/CD、流水线
+   - 对于 JavaScript、Ruby 或 Python 等解释性语言，您可以在一个阶段中构建和缩小代码，并将生产就绪文件复制到较小的运行时映像。这会优化您的部署映像。
+   - 对于 C、Go 或 Rust 等编译语言，多阶段构建可让您在一个阶段进行编译，并将编译后的二进制文件复制到最终的运行时映像中。无需将整个编译器捆绑到最终映像中。
 
 ![容器与镜像存储机制-1](./img/docker-容器与镜像存储机制-1.png)
 ![容器与镜像存储机制-2](./img/docker-容器与镜像存储机制-2.png)
