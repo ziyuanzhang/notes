@@ -166,12 +166,11 @@ compose.yaml ：代替命令行
 
 * 顶级元素：
 
-  1. version：版本
-  2. services：服务
-  3. networks：网络
-  4. volumes：卷
-  5. configs：配置
-  6. secrets：密钥
+  1. services：服务
+  2. networks：网络
+  3. volumes：卷
+  4. configs：配置
+  5. secrets：密钥
 
   [docker-compose.yaml](./img/docker-compose.yaml)
 
