@@ -52,13 +52,13 @@
 
   AI 既能根据用户的输入以及环境进行动态推理，也能基于推理采取合理的行动，并且在需要的时候借助合适的外部工具，通过结合不同的工具来增强模型的功能和效率，我们把这个能理解用户的查询或指令进行推理并执行特定任务，最后输出响应的服务叫做 agent（智能体或代理）
 
-  ![agent-1-推理](./img/agent-1-推理.png)
+  ![agent-1-推理](./img/agent/agent-1-推理.png)
 
-  ![agent-2-行动](./img/agent-2-行动.png)
+  ![agent-2-行动](./img/agent/agent-2-行动.png)
 
-  ![agent-3-观察](./img/agent-3-观察.png)
+  ![agent-3-观察](./img/agent/agent-3-观察.png)
 
-  ![agent-4-循环](./img/agent-4-循环.png)
+  ![agent-4-循环](./img/agent/agent-4-循环.png)
 
 ### NLP、NLU、NLG
 
