@@ -413,3 +413,14 @@ Prompt--》Agent--》Function Call--》RAG--》Fine tune--》垂直行业 LLM
   2. ollama: 提供了一个轻量级、易于扩展的框架，让开发者能够在本地机器上轻松构建和管理 LLMS(大型语言模型)
   3. 通过 ollama，开发者可以导入和定制自己的模型，无需关注复杂的底层实现细节。
   4. 网址: https://ollama.com
+
+  - 常用操作：
+    - ollama list 【查看已安装的模型】
+    - ollama pull llama2:13b 【拉取模型但不运行】
+    - ollama rm llama2 【删除模型】
+    - ollama run qwen:7b 【启动模型并运行】
+    - ollama ps 【查看正在运行的模型】
+    - ollama stop <模型名> 【停止当前运行的模型】
+    - 运行 Qwen3--》退出后（Ctrl+D），再运行 DeepSeek
+
+ollama run qwen3:8b deepseek-r1:8b nomic-embed-text
