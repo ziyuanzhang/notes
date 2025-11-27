@@ -40,3 +40,5 @@ Agent 的核心价值在于其三重核心能力:动态任务路由、生态化�
 
 ReAct-agent：
 中间件
+
+BaseModel: 结构化输出用

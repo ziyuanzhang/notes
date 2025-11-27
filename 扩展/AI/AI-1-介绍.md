@@ -422,5 +422,3 @@ Prompt--》Agent--》Function Call--》RAG--》Fine tune--》垂直行业 LLM
     - ollama ps 【查看正在运行的模型】
     - ollama stop <模型名> 【停止当前运行的模型】
     - 运行 Qwen3--》退出后（Ctrl+D），再运行 DeepSeek
-
-ollama run qwen3:8b deepseek-r1:8b nomic-embed-text
