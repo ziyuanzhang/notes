@@ -7,7 +7,13 @@
    - LangChain V1.0 的 Agent 是构建在 LangGraph 之上，以提供持久的执行、流、人机交互、持久性等。
 
 2. DeepAgents V1.0: 在 LangChain 的基础上进一步封装出来模版，暂时不可用（未来）； LangGraph --> LangChain --> DeepAgents
-3. LangSmith: 大型语言模型的可观测性、评估与部署
+3. 测试框架：
+
+   - LangSmith: 大型语言模型的可观测性、评估与部署（分析用的）
+   - LangGraph studio: 语言模型开发工具，基于 LangGraph 构建，提供模型开发、测试、部署等功能。
+
+4. LangGraph CLI: 后端打包部署的工具
+5. Agent Chat UI: 前端页面
 
 ## 1、核心入口:create_agent()统-Agent 构建流程
 
