@@ -1,7 +1,7 @@
 # python 基础
 
 第三方库和工具，如 NumPy、Pandas、TensorFlow 和 PyTorch 等
-pydantic
+类型工具：pydantic、typing
 
 ## 编译与执行
 
