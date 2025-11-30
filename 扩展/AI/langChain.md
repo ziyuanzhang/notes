@@ -9,7 +9,7 @@
 2. DeepAgents V1.0: 在 LangChain 的基础上进一步封装出来模版，暂时不可用（未来）； LangGraph --> LangChain --> DeepAgents
 3. 测试框架：
 
-   - LangSmith: 大型语言模型的可观测性、评估与部署（分析用的）
+   - LangSmith: 大型语言模型的可观测性、评估与部署（分析用的）【真实项目不用】
    - LangGraph studio: 语言模型开发工具，基于 LangGraph 构建，提供模型开发、测试、部署等功能。
 
 4. LangGraph CLI: 后端打包部署的工具
@@ -39,6 +39,28 @@ Agent 的核心价值在于其三重核心能力:动态任务路由、生态化�
   4. AgentExecutor：扮演”执行协调器“的关键角色，负责迭代运行代理直至满足停止条件。
 
 - Agent 的工作流程与决策循环：输入解析--》LLM 推理--》工具调用--》观察与选代--》结果整合
+
+## model
+
+- 最好用模型对应的 api 接口（例：ChatDeepSeek、ChatOpenAI）：可以显示思考过程、细节等；
+
+- 参数
+
+  1. temperature: 采样温度，值越高越有创造性（按照官方文档来）
+  2. max_retries: 最大重试次数。
+  3. max_tokens: 要生成的最大 token 数。
+
+- 速率限制：有些大模型不允许，单位时间内调用的次数太多；
+
+  1. init_chat_model()：函数调用【独有速率限制参数】
+  2. ChatDeepSeek（）、ChatOpenAI（）：类调用【没有速率限制参数】
+
+- 模型格式化输出: 用 pydantic 的 BaseModel【langGraph 用】
+
+  1. with_structured_output()： 默认的格式化输出，国外模型大部分支持，国内模型大部分不支持；
+  2. 支出其他方式格式化输出：例: SimpleJsonOutputParser()
+
+## 工具
 
 ### 聊天模型与 agent 是 2 个东西
 

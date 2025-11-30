@@ -1,6 +1,7 @@
 # python 基础
 
 第三方库和工具，如 NumPy、Pandas、TensorFlow 和 PyTorch 等
+pydantic
 
 ## 编译与执行
 
@@ -274,3 +275,5 @@ finally:
    - 图形可视化常用的: matplotlib、pyecharts
    - 人工智能常用的: tensorflow
    - 等
+
+## 本地调试环境：uv cloud
