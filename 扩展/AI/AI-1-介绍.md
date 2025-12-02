@@ -26,6 +26,7 @@
 
   ![大模型推理框架(把模型跑起来的工具或技术)](<./img/AI体系/大模型推理框架(把模型跑起来的工具或技术).png>)
 
+- Prompt--》Agent--》Function Call--》RAG--》Fine tune--》垂直行业 LLM
 - 需要掌握的技术
   1. Agent: LangGraph，多智能体架构，MCP，Tool，上下文工程
   2. RAG: Milvus，FAISS 等，嵌入模型，多模态解析模型，GraphRAG(图数据库),多模态 RAG，RAGAS 等
