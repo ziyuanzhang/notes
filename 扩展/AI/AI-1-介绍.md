@@ -29,7 +29,7 @@
 - Prompt--》Agent--》Function Call--》RAG--》Fine tune--》垂直行业 LLM
 - 需要掌握的技术
   1. Agent: LangGraph，多智能体架构，MCP，Tool，上下文工程
-  2. RAG: Milvus，FAISS 等，嵌入模型，多模态解析模型，GraphRAG(图数据库),多模态 RAG，RAGAS 等
+  2. RAG: Milvus、FAISS 等向量数据库，嵌入模型，多模态解析模型，GraphRAG(图数据库)，多模态 RAG，RAGAS（快速评估 RAG 系统的性能） 等
 
 ## 了解 AI（引入 AI）
 
@@ -354,20 +354,32 @@
 
 ### 知乎--🔥 课程全新升级！🚀
 
-✅ 8 大核心模块，构建完整技术体系：
+- ✅ 8 大核心模块，构建完整技术体系：
 
-1. 模块 1：从提示工程到 RAG，从 Agent 到多模态，构建大模型知识与交互基础
-2. 模块 2：RAG 全链路实战 - Embedding、向量数据库、多模态数据处理、系统调优
-3. 模块 3：Agent 深度开发 - Function Calling、自主规划、搜索感知记忆能力构建
-4. 模块 4：开发框架精通 - LangChain、LlamaIndex、HuggingFace 生态实战
-5. 模块 5：模型训练与微调 - LLM 微调原理、数据工程、模型蒸馏、视觉多模态
-6. 模块 6：企业级部署 - 硬件选型、高并发原理、vLLM、SGLang 深度优化
-7. 模块 7：低代码平台 - Coze、Dify 本地化部署与企业级集成
-8. 模块 8：工程提效 - AI 编程、智能测试、Text-to-SQL、ChatBI 开发
+  1. 模块 1：从提示工程到 RAG，从 Agent 到多模态，构建大模型知识与交互基础
+  2. 模块 2：RAG 全链路实战 - Embedding、向量数据库、多模态数据处理、系统调优
+  3. 模块 3：Agent 深度开发 - Function Calling、自主规划、搜索感知记忆能力构建
+  4. 模块 4：开发框架精通 - LangChain、LlamaIndex、HuggingFace 生态实战
+  5. 模块 5：模型训练与微调 - LLM 微调原理、数据工程、模型蒸馏、视觉多模态
+  6. 模块 6：企业级部署 - 硬件选型、高并发原理、vLLM、SGLang 深度优化
+  7. 模块 7：低代码平台 - Coze、Dify 本地化部署与企业级集成
+  8. 模块 8：工程提效 - AI 编程、智能测试、Text-to-SQL、ChatBI 开发
 
-✅ 带走多个工业级项目源码： ⦿ 企业知识库（RAG 大赛冠军方案） ⦿ OpenManus AI 写作助手 ⦿ AI 工业质检系统 ⦿ ChatBI 智能分析平台 ⦿ 智能客服系统 ⦿ SQL Copilot 引擎
+- ✅ 带走多个工业级项目源码：
 
-✅ 覆盖主流技术栈： ▸ RAG 全链路：Faiss、Milvus、Query 改写、混合检索 ▸ Agent 开发：Function Calling、MCP、ReAct、思维链 ▸ 多模态处理：PDF 解析、视频理解、图文生成 ▸ 模型微调：LoRA、QLoRA、模型蒸馏、评估体系
+  ⦿ 企业知识库（RAG 大赛冠军方案）
+  ⦿ OpenManus AI 写作助手
+  ⦿ AI 工业质检系统
+  ⦿ ChatBI 智能分析平台
+  ⦿ 智能客服系统
+  ⦿ SQL Copilot 引擎
+
+- ✅ 覆盖主流技术栈：
+
+  ▸ RAG 全链路：Faiss、Milvus、Query 改写、混合检索
+  ▸ Agent 开发：Function Calling、MCP、ReAct、思维链
+  ▸ 多模态处理：PDF 解析、视频理解、图文生成
+  ▸ 模型微调：LoRA、QLoRA、模型蒸馏、评估体系
 
 ### 知乎--课程-- AI 大模型
 
@@ -378,7 +390,7 @@
 第 5 节 Coze 工作原理与应用实例吉愣 41-10
 第 6 节 Agent 进阶实战与插件开发----直播·11-22 20:00 开播
 第 7 节 Dify 本地化部署和应用----直播·11-26 20:00 开擂
-第 8 节分析式 AI 基础----直播·11-29 20:00 开播
+第 8 节 分析式 AI 基础----直播·11-29 20:00 开播
 第 9 节 不同领域的 AI 算法----直播·12-03 20:00 开播
 第 10 节 时间序列大赛----直播·12-06 20:00 开播
 第 11 节 神经网络基础与 Tensorflow 实战----直播·12-10 20:00 开播
