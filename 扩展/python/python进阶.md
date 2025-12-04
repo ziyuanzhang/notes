@@ -166,7 +166,7 @@ if __name__ == "__main__":
     s.show_staticMethod()
 ```
 
-## 闭包 -- 装饰器是闭包的一种应用
+## 闭包
 
 闭包：根据词法作用域的规则，内部函数总是可以访问其外部函数中声明的变量，当通过调用一个外部函数返回一个内部函数后，即使外部函数已经执行结束了，但是内部函数引用外部函数的变量依旧保存在内存中，把这些变量的集合称为闭包；
 
@@ -180,4 +180,64 @@ if __name__ == "__main__":
 
 ### 装饰器 -- 本质上就是一个闭包函数
 
-装饰器目的：在不改变函数内容的情况下，给函数添加功能；
+装饰器目的：在不改变原有函数的情况下，给函数添加功能；
+
+装饰器: 本质上是一个高阶函数
+
+```python
+# 传统装饰器 -- 高阶函数
+def check_login(fn_name):
+    def fn_inner():
+        # 额外功能
+        print("检验登录。。。")
+        fn_name()
+    return fn_inner
+
+def comment():
+    print("发表评论。。。")
+def payment():
+    print("支付。。。")
+
+# 调用---------------
+comment = check_login(comment)
+comment()
+print("-"*23)
+payment = check_login(payment)
+payment()
+```
+
+```python
+# 函数装饰器 -- 语法糖
+def check_login(fn_name):
+    def fn_inner():
+        # 额外功能
+        print("检验登录。。。")
+        fn_name()
+    return fn_inner
+
+@check_login
+def comment():
+    print("发表评论。。。")
+
+@check_login
+def payment():
+    print("支付。。。")
+
+# 调用---------------
+comment()
+print("-"*23)
+payment()
+```
+
+- 被装饰函数的 4 种情况：
+
+  1. 无参无返: 计数用
+  2. 有参无返回: 统计用
+
+     ![python_装饰器-有参无返回](./img/python_装饰器-有参无返回.png)
+
+  3. 无参有返回
+  4. 有参有返回
+     ![python_装饰器-有参有返回](./img/python_装饰器-有参有返回.png)
+
+* 多个装饰器的装饰过程是: 离函数最近的装饰器先装饰，然后外面的装饰器再进行装饰，由内到外的装饰过程
