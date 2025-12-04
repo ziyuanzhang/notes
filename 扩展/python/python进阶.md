@@ -254,3 +254,5 @@ payment()
     cl = checkout_login(cc)
     cl()
   ```
+
+  ![python_装饰器(多个)-传统执行流程](<./img/python_装饰器(多个)-传统执行流程.png>)
