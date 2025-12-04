@@ -1,5 +1,7 @@
 # JS、TS; TS 问题 参考“日常踩坑 / TS.md”
 
+回调、轮训、迭代、递归
+
 ## array 与 string 方法
 
 | array 与 string 共用方法         | string                                | array                                                          |
@@ -360,33 +362,31 @@ JavaScript 代码的执行过程中，除了依靠“函数调用栈”来搞定
 | requestAnimationFrame |  支持  |  不  |     |           process.nextTick |   不   | 支持 |
 |          setImmediate |   不   | 支持 |     |                            |        |      |
 
-```
+```js
+console.log(2);
+let doit;
+const prom = new Promise((resolve, reject) => {
+  console.log(3);
+  doit = resolve;
+  console.log(6);
+});
+prom.then((n) => console.log(4));
+async function s1() {
+  console.log(7);
+  await s2();
+  console.log(1);
+  doit();
+  console.log(8);
+}
+async function s2() {
+  console.log(9);
+}
+s1();
+console.log(5);
+prom.then((n) => console.log(10));
 
-        console.log(2);
-        let doit;
-        const prom = new Promise((resolve, reject) => {
-            console.log(3);
-            doit = resolve;
-            console.log(6)
-        })
-        prom.then(n => console.log(4));
-        async function s1() {
-            console.log(7);
-            await s2();
-            console.log(1);
-            doit();
-            console.log(8);
-        }
-        async function s2() {
-            console.log(9)
-        }
-        s1();
-        console.log(5)
-        prom.then(n => console.log(10));
-
-await：后面的同步函数会立即执行，再阻挡；
-resolve 执行后才执行 then 方法
-
+// await：后面的同步函数会立即执行，再阻挡；
+// resolve 执行后才执行 then 方法
 ```
 
 ## js defer 和 async / type="module" 区别
