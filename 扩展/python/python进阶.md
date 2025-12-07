@@ -297,13 +297,18 @@ payment()
    - 线程共享内存空间，通信简单直接
    - 也支持多进程，但线程是首选的并发模型
 
+- 进程：是分配资源的基本单位，一旦创建一个进程就会分配一定的资源;
+- 线程：是 cpu 调度的基本单位，每个进程至少都有一个线程，而这个线程就是我们通常说的主线程
+
 ### 进程
 
 ```python
    # 新建进程
    import multiprocessing
    p1 = multiprocessing.Process(target=函数名, args=元组, kwargs=字典)
+   p1.daemon = True # 设置守护进程,思路1
    p1.start()
+   p1.terminate() # 结束进程,思路2
 
    # 获取当前进程ID
    pid = os.getpid() # 方法一
@@ -312,4 +317,53 @@ payment()
    ppid = os.getppid()
 ```
 
+进程的特点:
+
+1. 进程之间数据是相互隔离的.
+
+   - 因为子进程相当于是父进程的"副本"，会将父进程的"main 外资源"拷贝一份，即:各是各的
+
+2. 默认情况下，主进程会等待子进程执行结束再结束
+   - 如果要设置主进程结束，予进程同步结束，方式如下:
+     1. 思路 1:设置子进程为 守护进程；
+     2. 思路 2:强制关闭子进程，可能导致子进程变成僵尸进程，交由 Python 解释器自动回收(底层有 init 初始化进程来管理维护)；
+
 ### 线程
+
+```python
+   import threading
+   my_lock = threading.Lock()
+   mu_lock2 = threading.Lock() # 2把锁可能造成锁不住；
+
+   def func1():
+      my_lock.acquire()
+      print("线程1")
+      time.sleep(1)
+      my_lock.release()
+
+   def func2():
+      my_lock.acquire()
+      print("线程2")
+      time.sleep(1)
+      my_lock.release()
+
+
+   t1 =threading.Thread(target=func1,args=元组,kwargs=字典)
+   t2 =threading.Thread(target=func2,daemon=True) #线程守护,写法1
+   t2.daemon = True # 线程守护，写法2
+   t1.start()
+   t2.start()
+```
+
+1. 线程之间执行是无序的
+2. 主线程会等待所有的子线程执行结束再结束（线程守护）
+3. 线程之间共享全局变量
+4. 线程之间共享全局变量数据出现错误问题（互斥锁解决）
+
+- 死锁：一直等待对方释放锁的情景就是死锁；\*
+
+  - 死锁的原因:使用互斥锁的时候需要注意死锁的问题，未在合适的地方注意释放锁；
+  - 死锁的结果:会造成应用程序的停止响应，应用程序无法再继续往下执行了；
+
+- 互斥锁：对共享数据进行锁定，保证同一时刻只有一个线程去操作
+- 锁不住：使用 2 把及以上的锁；
