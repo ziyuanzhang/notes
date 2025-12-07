@@ -360,10 +360,119 @@ payment()
 3. 线程之间共享全局变量
 4. 线程之间共享全局变量数据出现错误问题（互斥锁解决）
 
-- 死锁：一直等待对方释放锁的情景就是死锁；\*
+- 死锁：一直等待对方释放锁的情景就是死锁；
 
   - 死锁的原因:使用互斥锁的时候需要注意死锁的问题，未在合适的地方注意释放锁；
   - 死锁的结果:会造成应用程序的停止响应，应用程序无法再继续往下执行了；
 
 - 互斥锁：对共享数据进行锁定，保证同一时刻只有一个线程去操作
 - 锁不住：使用 2 把及以上的锁；
+
+## 生成器、迭代器、
+
+### 迭代器
+
+1. 手动管理: 需要显式地实现`__iter__()`和`__next_()`方法；
+2. 状态管理: 迭代器需要自己管理迭代的状态，包括当前位置和结束条件；
+3. 内存使用: 内存使用取决于迭代器的实现，通常是惰性计算(即按需生成数据)；
+
+```python
+    class MyIter:
+      def __init__(self, start,end):
+        self.current_value = start
+        self.end = end
+      # 重写iterator方法，返回当前对象（即：迭代器对象）
+      def __iter__(self):
+        return self
+      # 重写next方法，返回当前值，并更新当前值
+      def __next__(self):
+        if self.current_value >= self.end:
+          raise StopIteration  # 抛出异常，迭代结束
+
+        value = self.current_value
+        self.current_value += 1
+        return value
+
+    # for i in range(1,10):
+    for i in MyIter(1,10):
+      print(i)
+
+    my_iter = iter(MyIter(1,10))
+    print(next(my_iter))
+    print(next(my_iter))
+
+```
+
+### 生成器
+
+根据"制定的规则"循环生成数据，当条件不成立时则生成数据结束。数据不是一次性全部生成出来，而是使用一个，再生成一个，可以节约大量的内存；
+
+创建生成器的方式: 1、生成器推导式；2、yield 关键字
+
+```python
+   # 生成器推导式
+   my_list = [i for i in range(9999)]
+   my_gen = (i for i in range(9999)) # 推导式
+
+   next(my_gen)
+
+   sys.getsizeof(my_list)
+   sys.getsizeof(my_gen)
+```
+
+```python
+  # yield 关键字
+  def my_gen():
+    for i in range(9999):
+      yield i   # yield在这里做了三件事儿:1.创建生成器对象。 2.把值存储到生成器中， 3.返回生成器，
+
+  my_g = my_gen()
+  next(my_g)
+```
+
+## Property 属性
+
+负责把一个方法“当属性”使用，来“简化代码“使用；
+
+- 定义 property 属性有两种方式: ① 装饰器方式 ② 类属性方式；
+
+```python
+  # 方式1
+  class Person:
+    def __init__(self, age):
+      self.__age = age
+
+    @property
+    def age(self):   # get_age
+      return self.__age
+
+    @age.setter
+    def age(self, age):  # set_age
+      self.__age = age
+  if __name__ == '__main__':
+    p = Person(18)
+    print(p.age)
+    p.age = 20
+    print(p.age)
+```
+
+```python
+  # 方式2
+  class Person:
+    def __init__(self, age):
+      self.__age = age
+
+    def get_age(self):
+      return self.__age
+
+    def set_age(self, age):
+      self.__age = age
+
+    # 参1:获取值的函数名，参2:设置值的函数名
+    age = property(get_age, set_age)
+  if __name__ == '__main__':
+    p = Person(18)
+    print(p.age)
+    p.age = 20
+    print(p.age)
+```
