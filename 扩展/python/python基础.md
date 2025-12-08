@@ -1,15 +1,13 @@
 # python 基础
 
 第三方库和工具，如 NumPy、Pandas、TensorFlow 和 PyTorch 等
-类型工具：pydantic、dataclass、typing（TypedDict、NamedTuple）、typing_extensions
 
-1. dataclass:主要用于简化类的创建;
-2. typing: 类型检查;
-   - self
-   - TypedDict
-   - LiteralString: 防止 SQL 注入
-   - Never 类型
-3. pydantic V2: (推荐用于 Python 3.11+) 处理复杂的数据验证;
+- 类型工具：
+  1. dataclass:主要用于简化类的创建;
+  2. typing: 类型检查;
+     - TypedDict
+     - NamedTuple
+  3. pydantic V2: (推荐用于 Python 3.11+) 处理复杂的数据验证;
 
 ## 编译与执行
 
