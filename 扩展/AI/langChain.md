@@ -61,12 +61,7 @@ Agent 的核心价值在于其三重核心能力: 动态任务路由、生态化
 ## 聊天模型是 agent 的一部分
 
 init_chat_model(): 调用聊天模型
-agent：智能体（代理）
-
-ReAct-agent：
 中间件
-
-BaseModel: 结构化输出用
 
 ## 语义搜索
 

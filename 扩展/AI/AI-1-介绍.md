@@ -2,6 +2,10 @@
 
 思维导图： xmind；流程图： ProcessOn/draw.io；组织架构图：Visio/Lucidchart
 
+Valkey(Redis 的开源版)
+
+内网穿透神器：FRP 与 NPS 工具完全配置指南
+
 - AI 开发分层体系
 
   ![AI开发分层体系](./img/AI体系/AI开发分层体系-千问.png)
