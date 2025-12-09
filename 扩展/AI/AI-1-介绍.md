@@ -353,7 +353,7 @@ Valkey(Redis 的开源版)
 
 ## 知乎
 
-- Prompt--》Agent--》Function Call--》RAG--》Fine tune--》垂直行业 LLM
+- Prompt--》Agent--》Function Calling--》RAG--》Fine tune--》垂直行业 LLM
 - Embedding：将不同长度的话，转化为等长的向量
 
 ### 知乎--🔥 课程全新升级！🚀

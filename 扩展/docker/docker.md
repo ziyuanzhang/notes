@@ -179,3 +179,13 @@ compose.yaml ：代替命令行
 1. windows 需要先开启 Hyper-V 功能；docker 才能正常工作（wsl 安装 ubuntu 也可以）；
 2. Hyper-V 与其他虚拟机冲突，例如 Android Studio 中的虚拟机；
 3. docker 使用 client-server 架构模式；docker version 看到 2 个才算启动成功；
+
+##
+
+docker run -d \
+ --name postgresql \
+ -e POSTGRES_USER=admin \
+ -e POSTGRES_DB=langchaindb \
+ -e POSTGRES_PASSWORD=langchaindb_admin \
+ -p 5432:5432 \
+ postgres
