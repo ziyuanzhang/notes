@@ -79,6 +79,6 @@ init_chat_model(): 调用聊天模型
 
 ## checkpointer 检查点管理器
 
-- checkpoint:检查点，状态图的“总体状态”快照
+- checkpoint: 检查点，状态图的“总体状态”快照
 - thread_id: 管理
-- 作用：管理记忆、时间旅行、人工干预（human-in-the-loop）、容错
+- 作用: 管理记忆、时间旅行、人工干预（human-in-the-loop）、容错
