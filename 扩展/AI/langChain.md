@@ -67,7 +67,7 @@ init_chat_model(): 调用聊天模型
 
 - 从 PDF 到向量库(知识库)
 
-  1. 读取 PDF，按页面管理，Document,List[Document]
+  1. 文档解析：读取 PDF，按页面管理，Document,List[Document]
   2. 分割文本，文本段（chunk），Document,List[Document]
   3. 向量化：文本段<=>向量，需要嵌入模型来辅助；
   4. 向量库：把多个“文本段的向量”保存到向量库；
