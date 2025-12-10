@@ -483,3 +483,37 @@ Valkey(Redis 的开源版)
 3. 阿里百炼：【企业、AI 工程师】一站式大模型开发及应用构建平台。
 
 4. ModelScope(魔搭)：【研究者、学生、开发者】模型开放平台
+
+##
+
+Mac mini（M2 + 24GB 内存） + macOS Sequoia 15.5 + Xcode 16.4 学习 AI 开发(部署大模型)， 不影响办公（例：vscode PyCharm）；
+PyCharm python（3.11+）,用 uv 怎么安装 vllm（已经 0.12.0 了），PyTorch（已经 2.9 了），下载 4B 量化大模型，并运行；
+未来会在 linux 上部署；
+
+- 预训练模型、微调、推理
+
+  1. 预训练模型：刚毕业的医学生
+  2. 微调：实习期，专攻一个方向
+  3. 推理：坐诊，看病
+
+- 微调（Fine-tuning）和推理（Inference）
+
+  1. 先微调 → 后推理。
+  2. vllm: 只做推理，不能做微调
+  3. vLLM（社区 MPS 分支 ❎）与 llama.cpp + GGUF ✅
+
+- 微调：
+
+  1. 全参数微调（Full Fine-tuning），【全参数微调（Full Fine-tuning）】，精度最高，但显存/算力要求高（需多卡 A100/H100）
+  2. 高效微调（Parameter-Efficient FT），【PEFT（LoRA, QLoRA, IA³） + Transformers】，只训练少量参数，节省 70%+ 显存，适合 7B–70B 模型
+  3. QLoRA 微调（4-bit 量化 + LoRA），【BitsAndBytes + PEFT + Transformers】，在单张 24G GPU（如 RTX 4090）上微调 65B 模型
+  4. 大模型分布式训练，【DeepSpeed（ZeRO-3）、Megatron-LM、FSDP（PyTorch）】，百亿/千亿模型，千卡集群
+  5. 云平台托管微调，【AWS SageMaker、Azure ML、Google Vertex AI、Databricks】，无需管理基础设施，按需付费
+     **当前企业主流选择**：QLoRA + PEFT + Transformers —— 性价比高、社区支持好、可复现性强。
+
+- 企业私有化 = 推理引擎 + 运维体系 + 安全合规
+
+  1. 大型企业/高并发： vLLM on K8s + NVIDIA GPU + API 网关 + 监控
+  2. 中型企业/稳定优先： TGI（Hugging Face） + K8s
+  3. 小团队/MVP 验证 TGI 单机 Docker（比 Ollama 更生产就绪）
+  4. 开发者本地/学习 Ollama 或 vLLM-MPS（Mac）
