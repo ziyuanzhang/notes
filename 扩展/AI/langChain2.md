@@ -16,9 +16,9 @@
 
 ## 3. 模型调用、记忆管理与工具调用流程
 
-## 4. LangChain.0 Agent 开发流程
+## 4. LangChain1.0 Agent 开发流程
 
-## 5. LangChain.0 Agent 部署与上线流程
+## 5. LangChain1.0 Agent 部署与上线流程
 
 ## 6. LangChain Agent 中间件入门介绍
 

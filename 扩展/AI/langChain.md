@@ -82,3 +82,13 @@ init_chat_model(): 调用聊天模型
 - checkpoint: 检查点，状态图的“总体状态”快照
 - thread_id: 管理
 - 作用: 管理记忆、时间旅行、人工干预（human-in-the-loop）、容错
+
+## RAG
+
+- 问题：1、公开数据；2、时效问题；
+- 解决：1、知识库；2、向量化；3、向量库；4、搜索；5、RAG 系统评估；6、RAG 系统优化
+
+## 工作流程
+
+![agents流程图](./img/operating_process/agents流程图.png)
+![agents决策流程](./img/operating_process/agents决策流程.png)
