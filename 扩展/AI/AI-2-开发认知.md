@@ -26,6 +26,18 @@
 
 ## Prompt--》Agent--》Function Call--》RAG--》Fine tune--》垂直行业 LLM
 
+- Agent 运行流程
+
+  ![agent-1-推理](./img/agent/agent-1-推理.png)
+
+  ![agent-2-行动](./img/agent/agent-2-行动.png)
+
+  ![agent-3-观察](./img/agent/agent-3-观察.png)
+
+  ![agent-4-循环](./img/agent/agent-4-循环.png)
+
+  ![agent流程图](./img/operating_process/agent流程图.png)
+
 - 需要掌握的技术
 
   1. Agent: LangGraph，多智能体架构，MCP，Tool，上下文工程

@@ -6,9 +6,9 @@ Valkey(Redis 的开源版)
 
 内网穿透神器：FRP 与 NPS 工具完全配置指南
 
-## 了解 AI（引入 AI）
+AI 原生应用的 11 个关键要素，涵盖模型、框架、提示词、RAG、记忆、工具、数据、评估、安全与合规、监控与运维、用户体验设计等方面
 
-### 名词
+## 名词
 
 - GPT（Generative Pre-trained Transformer）：生成式预训练 Transformer
 - GAI（Generative AI-生成式 AI）：一种能够生成新内容的 AI 技术，如文本生成、图像生成等。
@@ -24,9 +24,19 @@ Valkey(Redis 的开源版)
 
   - 颗粒度：类似总结的笔记中的知识点；
 
-- RAG（Retrieval Augmented Generation - 检索增强生成）
+- agent（智能体） 执行器
 
-  应用空间：小众细分领域，例：公司内部数据、个人私密文件等；
+  AI 既能根据用户的输入以及环境进行动态推理，也能基于推理采取合理的行动，并且在需要的时候借助合适的外部工具，通过结合不同的工具来增强模型的功能和效率，我们把这个能理解用户的查询或指令进行推理并执行特定任务，最后输出响应的服务叫做 agent（智能体或代理）
+
+  ![agent-1-推理](./img/agent/agent-1-推理.png)
+
+  ![agent-2-行动](./img/agent/agent-2-行动.png)
+
+  ![agent-3-观察](./img/agent/agent-3-观察.png)
+
+  ![agent-4-循环](./img/agent/agent-4-循环.png)
+
+- RAG（Retrieval Augmented Generation - 检索增强生成）
 
   检索增强生成：提供外部文档，让模型访问外部知识库，获得实时且正确的数据，生成更可靠和准确的回答；当用户提出和外部知识相关的问题后，AI 可以结合知识库里的内容，进行回答；
 
@@ -48,17 +58,7 @@ Valkey(Redis 的开源版)
 
   推理和行动：AI 模型可以基于当前状态，推理出下一步的行动，并执行这个行动；
 
-- agent（智能体） 执行器
-
-  AI 既能根据用户的输入以及环境进行动态推理，也能基于推理采取合理的行动，并且在需要的时候借助合适的外部工具，通过结合不同的工具来增强模型的功能和效率，我们把这个能理解用户的查询或指令进行推理并执行特定任务，最后输出响应的服务叫做 agent（智能体或代理）
-
-  ![agent-1-推理](./img/agent/agent-1-推理.png)
-
-  ![agent-2-行动](./img/agent/agent-2-行动.png)
-
-  ![agent-3-观察](./img/agent/agent-3-观察.png)
-
-  ![agent-4-循环](./img/agent/agent-4-循环.png)
+## 了解 AI（引入 AI）
 
 ### NLP、NLU、NLG
 
