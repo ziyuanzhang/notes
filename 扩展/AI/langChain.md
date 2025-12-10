@@ -36,6 +36,11 @@ Agent 的核心价值在于其三重核心能力: 动态任务路由、生态化
      - 短期记忆： 维护当前对话的上下文，如当前任务、当前对话、当前工具调用结果等。
      - 长期记忆： 跨对话会话的知识持久化存储，如数据库、文件系统、知识库等。
 
+- 工作流程
+
+  ![agents流程图](./img/operating_process/agents流程图.png)
+  ![agents决策流程](./img/operating_process/agents决策流程.png)
+
 ## model
 
 - 最好用模型对应的 api 接口（例：ChatDeepSeek、ChatOpenAI）：可以显示思考过程、细节等；
@@ -57,6 +62,18 @@ Agent 的核心价值在于其三重核心能力: 动态任务路由、生态化
   2. 支出其他方式格式化输出：例: SimpleJsonOutputParser()
 
 ## 工具
+
+## Message: 消息
+
+- 组成部分
+
+  1. role: system(系统消息)、user（用户输入）、assistant（模型输出）
+  2. content: 消息内容
+  3. Metadata:（可选）额外信息，如：消息 ID、响应时间、token 消耗、消息标签等
+
+- 全部响应： model.invoke(message: Message) -> Message
+- 流式响应： model.stream(message: Message) -> Generator[Message, None, None]
+- 批量响应： model.batch(messages: List[Message]) -> List[Message]
 
 ## 聊天模型是 agent 的一部分
 
@@ -85,10 +102,25 @@ init_chat_model(): 调用聊天模型
 
 ## RAG
 
-- 问题：1、公开数据；2、时效问题；
-- 解决：1、知识库；2、向量化；3、向量库；4、搜索；5、RAG 系统评估；6、RAG 系统优化
+- 问题：1、大模型幻觉；2、上下文“长度”限制；3、模型“专业知识与时效性知识”不足
+- 解决：
 
-## 工作流程
+  1. 数据源
+  2. 文档解析
+  3. 文本分割
+  4. 文本向量化
+  5. 存向量库
+  6. 检索
+     - 相似度计算
+     - 重排序
+  7. RAG 系统评估
+     - 文档检索评估
+     - 文档生成评估
+     - 评估工具：RAGAS、langSmith、LLM-AS-A-Judge
+  8. RAG 系统优化
+     - 文档检索过程优化
+     - 上下文拼接策略优化
+     - 生成策略优化
 
-![agents流程图](./img/operating_process/agents流程图.png)
-![agents决策流程](./img/operating_process/agents决策流程.png)
+  - Graph RAG：基于知识图谱的新型检索方式
+  - Agentic RAG：将 检索增强生成 与 agent 结合
