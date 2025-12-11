@@ -1,12 +1,6 @@
 # AI
 
-思维导图： xmind；
-流程图： ProcessOn/draw.io；
-组织架构图：Visio/Lucidchart
-
 Valkey(Redis 的开源版)
-
-内网穿透神器：FRP 与 NPS 工具完全配置指南
 
 AI 原生应用的 11 个关键要素，涵盖模型、框架、提示词、RAG、记忆、工具、数据、评估、安全与合规、监控与运维、用户体验设计等方面
 
