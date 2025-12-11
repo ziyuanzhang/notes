@@ -15,6 +15,19 @@
 4. LangGraph CLI: 后端打包部署的工具
 5. Agent Chat UI: 前端页面
 
+## Agent
+
+- agent: model、tools、system_prompt、checkpoint、middleware
+- 多 agent:2 种方式
+  1. 集中式: user -> supervisor agent ->worker agent
+  2. 轮换式: user -> agent1 --> user -->agent2
+
+* supervisor agent 步骤:
+
+  1. 创建 2 个 worker agent，有各自的 tools;
+  2. 把这 2 个 agent 封装成 2 个新的 tool;
+  3. 创建 supervisor agent，配置 tools，使用的就是 这 2 个 work agent 封装的 tool;
+
 ## model
 
 - 最好用模型对应的 api 接口（例：ChatDeepSeek、ChatOpenAI）：可以显示思考过程、细节等；
@@ -35,21 +48,7 @@
   1. with_structured_output()： 默认的格式化输出，国外模型大部分支持，国内模型大部分不支持；
   2. 支出其他方式格式化输出：例: SimpleJsonOutputParser()
 
-## Message: 消息
-
-- 组成部分
-
-  1. role: system(系统消息)、user（用户输入）、assistant（模型输出）、tool(工具输出)
-  2. content: 消息内容
-  3. Metadata:（可选）额外信息，如：消息 ID、响应时间、token 消耗、消息标签等
-
-- 全部响应： model.invoke(message: Message) -> Message
-- 流式响应： model.stream(message: Message) -> Generator[Message, None, None]
-- 批量响应： model.batch(messages: List[Message]) -> List[Message]
-
 ## Agent（智能体/代理）
-
-Agent 的核心价值在于其三重核心能力: 动态任务路由、生态化工具集成和全周期记忆管理
 
 - Agent 核心组件：模型（Model）、工具（Tool）、记忆（Memory）
 
@@ -82,13 +81,25 @@ Agent 的核心价值在于其三重核心能力: 动态任务路由、生态化
 - 流式输出：
 - 中间件：
 - 运行时：
-- 人工干预（人在回路）：
+- 人工干预（人在环上）：
 
 ### checkpointer 检查点管理器
 
 - checkpoint: 检查点，状态图的“总体状态”快照
 - thread_id: 管理
 - 作用: 管理记忆、时间旅行、人工干预（human-in-the-loop）、容错
+
+## Message: 消息
+
+- 组成部分
+
+  1. role: system(系统消息)、user（用户输入）、assistant（模型输出）、tool(工具输出)
+  2. content: 消息内容
+  3. Metadata:（可选）额外信息，如：消息 ID、响应时间、token 消耗、消息标签等
+
+- 全部响应： model.invoke(message: Message) -> Message
+- 流式响应： model.stream(message: Message) -> Generator[Message, None, None]
+- 批量响应： model.batch(messages: List[Message]) -> List[Message]
 
 ## 图
 
@@ -132,6 +143,8 @@ Agent 的核心价值在于其三重核心能力: 动态任务路由、生态化
   1. （用文本）相似度查询
   2. （用文本）带分数的相似度查询
   3. （用向量）进行相似的查询；【查询先转向量，后查询】
+
+## SQL
 
 ## 上下文工程
 
