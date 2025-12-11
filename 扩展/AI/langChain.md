@@ -15,32 +15,6 @@
 4. LangGraph CLI: 后端打包部署的工具
 5. Agent Chat UI: 前端页面
 
-## 1、核心入口:create_agent()统-Agent 构建流程
-
-1. 底层封装 LangGraph 执行机制: create_agent()默认基于 LangGraph 引擊实现，将“模型调用一工具决策一工具执行一结果整合“的闭环流程封装为高阶接口，开发者无需关注底层的图执行逻辑，只需传入核心组件即可快速构建 Agent。这种设计不仅简化了代码，还提升了流程的稳定性和可扩展性，支持复杂的分支逻辑和循环执行。
-
-2. 告别繁琐的提示词模板: 旧版本要要从 LanaChain Hub 导入大段的提示词模板，包含工具调用格式、对话历史注入等复杂配置，且模型容易出现格式输出错误。1.0 版本中，开发者只需传入简洁的 system_prompt(系统提示词)，LangChain 会自动结合工具信息、对话上下文生成完整的提示词，大幅降低了提示词设计的难度。
-
-3. 兼容 Function Calling 标准: create_agent()原生支持 OpenAI 定义的 Function calling 格式，能够自动将工具信息转化为结构化的函数描述，传递给支持该格式的 LLM，在国内模型中，通义千问对这一特性的适配性最佳，这也是很多开发者选择其作为 LangChain 默认模型的重要原因。
-
-## Agent（智能体/代理）
-
-Agent 的核心价值在于其三重核心能力: 动态任务路由、生态化工具集成和全周期记忆管理
-
-- Agent 核心组件：模型（Model）、工具（Tool）、记忆（Memory）
-
-  1. 模型（Model）： Agent 的“大脑”，负责推理和决策过程。
-  2. 工具(Tool)： Agent 与外部交互的“能力扩展“，每个工具提供一个功能，如搜索、翻译、计算等。
-  3. 记忆（Memory）： 为 Agent 提供上下文感知能力，使其能够记住之前的交互历史并基于上下文做出决策（分 短期记忆、长期记忆）。
-
-     - 短期记忆： 维护当前对话的上下文，如当前任务、当前对话、当前工具调用结果等。
-     - 长期记忆： 跨对话会话的知识持久化存储，如数据库、文件系统、知识库等。
-
-- 工作流程
-
-  ![agents流程图](./img/operating_process/agents流程图.png)
-  ![agents决策流程](./img/operating_process/agents决策流程.png)
-
 ## model
 
 - 最好用模型对应的 api 接口（例：ChatDeepSeek、ChatOpenAI）：可以显示思考过程、细节等；
@@ -61,13 +35,11 @@ Agent 的核心价值在于其三重核心能力: 动态任务路由、生态化
   1. with_structured_output()： 默认的格式化输出，国外模型大部分支持，国内模型大部分不支持；
   2. 支出其他方式格式化输出：例: SimpleJsonOutputParser()
 
-## 工具
-
 ## Message: 消息
 
 - 组成部分
 
-  1. role: system(系统消息)、user（用户输入）、assistant（模型输出）
+  1. role: system(系统消息)、user（用户输入）、assistant（模型输出）、tool(工具输出)
   2. content: 消息内容
   3. Metadata:（可选）额外信息，如：消息 ID、响应时间、token 消耗、消息标签等
 
@@ -75,32 +47,54 @@ Agent 的核心价值在于其三重核心能力: 动态任务路由、生态化
 - 流式响应： model.stream(message: Message) -> Generator[Message, None, None]
 - 批量响应： model.batch(messages: List[Message]) -> List[Message]
 
-## 聊天模型是 agent 的一部分
+## Agent（智能体/代理）
 
-init_chat_model(): 调用聊天模型
-中间件
+Agent 的核心价值在于其三重核心能力: 动态任务路由、生态化工具集成和全周期记忆管理
 
-## 语义搜索
+- Agent 核心组件：模型（Model）、工具（Tool）、记忆（Memory）
 
-- 从 PDF 到向量库(知识库)
+  1. 模型（Model）： Agent 的“大脑”，负责推理和决策过程。
+  2. 工具(Tool)： Agent 与外部交互的“能力扩展“，每个工具提供一个功能，如搜索、翻译、计算等。
+  3. 记忆（Memory）： 为 Agent 提供上下文感知能力，使其能够记住之前的交互历史并基于上下文做出决策（分 短期记忆、长期记忆）。
 
-  1. 文档解析：读取 PDF，按页面管理，Document,List[Document]
-  2. 分割文本，文本段（chunk），Document,List[Document]
-  3. 向量化：文本段<=>向量，需要嵌入模型来辅助；
-  4. 向量库：把多个“文本段的向量”保存到向量库；
+     - 短期记忆： 维护当前对话的上下文，如当前任务、当前对话、当前工具调用结果等。
+     - 长期记忆： 跨对话会话的知识持久化存储，如数据库、文件系统、知识库等。
 
-- 四种语义搜索方法
-  1. （用文本）相似度查询
-  2. （用文本）带分数的相似度查询
-  3. （用向量）进行相似的查询；【查询先转向量，后查询】
+- 工作流程
 
-## checkpointer 检查点管理器
+  ![agents流程图](./img/operating_process/agents流程图.png)
+  ![agents决策流程](./img/operating_process/agents决策流程.png)
+
+### 1、核心入口:create_agent()统-Agent 构建流程
+
+1. 底层封装 LangGraph 执行机制: create_agent()默认基于 LangGraph 引擊实现，将“模型调用一工具决策一工具执行一结果整合“的闭环流程封装为高阶接口，开发者无需关注底层的图执行逻辑，只需传入核心组件即可快速构建 Agent。这种设计不仅简化了代码，还提升了流程的稳定性和可扩展性，支持复杂的分支逻辑和循环执行。
+
+2. 告别繁琐的提示词模板: 旧版本要要从 LanaChain Hub 导入大段的提示词模板，包含工具调用格式、对话历史注入等复杂配置，且模型容易出现格式输出错误。1.0 版本中，开发者只需传入简洁的 system_prompt(系统提示词)，LangChain 会自动结合工具信息、对话上下文生成完整的提示词，大幅降低了提示词设计的难度。
+
+3. 兼容 Function Calling 标准: create_agent()原生支持 OpenAI 定义的 Function calling 格式，能够自动将工具信息转化为结构化的函数描述，传递给支持该格式的 LLM，在国内模型中，通义千问对这一特性的适配性最佳，这也是很多开发者选择其作为 LangChain 默认模型的重要原因。
+
+- 工具：
+- 记忆：短期记忆、长期记忆（持久化）
+
+  1. 长期记忆：checkpointer 检查点管理器：
+
+- 结构化输出：
+- 流式输出：
+- 中间件：
+- 运行时：
+- 人工干预（人在回路）：
+
+### checkpointer 检查点管理器
 
 - checkpoint: 检查点，状态图的“总体状态”快照
 - thread_id: 管理
 - 作用: 管理记忆、时间旅行、人工干预（human-in-the-loop）、容错
 
+## 图
+
 ## RAG
+
+- 语义搜索：
 
 - 问题：1、大模型幻觉；2、上下文“长度”限制；3、模型“专业知识与时效性知识”不足
 - 解决：
@@ -124,3 +118,25 @@ init_chat_model(): 调用聊天模型
 
   - Graph RAG：基于知识图谱的新型检索方式
   - Agentic RAG：将 检索增强生成 与 agent 结合
+
+### 语义搜索
+
+- 从 PDF 到向量库(知识库)
+
+  1. 文档解析：读取 PDF，按页面管理，Document,List[Document]
+  2. 分割文本，文本段（chunk），Document,List[Document]
+  3. 向量化：文本段<=>向量，需要嵌入模型来辅助；
+  4. 向量库：把多个“文本段的向量”保存到向量库；
+
+- 四种语义搜索方法
+  1. （用文本）相似度查询
+  2. （用文本）带分数的相似度查询
+  3. （用向量）进行相似的查询；【查询先转向量，后查询】
+
+## 上下文工程
+
+## 模型上下文协议（MCP）
+
+## 多代理（多 Agent）
+
+## 部署
