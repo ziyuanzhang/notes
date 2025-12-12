@@ -16,19 +16,6 @@
 4. LangGraph CLI: 后端打包部署的工具
 5. Agent Chat UI: 前端页面
 
-## Agent
-
-- agent: model、tools、system_prompt、checkpoint、middleware
-- 多 agent:2 种方式
-  1. 集中式: user -> supervisor agent ->worker agent
-  2. 轮换式: user -> agent1 --> user -->agent2
-
-* supervisor agent 步骤:
-
-  1. 创建 2 个 worker agent，有各自的 tools;
-  2. 把这 2 个 agent 封装成 2 个新的 tool;
-  3. 创建 supervisor agent，配置 tools，使用的就是 这 2 个 work agent 封装的 tool;
-
 ## model
 
 - 最好用模型对应的 api 接口（例：ChatDeepSeek、ChatOpenAI）：可以显示思考过程、细节等；
@@ -49,6 +36,18 @@
   1. with_structured_output()： 默认的格式化输出，国外模型大部分支持，国内模型大部分不支持；
   2. 支出其他方式格式化输出：例: SimpleJsonOutputParser()
 
+## Message: 消息
+
+- 组成部分
+
+  1. role: system(系统消息)、user（用户输入）、assistant（模型输出）、tool(工具输出)
+  2. content: 消息内容
+  3. Metadata:（可选）额外信息，如：消息 ID、响应时间、token 消耗、消息标签等
+
+- 全部响应： model.invoke(message: Message) -> Message
+- 流式响应： model.stream(message: Message) -> Generator[Message, None, None]
+- 批量响应： model.batch(messages: List[Message]) -> List[Message]
+
 ## Agent（智能体/代理）
 
 - Agent 核心组件：模型（Model）、工具（Tool）、记忆（Memory）
@@ -59,6 +58,13 @@
 
      - 短期记忆： 维护当前对话的上下文，如当前任务、当前对话、当前工具调用结果等。
      - 长期记忆： 跨对话会话的知识持久化存储，如数据库、文件系统、知识库等。
+
+- agent: model、tools、system_prompt、checkpoint、middleware
+
+- 多 agent:2 种方式
+
+  1. 集中式: user -> supervisor agent ->worker agent
+  2. 轮换式: user -> agent1 --> user -->agent2
 
 - 工作流程
 
@@ -73,16 +79,17 @@
 
 3. 兼容 Function Calling 标准: create_agent()原生支持 OpenAI 定义的 Function calling 格式，能够自动将工具信息转化为结构化的函数描述，传递给支持该格式的 LLM，在国内模型中，通义千问对这一特性的适配性最佳，这也是很多开发者选择其作为 LangChain 默认模型的重要原因。
 
-- 工具：
-- 记忆：短期记忆、长期记忆（持久化）
+### 多代理（多 Agent）
 
-  1. 长期记忆：checkpointer 检查点管理器：
+- supervisor agent 步骤:
 
-- 结构化输出：
-- 流式输出：
-- 中间件：
-- 运行时：
-- 人工干预（人在环上）：
+  1. 创建 2 个 worker agent，有各自的 tools;
+  2. 把这 2 个 agent 封装成 2 个新的 tool;
+  3. 创建 supervisor agent，配置 tools，使用的就是 这 2 个 work agent 封装的 tool;
+
+## 工具
+
+## 记忆：短期记忆、长期记忆（持久化）
 
 ### checkpointer 检查点管理器
 
@@ -90,21 +97,21 @@
 - thread_id: 管理
 - 作用: 管理记忆、时间旅行、人工干预（human-in-the-loop）、容错
 
-## Message: 消息
-
-- 组成部分
-
-  1. role: system(系统消息)、user（用户输入）、assistant（模型输出）、tool(工具输出)
-  2. content: 消息内容
-  3. Metadata:（可选）额外信息，如：消息 ID、响应时间、token 消耗、消息标签等
-
-- 全部响应： model.invoke(message: Message) -> Message
-- 流式响应： model.stream(message: Message) -> Generator[Message, None, None]
-- 批量响应： model.batch(messages: List[Message]) -> List[Message]
-
 ## 图
 
-## RAG
+## 结构化输出
+
+## 流式输出
+
+## 中间件
+
+## 运行时
+
+## 人工干预（人在环上）
+
+## 模型上下文协议 (MCP)
+
+## RAG（检索增强生成）
 
 - 语义搜索：
 
@@ -151,7 +158,7 @@
 
 ## 模型上下文协议（MCP）
 
-## 多代理（多 Agent）
+## 防护措施
 
 ## deepAgent: planning(规划)、file system（文件系统）、subagent（子代理）
 
