@@ -31,11 +31,6 @@
   1. init_chat_model()：函数调用【独有速率限制参数】
   2. ChatDeepSeek（）、ChatOpenAI（）：类调用【没有速率限制参数】
 
-- 模型格式化输出: 用 pydantic 的 BaseModel【langGraph 用】
-
-  1. with_structured_output()： 默认的格式化输出，国外模型大部分支持，国内模型大部分不支持；
-  2. 支出其他方式格式化输出：例: SimpleJsonOutputParser()
-
 ## Message: 消息
 
 - 组成部分
@@ -100,6 +95,11 @@
 ## 图
 
 ## 结构化输出
+
+- 模型格式化输出: 用 pydantic 的 BaseModel【langGraph 用】
+
+  1. with_structured_output()： 默认的格式化输出，国外模型大部分支持，国内模型大部分不支持；
+  2. 支出其他方式格式化输出：例: SimpleJsonOutputParser()
 
 ## 流式输出
 
