@@ -6,7 +6,8 @@
    - LangGraph: 一个底层运行时框架，专为需要长期运行、可控且高定制化的生产级智能体设计。
    - LangChain V1.0 的 Agent 是构建在 LangGraph 之上，以提供持久的执行、流、人机交互、持久性等。
 
-2. DeepAgents V1.0: 在 LangChain 的基础上进一步封装出来模版，暂时不可用（未来）； LangGraph --> LangChain --> DeepAgents
+2. DeepAgents V1.0:【做研究类的】 构建能够规划（planning）、使用子代理（subagent）并利用文件系统（file system）完成复杂任务的代理
+
 3. 测试框架：
 
    - LangSmith: 大型语言模型的可观测性、评估与部署（分析用的）【真实项目不用】
@@ -151,5 +152,14 @@
 ## 模型上下文协议（MCP）
 
 ## 多代理（多 Agent）
+
+## deepAgent: planning(规划)、file system（文件系统）、subagent（子代理）
+
+- 何时使用 Deep Agents：当您需要能够完成以下任务的代理时，请使用 Deep Agents：
+
+  1. 处理需要规划和分解的复杂多步骤任务
+  2. 通过文件系统工具管理大量上下文
+  3. 将工作委托给专门的子代理以实现上下文隔离
+  4. 在对话和线程中持久化内存
 
 ## 部署
