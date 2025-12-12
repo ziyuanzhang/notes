@@ -162,4 +162,9 @@
   3. 将工作委托给专门的子代理以实现上下文隔离
   4. 在对话和线程中持久化内存
 
+- 过程
+  1. deepagent 内置工具：write_todos,to_do_list
+  2. internet_search ... update to_do_list
+  3. write_file ,写报告
+
 ## 部署
