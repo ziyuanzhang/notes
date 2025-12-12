@@ -92,14 +92,13 @@
 - thread_id: 管理
 - 作用: 管理记忆、时间旅行、人工干预（human-in-the-loop）、容错
 
-## 图
+## 时间旅行
 
 ## 结构化输出
 
-- 模型格式化输出: 用 pydantic 的 BaseModel【langGraph 用】
-
-  1. with_structured_output()： 默认的格式化输出，国外模型大部分支持，国内模型大部分不支持；
-  2. 支出其他方式格式化输出：例: SimpleJsonOutputParser()
+1. pydantic(V2) 的 BaseModel
+2. Dataclass
+3. TypedDict
 
 ## 流式输出
 
@@ -159,6 +158,10 @@
 ## 模型上下文协议（MCP）
 
 ## 防护措施
+
+## langGraph
+
+### 图
 
 ## deepAgent: planning(规划)、file system（文件系统）、subagent（子代理）
 
