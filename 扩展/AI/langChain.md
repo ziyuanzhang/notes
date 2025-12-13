@@ -1,4 +1,4 @@
-# LangChain V1.0
+# LangChain V1.0 、 LangGraph 、 deepAgents
 
 1. LangChain V1.0 vs LangGraph V1.0: 分工与定位
 
@@ -16,7 +16,9 @@
 4. LangGraph CLI: 后端打包部署的工具
 5. Agent Chat UI: 前端页面
 
-## model
+## LangChain ================================
+
+## 1、model
 
 - 最好用模型对应的 api 接口（例：ChatDeepSeek、ChatOpenAI）：可以显示思考过程、细节等；
 
@@ -31,19 +33,61 @@
   1. init_chat_model()：函数调用【独有速率限制参数】
   2. ChatDeepSeek（）、ChatOpenAI（）：类调用【没有速率限制参数】
 
-## Message: 消息
+- 调用：invoke、stream、batch
+- 工具调用：bind_tools
+- 结构化输出：structured_outputs
+- 高级：
+  1. 多模态
+  2. 推理（）
+  3. 提示词缓存（模型自带）
+  4. 速率限制
+  5. 日志概率
+  6. token 用量
+  7. 调用时配置
 
-- 组成部分
+## 2、工具(tools)
 
-  1. role: system(系统消息)、user（用户输入）、assistant（模型输出）、tool(工具输出)
-  2. content: 消息内容
-  3. Metadata:（可选）额外信息，如：消息 ID、响应时间、token 消耗、消息标签等
+```python
+@tool(name:str, description:str,response_format:["content", "content_and_artifact"])
+def tool_name(arg1: str, arg2: int) -> str:
+     """ 提示词
 
-- 全部响应： model.invoke(message: Message) -> Message
-- 流式响应： model.stream(message: Message) -> Generator[Message, None, None]
-- 批量响应： model.batch(messages: List[Message]) -> List[Message]
+     Args:
+         参数描述
 
-## Agent（智能体/代理）
+     Returns:
+         返回值描述
+
+     """
+     print("参数：", arg1, arg2)
+     return "返回值"
+
+
+model = init_chat_model("openai:gpt-3.5-turbo")
+model_with_tool = model.bind_tools([tool_name])
+response = model_with_tool.invoke("请计算 1+1")
+```
+
+- response_format:["content", "content_and_artifact"]:可选，输入二元数组
+- get_input_schema():获取工具的输入策略
+- get_output_schema():获取工具的输出策略
+
+## 3、结构化输出（Structured Output）
+
+- ToolStrategy[StructuredResponseT]：使用工具调用进行结构化输出
+- ProviderStrategy[StructuredResponseT]：使用提供商原生结构化输出
+- type[StructuredResponseT]：架构类型 - 根据模型能力自动选择最佳策略
+- None：无结构化输出
+- 联合类型：多个架构选项
+
+* 定义结构化输出格式的架构
+  1. Pydantic (V2) 的 BaseModel
+  2. Dataclass (数据类)
+  3. TypedDict：类型化字典类
+  4. JSON Schema：带有 JSON 模式规范的字典
+  5. 联合类型：多个架构选项
+
+## 4、Agent（智能体/代理）
 
 - Agent 核心组件：模型（Model）、工具（Tool）、记忆（Memory）
 
@@ -82,9 +126,60 @@
   2. 把这 2 个 agent 封装成 2 个新的 tool;
   3. 创建 supervisor agent，配置 tools，使用的就是 这 2 个 work agent 封装的 tool;
 
-## 工具
+### 动态模型 Agent
 
-## 记忆：短期记忆、长期记忆（持久化）
+```python
+base_model = ChatOpenAI(model="gpt-3.5-turbo-16k")
+advanced_model = ChatOpenAI(model="gpt-4")
+
+@wrap_model_call
+def dynamic_model_call(request: ModelCallRequest,handler)->ModelResponse:
+  message_count = len(request.state['messages'])
+  if message_count > 10:
+    model = advanced_model
+  else:
+    model = base_model
+  request.model = model
+  return handler(request)
+
+agent = create_agent(
+  model=base_model,
+  tools=tools,
+  middleware=[dynamic_model_call]
+)
+```
+
+## 5、Agent 调用：invoke、stream 调用、异步调用
+
+## 6、系统提示词(system_prompt)
+
+- 动态系统提示
+
+## 7、消息（Message）
+
+- 组成部分
+
+  1. role: system(系统消息)、user（用户输入）、assistant（模型输出）、tool(工具输出)
+  2. content: 消息内容
+  3. Metadata:（可选）额外信息，如：消息 ID、响应时间、token 消耗、消息标签等
+
+- 全部响应： model.invoke(message: Message) -> Message
+- 流式响应： model.stream(message: Message) -> Generator[Message, None, None]
+- 批量响应： model.batch(messages: List[Message]) -> List[Message]
+
+## 8、中间件
+
+### 人工干预（人在环上）
+
+### 摘要中间件
+
+快到上下文窗口上限时，它会自动总结旧对话，这样防止 token 溢出，保证对话不中断
+
+### PI 脱敏中间件
+
+内容发给模型前，自动识别并打码邮箱电话等敏感信息，保护用户隐私，满足合规的硬性要求
+
+## 9、记忆：短期记忆、长期记忆（持久化）
 
 ### checkpointer 检查点管理器
 
@@ -94,19 +189,7 @@
 
 ## 时间旅行
 
-## 结构化输出
-
-1. pydantic(V2) 的 BaseModel
-2. Dataclass
-3. TypedDict
-
-## 流式输出
-
-## 中间件
-
 ## 运行时
-
-## 人工干预（人在环上）
 
 ## 模型上下文协议 (MCP)
 
@@ -159,11 +242,15 @@
 
 ## 防护措施
 
-## langGraph
+## langGraph（强调生产可靠性） =================================================
 
 ### 图
 
-## deepAgent: planning(规划)、file system（文件系统）、subagent（子代理）
+### 持久化状态：智能体状态自动保存，中断后也能从断点继续
+
+## deepAgent: ========================================
+
+planning(规划)、file system（文件系统）、subagent（子代理）
 
 - 何时使用 Deep Agents：当您需要能够完成以下任务的代理时，请使用 Deep Agents：
 
