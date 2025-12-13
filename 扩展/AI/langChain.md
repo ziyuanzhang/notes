@@ -105,6 +105,8 @@ response = model_with_tool.invoke("请计算 1+1")
   1. 集中式: user -> supervisor agent ->worker agent
   2. 轮换式: user -> agent1 --> user -->agent2
 
+- 调用：invoke、stream 调用、异步调用
+
 - 工作流程
 
   ![agents流程图](./img/operating_process/agents流程图.png)
@@ -149,15 +151,13 @@ agent = create_agent(
 )
 ```
 
-## 5、Agent 调用：invoke、stream 调用、异步调用
-
-## 6、系统提示词(system_prompt)
+## 5、系统提示词(system_prompt)
 
 - 动态系统提示
 
-## 7、消息（Message）
+## 6、消息（Message）
 
-- 组成部分
+- 组成部分: SystemMessage、HumanMessage、ToolMessage、AIMessage
 
   1. role: system(系统消息)、user（用户输入）、assistant（模型输出）、tool(工具输出)
   2. content: 消息内容
@@ -167,7 +167,70 @@ agent = create_agent(
 - 流式响应： model.stream(message: Message) -> Generator[Message, None, None]
 - 批量响应： model.batch(messages: List[Message]) -> List[Message]
 
-## 8、中间件
+## 8、记忆：短期记忆、长期记忆（持久化）
+
+### checkpointer 检查点管理器
+
+- checkpoint: 检查点，状态图的“总体状态”快照
+- thread_id: 管理
+- 作用: 管理记忆、时间旅行、人工干预（human-in-the-loop）、容错
+
+### 状态(state)
+
+- SystemMessage、HumanMessage: Content
+- AIMessage 的 additional_kwargs
+
+  1. 属性
+
+     - tool_calls(list): 与该消息关联的工具调用；
+     - invalid_tool_calls(list): 与该消息关联的解析错误的工具调用；
+     - usage_metadata(typedict): 包会该消息的使用元数据，例如 token 使用情况；
+     - content_blocks(list): 消息中标准的、结构化的 ContentBlock 字典;
+
+  2. 方法 pretty_repr ->str: 返回该消息更易读的的可视化呈现形式;
+
+- ToolMessage 的 additional_kwargs
+  1. 属性
+     - results(list): 工具的执行结果，列表内容由所定义工具而定;
+     - tool_call_id(str): 该消息消息所响应的工具调用唯一标识;
+     - status(Literal['success','error']): 工具调用的结果状态;
+     - artifact(Any): 工具执行过程中产生的非传输内容，与工具定义时 content_and_artifact 参数关联；
+  2. 方法 coerce_args -> dict: 强制将模型参数转换为正确类型
+
+## 7、中间件 -- 通过钩子
+
+agent 运行过程：拥有更细致、全面的控制与逻辑搭建；
+
+- 中间件的主要作用
+
+  1. 行为记录：通过日志记录、分析和调试跟踪 Agent 行为；
+  2. 格式约束：转换提示、工县选择和输出格式；
+  3. 逻辑控制：增加了重试、后备和提前终止逻辑；
+  4. 资源限制：应用速率限制、保护栏和个人身份识别检测；
+
+**注意：** middleware 参数传入一个列表，可以传入多个中间件；当同一位置有多个中间件时，会按照列表中的先后顺序触发；
+
+- 分类：预构建中间件 和 自定义中间件
+
+  1. 预构建中间件（Built-in Middleware）：
+
+     - Summarization: 触发时自动总结对话列表记录;
+     - Human-in-the-loop: 暂停执行以供人工批准或修改工具调用;
+     - To-do list: 为代理提供复杂多步骤任务的任务规划和跟踪能力;
+     - Model call limit: 限制模型调用次数，以防止过高成本;
+
+  2. 自定义中间件（Custom Middleware）：
+
+     - 节点型钩子:
+
+       1. before_agent: Agent 开始前(每次查询一次);
+       2. before_model: 每次模型调用前
+       3. after_model: 每次模型响应后
+       4. after_agent: 代理 完成后(每次调用一次)
+
+     - 环绕型钩子:
+       1. wrap_model_call: 国绕每次模型调用
+       2. wrap_tool_call: 用绕每次工具调阳
 
 ### 人工干预（人在环上）
 
@@ -178,14 +241,6 @@ agent = create_agent(
 ### PI 脱敏中间件
 
 内容发给模型前，自动识别并打码邮箱电话等敏感信息，保护用户隐私，满足合规的硬性要求
-
-## 9、记忆：短期记忆、长期记忆（持久化）
-
-### checkpointer 检查点管理器
-
-- checkpoint: 检查点，状态图的“总体状态”快照
-- thread_id: 管理
-- 作用: 管理记忆、时间旅行、人工干预（human-in-the-loop）、容错
 
 ## 时间旅行
 
