@@ -376,7 +376,32 @@ agent=create_agent(
     )
   ```
 
-- to_do_list：
+- to_do_list: 能够为 agent 配备复杂多步骤任务的规划与追踪能力
+
+  （主要适用于跨工具使用的多步骤复杂任务 或 需实时进度可见性的长期运行操作）
+
+  1. 使用场景: 模型认为任务复杂，且需多步骤处理时才会生效
+  2. 运行逻辑: 为 Agent(新增)写入 write-todos 工具,使 Agent 能够创建并管理复杂多步骤操作的结构化任务清单，其设计旨在协助代理跟踪进度，整理复杂任务，并为用产提供任务完成状态的可视化信息；
+
+  ```python
+     agent = create_agent(
+       model=model,
+       tools=[tools],
+       middleware=[ToDoListMiddleware()]
+     )
+     res = agent.invoke({"message": "问题"})
+     print(res['todo'])
+  ```
+
+  复杂任务时: agent 的回答会额外多出 todo 字段
+
+  - to_do_list:
+
+    1. content: 子任务的具体描述
+    2. status: 子任务的当前执行状态
+
+  ![to_do_list](./img/langchain/to_do_list.png)
+  步骤：4、5、6 循环执行
 
 ## 时间旅行
 
