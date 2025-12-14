@@ -57,7 +57,6 @@ def tool_name(arg1: str, arg2: int) -> str:
 
      Returns:
          返回值描述
-
      """
      print("参数：", arg1, arg2)
      return "返回值"
@@ -71,6 +70,19 @@ response = model_with_tool.invoke("请计算 1+1")
 - response_format:["content", "content_and_artifact"]:可选，输入二元数组
 - get_input_schema():获取工具的输入策略
 - get_output_schema():获取工具的输出策略
+
+* 三类：
+
+  1. 本地@tool 装饰器定义工具
+  2. 继承 BaseTool 类定义工具
+  3. 从 MCP 服务器获得工具
+
+* 工具参数
+
+  1. 名称：str;
+  2. 描述：str;
+  3. args_schema: pydantic.BaseModel;
+  4. return_dirct: 忽略
 
 ## 3、结构化输出（Structured Output）
 
