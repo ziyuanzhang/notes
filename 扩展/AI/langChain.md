@@ -47,6 +47,8 @@
 
 ## 2、工具(tools)
 
+from agent.my_llm import llm
+
 ```python
 @tool(name:str, description:str,response_format:["content", "content_and_artifact"])
 def tool_name(arg1: str, arg2: int) -> str:
@@ -71,18 +73,20 @@ response = model_with_tool.invoke("请计算 1+1")
 - get_input_schema():获取工具的输入策略
 - get_output_schema():获取工具的输出策略
 
-* 三类：
-
-  1. 本地@tool 装饰器定义工具
-  2. 继承 BaseTool 类定义工具
-  3. 从 MCP 服务器获得工具
-
 * 工具参数
 
   1. 名称：str;
   2. 描述：str;
   3. args_schema: pydantic.BaseModel;
   4. return_dirct: 忽略
+
+* 定义工具三类方式：
+
+  1. @tool 装饰器定义
+  2. 继承 BaseTool 类定义，必须重写`_run`函数
+  3. 从 MCP 服务器获得
+
+**注意：** 同步工具，智能体同步调用，异步工具，智能体异步调用
 
 ## 3、结构化输出（Structured Output）
 
