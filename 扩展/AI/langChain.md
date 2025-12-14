@@ -234,13 +234,149 @@ agent 运行过程：拥有更细致、全面的控制与逻辑搭建；
 
 ### 人工干预（人在环上 -- Human-in-the-loop）
 
+- 创建、配置、运行
+
+  1. 配置时：一定要配置 checkpointer，在 agent 执行中断后，维持中断前的图状态；
+  2. 调用时：传入 config 记录线程信息；
+  3. 运行时机：模型响应之后，任何工具调用之前，触发。
+
+- 运行流程
+
+  1. Agent 调用模型后；
+  2. 中间件验证“模型回复”是否符合中断策略；
+  3. 当符合时: 中间件触发中断，并汇总信息交给 agent；
+  4. agent 将“中断信息”返回给用户，等待决策；
+  5. 最终根据用户响应；
+
+- interrupt_on 中不配置，不中断，不做审核；
+- 当 interrupt_on 中配置的工具中断时，返回的 message 中包含`__interrupt__`字段, 显示信息；
+- 用户响应中断（恢复/拒绝执行时），需要用 Command
+
+```python
+middleware=[
+  HumanInTheLoopMiddleware(
+    interrupt_on={
+      "tool_name1": False, # 不做审核
+      "tool_name2": True, # 做审核
+      "tool_name3": {"allowed_decisions": ["approve", "reject"]}, # 做审核
+    },
+    description_prefix="提示语言", # 多个工具可能同时中断，根据提示做判断
+  )
+]
+
+config = {"configurable":{"thread_id": "123"}}
+agent.invoke( # 决绝继续
+  Command(
+    resume={
+      "decisions":[{
+        'type':'reject',
+        'message':'拒绝理由'
+        }]
+      }),
+  config=config)
+
+agent.invoke( # 中断继续
+  Command(
+    resume={
+      "decisions":[{
+        'type':'approve'
+        }]
+      }),
+  config=config)
+
+agent.invoke( # 编辑后继续
+  Command(
+    resume={
+      "decisions":[{
+        'type':'edit',
+        'edited_action':{
+          "name":"工具名称",
+          "args":{"key1":"value1",ket2:"value2"}
+         }
+        }]
+      }),
+  config=config)
+```
+
 ### 摘要中间件 (Summarization)
 
-快到上下文窗口上限时，它会自动总结旧对话，这样防止 token 溢出，保证对话不中断
+较复杂或冗余情况下，agent 状态积累，快要突破 “模型的上下文”token 限制时，它会自动总结旧对话，这样防止 token 溢出，保证对话不中断
+
+- 调用时机：会在 agent 内部每次调用模型前，检查消息列表情况；
+
+- 使用场景：
+
+  1. 长文本(Long-context): 超出上下文窗口的长期对话任务；
+  2. 多轮次(multi-turn): 具有丰富历史记录的多轮对话，
+  3. 高冗余(High-redundancy): 需要完整保留对话上下文的应用场景;
+
+- 参数：
+  1. model: string | BaseChatModel
+  2. trigger: tuple[str, int] | list[tuple[str, int]]; 【ContextSize | list[ContextSize]】
+  3. keep: tuple[str, int]; 【ContextSize】
+  4. summary_prompt: string(可选，替换原来的系统提示词，新的提示词中必须包含{messages}占位符)
+
+```python
+agent=create_agent(
+  model=model,
+  tools=[tools],
+  middleware=[
+    SummarizationMiddleware( #
+      model=model, # 总结模型
+      # 1、根据 消息条数：
+      trigger=("message", 5), # 消息条数，总结摘要触发的条件
+      keep=("message", 5) # 摘要总结时，保留原消息列表中内容数量
+
+      # 2、根据 token数量
+      # trigger=("token", 1000),
+      # keep=("token", 1000),
+
+      # 3、根据 模型上下文长度的比值
+      # trigger=("fraction", 0.8),
+      # keep=("fraction", 0.3 ),
+
+      # 4、混合使用,任一条件满足时，触发总结；
+      # trigger": [("message", 5),("message", 10),("token", 1000)")]
+      # keep": ("message", 5)
+
+    )]
+)
+```
 
 ### PI 脱敏中间件
 
 内容发给模型前，自动识别并打码邮箱电话等敏感信息，保护用户隐私，满足合规的硬性要求
+
+### tool_selector 和 to_do_list
+
+- tool_selector: 工具太多时
+
+  在调用主模型前，利用大型语言模型智能选相关工具，通过结构化输出（定义了可用工具的名称及描述），提供工具子集给 agent 的主模型；
+
+  1. 使用场景：
+
+     - 多工具：拥有大量工具(10+)的代理，其中多数工具对每次查询而言并不相关；
+     - 高成本：通过过滤无关工具来减少 token 使用量；
+     - 高精度：通过减少冗余工具，提升模型聚焦度与谁确性。
+
+  2. 触发时机：每次模型调用前，基于当前消息列表，触发工具筛选。
+     Í
+
+  ```python
+    agent = create_agent(
+      model=model,
+      tools=[tools], # agent 工具列表（所有可用工具--工具对象）
+      middleware=[
+        LLMToolSelectorMiddleware(
+          model=model, # 负责工具筛选的模型
+          max_tools=5, # 最多返回的 tool 个数
+          allow_include=['tool_1'], # 始终包含的 tool，工具名称（字符串）
+        )
+      ]
+    )
+  ```
+
+- to_do_list：
 
 ## 时间旅行
 
