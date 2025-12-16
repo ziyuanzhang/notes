@@ -99,7 +99,17 @@ HumanMessage、AIMessage、SystemMessage、对话历史
 
 ## 06 Agent Loop - Agent 执行循环
 
-- 执行循环、消息历史、流式输出
+执行循环、消息历史、流式输出
+
+- 请求-->模型-->推理-->行动（调工具）-->（模型）观察（结果）-->输出
+
+- 默认的 Agent 是 reAct 流程：推理 + 行动 + 观察（循环）
+
+  1. 推理（Reason）
+  2. 行动（Action）
+  3. 观察（Observation）
+
+- workflow：固定步骤 step1--》step2--》Step3-->step4
 
 ## 第二阶段：实战技能 ==============================================
 
