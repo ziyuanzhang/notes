@@ -496,3 +496,5 @@ planning(规划)、file system（文件系统）、subagent（子代理）
   3. write_file ,写报告
 
 ## 部署
+
+LCEL:langChain Extension Language（废弃）

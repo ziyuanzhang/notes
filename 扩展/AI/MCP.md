@@ -1,4 +1,4 @@
-# MCP
+# MCP: Model Context Protocol
 
 - MCP 体系主要由三部分组成:
 

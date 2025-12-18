@@ -77,6 +77,14 @@ init_chat_model、invoke 方法、环境配置
   | 对话历史 | ❌ 不支持      | ✅ 支持                  |
   | 适用场景 | 简单提示       | 聊天、对话、多轮交互     |
 
+- LCEL 链式调用 (不推荐)
+
+  LCEL = LangChain Expression Language
+
+  ```bash
+    输入 → 模板 → 模型 → 输出
+  ```
+
 ## 03 Messages - 消息类型与对话历史
 
 HumanMessage、AIMessage、SystemMessage、对话历史
@@ -91,7 +99,49 @@ HumanMessage、AIMessage、SystemMessage、对话历史
 
 ## 04 Custom Tools - 自定义工具
 
-- @tool 装饰器、参数类型、docstring 重要性
+@tool 装饰器、参数类型、docstring 重要性
+
+- | 必需项         | 说明                                  |
+  | -------------- | ------------------------------------- |
+  | `@tool` 装饰器 | 声明这是一个工具                      |
+  | **docstring**  | AI 读这个来理解工具用途 ⚠️ 非常重要！ |
+  | 类型注解       | 参数和返回值的类型                    |
+  | 返回 `str`     | 工具应该返回字符串（AI 最容易理解）   |
+
+- demo
+
+  ```python
+    @tool
+    def my_tool(param: str, num_results: Optional[int] = 3) -> str:
+        """
+        工具的简短描述（AI 读这个！）
+
+        Args:
+            param: 参数说明
+            num_results: 返回结果数量，默认 3
+
+        Returns:
+            返回值说明
+        """
+  ```
+
+- 调用
+
+  1. 直接调用（测试用）
+
+     ```python
+       # 使用 .invoke() 方法
+       result = get_weather.invoke({"city": "北京"})
+       print(result)  # "晴天，温度 15°C"
+     ```
+
+  2. 绑定到模型（让 AI 调用）
+
+  ```python
+      model = init_chat_model("groq:llama-3.3-70b-versatile")
+      model_with_tools = model.bind_tools([get_weather])
+      response = model_with_tools.invoke("北京天气如何？")
+  ```
 
 ## 05 Simple Agent - create_agent 入门
 
