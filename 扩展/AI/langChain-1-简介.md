@@ -108,7 +108,9 @@ Agent 是约定
 
   ❗ langchain.messages / langchain.tools: 只是为了兼容旧项目，不想一夜之间炸掉全世界代码 💣
 
-* ✅ Layer 1：协议 & 抽象（唯一核心）
+##
+
+- ✅ Layer 1：协议 & 抽象（唯一核心）
 
   ```bash
   langchain-core
@@ -120,7 +122,7 @@ Agent 是约定
   └── callbacks / tracing
   ```
 
-* ✅ Layer 2：能力实现层（实现 Runnable）
+- ✅ Layer 2：能力实现层（实现 Runnable）
 
   ```bash
   chat_models
@@ -132,7 +134,7 @@ Agent 是约定
     └── MCP → BaseTool → Runnable
   ```
 
-* ✅ Layer 3：控制流 & Agent 引擎
+- ✅ Layer 3：控制流 & Agent 引擎
 
   ```bash
   LangGraph
@@ -144,7 +146,7 @@ Agent 是约定
 
   这一层直接吃 core，不吃 langchain
 
-* ✅ Layer 4：Facade / 快速应用框架（可选）
+- ✅ Layer 4：Facade / 快速应用框架（可选）
 
   ```bash
   langchain
@@ -154,21 +156,21 @@ Agent 是约定
   └── tool routing
   ```
 
-* ✅ Layer 5：组织 & 多 Agent
+- ✅ Layer 5：组织 & 多 Agent
 
   ```base
   DeepAgents
     └── built on LangGraph
   ```
 
-* ✅ Layer X：平台 & 监控（旁路）
+- ✅ Layer X：平台 & 监控（旁路）
 
   ```bash
   LangSmith
     ↔ callbacks / tracing
   ```
 
-## LangChain ================================
+## LangChain ======= 以下废弃 =========================
 
 ## 1、model
 
