@@ -17,10 +17,11 @@ init_chat_model、invoke 方法、环境配置
         api_key="your-api-key",  # API 密钥（可选，可从环境变量读取）
         temperature=0.7,         # 温度参数（可选）
         max_tokens=1000,         # 最大 token 数（可选）
-        **kwargs                 # 其他模型特定参数
-        stream=False,           # 是否流式输出（可选）
-        cache=False,             # 是否缓存结果（可选）
-        metadata=None,          # 元数据（可选）
+
+        # **kwargs         # 其他模型特定参数
+        stream=False,   # 是否流式输出（可选）
+        cache=False,        # 是否缓存结果（可选）
+        metadata=None,  # 元数据（可选）
     )
   ```
 
@@ -163,6 +164,19 @@ HumanMessage、AIMessage、SystemMessage、对话历史
 ## 05 Simple Agent - create_agent 入门
 
 - create_agent 创建 Agent、配置选项
+
+```python
+  agent =  create_agent(
+      model: model,  # 必须
+      tools: List[tool], # 必须
+
+      # **kwargs # 其他 (可选)
+      system_message: str=None, #系统提示词(可选)
+      interrupt_before: list[str]=None, # 在某些工具钱暂停（人机协作）(可选)
+      interrupt_after: list[str]=None, #在某些工具后暂停（人机协作）(可选)
+      debug: bool=False, # 调试模式(可选)
+    )
+```
 
 ## 06 Agent Loop - Agent 执行循环
 
