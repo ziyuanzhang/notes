@@ -18,6 +18,9 @@ init_chat_model、invoke 方法、环境配置
         temperature=0.7,         # 温度参数（可选）
         max_tokens=1000,         # 最大 token 数（可选）
         **kwargs                 # 其他模型特定参数
+        stream=False,           # 是否流式输出（可选）
+        cache=False,             # 是否缓存结果（可选）
+        metadata=None,          # 元数据（可选）
     )
   ```
 
