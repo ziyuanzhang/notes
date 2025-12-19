@@ -172,33 +172,6 @@ Agent 是约定
 
 ## LangChain ======= 以下废弃 =========================
 
-## 1、model
-
-- 最好用模型对应的 api 接口（例：ChatDeepSeek、ChatOpenAI）：可以显示思考过程、细节等；
-
-- 参数
-
-  1. temperature: 采样温度，值越高越有创造性（按照官方文档来）
-  2. max_retries: 最大重试次数。
-  3. max_tokens: 要生成的最大 token 数。
-
-- 速率限制：有些大模型不允许，单位时间内调用的次数太多；
-
-  1. init_chat_model()：函数调用【独有速率限制参数】
-  2. ChatDeepSeek（）、ChatOpenAI（）：类调用【没有速率限制参数】
-
-- 调用：invoke、stream、batch
-- 工具调用：bind_tools
-- 结构化输出：structured_outputs
-- 高级：
-  1. 多模态
-  2. 推理（）
-  3. 提示词缓存（模型自带）
-  4. 速率限制
-  5. 日志概率
-  6. token 用量
-  7. 调用时配置
-
 ## 2、工具(tools)
 
 from agent.my_llm import llm

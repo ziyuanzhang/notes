@@ -27,6 +27,8 @@ init_chat_model、invoke 方法、环境配置
   | `api_key`      | `str`   | API 密钥。如果不提供，会从环境变量中读取（如 `GROQ_API_KEY`）                                 | `None`     |
   | `temperature`  | `float` | 控制输出随机性。范围 0.0-2.0。<br>- `0.0`：最确定性<br>- `1.0`：默认，平衡<br>- `2.0`：最随机 | `1.0`      |
   | `max_tokens`   | `int`   | 限制模型输出的最大 token 数量                                                                 | 模型默认值 |
+  | `timeout`      | `int`   | 模型调用 超时时间（秒）                                                                       | 默认 60s   |
+  | `max_retries`  | `int`   | 模型调用失败 最大重试次数                                                                     | 0          |
   | `model_kwargs` | `dict`  | 传递给底层模型的额外参数                                                                      | `{}`       |
 
 - invoke 方法
@@ -34,6 +36,18 @@ init_chat_model、invoke 方法、环境配置
   ```code
     你的输入 → invoke() → LLM 模型 → 响应 → 返回给你
   ```
+
+- 调用：invoke、stream、batch
+- 工具调用：bind_tools
+- 结构化输出：structured_outputs
+- 高级：
+  1. 多模态
+  2. 推理（）
+  3. 提示词缓存（模型自带）
+  4. 速率限制
+  5. 日志概率
+  6. token 用量
+  7. 调用时配置
 
 ## 02 Prompt Templates - 提示词模板
 
@@ -89,11 +103,11 @@ init_chat_model、invoke 方法、环境配置
 
 HumanMessage、AIMessage、SystemMessage、对话历史
 
-| 角色      | 字典格式                     | 对象格式             | 用途     |
-| --------- | ---------------------------- | -------------------- | -------- |
-| System    | `{"role": "system", ...}`    | `SystemMessage(...)` | 系统提示 |
-| User      | `{"role": "user", ...}`      | `HumanMessage(...)`  | 用户输入 |
-| Assistant | `{"role": "assistant", ...}` | `AIMessage(...)`     | AI 回复  |
+| 角色      | 字典格式                                  | 对象格式             | 用途     |
+| --------- | ----------------------------------------- | -------------------- | -------- |
+| System    | `{"role": "system", "content": "..."}`    | `SystemMessage(...)` | 系统提示 |
+| User      | `{"role": "user", "content": "..."}`      | `HumanMessage(...)`  | 用户输入 |
+| Assistant | `{"role": "assistant", "content": "..."}` | `AIMessage(...)`     | AI 回复  |
 
 - 对话历史 -- 本质是 列表
 
