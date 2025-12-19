@@ -19,6 +19,23 @@
 
 LangChain 1.0 = 协议（core）+ 编排（graph）+ Provider（插件）+ Service（serve）
 
+1. langchain-core: 轻量核心，包含核心抽象接口
+2. langchain: 对 langchain-core 的 封装 + 兼容; ⚠️ 你能不用就不用
+3. langchain-community: 社区集成
+4. langchain-openai: 合作伙伴包
+5. langGraph: Agent 系统基础(Agent = Graph + State)
+6. langchain-text-splitters（完全独立）
+7. langchain-mcp-adapters: 把 MCP Tool 映射成 langchain-core Tool
+8. langchain-classic: 向后兼容包（后期删除）
+
+```bash
+Message 是事实
+ToolCall 是事件
+Runnable 是行为
+Graph 是控制流
+Agent 是约定
+```
+
 - 1️⃣ langchain-core（最重要）这是 LangChain 1.0 的“内核”
 
   只做三件事：
@@ -79,12 +96,6 @@ LangChain 1.0 = 协议（core）+ 编排（graph）+ Provider（插件）+ Servi
   这是 SaaS，不是你项目必须的一部分。
   你 可以完全不用
 
-1. langchain-core: 轻量核心，包含核心抽象接口
-2. langGraph: Agent 系统基础
-3. langchain-community: 社区集成
-4. langchain-openai: 合作伙伴包
-5. langchain-classic: 向后兼容包（后期删除）
-
 - 命名空间
 
   | 模块                  | 可用内容                        | 备注                          |
@@ -95,7 +106,7 @@ LangChain 1.0 = 协议（core）+ 编排（graph）+ Provider（插件）+ Servi
   | langchain.chat_models | init_chat_model, BaseChatModel  | 统一模型初始化                |
   | langchain.embeddings  | Embeddings, init_embeddings     | 嵌入模型                      |
 
-  ❗ langchain.messages/langchain.tools: 只是为了兼容旧项目，不想一夜之间炸掉全世界代码 💣
+  ❗ langchain.messages / langchain.tools: 只是为了兼容旧项目，不想一夜之间炸掉全世界代码 💣
 
 * ✅ Layer 1：协议 & 抽象（唯一核心）
 

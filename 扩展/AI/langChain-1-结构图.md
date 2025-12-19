@@ -60,7 +60,7 @@ langchain_core
 │       ├── name
 │       └── args
 │
-├── runnables
+├── runnables （LCEL 的“真身”）LCEL 没被废，只是不再当概念宣传
 │   ├── Runnable (Protocol)
 │   │   ├── invoke()
 │   │   ├── ainvoke()
@@ -76,7 +76,7 @@ langchain_core
 │       ├── metadata
 │       └── callbacks
 │
-├── tools
+├── tools   不负责“调用”, 只描述：我能干什么、参数是什么
 │   ├── BaseTool
 │   │   ├── name
 │   │   ├── description
