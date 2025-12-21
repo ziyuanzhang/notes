@@ -181,63 +181,9 @@ Agent 是约定
 
 from agent.my_llm import llm
 
-## 3、结构化输出（Structured Output）
+## 1、核心入口:create_agent()统-Agent 构建流程
 
-- ToolStrategy[StructuredResponseT]：使用工具调用进行结构化输出
-- ProviderStrategy[StructuredResponseT]：使用提供商原生结构化输出
-- type[StructuredResponseT]：架构类型 - 根据模型能力自动选择最佳策略
-- None：无结构化输出
-- 联合类型：多个架构选项
-
-* 定义结构化输出格式的架构
-  1. Pydantic (V2) 的 BaseModel
-  2. Dataclass (数据类)
-  3. TypedDict：类型化字典类
-  4. JSON Schema：带有 JSON 模式规范的字典
-  5. 联合类型：多个架构选项
-
-## 4、Agent（智能体/代理）
-
-- Agent 核心组件：模型（Model）、工具（Tool）、记忆（Memory）
-
-  1. 模型（Model）： Agent 的“大脑”，负责推理和决策过程。
-  2. 工具(Tool)： Agent 与外部交互的“能力扩展“，每个工具提供一个功能，如搜索、翻译、计算等。
-  3. 记忆（Memory）： 为 Agent 提供上下文感知能力，使其能够记住之前的交互历史并基于上下文做出决策（分 短期记忆、长期记忆）。
-
-     - 短期记忆： 维护当前对话的上下文，如当前任务、当前对话、当前工具调用结果等。
-     - 长期记忆： 跨对话会话的知识持久化存储，如数据库、文件系统、知识库等。
-
-- agent: model、tools、system_prompt、checkpoint、middleware
-
-- 多 agent:2 种方式
-
-  1. 集中式: user -> supervisor agent ->worker agent
-  2. 轮换式: user -> agent1 --> user -->agent2
-
-- 调用：invoke、stream 调用、异步调用
-
-- 工作流程
-
-  ![agents流程图](./img/operating_process/agents流程图.png)
-  ![agents决策流程](./img/operating_process/agents决策流程.png)
-
-### 1、核心入口:create_agent()统-Agent 构建流程
-
-1. 底层封装 LangGraph 执行机制: create_agent()默认基于 LangGraph 引擊实现，将“模型调用一工具决策一工具执行一结果整合“的闭环流程封装为高阶接口，开发者无需关注底层的图执行逻辑，只需传入核心组件即可快速构建 Agent。这种设计不仅简化了代码，还提升了流程的稳定性和可扩展性，支持复杂的分支逻辑和循环执行。
-
-2. 告别繁琐的提示词模板: 旧版本要要从 LanaChain Hub 导入大段的提示词模板，包含工具调用格式、对话历史注入等复杂配置，且模型容易出现格式输出错误。1.0 版本中，开发者只需传入简洁的 system_prompt(系统提示词)，LangChain 会自动结合工具信息、对话上下文生成完整的提示词，大幅降低了提示词设计的难度。
-
-3. 兼容 Function Calling 标准: create_agent()原生支持 OpenAI 定义的 Function calling 格式，能够自动将工具信息转化为结构化的函数描述，传递给支持该格式的 LLM，在国内模型中，通义千问对这一特性的适配性最佳，这也是很多开发者选择其作为 LangChain 默认模型的重要原因。
-
-### 多代理（多 Agent）
-
-- supervisor agent 步骤:
-
-  1. 创建 2 个 worker agent，有各自的 tools;
-  2. 把这 2 个 agent 封装成 2 个新的 tool;
-  3. 创建 supervisor agent，配置 tools，使用的就是 这 2 个 work agent 封装的 tool;
-
-### 动态模型 Agent
+动态模型 Agent
 
 ```python
 base_model = ChatOpenAI(model="gpt-3.5-turbo-16k")
@@ -260,86 +206,7 @@ agent = create_agent(
 )
 ```
 
-## 5、系统提示词(system_prompt)
-
-- 动态系统提示
-
-## 6、消息（Message）
-
-- 组成部分: SystemMessage、HumanMessage、ToolMessage、AIMessage
-
-  1. role: system(系统消息)、user（用户输入）、assistant（模型输出）、tool(工具输出)
-  2. content: 消息内容
-  3. Metadata:（可选）额外信息，如：消息 ID、响应时间、token 消耗、消息标签等
-
-- 全部响应： model.invoke(message: Message) -> Message
-- 流式响应： model.stream(message: Message) -> Generator[Message, None, None]
-- 批量响应： model.batch(messages: List[Message]) -> List[Message]
-
-## 8、记忆：短期记忆、长期记忆（持久化）
-
-### checkpointer 检查点管理器
-
-- checkpoint: 检查点，状态图的“总体状态”快照
-- thread_id: 管理
-- 作用: 管理记忆、时间旅行、人工干预（human-in-the-loop）、容错
-
-### 状态(state)
-
-- SystemMessage、HumanMessage: Content
-- AIMessage 的 additional_kwargs
-
-  1. 属性
-
-     - tool_calls(list): 与该消息关联的工具调用；
-     - invalid_tool_calls(list): 与该消息关联的解析错误的工具调用；
-     - usage_metadata(typedict): 包会该消息的使用元数据，例如 token 使用情况；
-     - content_blocks(list): 消息中标准的、结构化的 ContentBlock 字典;
-
-  2. 方法 pretty_repr ->str: 返回该消息更易读的的可视化呈现形式;
-
-- ToolMessage 的 additional_kwargs
-  1. 属性
-     - results(list): 工具的执行结果，列表内容由所定义工具而定;
-     - tool_call_id(str): 该消息消息所响应的工具调用唯一标识;
-     - status(Literal['success','error']): 工具调用的结果状态;
-     - artifact(Any): 工具执行过程中产生的非传输内容，与工具定义时 content_and_artifact 参数关联；
-  2. 方法 coerce_args -> dict: 强制将模型参数转换为正确类型
-
 ## 7、中间件 -- 通过钩子
-
-agent 运行过程：拥有更细致、全面的控制与逻辑搭建；
-
-- 中间件的主要作用
-
-  1. 行为记录：通过日志记录、分析和调试跟踪 Agent 行为；
-  2. 格式约束：转换提示、工县选择和输出格式；
-  3. 逻辑控制：增加了重试、后备和提前终止逻辑；
-  4. 资源限制：应用速率限制、保护栏和个人身份识别检测；
-
-**注意：** middleware 参数传入一个列表，可以传入多个中间件；当同一位置有多个中间件时，会按照列表中的先后顺序触发；
-
-- 分类：预构建中间件 和 自定义中间件
-
-  1. 预构建中间件（Built-in Middleware）：
-
-     - Summarization: 触发时自动总结对话列表记录;
-     - Human-in-the-loop: 暂停执行以供人工批准或修改工具调用;
-     - To-do list: 为代理提供复杂多步骤任务的任务规划和跟踪能力;
-     - Model call limit: 限制模型调用次数，以防止过高成本;
-
-  2. 自定义中间件（Custom Middleware）：
-
-     - 节点型钩子:
-
-       1. before_agent: Agent 开始前(每次查询一次);
-       2. before_model: 每次模型调用前
-       3. after_model: 每次模型响应后
-       4. after_agent: 代理 完成后(每次调用一次)
-
-     - 环绕型钩子:
-       1. wrap_model_call: 国绕每次模型调用
-       2. wrap_tool_call: 用绕每次工具调阳
 
 ### 人工干预（人在环上 -- Human-in-the-loop）
 

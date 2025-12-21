@@ -114,6 +114,34 @@ HumanMessage、AIMessage、SystemMessage、对话历史
 | Assistant | `{"role": "assistant", "content": "..."}` | `AIMessage(...)`     | AI 回复  |
 
 - 对话历史 -- 本质是 列表
+- 组成部分: SystemMessage、HumanMessage、ToolMessage、AIMessage
+
+  1. role: system(系统消息)、user（用户输入）、assistant（模型输出）、tool(工具输出)
+  2. content: 消息内容
+  3. Metadata:（可选）额外信息，如：消息 ID、响应时间、token 消耗、消息标签等
+
+- 消息解析
+
+  1. SystemMessage、HumanMessage: Content
+  2. AIMessage 的 additional_kwargs
+
+     - 属性
+
+       1. tool_calls(list): 与该消息关联的工具调用；
+       2. invalid_tool_calls(list): 与该消息关联的解析错误的工具调用；
+       3. usage_metadata(typedict): 包会该消息的使用元数据，例如 token 使用情况；
+       4. content_blocks(list): 消息中标准的、结构化的 ContentBlock 字典;
+
+     - 方法 pretty_repr ->str: 返回该消息更易读的的可视化呈现形式;
+
+  3. ToolMessage 的 additional_kwargs
+
+     - 属性
+       1. results(list): 工具的执行结果，列表内容由所定义工具而定;
+       2. tool_call_id(str): 该消息消息所响应的工具调用唯一标识;
+       3. status(Literal['success','error']): 工具调用的结果状态;
+       4. artifact(Any): 工具执行过程中产生的非传输内容，与工具定义时 content_and_artifact 参数关联；
+     - 方法 coerce_args -> dict: 强制将模型参数转换为正确类型
 
 ## 04 Custom Tools - 自定义工具
 
@@ -173,7 +201,7 @@ HumanMessage、AIMessage、SystemMessage、对话历史
 
 ## 05 Simple Agent - create_agent 入门
 
-- create_agent 创建 Agent、配置选项
+create_agent 创建 Agent、配置选项
 
 ```python
   agent =  create_agent(
@@ -188,6 +216,17 @@ HumanMessage、AIMessage、SystemMessage、对话历史
     )
 ```
 
+- Agent 核心组件：模型（Model）、工具（Tool）、记忆（Memory）
+
+  1. 模型（Model）： Agent 的“大脑”，负责推理和决策过程。
+  2. 工具(Tool)： Agent 与外部交互的“能力扩展“，每个工具提供一个功能，如搜索、翻译、计算等。
+  3. 记忆（Memory）： 为 Agent 提供上下文感知能力，使其能够记住之前的交互历史并基于上下文做出决策（分 短期记忆、长期记忆）。
+
+     - 短期记忆： 维护当前对话的上下文，如当前任务、当前对话、当前工具调用结果等。
+     - 长期记忆： 跨对话会话的知识持久化存储，如数据库、文件系统、知识库等。
+
+- 调用：invoke、stream 调用、异步调用
+
 ## 06 Agent Loop - Agent 执行循环
 
 执行循环、消息历史、流式输出
@@ -199,6 +238,11 @@ HumanMessage、AIMessage、SystemMessage、对话历史
   1. 推理（Reason）
   2. 行动（Action）
   3. 观察（Observation）
+
+- 工作流程
+
+  ![agents流程图](./img/operating_process/agents流程图.png)
+  ![agents决策流程](./img/operating_process/agents决策流程.png)
 
 - workflow：固定步骤 step1--》step2--》Step3-->step4
 
@@ -214,15 +258,63 @@ HumanMessage、AIMessage、SystemMessage、对话历史
 
 ## 09 Checkpointing - 状态持久化
 
-- SQLite 持久化、状态恢复
+SQLite 持久化、状态恢复
+
+- checkpoint: 检查点，状态图的“总体状态”快照
+- thread_id: 管理
+- 作用: 管理记忆、时间旅行、人工干预（human-in-the-loop）、容错
 
 ## 10 Middleware Basics - 中间件基础
 
-- 自定义中间件、钩子函数
+自定义中间件、钩子函数
+
+- 中间件的主要作用
+
+  1. 行为记录：通过日志记录、分析和调试跟踪 Agent 行为；
+  2. 格式约束：转换提示、工县选择和输出格式；
+  3. 逻辑控制：增加了重试、后备和提前终止逻辑；
+  4. 资源限制：应用速率限制、保护栏和个人身份识别检测；
+
+**注意：** middleware 参数传入一个列表，可以传入多个中间件；当同一位置有多个中间件时，会按照列表中的先后顺序触发；
+
+- 分类：预构建中间件 和 自定义中间件
+
+  1. 预构建中间件（Built-in Middleware）：
+
+     - Summarization: 触发时自动总结对话列表记录;
+     - Human-in-the-loop: 暂停执行以供人工批准或修改工具调用;
+     - To-do list: 为代理提供复杂多步骤任务的任务规划和跟踪能力;
+     - Model call limit: 限制模型调用次数，以防止过高成本;
+
+  2. 自定义中间件（Custom Middleware）：
+
+     - 节点型钩子:
+
+       1. before_agent: Agent 开始前(每次查询一次);
+       2. before_model: 每次模型调用前
+       3. after_model: 每次模型响应后
+       4. after_agent: 代理 完成后(每次调用一次)
+
+     - 环绕型钩子:
+       1. wrap_model_call: 国绕每次模型调用
+       2. wrap_tool_call: 用绕每次工具调阳
 
 ## 11 Structured Output - 结构化输出
 
-- Pydantic 模型、输出解析
+Pydantic 模型、输出解析
+
+- ToolStrategy[StructuredResponseT]：使用工具调用进行结构化输出
+- ProviderStrategy[StructuredResponseT]：使用提供商原生结构化输出
+- type[StructuredResponseT]：架构类型 - 根据模型能力自动选择最佳策略
+- None：无结构化输出
+- 联合类型：多个架构选项
+
+* 定义结构化输出格式的架构
+  1. Pydantic (V2) 的 BaseModel
+  2. Dataclass (数据类)
+  3. TypedDict：类型化字典类
+  4. JSON Schema：带有 JSON 模式规范的字典
+  5. 联合类型：多个架构选项
 
 ## 12 Validation Retry - 验证与重试
 
@@ -252,7 +344,18 @@ HumanMessage、AIMessage、SystemMessage、对话历史
 
 ## 17 Multi-Agent - 多智能体系统
 
-- Supervisor 模式、协作调度
+Supervisor 模式、协作调度
+
+- 多 agent:2 种方式
+
+  1. 集中式: user -> supervisor agent ->worker agent
+  2. 轮换式: user -> agent1 --> user -->agent2
+
+- supervisor agent 步骤:
+
+  1. 创建 2 个 worker agent，有各自的 tools;
+  2. 把这 2 个 agent 封装成 2 个新的 tool;
+  3. 创建 supervisor agent，配置 tools，使用的就是 这 2 个 work agent 封装的 tool;
 
 ## 18 Conditional Routing - 条件路由
 
