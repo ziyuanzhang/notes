@@ -126,22 +126,32 @@ HumanMessage、AIMessage、SystemMessage、对话历史
   | 类型注解       | 参数和返回值的类型                    |
   | 返回 `str`     | 工具应该返回字符串（AI 最容易理解）   |
 
+- 定义工具三类方式：
+
+  1. @tool 装饰器定义
+  2. 继承 BaseTool 类定义，必须重写`_run`函数
+  3. 从 MCP 服务器获得
+
+  **注意：** 同步工具，智能体同步调用，异步工具，智能体异步调用
+
 - demo
 
-  ```python
-    @tool
-    def my_tool(param: str, num_results: Optional[int] = 3) -> str:
-        """
-        工具的简短描述（AI 读这个！）
+```python
+  @tool(name:str, description:str,response_format:["content", "content_and_artifact"])
+  def tool_name(arg1: str, arg2: int) -> str:
+      """
+      提示词：工具的简短描述（AI 读这个！）
 
-        Args:
-            param: 参数说明
-            num_results: 返回结果数量，默认 3
+      Args:
+          param: 参数说明
+          num_results: 返回结果数量，默认 3
 
-        Returns:
-            返回值说明
-        """
-  ```
+      Returns:
+          返回值说明
+      """
+     print("参数：", arg1, arg2)
+     return "返回值"
+```
 
 - 调用
 

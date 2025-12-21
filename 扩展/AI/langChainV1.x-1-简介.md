@@ -100,23 +100,22 @@ Agent 是约定
 
 ## langchain 部分
 
-- Create_agent API
-- AgentMiddleware:
+1. Create_agent API
+2. AgentMiddleware:
+3. ContentBlocks: 输出的“内容块”
+4. Structured Output:
+5. State Management: 状态管理
 
-  - 中间件的四大功能
+- 中间件的四大功能
 
-    1. 监控(Monitoring): 日志记录、分析、调试;
-    2. 修改(Modification): 转换提示词、工具选择、输出格式;
-    3. 控制(Control): 重试、降级、提前终止;
-    4. 强制(Enforcement): 速率限制、防护栏、PI 检测;
-
-- ContentBlocks: 输出的“内容块”
-- Structured Output:
-- State Management: 状态管理
+  1. 监控(Monitoring): 日志记录、分析、调试;
+  2. 修改(Modification): 转换提示词、工具选择、输出格式;
+  3. 控制(Control): 重试、降级、提前终止;
+  4. 强制(Enforcement): 速率限制、防护栏、PI 检测;
 
 ![langchain-agent运行流程](./img/langchain/langchain-agent运行流程.png)
 
-##
+## langchain 分层
 
 - ✅ Layer 1：协议 & 抽象（唯一核心）
 
@@ -180,48 +179,7 @@ Agent 是约定
 
 ## LangChain ======= 以下废弃 =========================
 
-## 2、工具(tools)
-
 from agent.my_llm import llm
-
-```python
-@tool(name:str, description:str,response_format:["content", "content_and_artifact"])
-def tool_name(arg1: str, arg2: int) -> str:
-     """ 提示词
-
-     Args:
-         参数描述
-
-     Returns:
-         返回值描述
-     """
-     print("参数：", arg1, arg2)
-     return "返回值"
-
-
-model = init_chat_model("openai:gpt-3.5-turbo")
-model_with_tool = model.bind_tools([tool_name])
-response = model_with_tool.invoke("请计算 1+1")
-```
-
-- response_format:["content", "content_and_artifact"]:可选，输入二元数组
-- get_input_schema():获取工具的输入策略
-- get_output_schema():获取工具的输出策略
-
-* 工具参数
-
-  1. 名称：str;
-  2. 描述：str;
-  3. args_schema: pydantic.BaseModel;
-  4. return_dirct: 忽略
-
-* 定义工具三类方式：
-
-  1. @tool 装饰器定义
-  2. 继承 BaseTool 类定义，必须重写`_run`函数
-  3. 从 MCP 服务器获得
-
-**注意：** 同步工具，智能体同步调用，异步工具，智能体异步调用
 
 ## 3、结构化输出（Structured Output）
 
@@ -637,45 +595,3 @@ LCEL:langChain Extension Language（废弃）
 
 langchain 1.0 自己的工程结构 ，有哪些包？各个包的关系(langchain-core，message, HumanMessage,chat_models,tools,langchain-text-splitters,langchain-mcp-adapters,Output Parsers,langGraph,DeepAgents,等）
 出一个结构图
-
-✅ Layer 1：协议 & 抽象（唯一核心）
-langchain-core
-├── messages
-├── runnables
-├── tools
-├── output_parsers
-├── prompts
-└── callbacks / tracing
-
-✅ Layer 2：能力实现层（实现 Runnable）
-chat_models
-├── langchain-openai
-├── langchain-anthropic
-└── langchain-vllm
-
-langchain-mcp-adapters
-└── MCP → BaseTool → Runnable
-
-✅ Layer 3：控制流 & Agent 引擎
-LangGraph
-├── State
-├── Node (Runnable)
-├── Edge
-└── Replay / Checkpoint
-
-这一层直接吃 core，不吃 langchain
-
-✅ Layer 4：Facade / 快速应用框架（可选）
-langchain
-├── agents
-├── chains
-├── memory
-└── tool routing
-
-✅ Layer 5：组织 & 多 Agent
-DeepAgents
-└── built on LangGraph
-
-✅ Layer X：平台 & 监控（旁路）
-LangSmith
-↔ callbacks / tracing
