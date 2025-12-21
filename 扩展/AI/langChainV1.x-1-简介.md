@@ -1,32 +1,6 @@
-# LangChain V1.0 、 LangGraph 、 deepAgents
+# langChain-V1.x-1-简介
 
-1. LangChain V1.0 vs LangGraph V1.0: 分工与定位
-
-   - LangChain: 构建在 LangGraph 之上，以提供持久的执行、流、人机交互、持久性等。
-   - LangGraph: 一个底层运行时框架，专为需要长期运行、可控且高定制化的生产级智能体设计。
-
-2. DeepAgents V1.0:【做研究类的】 构建能够规划（planning）、使用子代理（subagent）并利用文件系统（file system）完成复杂任务的代理
-
-3. 测试框架：
-
-   - LangSmith: 大型语言模型的可观测性、评估与部署（分析用的）【真实项目不用】
-   - LangGraph studio: 语言模型开发工具，基于 LangGraph 构建，提供模型开发、测试、部署等功能。
-
-4. LangGraph CLI: 后端打包部署的工具
-5. Agent Chat UI: 前端页面
-
-## LangChain1.0 构成: 轻核心与模块化
-
-LangChain 1.0 = 协议（core）+ 编排（graph）+ Provider（插件）+ Service（serve）
-
-1. langchain-core: 轻量核心，包含核心抽象接口
-2. langchain: 对 langchain-core 的 封装 + 兼容; ⚠️ 你能不用就不用
-3. langchain-community: 社区集成
-4. langchain-openai: 合作伙伴包
-5. langGraph: Agent 系统基础(Agent = Graph + State)
-6. langchain-text-splitters（完全独立）
-7. langchain-mcp-adapters: 把 MCP Tool 映射成 langchain-core Tool
-8. langchain-classic: 向后兼容包（后期删除）
+LangChain 1.0（不单单指 langchain） = 协议（core）+ 编排（graph）+ Provider（插件）+ Service（serve）
 
 ```bash
 Message 是事实
@@ -36,67 +10,83 @@ Graph 是控制流
 Agent 是约定
 ```
 
-- 1️⃣ langchain-core（最重要）这是 LangChain 1.0 的“内核”
+## LangChain1.0 构成: 轻核心与模块化
 
-  只做三件事：
+1. 1️⃣ langchain-core（最重要）：这是 LangChain 1.0 的“内核”
 
-  | 能力     | 说明                                            |
-  | -------- | ----------------------------------------------- |
-  | 抽象接口 | LLM / ChatModel / Embeddings / Retriever / Tool |
-  | Runnable | 协议 Runnable, RunnableSequence, RunnableMap    |
-  | Schema   | BaseMessage, Document, ToolCall, AIMessage      |
+   只做三件事：
 
-  写的 80% 业务代码，只依赖 langchain-core
+   | 能力     | 说明                                            |
+   | -------- | ----------------------------------------------- |
+   | 抽象接口 | LLM / ChatModel / Embeddings / Retriever / Tool |
+   | Runnable | 协议 Runnable, RunnableSequence, RunnableMap    |
+   | Schema   | BaseMessage, Document, ToolCall, AIMessage      |
 
-- 2️⃣ langchain（名字很大，地位已下降）它现在是 “默认拼装层”
+   写的 80% 业务代码，只依赖 langchain-core
 
-  - 主要作用：
+2. 2️⃣ langchain（名字很大，地位已下降）：“默认拼装层”，对 langchain-core 的 封装 + 兼容；⚠️ 能不用就不用;
 
-    - 把常用组件“顺手装一起”
-    - 提供少量向后兼容接口
-    - 简化新手体验
+   agent 黑盒必须与 LangSmith 配合使用
 
-    ❗LangChain 1.0 官方推荐：能不用 langchain，就不用
+   - 主要作用：
 
-- 3️⃣ langchain-community= 官方兜底的“实验仓库”
+     - 把常用组件“顺手装一起”
+     - 提供少量向后兼容接口
+     - 简化新手体验
 
-  ❗ 社区集成：1.0 之后官方态度： community ≈ “临时停靠区”，成熟了就拆到独立 provider 包
+     ❗LangChain 1.0 官方推荐：能不用 langchain，就不用
 
-- 4️⃣ LLM / Embedding Provider（强解耦）
+3. 3️⃣ langchain-community = 官方兜底的“实验仓库”
 
-  - 好处：
+   ❗ 社区集成：1.0 之后官方态度： community ≈ “临时停靠区”，成熟了就拆到独立 provider 包
 
-    - 不污染核心
-    - 你可以完全不装 OpenAI
-    - Ollama / vLLM / 本地模型一等公民
+4. 4️⃣ LLM / Embedding Provider（强解耦）
 
-- 5️⃣ VectorStore / DB Provider
+   - 好处：
 
-  全部只依赖 langchain-core
+     - 不污染核心
+     - 你可以完全不装 OpenAI
+     - Ollama / vLLM / 本地模型一等公民
 
-- 6️⃣ langgraph = 新一代 Agent 引擎
+5. 5️⃣ VectorStore / DB Provider
 
-  | 能力         | 说明                  |
-  | ------------ | --------------------- |
-  | State        | 显式状态机            |
-  | Graph        | DAG / 循环 / 条件分支 |
-  | Tool Calling | 可控、可回放          |
-  | 多 Agent     | Supervisor / Router   |
+   全部只依赖 langchain-core
 
-  ❗ LangChain 官方明确：未来所有 Agent，都应该基于 langgraph
+6. 6️⃣ langGraph = 新一代 Agent 引擎
 
-- 7️⃣ langserve（部署）
+   Agent 系统基础(Agent = Graph + State);
 
-  - 功能：
-    - 把 Runnable / Graph 直接暴露为 API
-    - FastAPI 自动生成
-    - 支持 streaming / schema
+   | 能力         | 说明                  |
+   | ------------ | --------------------- |
+   | State        | 显式状态机            |
+   | Graph        | DAG / 循环 / 条件分支 |
+   | Tool Calling | 可控、可回放          |
+   | 多 Agent     | Supervisor / Router   |
 
-- 8️⃣ langsmith（观测，不是必须）
-  这是 SaaS，不是你项目必须的一部分。
-  你 可以完全不用
+   ❗ LangChain 官方明确：未来所有 Agent，都应该基于 langgraph
 
-- 命名空间
+7. 7️⃣ langServe（部署）
+
+   - 功能：
+     - 把 Runnable / Graph 直接暴露为 API
+     - FastAPI 自动生成
+     - 支持 streaming / schema
+
+8. 8️⃣ langSmith（观测，不是必须）
+   这是 SaaS，不是你项目必须的一部分。
+   你 可以完全不用
+   与 LangChain 配合，大型语言模型的可观测性、评估与部署（分析用的）【真实项目不用】;
+
+- langchain-text-splitters（完全独立）;
+- langchain-mcp-adapters: 把 MCP Tool 映射成 langchain-core Tool;
+- langchain-classic: 向后兼容包（后期删除）;
+
+- DeepAgents:【做研究类的 -- 暂时不可用】 构建能够规划（planning）、使用子代理（subagent）并利用文件系统（file system）完成复杂任务的代理;
+- LangGraph studio: 语言模型开发工具，基于 LangGraph 构建，提供模型开发、测试、部署等功能。
+- LangGraph CLI: 后端打包部署的工具
+- Agent Chat UI: 前端页面
+
+* 命名空间
 
   | 模块                  | 可用内容                        | 备注                          |
   | --------------------- | ------------------------------- | ----------------------------- |
@@ -107,6 +97,24 @@ Agent 是约定
   | langchain.embeddings  | Embeddings, init_embeddings     | 嵌入模型                      |
 
   ❗ langchain.messages / langchain.tools: 只是为了兼容旧项目，不想一夜之间炸掉全世界代码 💣
+
+## langchain 部分
+
+- Create_agent API
+- AgentMiddleware:
+
+  - 中间件的四大功能
+
+    1. 监控(Monitoring): 日志记录、分析、调试;
+    2. 修改(Modification): 转换提示词、工具选择、输出格式;
+    3. 控制(Control): 重试、降级、提前终止;
+    4. 强制(Enforcement): 速率限制、防护栏、PI 检测;
+
+- ContentBlocks: 输出的“内容块”
+- Structured Output:
+- State Management: 状态管理
+
+![langchain-agent运行流程](./img/langchain/langchain-agent运行流程.png)
 
 ##
 
