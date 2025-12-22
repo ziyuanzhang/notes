@@ -177,10 +177,6 @@ Agent 是约定
     ↔ callbacks / tracing
   ```
 
-## LangChain ======= 以下废弃 =========================
-
-from agent.my_llm import llm
-
 ## 1、核心入口:create_agent()统-Agent 构建流程
 
 动态模型 Agent
@@ -206,7 +202,7 @@ agent = create_agent(
 )
 ```
 
-## 7、中间件 -- 通过钩子
+## 中间件 -- 通过钩子
 
 ### 人工干预（人在环上 -- Human-in-the-loop）
 
@@ -379,9 +375,13 @@ agent=create_agent(
   ![to_do_list](./img/langchain/to_do_list.png)
   步骤：4、5、6 循环执行
 
-## 时间旅行
+## 时间旅行、图、
+
+## 上下文工程
 
 ## 运行时
+
+## 防护措施
 
 ## 模型上下文协议 (MCP)
 
@@ -426,21 +426,7 @@ agent=create_agent(
   2. （用文本）带分数的相似度查询
   3. （用向量）进行相似的查询；【查询先转向量，后查询】
 
-## SQL
-
-## 上下文工程
-
-## 模型上下文协议（MCP）
-
-## 防护措施
-
-## langGraph（强调生产可靠性） =================================================
-
-## 图
-
-## 持久化状态：智能体状态自动保存，中断后也能从断点继续
-
-## deepAgent: ========================================
+## deepAgent: =====
 
 planning(规划)、file system（文件系统）、subagent（子代理）
 
