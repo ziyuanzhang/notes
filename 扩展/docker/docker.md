@@ -159,7 +159,9 @@ docker run -dp 0.0.0.0:3000:3000 YOUR-USER-NAME/getting-started
 compose.yaml ：代替命令行
 
 - 上线：docker compose up -d （创建容器并启动）
-- 上线：docker compose -f docker-compose.yml up -d（-f:-file； 指定 yaml 文件）
+
+  docker compose -f docker-compose.yml up -d（-f:-file； 指定 yaml 文件）
+
 - 下线：docker compose down （移除容器及相关的资源）
 - 启动：docker compose start x1 x2 x3 （x1 x2：yaml 中配置的应用名字）
 - 停止：docker compose stop x1 x2
