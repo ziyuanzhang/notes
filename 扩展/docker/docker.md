@@ -159,6 +159,7 @@ docker run -dp 0.0.0.0:3000:3000 YOUR-USER-NAME/getting-started
 compose.yaml ：代替命令行
 
 - 上线：docker compose up -d （创建容器并启动）
+- 上线：docker compose -f docker-compose.yml up -d（-f:-file； 指定 yaml 文件）
 - 下线：docker compose down （移除容器及相关的资源）
 - 启动：docker compose start x1 x2 x3 （x1 x2：yaml 中配置的应用名字）
 - 停止：docker compose stop x1 x2
@@ -171,14 +172,31 @@ compose.yaml ：代替命令行
   3. volumes：卷
   4. configs：配置
   5. secrets：密钥
+  6. name：同一个项目下的不同镜像，打组的组名（不写：默认 docker）
+     - 例如：RAGflow 项目有: ragflow-cpu、minio、redis、es01、mysql 镜像组成
 
   [docker-compose.yaml](./img/docker-compose.yaml)
 
+## 下载镜像失败，处理
+
+1. 清理“悬空”镜像（安全，推荐）: `docker image prune`
+
+   这个命令只删除那些下载失败、标签为 <none> 的残留文件，绝对不会删除任何有名字（如 nginx, postgres）的正常镜像。
+
+2. 清理构建缓存（针对 EOF 错误有效）:`docker builder prune`
+
+   如果你是在构建过程中或者拉取层级时报错，清理 BuildKit 缓存通常能解决卡顿，且不影响已有镜像。
+
+3. 精确删除报错的那一个镜像（手术刀式清理）:
+
+   - 第一步：找到镜像名 ( docker-compose.yml 中的 image 字段,例: infiniflow/ragflow:dev)
+   - 第二步：精准删除`docker rmi infiniflow/ragflow:dev`
+
+4. 重启 Docker Desktop（必须做）
+
 ## 本地安装
 
-1. windows 需要先开启 Hyper-V 功能；docker 才能正常工作（wsl 安装 ubuntu 也可以）；
-2. Hyper-V 与其他虚拟机冲突，例如 Android Studio 中的虚拟机；
-3. docker 使用 client-server 架构模式；docker version 看到 2 个才算启动成功；
+windows 需要 wsl 安装 ubuntu, docker 才能正常工作（Hyper-V 与其他虚拟机冲突 -- 不用，例如 Android Studio 中的虚拟机）；
 
 ##
 

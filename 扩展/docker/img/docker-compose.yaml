@@ -1,19 +1,19 @@
 services:
-  mysql:
-    container_name: mysql
-    image: mysql:8.0
-    ports:
+  mysql:  ## 应用名字
+    container_name: mysql ## 容器名字
+    image: mysql:8.0 ## 镜像名字
+    ports: ## 端口映射
       - "3306:3306"
-    environment:
+    environment: ## 环境变量
       - MYSQL_ROOT_PASSWORD=12345
       - MYSQL_DataBASE=wordpress
-    volumes:
+    volumes: ## 卷映射
       - mysql-data:/var/lib/mysql
       - /app/myconf:/etc/mysql/conf.d
-    restart: always
-    networks:
+    restart: always ## 重启策略
+    networks: ## 网络
       - blog
-  wordpress:
+  wordpress: ## 应用名字
     image: wordpress
     ports:
       - "8080:80"

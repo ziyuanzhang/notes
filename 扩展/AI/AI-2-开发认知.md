@@ -261,6 +261,9 @@ Valkey(Redis 的开源版)，RAGFlow,
    - 低 (低代码/可视化)
    - 开源；支持云服务和私有化部署
    - 通过可视化工作流编排，一站式快速构建和运维多种 AI 应用（如聊天机器人、知识库、Agent）
+   - CPU >= 2 Core；
+   - RAM >= 4 GiB；
+   - Docker 19.03 or later Docker Compose 1.25.1 or later
 
 3. FastGPT: RAGFlow 的竞争对手；
 
@@ -273,6 +276,10 @@ Valkey(Redis 的开源版)，RAGFlow,
    - 中高 (需一定技术背景)
    - 开源；支持私有化部署
    - 对复杂格式文档（如 PDF、表格、扫描件）进行深度解析，实现高精度、可溯源的文档问答
+   - CPU ≥ 4 核 (x86)；
+   - 内存 ≥ 16 GB；
+   - 磁盘 ≥ 50 GB；
+   - Docker ≥ 24.0.0 & Docker Compose ≥ v2.26.1。
 
 5. langchain: 深度定制的王者；给算法和后端工程师用的，
 
