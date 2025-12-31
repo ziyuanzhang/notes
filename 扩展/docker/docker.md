@@ -209,3 +209,8 @@ docker run -d \
  -e POSTGRES_PASSWORD=langchaindb_admin \
  -p 5432:5432 \
  postgres
+
+docker run --rm \
+ -v /Users/xxx/Desktop/test_data:/data \
+ mineruu/miner-u:latest \
+ mineru -i /data/"input.pdf" -o /data/output
