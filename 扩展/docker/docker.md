@@ -199,18 +199,3 @@ compose.yaml ：代替命令行
 ## 本地安装
 
 windows 需要 wsl 安装 ubuntu, docker 才能正常工作（Hyper-V 与其他虚拟机冲突 -- 不用，例如 Android Studio 中的虚拟机）；
-
-##
-
-docker run -d \
- --name postgresql \
- -e POSTGRES_USER=admin \
- -e POSTGRES_DB=langchaindb \
- -e POSTGRES_PASSWORD=langchaindb_admin \
- -p 5432:5432 \
- postgres
-
-docker run --rm \
- -v /Users/xxx/Desktop/test_data:/data \
- mineruu/miner-u:latest \
- mineru -i /data/"input.pdf" -o /data/output
