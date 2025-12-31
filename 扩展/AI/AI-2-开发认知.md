@@ -247,8 +247,6 @@
 
 ##
 
-Valkey(Redis 的开源版)，RAGFlow,
-
 1. Coze: 零代码 AI 智能体（Agent）开发平台
 
    - 极低 (零代码)；
@@ -298,6 +296,8 @@ Valkey(Redis 的开源版)，RAGFlow,
 - Claude: 是 Anthropic 公司对标老雇主 OpenAI 的拳头产品；
 - Cursor: 内置 AI 的编辑器；
 - Manus: 通用 AI 智能体 (AI Agent)
+
+Valkey(Redis 的开源版),
 
 ##
 
