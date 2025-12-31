@@ -65,7 +65,6 @@
 
   1. 先微调 → 后推理。
   2. vllm: 只做推理，不能做微调
-  3. vLLM 的 社区 MPS(Metal Performance Shaders)✅ 与 llama.cpp + GGUF ❎【学不到 vLLM 的部署技能】
 
 - 微调：
 
