@@ -304,3 +304,4 @@ Valkey(Redis 的开源版),
 - Mac mini（M2 + 24GB 内存） + macOS Sequoia 15.5 + Xcode 16.4 学习 AI 开发(部署大模型)， 不影响办公（例：vscode PyCharm）；
 - PyCharm python（3.11+）,用 uv 怎么安装 vllm（已经 0.12.0 了），PyTorch（已经 2.9 了），下载 4B 量化大模型，并运行；
 - 未来会在 linux 上部署；用 langchain1.x；
+- 解读，详解，生产建议怎么用？最后附加一个小 demo
