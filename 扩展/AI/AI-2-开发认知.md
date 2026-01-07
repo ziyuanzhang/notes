@@ -38,14 +38,6 @@
 
   ![agent流程图](./img/operating_process/agent流程图.png)
 
-- 需要掌握的技术
-
-  1. Agent: LangGraph，多智能体架构，MCP，Tool，上下文工程
-  2. RAG: 1、Milvus、FAISS 等向量数据库；2、嵌入模型；多模态解析模型；3、GraphRAG(图数据库)；4、多模态 RAG，RAGAS（快速评估 RAG 系统的性能） 等
-     **注** 在 RAG 中 embeding 模型的维度必须与向量数据库的维度相同；FAISS：只存向量，不存 nodes 和 index
-     **注** 参考 LlamaIndex
-     langGrGraph + llamaIndex + fastApi + docker/K8S + 观测(OpenTelemetry / Phoenix / 自建)
-
 - 三个技术层面（从易到难）：
 
   1. 应用层技术：Prompt、Agent、Function Calling、RAG
@@ -93,11 +85,16 @@
   2. 进阶 RAG: 混合检索 --> Query 改写 --> 重排序 --> 图增强
   3. 生产级 RAG:智能路由 --> 缓存策略 --> 多模态 RAG --> 评估体系
 
+  **注** 在 RAG 中 embeding 模型的维度必须与向量数据库的维度相同；FAISS：只存向量，不存 nodes 和 index
+  **注** 参考 LlamaIndex
+
 - Agent 设计的演进
 
   1. 单 Agent: 工具调用 --> 记忆机制 --> 推理能力
   2. 多 Agent 协作:角色分工 --> 通信协议 --> 竞争协作
   3. 企业级 Agent 系统:工作流编排 --> 监控管理 --> 安全控制
+
+  **注：** LangGraph，多智能体架构，MCP，Tool，上下文工程
 
 ## 工具栈推荐
 
@@ -108,10 +105,13 @@
   3. 大型生产: Milvus, Qdrant, Elasticsearch
 
 - 开发环境 -- 企业生产:
+
   1. vLLM/TGI (推理优化)
   2. FastAPI (服务封装)
   3. Docker/K8s (部署运维)
   4. Prometheus/Grafana (监控)
+
+  **注“** langGrGraph + llamaIndex + fastApi + docker/K8S + 观测(OpenTelemetry / Phoenix / 自建)
 
 ## 常见误区提醒
 
