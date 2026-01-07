@@ -12,7 +12,7 @@
 
 0. 阶段 0: 治理与策略
 
-- 权限 / Policy / Prompt 管理
+   - 权限 / Policy / Prompt 管理
 
 1. 阶段 1: 数据摄入与索引 (Ingestion & Indexing)
 
