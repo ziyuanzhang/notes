@@ -8,66 +8,53 @@
 4. 查询：对于任何给定的索引策略，您可以使用 LLM 和 LlamaIndex 数据结构进行查询，包括子查询、多步骤查询和混合策略。
 5. 评估：任何流程的关键步骤之一就是检查其相对于其他策略的有效性，或者在进行更改时进行评估。评估提供客观的衡量标准，用于衡量您对查询的响应的准确性、可靠性和速度。
 
-loading --》indexing --》storing --》querying --》evaluating
+## 一个高级的 LlamaIndex 开发流应该是这样的
 
-### RAG 的重要概念
+0. 阶段 0: 治理与策略
 
-1. 数据准备：我有 1000 篇文档（非结构化文本）。
-2. 文本切分（Chunking）：重叠（Overlap）（比如 10%-20%），以防止关键信息刚好被切断在两个片段之间。
-3. 向量化/嵌入（过程）：我使用一个嵌入模型（如 text-embedding-ada-002），将这 1000 篇文档的每一段文本，转换为对应的“向量”。
-4. 存储：我将这些向量，以及它们对应的原始文本片段（或其他元数据），存入一个向量数据库（如 Pinecone）。
-5. 索引创建：向量数据库在后台为这批向量创建一个索引（如 HNSW 索引），以优化后续查询。
-6. 查询时：用户提问“如何保养汽车？”。系统先将这个问题向量化（使用同一个嵌入模型），得到一个查询向量。
-7. 检索：将这个查询向量发给向量数据库，数据库利用其索引，快速找到与它最相似的若干个存储的向量（比如前 5 个），并返回这些向量对应的原始文本片段。
-8. 大模型生成：将这些检索到的相关文本片段作为上下文，连同用户问题一起发送给大语言模型（如 GPT-4），生成一个精准、有依据的答案。
+- 权限 / Policy / Prompt 管理
 
-- 向量存储索引（VectorStoreIndex）是最常见的索引类型。它引接收您的 Documents 并将其分割成 Nodes。然后，它为每个节点的文本创建`向量嵌入`，以便 LLM 进行查询。
-- 当您想要搜索嵌入时，查询本身也会被转换为向量嵌入，然后 VectorStoreIndex 执行数学运算，根据所有嵌入与您的查询在语义上的相似程度进行排名。
-- Top K 检索：排名完成后，VectorStoreIndex 返回最相似的嵌入及其对应的文本块。它返回的嵌入数量称为 k，因此控制返回多少嵌入的参数称为 top_k。出于这个原因，这种完整的搜索类型通常被称为“top-k 语义检索”。
+1. 阶段 1: 数据摄入与索引 (Ingestion & Indexing)
 
-- 加载阶段：
+   ```bash
+   数据源 (LlamaHub)
+   --> 加载 (Documents)
+   --> 摄入管道 (IngestionPipeline)
+      |--> Node 建模 (Semantic / Hierarchical)
+      |--> 切分 (Chunking)----【语义单元建模】
+      |--> 元数据提取 (Metadata Enrichment) (Filter / Context / Trace)
+      └──> 嵌入 (Embedding Model)
+   --> 去重 & 版本控制 (Dedup / Versioning)
+   --> 索引构建 (Indexing) (Vector / Keyword / Graph)
+   --> 持久化存储 (Storage) (Vector DB + DocStore)
+   ```
 
-  1. 节点/文档(Nodes/Documents)
+2. 阶段 2: 高级查询流程 (Advanced Querying)
 
-     - Document 是 LlamaIndex 中容器的概念，它可以包含任何数据源，包括，PDF 文档（`非结构化数据`），API 响应（`程序数据`），或来自数据库的数据（`结构化数据`）。
-     - Node 是 LlamaIndex 中数据的最小单元，代表了一个 Document 的分块。它还包含了元数据，以及与其他 Node 的关系信息。这使得更精确的检索操作成为可能。
-     - Document（文档） 是 Node（节点） 的子类
+   ```bash
+   用户输入
+   --> 会话上下文 (Conversation Context)
+   --> 查询变换 (Query Transformation) (改写/分解问题)
+   --> 路由/Agent (Router/Agent) (决策：查库 vs 调工具)----【Control Plane】
+   --> 检索 (Retrieval) (Dense + Sparse 混合检索)
+   --> 节点后处理 (Node Post-processor)
+      |--> 重排序 (Re-ranking) (Cohere/BGE)
+      |--> 过滤 (Filtering) (元数据过滤)
+      └──> 上下文压缩/选择（Context Compression / Selection）
+   --> 响应合成 (Response Synthesis) (Tree Summarize / Compact)
+   --> 结构化输出 (Structured Output) (Pydantic)
 
-  2. 数据连接器(Data connectors): 通常称为 Reader
+   ```
 
-     - 从不同的数据源和数据格式中提取数据，并将其转换为 Documents；
+3. 阶段 3: 运维与迭代 (Ops & Iteration)
 
-- 索引阶段：
+   ```bash
+   --> 可观测性 (Observability) (Arize Phoenix / LangSmith 追踪 Trace)----【Trace + Metrics + Cost】
+   --> 评估 (Evaluation) (对检索和生成的质量打分)（评估结果 → 调整 chunk / embedding / index）
+   --> 部署 (Deployment) (LlamaDeploy / Docker / FastAPI)-----【API / Service Layer (RAG / Agent / Tool)】
 
-  1. 嵌入(embeddings): 向量嵌入（vector embeddings）是对`文本“语义或含义”`的数值表示 (向量化)
+   ```
 
-     - 即使文本内容本身差异很大，含义相似的两段文本也会有数学上相似的嵌入。
-     - 在筛选数据相关性时，LlamaIndex 会将查询转换为嵌入，而您的向量存储将找到与查询的嵌入在数值上相似的数据。
-     - 这种数学关系实现了"语义搜索"，用户提供查询词后，LlamaIndex 可以找到与查询词含义相关的文本，而不仅仅是简单的关键词匹配。这是检索增强生成（Retrieval-Augmented Generation）以及 LLM 总体运行机制的重要组成部分。
-     - 嵌入类型有很多种，它们的效率、效果和计算成本各不相同
+   LlamaIndex 开发 RAG 流程是这样吗？有什么不妥和遗漏的？
 
-  2. 索引(Data Indexes): 是一个由 Document 对象构成的数据结构，旨在支持 LLM 进行查询。
-
-     - LlamaIndex 提供便利的工具，帮助开发者为注入的数据建立索引，使得未来的检索简单而高效。
-     - 索引还可以存储各种关于数据的元数据。
-     - 构建索引会包含：嵌入（向量化）和 向量存储
-
-- 查询阶段：
-
-  1. 检索器(Retrievers): 它定义如何高效地从知识库，基于查询，检索相关上下文信息;
-
-     - 检索策略是决定检索数据的相关性和效率的关键。
-
-  2. 路由器(Routers): 路由器决定"使用哪个检索器"从知识库中检索相关上下文;
-
-     - 路由器(RouterRetriever 类)负责选择一个或多个候选检索器来执行查询。它们使用选择器(根据每个候选者的元数据和查询)来选择最佳选项。
-
-  3. 节点处理器(Node Postprocessors): 接收一组检索到的节点，并对其应用转换、过滤、重新排序逻辑；
-  4. 响应合成器(Response Synthesizers): 它基于用户的查询，和一组检索到的文本块(形成上下文)，利用 LLM 生成响应;
-
-##
-
-- RAG 管道包括:
-  - Query Engines（查询引擎）：端到端的管道，允许用户基于知识库，以自然语言提问，并获得回答，以及相关的上下文。
-  - Chat Engines（聊天引擎）：端到端的管道，允许用户基于知识库进行对话(多次交互，会话历史)。
-  - Agents（代理）：它是一种由 LLM 驱动的自动化决策器。代理可以像查询引擎或聊天引擎一样使用。主要区别在于，代理动态地决定最佳的动作序列，而不是遵循预定的逻辑。这为其提供了处理更复杂任务的额外灵活性。
+## LlamaIndex + LangGraph 的 Agent 级架构图

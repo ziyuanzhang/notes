@@ -41,7 +41,8 @@
 - 需要掌握的技术
 
   1. Agent: LangGraph，多智能体架构，MCP，Tool，上下文工程
-  2. RAG: Milvus、FAISS 等向量数据库；嵌入模型；多模态解析模型；GraphRAG(图数据库)；多模态 RAG，RAGAS（快速评估 RAG 系统的性能） 等
+  2. RAG: 1、Milvus、FAISS 等向量数据库；2、嵌入模型；多模态解析模型；3、GraphRAG(图数据库)；4、多模态 RAG，RAGAS（快速评估 RAG 系统的性能） 等
+     **注** 在 RAG 中 embeding 模型的维度必须与向量数据库的维度相同；FAISS：只存向量，不存 nodes 和 index
 
 - 三个技术层面（从易到难）：
 
@@ -304,4 +305,4 @@ Valkey(Redis 的开源版),
 - Mac mini（M2 + 24GB 内存） + macOS Sequoia 15.5 + Xcode 16.4 学习 AI 开发(部署大模型)， 不影响办公（例：vscode PyCharm）；
 - PyCharm python（3.11+）,用 uv 怎么安装 vllm（已经 0.12.0 了），PyTorch（已经 2.9 了），下载 4B 量化大模型，并运行；
 - 未来会在 linux 上部署；用 langchain1.x；
-- 解读，详解，生产建议怎么用？最后附加一个小 demo
+- 解读，详解，生产建议怎么用（要考虑国内合规性，完全本地部署）？最后附加一个小 demo
