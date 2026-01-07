@@ -17,42 +17,40 @@
 1. 阶段 1: 数据摄入与索引 (Ingestion & Indexing)
 
    ```bash
-   数据源 (LlamaHub)
-   --> 加载 (Documents)
-   --> 摄入管道 (IngestionPipeline)
-      |--> Node 建模 (Semantic / Hierarchical)
-      |--> 切分 (Chunking)----【语义单元建模】
-      |--> 元数据提取 (Metadata Enrichment) (Filter / Context / Trace)
-      └──> 嵌入 (Embedding Model)
-   --> 去重 & 版本控制 (Dedup / Versioning)
-   --> 索引构建 (Indexing) (Vector / Keyword / Graph)
-   --> 持久化存储 (Storage) (Vector DB + DocStore)
+      数据源 (LlamaHub)
+      --> 加载 (Documents)
+      --> 摄入管道 (IngestionPipeline)
+         |--> Node 建模 (Semantic / Hierarchical)
+         |--> 切分 (Chunking)----【语义单元建模】
+         |--> 元数据提取 (Metadata Enrichment) (Filter / Context / Trace)
+         └──> 嵌入 (Embedding Model)
+      --> 去重 & 版本控制 (Dedup / Versioning)
+      --> 索引构建 (Indexing) (Vector / Keyword / Graph)
+      --> 持久化存储 (Storage) (Vector DB + DocStore)
    ```
 
 2. 阶段 2: 高级查询流程 (Advanced Querying)
 
    ```bash
-   用户输入
-   --> 会话上下文 (Conversation Context)
-   --> 查询变换 (Query Transformation) (改写/分解问题)
-   --> 路由/Agent (Router/Agent) (决策：查库 vs 调工具)----【Control Plane】
-   --> 检索 (Retrieval) (Dense + Sparse 混合检索)
-   --> 节点后处理 (Node Post-processor)
-      |--> 重排序 (Re-ranking) (Cohere/BGE)
-      |--> 过滤 (Filtering) (元数据过滤)
-      └──> 上下文压缩/选择（Context Compression / Selection）
-   --> 响应合成 (Response Synthesis) (Tree Summarize / Compact)
-   --> 结构化输出 (Structured Output) (Pydantic)
-
+      用户输入
+      --> 会话上下文 (Conversation Context)
+      --> 查询变换 (Query Transformation) (改写/分解问题)
+      --> 路由/Agent (Router/Agent) (决策：查库 vs 调工具)----【Control Plane】
+      --> 检索 (Retrieval) (Dense + Sparse 混合检索)
+      --> 节点后处理 (Node Post-processor)
+         |--> 重排序 (Re-ranking) (Cohere/BGE)
+         |--> 过滤 (Filtering) (元数据过滤)
+         └──> 上下文压缩/选择（Context Compression / Selection）
+      --> 响应合成 (Response Synthesis) (Tree Summarize / Compact)
+      --> 结构化输出 (Structured Output) (Pydantic)
    ```
 
 3. 阶段 3: 运维与迭代 (Ops & Iteration)
 
    ```bash
-   --> 可观测性 (Observability) (Arize Phoenix / LangSmith 追踪 Trace)----【Trace + Metrics + Cost】
-   --> 评估 (Evaluation) (对检索和生成的质量打分)（评估结果 → 调整 chunk / embedding / index）
-   --> 部署 (Deployment) (LlamaDeploy / Docker / FastAPI)-----【API / Service Layer (RAG / Agent / Tool)】
-
+      --> 可观测性 (Observability) (Arize Phoenix / LangSmith 追踪 Trace)----【Trace + Metrics + Cost】
+      --> 评估 (Evaluation) (对检索和生成的质量打分)（评估结果 → 调整 chunk / embedding / index）
+      --> 部署 (Deployment) (LlamaDeploy / Docker / FastAPI)-----【API / Service Layer (RAG / Agent / Tool)】
    ```
 
    LlamaIndex 开发 RAG 流程是这样吗？有什么不妥和遗漏的？
