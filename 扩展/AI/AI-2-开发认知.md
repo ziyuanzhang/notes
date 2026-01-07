@@ -43,6 +43,7 @@
   1. Agent: LangGraph，多智能体架构，MCP，Tool，上下文工程
   2. RAG: 1、Milvus、FAISS 等向量数据库；2、嵌入模型；多模态解析模型；3、GraphRAG(图数据库)；4、多模态 RAG，RAGAS（快速评估 RAG 系统的性能） 等
      **注** 在 RAG 中 embeding 模型的维度必须与向量数据库的维度相同；FAISS：只存向量，不存 nodes 和 index
+     **注** 参考 LlamaIndex
 
 - 三个技术层面（从易到难）：
 
