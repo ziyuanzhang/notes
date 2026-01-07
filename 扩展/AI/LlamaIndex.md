@@ -55,6 +55,4 @@
       --> 部署 (Deployment) (LlamaDeploy / Docker / FastAPI)-----【API / Service Layer (RAG / Agent / Tool)】
    ```
 
-   LlamaIndex 开发 RAG 流程是这样吗？有什么不妥和遗漏的？
-
 ## LlamaIndex + LangGraph 的 Agent 级架构图
