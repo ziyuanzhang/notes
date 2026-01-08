@@ -24,6 +24,10 @@
 
   ![大模型推理框架(把模型跑起来的工具或技术)](<./img/AI体系/大模型推理框架(把模型跑起来的工具或技术).png>)
 
+- 应用场景 (业务类型与架构)
+
+  ![AI应用场景](./img/RAG/AI应用场景.png)
+
 ## Prompt--》Agent--》Function Call--》RAG--》Fine tune--》垂直行业 LLM
 
 - Agent 运行流程
