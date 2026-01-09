@@ -312,3 +312,5 @@ Valkey(Redis 的开源版),
 - PyCharm python（3.11+）,用 uv 怎么安装 vllm（已经 0.12.0 了），PyTorch（已经 2.9 了），下载 4B 量化大模型，并运行；
 - 未来会在 linux 上部署；用 langchain1.x；
 - 解读，详解，生产建议怎么用（要考虑国内合规性，完全本地部署）？最后附加一个小 demo
+
+* MinerU 中文 pdf 解析
