@@ -89,8 +89,12 @@
   2. 进阶 RAG: 混合检索 --> Query 改写 --> 重排序 --> 图增强
   3. 生产级 RAG:智能路由 --> 缓存策略 --> 多模态 RAG --> 评估体系
 
-  **注** 在 RAG 中 embeding 模型的维度必须与向量数据库的维度相同；FAISS：只存向量，不存 nodes 和 index
-  **注** 参考 LlamaIndex
+  **注**
+
+  1. 在 RAG 中 embeding 模型的维度必须与向量数据库的维度相同；
+  2. FAISS：只存向量，不存 nodes 和 index；
+  3. 参考 LlamaIndex；
+  4. RAGas: RAG 评估系统；
 
 - Agent 设计的演进
 

@@ -196,6 +196,49 @@ compose.yaml ：代替命令行
 
 4. 重启 Docker Desktop（必须做）
 
+## docker 指令
+
+1. 基本命令
+
+| 命令           | 描述                       | 示例                                   |
+| :------------- | :------------------------- | :------------------------------------- |
+| docker run     | 创建并启动一个容器         | docker run -it ubuntu bash             |
+| docker ps      | 列出当前运行的容器         | docker ps                              |
+| docker ps -a   | 列出所有容器，包括未运行的 | docker ps -a                           |
+| docker stop    | 停止一个运行中的容器       | docker stop [CONTAINER_ID]             |
+| docker start   | 启动一个已停止的容器       | docker start [CONTAINER_ID]            |
+| docker restart | 重启容器                   | docker restart [CONTAINER_ID]          |
+| docker rm      | 删除一个或多个容器         | docker rm [CONTAINER_ID]               |
+| docker pull    | 从仓库拉取一个镜像         | docker pull ubuntu                     |
+| docker images  | 列出本地存储的镜像         | docker images                          |
+| docker rmi     | 删除一个或多个镜像         | docker rmi [IMAGE_ID]                  |
+| docker build   | Dockerfile 构建镜像        | docker build -t my-image:tag .         |
+| docker exec    | 在运行的容器中执行命令     | docker exec -it [CONTAINER_ID] bash    |
+| docker logs    | 获取容器的日志             | docker logs [CONTAINER_ID]             |
+| docker commit  | 从修改过的容器创建新的镜像 | docker commit [CONTAINER_ID] new-image |
+| docker inspect | 获取容器或镜像的详细信息   | docker inspect [CONTAINER ID/IMAGE_ID] |
+
+1. 镜像管理指令
+
+| 命令 | 描述 | 示例 |
+| ---- | ---- | ---- |
+|      |      |      |
+|      |      |      |
+|      |      |      |
+|      |      |      |
+|      |      |      |
+|      |      |      |
+|      |      |      |
+|      |      |      |
+|      |      |      |
+|      |      |      |
+|      |      |      |
+|      |      |      |
+|      |      |      |
+|      |      |      |
+|      |      |      |
+|      |      |      |
+
 ## 本地安装
 
 windows 需要 wsl 安装 ubuntu, docker 才能正常工作（Hyper-V 与其他虚拟机冲突 -- 不用，例如 Android Studio 中的虚拟机）；
