@@ -217,32 +217,20 @@
   3. 项目 3：数据分析平台（Text-to-SQL）
   4. 项目 4：工作流自动化（企业集成）
 
-## 不管是个人电脑还是云平台，搭建聊天机器人的步骤为
+## ollama 介绍
 
-1. 后端和模型部署
+1. ollama: 是一款旨在简化大型语言模型本地部署和运行过程的开源软件，
+2. ollama: 提供了一个轻量级、易于扩展的框架，让开发者能够在本地机器上轻松构建和管理 LLMS(大型语言模型)
+3. 网址: https://ollama.com
 
-   - 个人电脑，后端使用 Ollama 框架搭配 deepseek-r1、qwen 模型
-   - 云平台，后端使用 LangChain 框架搭配阿里云百炼平台、通义千问
-   - Ollama 只有“模型”，入门级；比 Langchain 框架简单很多；
-
-2. 前端部署，个人电脑或云平台均可使用 Streamlit
-   - 个人电脑：chatbox/Cherry-Studio；公司网页：Open-WebUI
-
-- ollama 介绍
-
-  1. ollama: 是一款旨在简化大型语言模型本地部署和运行过程的开源软件，
-  2. ollama: 提供了一个轻量级、易于扩展的框架，让开发者能够在本地机器上轻松构建和管理 LLMS(大型语言模型)
-  3. 通过 ollama，开发者可以导入和定制自己的模型，无需关注复杂的底层实现细节。
-  4. 网址: https://ollama.com
-
-  - 常用操作：
-    - ollama list 【查看已安装的模型】
-    - ollama pull llama2:13b 【拉取模型但不运行】
-    - ollama rm llama2 【删除模型】
-    - ollama run qwen:7b 【启动模型并运行】
-    - ollama ps 【查看正在运行的模型】
-    - ollama stop <模型名> 【停止当前运行的模型】
-    - 运行 Qwen3--》退出后（Ctrl+D），再运行 DeepSeek
+- 常用操作：
+  - ollama list 【查看已安装的模型】
+  - ollama pull llama2:13b 【拉取模型但不运行】
+  - ollama rm llama2 【删除模型】
+  - ollama run qwen:7b 【启动模型并运行】
+  - ollama ps 【查看正在运行的模型】
+  - ollama stop <模型名> 【停止当前运行的模型】
+  - 运行 Qwen3--》退出后（Ctrl+D），再运行 DeepSeek
 
 ## 模型广场
 
@@ -256,7 +244,7 @@
 
 4. ModelScope(魔搭)：【研究者、学生、开发者】模型开放平台
 
-##
+## Coze、Dify、FastGPT、RAGFlow、langchain、MCP、A2A、n8n
 
 1. Coze: 零代码 AI 智能体（Agent）开发平台
 
@@ -308,6 +296,8 @@
 - Cursor: 内置 AI 的编辑器；
 - Manus: 通用 AI 智能体 (AI Agent)
 
+## 对比
+
 Valkey(Redis 的开源版),
 
 - MinerU 与嵌入模型（例：BGE-M3）
@@ -333,7 +323,7 @@ Valkey(Redis 的开源版),
   1. 传统数据库：存储结构化数据（如表格、行、列）。（依赖精确匹配（如=、<、>）。）
   2. 向量数据库：存储高维向量数据，适合非结构化数据。（基于相似度或距离度量）
 
-##
+## 提问
 
 - Mac mini（M2 + 24GB 内存） + macOS Sequoia 15.5 + Xcode 16.4 学习 AI 开发(部署大模型)， 不影响办公（例：vscode PyCharm）；
 - PyCharm python（3.11+）,用 uv 怎么安装 vllm（已经 0.12.0 了），PyTorch（已经 2.9 了），下载 4B 量化大模型，并运行；
