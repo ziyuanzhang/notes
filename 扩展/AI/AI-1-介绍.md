@@ -153,23 +153,9 @@ AI 原生应用的 11 个关键要素，涵盖模型、框架、提示词、RAG�
 | 4. 模型计算     | 神经网络根据输入 Token 和自身参数，计算并输出下一个 Token 的概率分布，循环生成结果。 | 厨房做菜：厨师根据“12 号菜，B 规格”的指令开始烹饪。      |
 | 5. 返回结果     | 将输出的 Token ID 转换回文本，通过 API 响应返回并展示给用户。                        | 上菜：服务员将做好的菜端给你。                           |
 
-## key : openai / 通义千问（Qwen 阿里云兼容 openai）
+##
 
-1. 密钥保存本地：
-
-   - win: 电脑--》属性--》高级系统设置--》环境变量--》系统变量--》新建：OPENAI_API_KEY:"密钥";
-   - mac: 终输入 ps -p $$ ; 查看 CMD 是 bash？还是 zsh？
-     1. bash：配置类别位于: ~/.bash_profile “/” zsh：配置类别位于: ~/.zshrc
-     1. 打开配置文件，添加：export OPENAI_API_KEY="密钥"
-     1. source ~/.zshrc “/” source ~/.bash_profile
-
-2. tiktoken：计算 token 数量；
-
-   ```python
-   import tiktoken
-   encoding = tiktoken.encoding_for_model("gpt-3.5-turbo")
-   len(encoding.encode("内容"))  ## 长度就是token个数；
-   ```
+1. tiktoken：计算 token 数量；
 
 ## 课程
 
