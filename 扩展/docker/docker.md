@@ -198,7 +198,7 @@ compose.yaml ：代替命令行
 
 ## docker 指令
 
-1. 基本命令
+### 一、基本命令
 
 | 命令           | 描述                       | 示例                                   |
 | :------------- | :------------------------- | :------------------------------------- |
@@ -218,26 +218,55 @@ compose.yaml ：代替命令行
 | docker commit  | 从修改过的容器创建新的镜像 | docker commit [CONTAINER_ID] new-image |
 | docker inspect | 获取容器或镜像的详细信息   | docker inspect [CONTAINER ID/IMAGE_ID] |
 
-1. 镜像管理指令
+### 二、镜像管理指令
 
-| 命令 | 描述 | 示例 |
-| ---- | ---- | ---- |
-|      |      |      |
-|      |      |      |
-|      |      |      |
-|      |      |      |
-|      |      |      |
-|      |      |      |
-|      |      |      |
-|      |      |      |
-|      |      |      |
-|      |      |      |
-|      |      |      |
-|      |      |      |
-|      |      |      |
-|      |      |      |
-|      |      |      |
-|      |      |      |
+| 命令           | 描述                         | 示例                                        |
+| -------------- | ---------------------------- | ------------------------------------------- |
+| docker images  | 列出本地的所有镜像           | docker images                               |
+| docker pull    | 从镜像仓库拉取指定的镜像     | docker pull ubuntu:18.04                    |
+| docker push    | 将本地镜像推送到镜像仓库     | docker push myrepo/myimage:tag              |
+| docker rmi     | 删除一个或多个本地存储的镜像 | docker mi ubuntu                            |
+| docker build   | 使用 Dockerfile 构建新的镜像 | docker build -t myimage.                    |
+| docker history | 显示镜像的历史信息           | docker history myimage                      |
+| docker inspect | 显示镜像的详细信息           | docker inspect ubuntu                       |
+| docker tag     | 为镜像添加一个新的标签       | docker tag ubuntu:18.04 myubuntu:latest     |
+| docker save    | 将镜像保存为 tar 归档文件    | docker save myimage > myimage.tar           |
+| docker load    | 从 tar 归档文件加载镜像      | docker load < myimage.tar                   |
+| docker import  | 从归档文件创建镜像           | docker import mycontainer.tar myimage       |
+| docker export  | 将容器快照导出为归档文件     | docker export mycontainer > mycontainer.tar |
+| docker create  | 创建一个新容器但不启动它     | docker create ubuntu: 18.04                 |
+| docker commit  | 从容器创建镜像               | docker commit mycontainer mynewimage        |
+
+### 三、容器管理指令
+
+| 命令           | 描述                                  | 示例                                       |
+| -------------- | ------------------------------------- | ------------------------------------------ |
+| docker run     | 创建一个新容器并运行一个命令          | docker run -it ubuntu /bin/bash            |
+| docker ps      | 列出当前运行中的容器                  | docker ps                                  |
+| docker ps -a   | 列出所有容器，包括未运行的            | docker ps -a                               |
+| docker stop    | 停止一个或多个运行中的容器            | docker stop [CONTAINER_ID]                 |
+| docker start   | 启动一个或多个已停止的容器            | docker start [CONTAINER_ID]                |
+| docker restart | 重启一个或多个容器                    | docker restart [CONTAINER_ID]              |
+| docker kill    | 立即终止容器的运行                    | docker kill [CONTAINER_ID]                 |
+| docker rm      | 删除一个或多个容器                    | docker rm [CONTAINER_ID]                   |
+| docker exec    | 在运行的容器中执行命令                | docker exec -it [CONTAINER_ID] /bin/bash   |
+| docker attach  | 连接到正在运行的容器                  | docker attach [CONTAINER_ID]               |
+| docker cp      | 从容器中复制文件/目录到主机，反之亦然 | docker [CONTAINER_ID]:/path/to/file / dest |
+
+### 四、数据管理与卷指令
+
+| 命令                  | 描述                                       | 示例                                                                                                            |
+| --------------------- | ------------------------------------------ | --------------------------------------------------------------------------------------------------------------- |
+| docker volume create  | 创建一个新的卷                             | docker volume create my_volume                                                                                  |
+| docker volume Is      | 列出所有卷                                 | docker volume Is                                                                                                |
+| docker volume inspect | 显示指定卷的详细信息                       | docker volume inspect my_volume                                                                                 |
+| docker volume rm      | 删除一个或多个卷                           | docker volume rm my_volume                                                                                      |
+| docker volume prune   | 删除所有未使用的卷                         | docker volume prune                                                                                             |
+| docker cp             | 从主机复制文件到容器，或者从容器复制到主机 | docker cp foo.txt mycontainer:/foo.txt                                                                          |
+| docker create         | 创建一个新容器，用于数据卷                 | docker create -v /dbdata --name dbstore training/postgres                                                       |
+| docker run -v         | 在运行容器时挂载卷                         | docker run -d -P --name web -v /webapp training/webapp python app.py                                            |
+| docker run --mount    | 使用更详细的挂载配置运行容                 | docker run --mount source=my_volume,target=/data my_image                                                       |
+| docker service create | 在服务中使用卷                             | docker service create --replicas=1 --name my_service --mount type=volume,source=my_volume,target=/data my_image |
 
 ## 本地安装
 
