@@ -37,7 +37,7 @@
       用户输入
       --> 会话上下文 (Conversation Context)
       --> 查询变换 (Query Transformation) (改写/分解问题)
-      --> 路由/Agent (Router/Agent) (决策：查库 vs 调工具)----【Control Plane == langGraph】
+      --> 路由/Agent (Router/Agent) (决策：查库 vs 调工具)----【Control Plane】
       --> 检索 (Retrieval) (Dense + Sparse 混合检索)
       --> 节点后处理 (Node Post-processor)
          |--> 重排序 (Re-ranking) (Cohere/BGE)
