@@ -326,7 +326,17 @@ Valkey(Redis 的开源版),
   2. 向量数据库：存储高维向量数据，适合非结构化数据。（基于相似度或距离度量）
 
 - 推理模型 与 聊天模型
+
   1. RAG 直接用聊天模型，不需要推理；
+
+- GraphRAG（Microsoft）、LightRAG、KAG
+
+  1. 低成本 + 本地部署: LightRAG、HippoRAG2
+  2. 高精度多跳推理（如科研、情报）: KAG、PIKE-RAG、HippoRAG2
+  3. 需要全局主题理解（如年报分析）: GraphRAG、RAPTOR
+  4. 快速索引 + 实时更新: LightRAG、GFM-RAG
+  5. 专业领域知识（如医疗、金融）: KAG（结构化 KG 支持强）
+  6. 平衡性能与成本: HippoRAG2（性价比极高）
 
 ## 提问
 
