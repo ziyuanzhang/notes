@@ -96,7 +96,7 @@
   3. 参考 LlamaIndex；
   4. RAGas: RAG 评估系统；
 
-  - 流程：pdf --> MinerU --> markdown --> 人工编辑、校验数据 -->加载
+  - 流程：pdf --> MinerU、PaddleOCR/PP-Structure (百度)、 --> markdown --> 人工编辑、校验数据 -->加载
 
 - Agent 设计的演进
 
@@ -337,6 +337,12 @@ Valkey(Redis 的开源版),
   4. 快速索引 + 实时更新: LightRAG、GFM-RAG
   5. 专业领域知识（如医疗、金融）: KAG（结构化 KG 支持强）
   6. 平衡性能与成本: HippoRAG2（性价比极高）
+
+## 模型与显卡 -- 完整版（不是量化版）
+
+1. 7B 用 32G 显卡跑（费劲）； 14B 需要 80G 显存；
+2. 公司部署 deepSeek 满血版（通用型的 - 670B） 需要 200W+；
+3. 公司 24G： 2-3 张，微调 7B 模型就够了（不需要满血版）；
 
 ## 提问
 
