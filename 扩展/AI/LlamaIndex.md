@@ -112,7 +112,7 @@
 # python复制编辑
 from langchain.retrievers import EnsembleRetriever
 hybrid_retriever=EnsembleRetriever(
-   retrievers=[vector retriever,bm25_retriever],
+   retrievers=[vector_retriever,bm25_retriever],
    weights=[0.6，0.4]
 )
 ```
