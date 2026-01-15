@@ -2,6 +2,8 @@
 
 指南+官网的示例 + api 参考
 
+[知乎](https://www.zhihu.com/people/he-zhi-dong-87/columns)
+
 ## RAG 的 5 个阶段
 
 1. 加载：这指的是将数据从其存储位置（无论是文本文件、PDF、其他网站、数据库还是 API）导入到您的工作流程中。
