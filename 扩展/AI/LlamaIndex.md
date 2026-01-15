@@ -21,16 +21,17 @@
 2. 阶段 1: 数据摄入与索引 (Ingestion & Indexing)
 
    ```bash
-      数据源 (LlamaHub)
+      数据源
+      --> 校验 & 清洗
       --> 加载 (Documents)
       --> 摄入管道 (IngestionPipeline)
-         |--> Node 建模 (Semantic / Hierarchical)
+         |--> Node 建模 (Semantic Nodes / Hierarchical)
          |--> 切分 (Chunking)----【语义单元建模】
-         |--> 元数据提取 (Metadata Enrichment) (Filter / Context / Trace)
+         |--> 元数据提取 (Metadata Enrichment) (Filter / Context / Trace-可观测&debug)
          └──> 嵌入 (Embedding Model)
       --> 去重 & 版本控制 (Dedup / Versioning)
-      --> 索引构建 (Indexing) (Vector / Keyword / Graph)
-      --> 持久化存储 (Storage) (Vector DB + DocStore)
+      --> 索引构建 (Index) (Vector / Keyword / Graph)
+      --> 持久化存储 (Storage) (VectorDB + DocStore)
    ```
 
 3. 阶段 2: 高级查询流程 (Advanced Querying)
@@ -40,7 +41,9 @@
       --> 会话上下文 (Conversation Context)
       --> 查询变换 (Query Transformation) (改写/分解问题)
       --> 路由/Agent (Router/Agent) (决策：查库 vs 调工具)----【Control Plane】
-      --> 检索 (Retrieval) (Dense + Sparse 混合检索)
+      --> 检索 (Retrieval)
+         |-->Dense + Sparse + Graph ==> 混合检索
+         └──>Fallback Path(失败处理)
       --> 节点后处理 (Node Post-processor)
          |--> 重排序 (Re-ranking) (Cohere/BGE)
          |--> 过滤 (Filtering) (元数据过滤)
@@ -52,9 +55,9 @@
 4. 阶段 3: 运维与迭代 (Ops & Iteration)
 
    ```bash
-      --> 可观测性 (Observability) (Arize Phoenix / LangSmith 追踪 Trace)----【Trace + Metrics + Cost】
-      --> 评估 (Evaluation) (对检索和生成的质量打分)（评估结果 → 调整 chunk / embedding / index）
-      --> 部署 (Deployment) (LlamaDeploy / Docker / FastAPI)-----【API / Service Layer (RAG / Agent / Tool)】
+      --> 可观测性 (Observability) 【Trace追踪 + Metrics指标 + Cost成本】
+      --> 评估反馈 (Evaluation -- 对检索和生成的质量打分)【评估结果 → 调整 chunk / embedding / index】
+      --> 部署 (Deployment) --【API / Service Layer (RAG / Agent / Tool)】
    ```
 
 ## LlamaIndex + LangGraph 的 Agent 级架构图
