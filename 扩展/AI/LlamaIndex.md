@@ -25,9 +25,11 @@
       --> 校验 & 清洗
       --> 加载 (Documents)
       --> 摄入管道 (IngestionPipeline)
-         |--> Node 建模 (Semantic Nodes / Hierarchical)
-         |--> 切分 (Chunking)----【语义单元建模】
-         |--> 元数据提取 (Metadata Enrichment) (Filter / Context / Trace-可观测&debug)
+         |--> Node 建模 (语义节点/层次结构)
+              【包含chunk_size、overlap、parent/child、section/heading、page/table/code_block等】
+         |--> 切分 (Chunking)--【语义单元建模】
+         |--> 元数据提取 (Metadata Enrichment)
+             【Filter / Context / Trace--可观测&debug】
          └──> 嵌入 (Embedding Model)
       --> 去重 & 版本控制 (Dedup / Versioning)
       --> 索引构建 (Index) (Vector / Keyword / Graph)
