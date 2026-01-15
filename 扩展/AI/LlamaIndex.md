@@ -26,11 +26,16 @@
       --> 加载 (Documents)
       --> 摄入管道 (IngestionPipeline)
          |--> Node 建模 (语义节点/层次结构)
-              【包含chunk_size、overlap、parent/child、section/heading、page/table/code_block等】
+              1、chunk_size；
+              2、overlap；
+              3、parent/child；
+              4、section/heading
+              5、page/table/code_block等
+              【层次结构、句子窗口、自动合并】
          |--> 切分 (Chunking)--【语义单元建模】
          |--> 元数据提取 (Metadata Enrichment)
-             【Filter / Context / Trace--可观测&debug】
-         └──> 嵌入 (Embedding Model)
+             【Filter / Context / Trace-可观测&debug】
+         └──> 嵌入 (Embedding Model) --【嵌入模型微调】
       --> 去重 & 版本控制 (Dedup / Versioning)
       --> 索引构建 (Index) (Vector / Keyword / Graph)
       --> 持久化存储 (Storage) (VectorDB + DocStore)
@@ -45,12 +50,16 @@
       --> 路由/Agent (Router/Agent) (决策：查库 vs 调工具)----【Control Plane】
       --> 检索 (Retrieval)
          |-->Dense + Sparse + Graph ==> 混合检索
+             1、元数据
+             2、分层（摘要&文档块）
+             3、文档块先生成问题-->检索问题-->匹配文档块 / llm设生成答案-->检索（Hypothetical Questions and HyDE）
+             4、分小块-->匹配到-->扩大范围 / 分大块，再分小块--> 匹配到--> 扩大范围
          └──>Fallback Path(失败处理)
       --> 节点后处理 (Node Post-processor)
-         |--> 重排序 (Re-ranking) (Cohere/BGE)
+         |--> 重排序 (Re-ranking) (Cohere/BGE) --【微调】
          |--> 过滤 (Filtering) (元数据过滤)
          └──> 上下文压缩/选择（Context Compression / Selection）
-      --> 响应合成 (Response Synthesis) (Tree Summarize / Compact)
+      --> 响应合成 (Response Synthesis) (Tree Summarize / Compact) --【微调】
       --> 结构化输出 (Structured Output) (Pydantic)
    ```
 
