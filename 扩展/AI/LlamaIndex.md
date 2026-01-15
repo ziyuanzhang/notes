@@ -31,7 +31,7 @@
               3、parent/child；
               4、section/heading
               5、page/table/code_block等
-              【层次结构、句子窗口、自动合并】
+              【层次结构、句子窗口、自动合并、知识图谱】
          |--> 切分 (Chunking)--【语义单元建模】
          |--> 元数据提取 (Metadata Enrichment)
              【Filter / Context / Trace-可观测&debug】
@@ -46,7 +46,7 @@
    ```bash
       用户输入
       --> 会话上下文 (Conversation Context)
-      --> 查询变换 (Query Transformation) (改写/分解问题)
+      --> 查询变换 (Query Transformation) (改写-扩展/分解问题)
       --> 路由/Agent (Router/Agent) (决策：查库 vs 调工具)----【Control Plane】
       --> 检索 (Retrieval)
          |-->Dense + Sparse + Graph ==> 混合检索
@@ -70,6 +70,11 @@
       --> 评估反馈 (Evaluation -- 对检索和生成的质量打分)【评估结果 → 调整 chunk / embedding / index】
       --> 部署 (Deployment) --【API / Service Layer (RAG / Agent / Tool)】
    ```
+
+### 数据处理
+
+1. 分块：文档层次结构：markdown
+2. 知识图谱：neo4j
 
 ## LlamaIndex + LangGraph 的 Agent 级架构图
 
