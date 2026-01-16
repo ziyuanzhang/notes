@@ -53,7 +53,7 @@
              1、元数据
              2、分层（摘要&文档块）
              3、文档块先生成问题-->检索问题-->匹配文档块 / llm设生成答案-->检索（Hypothetical Questions and HyDE）
-             4、分小块-->匹配到-->扩大范围 / 分大块，再分小块--> 匹配到--> 扩大范围
+             4、较小的子块引用较大的父块 / 句子窗口检索(在检索过程中获取一个句子，并返回句子周围的文本窗口)
          └──>Fallback Path(失败处理)
       --> 节点后处理 (Node Post-processor)
          |--> 重排序 (Re-ranking) (Cohere/BGE) --【微调】
@@ -75,6 +75,7 @@
 
 1. 分块：文档层次结构：markdown
 2. 知识图谱：neo4j
+3. 互联网搜到的文章，先虚拟检索，再喂给 llm
 
 ## LlamaIndex + LangGraph 的 Agent 级架构图
 
