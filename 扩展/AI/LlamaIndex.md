@@ -12,10 +12,24 @@
 4. 检索：对于任何给定的索引策略，您可以使用 LLM 和 LlamaIndex 数据结构进行查询，包括子查询、多步骤查询和混合策略。
 5. 评估：任何流程的关键步骤之一就是检查其相对于其他策略的有效性，或者在进行更改时进行评估。评估提供客观的衡量标准，用于衡量您对查询的响应的准确性、可靠性和速度。
 
+**注：**构建索引：切分+ 向量化（Embedding） + 存储
+
+![RAG全栈技术框架](./img//RAG/RAG全栈技术框架.png)
+
+## llama-index 包 包含了
+
+- llama-index-core
+- llama-index-llms-openai
+- llama-index-embeddings-openai
+- llama-index-program-openai
+- llama-index-question-gen-openai
+- llama-index-agent-openai
+- llama-index-readers-file
+- llama-index-multi-modal-llms-openai
+
 ## 一个高级的 LlamaIndex 开发流应该是这样的
 
 1. 阶段 0: 治理与策略
-
    - 权限 / Policy / Prompt 管理
 
 2. 阶段 1: 数据摄入与索引 (Ingestion & Indexing)
@@ -26,15 +40,8 @@
       --> 加载 (Documents)
       --> 摄入管道 (IngestionPipeline)
          |--> Node 建模 (语义节点/层次结构)
-              1、chunk_size；
-              2、overlap；
-              3、parent/child；
-              4、section/heading
-              5、page/table/code_block等
-              【层次结构、句子窗口、自动合并、知识图谱】
          |--> 切分 (Chunking)--【语义单元建模】
-         |--> 元数据提取 (Metadata Enrichment)
-             【Filter / Context / Trace-可观测&debug】
+         |--> 元数据提取 (Metadata Enrichment)【Filter / Context / Trace-可观测&debug】
          └──> 嵌入 (Embedding Model) --【嵌入模型微调】
       --> 去重 & 版本控制 (Dedup / Versioning)
       --> 索引构建 (Index) (Vector / Keyword / Graph)
@@ -49,11 +56,8 @@
       --> 查询变换 (Query Transformation) (改写-扩展/分解问题)
       --> 路由/Agent (Router/Agent) (决策：查库 vs 调工具)----【Control Plane】
       --> 检索 (Retrieval)
+         |-->Dense + Sparse + Graph
          |-->Dense + Sparse + Graph ==> 混合检索
-             1、元数据
-             2、分层（摘要&文档块）
-             3、文档块先生成问题-->检索问题-->匹配文档块 / llm设生成答案-->检索（Hypothetical Questions and HyDE）
-             4、较小的子块引用较大的父块 / 句子窗口检索(在检索过程中获取一个句子，并返回句子周围的文本窗口)
          └──>Fallback Path(失败处理)
       --> 节点后处理 (Node Post-processor)
          |--> 重排序 (Re-ranking) (Cohere/BGE) --【微调】
@@ -71,11 +75,36 @@
       --> 部署 (Deployment) --【API / Service Layer (RAG / Agent / Tool)】
    ```
 
-### 数据处理
+- 1、数据处理
+  1. 分块：文档层次结构：markdown
+  2. 知识图谱：neo4j
+  3. 互联网搜到的文章，先虚拟检索，再喂给 llm
 
-1. 分块：文档层次结构：markdown
-2. 知识图谱：neo4j
-3. 互联网搜到的文章，先虚拟检索，再喂给 llm
+- 2、node建模
+  1. chunk_size；
+  2. overlap；
+  3. parent/child；
+  4. section/heading
+  5. page/table/code_block等
+
+  【层次结构、句子窗口、自动合并、知识图谱】
+
+- 3、检索
+  1. 元数据
+  2. 分层（摘要&文档块）
+  3. 文档块先生成问题-->检索问题-->匹配文档块 / llm设生成答案-->检索（Hypothetical Questions and HyDE）
+  4. 较小的子块引用较大的父块 / 句子窗口检索(在检索过程中获取一个句子，并返回句子周围的文本窗口)
+
+     1、元数据
+     2、摘要&文档块
+     3、文档块先生成问题-->检索问题-->匹配文档块 / llm设生成答案-->检索（Hypothetical Questions and HyDE）
+     4、小索引，大窗口（分小块-->匹配到-->扩大范围） / 较小的子块引用较大的父块
+     5、混合检索（语义+关键词）稠密向量Dense Vector +稀疏关键词
+     6、智能路由
+     7、多模态
+     8、知识图谱（Graph RAG）
+
+- 4、节点后处理
 
 ## LlamaIndex + LangGraph 的 Agent 级架构图
 
@@ -205,7 +234,6 @@ hybrid_retriever=EnsembleRetriever(
 1. 了解与资源 (Ecosystem & Resources)
 
    在开始构建之前，了解生态系统和可用资源。
-
    - 探索 LlamaIndex (Explore LlamaIndex)
    - 手册 (Handbook/Docs)
    - Llama Hub (组件库，查找现成的数据加载器和工具)
@@ -215,7 +243,6 @@ hybrid_retriever=EnsembleRetriever(
 2. 数据摄取与加载 (Data Ingestion & Loading)
 
    将外部数据引入系统。
-
    - 摄取 (Ingestion)
    - 数据连接器 (Data Connectors)
    - 多模态 (Multi-modal) - 处理图像/音频等多类型数据
@@ -223,7 +250,6 @@ hybrid_retriever=EnsembleRetriever(
 3. 数据转换与索引 (Transformation & Indexing)
 
    对数据进行清洗、切分、嵌入并存储，构建知识库。
-
    - 转换 (Transformations)
    - 节点解析器和文本分割器 (Node Parsers / Text Splitters)
    - 元数据提取器 (Metadata Extractor)
@@ -239,7 +265,6 @@ hybrid_retriever=EnsembleRetriever(
 4. 检索与查询处理 (Retrieval & Querying)
 
    从索引中查找相关信息并进行处理。
-
    - 检索器 (Retrievers) - 根据 Query 找数据
    - 节点后处理器 (Node Post-processors) - 对检索结果重排序或过滤
    - 查询转换 (Query Transformations) - 改写用户问题
@@ -252,7 +277,6 @@ hybrid_retriever=EnsembleRetriever(
 5. 高级应用与 Agent (Agents & Application Layer)
 
    构建具备记忆、交互能力和复杂逻辑的应用。
-
    - 聊天引擎 (Chat Engine) - 支持上下文对话
    - 记忆 (Memory)
    - 工具 (Tools) - 赋予 LLM 调用外部能力
@@ -262,7 +286,6 @@ hybrid_retriever=EnsembleRetriever(
 6. 评估、优化与运维 (Evaluation, Optimization & Ops)
 
    监控应用表现，微调模型，提升效果。
-
    - 评估 (Evaluations)
    - 微调 (Fine-tuning)
    - 参数优化器 (Param Optimizer)
@@ -281,14 +304,12 @@ hybrid_retriever=EnsembleRetriever(
 1. 资源与扩展包 (Resources & Ecosystem)
 
    在开始构建前，利用现有的资源加速开发。
-
    - Llama Packs (预构建的模块包)
    - Llama 数据集 (Llama Datasets - 用于基准测试的数据)
 
 2. 数据摄取与处理 (Data Ingestion & Processing)
 
    将原始数据读入并切分成系统可理解的单元。
-
    - 摄取 (Ingestion)
    - 阅读器 (Readers) - 即数据加载器
    - 节点解析器 & 文本分割器 (Node Parsers & Text Splitters) - 将文档切分为节点
@@ -298,7 +319,6 @@ hybrid_retriever=EnsembleRetriever(
 3. 模型、索引与存储 (Models, Indexing & Storage)
 
    核心模型层，以及将处理后的数据转化为向量/图并存储。
-
    - LLMs (大语言模型)
    - 多模态 LLMs (Multi-modal LLMs)
    - 嵌入 (Embeddings) - 稠密向量
@@ -311,7 +331,6 @@ hybrid_retriever=EnsembleRetriever(
 4. 检索与查询逻辑 (Retrieval & Query Logic)
 
    从索引中提取信息，并处理成最终答案。
-
    - 检索器 (Retrievers) - 从索引中查找相关节点
    - 选择器 (Selectors) - 路由逻辑，决定使用哪个索引或工具
    - 节点后处理器 (Node Postprocessors) - 对检索结果重排序或过滤
@@ -326,7 +345,6 @@ hybrid_retriever=EnsembleRetriever(
 5. 智能体与高级交互 (Agents & Interaction)
 
    构建具备记忆、工具使用和复杂工作流的 AI 应用。
-
    - 聊天引擎 (Chat Engines) - 多轮对话封装
    - 记忆 (Memory) - 对话历史管理
    - 工具 (Tools) - 函数调用能力
@@ -336,7 +354,6 @@ hybrid_retriever=EnsembleRetriever(
 6. 部署、监控与评估 (Deployment, Ops & Eval)
 
    应用上线后的架构、监控和优化。
-
    - Llama Deploy (或 LlamaDeploy) - 微服务化部署框架
    - 消息队列 (Message Queues) - 处理部署中的异步通信
    - 仪器 (Instrumentation) - 埋点与可观测性
