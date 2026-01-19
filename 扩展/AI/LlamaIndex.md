@@ -16,7 +16,7 @@
 
 ![RAG全栈技术框架](./img//RAG/RAG全栈技术框架.png)
 
-## llama-index 包 包含了
+## llama-index 包含了
 
 - llama-index-core
 - llama-index-llms-openai
