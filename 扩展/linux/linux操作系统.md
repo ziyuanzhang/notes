@@ -40,7 +40,8 @@
 
 - 切换到 root 用户：sudo su - ;然后输入密码；
 
-- 强制停止：ctrl + c(cancel)
+- 强制停止：ctrl + c(cancel)；
+- 终端清屏：clear；
 
 - 安装与卸载 :
 
