@@ -14,17 +14,6 @@
 
 ![RAG全栈技术框架](./img//RAG/RAG全栈技术框架.png)
 
-## llama-index 包含了
-
-- llama-index-core
-- llama-index-llms-openai
-- llama-index-embeddings-openai
-- llama-index-program-openai
-- llama-index-question-gen-openai
-- llama-index-agent-openai
-- llama-index-readers-file
-- llama-index-multi-modal-llms-openai
-
 ## 一个高级的 LlamaIndex 开发流应该是这样的
 
 1. 阶段 0: 治理与策略
@@ -76,7 +65,6 @@
 
 1. 数据处理
    - 分块：文档层次结构：markdown
-   - 知识图谱：neo4j
    - 互联网搜到的文章，先虚拟检索，再喂给 llm
 
 2. node建模
@@ -102,10 +90,27 @@
    - 混合检索（语义+关键词）稠密向量Dense Vector +稀疏关键词
    - 智能路由
    - 多模态
-   - 知识图谱（Graph RAG）
+   - 知识图谱（Graph RAG）：neo4j
 
 5. 节点后处理
    - 节点句子窗口 ==【小索引，大窗口（分小块-->匹配到-->扩大范围）】
+
+### 分块
+
+1. Fixed Size Chunking（固定大小分块）：适用：日志、代码、快速原型。
+2. Recursive Chunking（递归分块）：
+   - 原理：按语义分隔符优先级递归切分（如 \n\n > \n > 。 > ， > 空格）。
+   - 优点：尽量保持段落/句子完整，平衡效率与语义。
+   - 通用文档（PDF、网页、文章）——推荐作为默认方案。
+
+3. Document Specific Chunking（文档特定分块 -- 结构感知分块）：
+   - 适合：markdown,
+   - 适用：企业知识库、技术文档、法律/医疗文本。
+
+4. Semantic Chunking（语义分块）: 适用：高质量知识库（如百科、论文）、对精度要求极高的场景。
+5. Agentic/LLM-Based Chunking（智能代理分块）: 让大模型分
+6. Parent-Child Chunking（父子分块）
+7. Slide Window Chunking（滑动窗口）：100行的文章，浏览器窗口一次能显示10行，滚动鼠标每次移动5行；
 
 ### embedding演进
 
@@ -229,6 +234,17 @@ hybrid_retriever=EnsembleRetriever(
 3.  响应时延 → 索引优化、缓存、并发检索
 4.  有效上下文利用率 → 文档摘要、裁剪、扩窗口模型
 ```
+
+## llama-index 包含了
+
+- llama-index-core
+- llama-index-llms-openai
+- llama-index-embeddings-openai
+- llama-index-program-openai
+- llama-index-question-gen-openai
+- llama-index-agent-openai
+- llama-index-readers-file
+- llama-index-multi-modal-llms-openai
 
 ## LlamaIndex--阅读
 
