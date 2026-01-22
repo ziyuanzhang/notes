@@ -27,7 +27,7 @@
       --> 加载 (Documents)
       --> 摄入管道 (IngestionPipeline)
          |--> Node 建模 (语义节点/层次结构) ❗
-         |--> 切分 (Chunking)--【语义单元建模】
+         |--> 切分 (Chunking)--【语义单元建模】❗
          |--> 元数据提取 (Metadata Enrichment)【Filter / Context / Trace-可观测&debug】
          └──> 嵌入 (Embedding Model) --【嵌入模型微调】
       --> 去重 & 版本控制 (Dedup / Versioning)
@@ -76,41 +76,48 @@
 
    【层次结构、自动合并、知识图谱】
 
-3. 查询改写（调大模型改写）
-   - 后退提示：先问一个更通用、更本质的问题来帮助模型更好地理解和检索信息，然后再回到具体问题给出准确答案。
-   - 查询扩展：添加同义词、相关概念或背景信息
-   - 多查询生成：同一问题生成3种问法，分别检索后融合结果
-   - 纠错与规范化：修正拼写错误、语法问题或术语不规范
+3. 切分
+   - 固定大小分块（Fixed Size Chunking）：适用：日志、代码、快速原型。
+   - 递归分块（Recursive Chunking）：
+     1. 原理：按语义分隔符优先级递归切分（如 \n\n > \n > 。 > ， > 空格）。
+     2. 优点：尽量保持段落/句子完整，平衡效率与语义。
+     3. 通用文档（PDF、网页、文章）——推荐作为默认方案。
 
-4. 检索
-   - 元数据
-   - 摘要&文档块
-   - 文档块先生成问题-->检索问题-->匹配文档块 / llm设生成答案-->检索（Hypothetical Questions and HyDE-假设文档嵌入）
-   - 小索引，大窗口（分小块-->匹配到-->扩大范围） / 较小的子块引用较大的父块
-   - 混合检索（语义+关键词）稠密向量Dense Vector +稀疏关键词
-   - 智能路由
-   - 多模态
-   - 知识图谱（Graph RAG）：neo4j
+   - 文档特定分块（Document Specific Chunking -- 结构感知分块）：
+     1. 适合：markdown,
+     2. 适用：企业知识库、技术文档、法律/医疗文本。
 
-5. 节点后处理
-   - 节点句子窗口 ==【小索引，大窗口（分小块-->匹配到-->扩大范围）】
+   - 语义分块（Semantic Chunking）: 适用：高质量知识库（如百科、论文）、对精度要求极高的场景。
+   - 智能代理分块（Agentic/LLM-Based Chunking）: 让大模型分
+   - 父子分块（Parent-Child Chunking）
+   - 滑动窗口（Slide Window Chunking）：100行的文章，浏览器窗口一次能显示10行，滚动鼠标每次移动5行；
 
-### 分块
+4. 预检索（正式检索之前，对原始 query 进行智能优化或增强）
+   - 查询改写（Query Rewriting）：把模糊/口语化问题改写为清晰、完整的问题；
+   - 查询扩展（Query Expansion）：在原 query 上添加同义词、术语、关键词；
+   - 假设文档生成（HyDE）：用 query 生成一个“假设答案”，再用它代替 query 去检索；
+   - 多路查询（Multi-Query Generation）：从原 query 衍生出多个子 query 并行检索；
+   - 意图路由（Intent Routing）：不改 query，但根据 query 决定“去哪个库查”；
+   - 对话压缩（Query Compression）：把多轮对话压缩成一个独立 query；
+   <!--
+   * 纠错与规范化：修正拼写错误、语法问题或术语不规范
+   * 微调嵌入模型； -->
 
-1. Fixed Size Chunking（固定大小分块）：适用：日志、代码、快速原型。
-2. Recursive Chunking（递归分块）：
-   - 原理：按语义分隔符优先级递归切分（如 \n\n > \n > 。 > ， > 空格）。
-   - 优点：尽量保持段落/句子完整，平衡效率与语义。
-   - 通用文档（PDF、网页、文章）——推荐作为默认方案。
+5. 检索
+   - 混合检索（Hybrid Search）：结合稀疏检索（BM25） + 密集检索（向量）
+   - 高级分块策略（Chunking Optimization）：较小的子块引用较大的父块
+   - 元数据过滤（Metadata Filtering）
+   * 向量索引优化--【慎重】
+   * 文档块先生成问题-->检索问题-->匹配文档块 / llm设生成答案-->检索（Hypothetical Questions and HyDE-假设文档嵌入）--【慎重】
+   * Embedding 模型选型与微调--【最后】
+   * 知识图谱（Graph RAG）：neo4j
 
-3. Document Specific Chunking（文档特定分块 -- 结构感知分块）：
-   - 适合：markdown,
-   - 适用：企业知识库、技术文档、法律/医疗文本。
-
-4. Semantic Chunking（语义分块）: 适用：高质量知识库（如百科、论文）、对精度要求极高的场景。
-5. Agentic/LLM-Based Chunking（智能代理分块）: 让大模型分
-6. Parent-Child Chunking（父子分块）
-7. Slide Window Chunking（滑动窗口）：100行的文章，浏览器窗口一次能显示10行，滚动鼠标每次移动5行；
+6. 节点后处理
+   - 节点句子窗口：小索引，大窗口（分小块-->匹配到-->扩大范围）
+   - Cross-Encoder 重排序（Re-ranking）
+   - LLM 重排（LLM-based Re-ranking）：让大模型排
+   - 去重与融合（Deduplication & Fusion）
+   - 上下文压缩（Context Compression）：生成摘要
 
 ### embedding演进
 
