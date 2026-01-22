@@ -36,10 +36,10 @@
 
    ```bash
       数据源
-      --> 校验 & 清洗
+      --> 校验 & 清洗 ❗
       --> 加载 (Documents)
       --> 摄入管道 (IngestionPipeline)
-         |--> Node 建模 (语义节点/层次结构)
+         |--> Node 建模 (语义节点/层次结构) ❗
          |--> 切分 (Chunking)--【语义单元建模】
          |--> 元数据提取 (Metadata Enrichment)【Filter / Context / Trace-可观测&debug】
          └──> 嵌入 (Embedding Model) --【嵌入模型微调】
@@ -53,12 +53,12 @@
    ```bash
       用户输入
       --> 会话上下文 (Conversation Context)
-      --> 查询变换 (Query Transformation) (改写-扩展/分解问题)
+      --> 查询变换 (Query Transformation) ❗
       --> 路由/Agent (Router/Agent) (决策：查库 vs 调工具)----【Control Plane】
-      --> 检索 (Retrieval)
+      --> 检索 (Retrieval) ❗
          |-->混合检索（语义+关键词）：稠密向量DenseVector + 稀疏关键词
          └──>Fallback Path(失败处理)
-      --> 节点后处理 (Node Post-processor)
+      --> 节点后处理 (Node Post-processor) ❗
          |--> 重排序 (Re-ranking) (Cohere/BGE) --【微调】
          |--> 过滤 (Filtering) (元数据过滤)
          └──> 上下文压缩/选择（Context Compression / Selection）
@@ -74,32 +74,40 @@
       --> 部署 (Deployment) --【API / Service Layer (RAG / Agent / Tool)】
    ```
 
-- 1、数据处理
-  1. 分块：文档层次结构：markdown
-  2. 知识图谱：neo4j
-  3. 互联网搜到的文章，先虚拟检索，再喂给 llm
+### 重点详情
 
-- 2、node建模
-  1. chunk_size；
-  2. overlap；
-  3. parent/child；
-  4. section/heading
-  5. page/table/code_block等
+1. 数据处理
+   - 分块：文档层次结构：markdown
+   - 知识图谱：neo4j
+   - 互联网搜到的文章，先虚拟检索，再喂给 llm
 
-  【层次结构、句子窗口、自动合并、知识图谱】
+2. node建模
+   - chunk_size；
+   - overlap；
+   - parent/child；
+   - section/heading
+   - page/table/code_block等
 
-- 3、检索
-  1. 元数据
-  2. 摘要&文档块
-  3. 文档块先生成问题-->检索问题-->匹配文档块 / llm设生成答案-->检索（Hypothetical Questions and HyDE-假设文档嵌入）
-  4. 小索引，大窗口（分小块-->匹配到-->扩大范围） / 较小的子块引用较大的父块
-  5. 混合检索（语义+关键词）稠密向量Dense Vector +稀疏关键词
-  6. 智能路由
-  7. 多模态
-  8. 知识图谱（Graph RAG）
+   【层次结构、自动合并、知识图谱】
 
-- 4、节点后处理
-  1. 节点句子窗口 ==【小索引，大窗口（分小块-->匹配到-->扩大范围）】
+3. 查询改写（调大模型改写）
+   - 后退提示：先问一个更通用、更本质的问题来帮助模型更好地理解和检索信息，然后再回到具体问题给出准确答案。
+   - 查询扩展：添加同义词、相关概念或背景信息
+   - 多查询生成：同一问题生成3种问法，分别检索后融合结果
+   - 纠错与规范化：修正拼写错误、语法问题或术语不规范
+
+4. 检索
+   - 元数据
+   - 摘要&文档块
+   - 文档块先生成问题-->检索问题-->匹配文档块 / llm设生成答案-->检索（Hypothetical Questions and HyDE-假设文档嵌入）
+   - 小索引，大窗口（分小块-->匹配到-->扩大范围） / 较小的子块引用较大的父块
+   - 混合检索（语义+关键词）稠密向量Dense Vector +稀疏关键词
+   - 智能路由
+   - 多模态
+   - 知识图谱（Graph RAG）
+
+5. 节点后处理
+   - 节点句子窗口 ==【小索引，大窗口（分小块-->匹配到-->扩大范围）】
 
 ## LlamaIndex + LangGraph 的 Agent 级架构图
 
