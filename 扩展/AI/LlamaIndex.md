@@ -1,7 +1,5 @@
 # LlamaIndex
 
-指南+官网的示例 + api 参考
-
 [知乎](https://www.zhihu.com/people/he-zhi-dong-87/columns)
 
 ## RAG 的 5 个阶段
@@ -108,6 +106,12 @@
 
 5. 节点后处理
    - 节点句子窗口 ==【小索引，大窗口（分小块-->匹配到-->扩大范围）】
+
+### embedding演进
+
+- 全量重建：数据量 < 100 万
+- 双库并行 + 逐步迁移：数据量大 + 允许部分延迟
+- 版本化向量库 + 自动化 re-embed pipeline：长期产品演进
 
 ## LlamaIndex + LangGraph 的 Agent 级架构图
 
@@ -227,6 +231,8 @@ hybrid_retriever=EnsembleRetriever(
 ```
 
 ## LlamaIndex--阅读
+
+指南+官网的示例 + api 参考
 
 ### 示例
 
