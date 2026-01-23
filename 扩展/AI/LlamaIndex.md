@@ -168,9 +168,9 @@
 8. Context → Prompt 的最终适配: 顺序影响巨大:定义 → 原理 → 示例
 
    ```bash
-   ### Definition
-   ### Steps
-   ### Notes
+      ### Definition
+      ### Steps
+      ### Notes
    ```
 
 #### 把这些能力映射回 LlamaIndex 组件
