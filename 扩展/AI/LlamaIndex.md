@@ -73,13 +73,13 @@
 #### 2、 node建模
 
 ```bash
-TextNode(
-  id_,
-  text, # 实际的文本块（用于生成 Embedding）。
-  embedding,
-  metadata, # 元数据
-  relationships # 关系: 指向其他节点的链接（Parent, Child, Previous, Next）
-)
+   TextNode(
+     id_,
+     text, # 实际的文本块（用于生成 Embedding）。
+     embedding,
+     metadata, # 元数据
+     relationships # 关系: 指向其他节点的链接（Parent, Child, Previous, Next）
+   )
 ```
 
 Node 建模与关系增强:
