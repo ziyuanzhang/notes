@@ -136,8 +136,7 @@ Node 建模与关系增强:
 <!-- 1. 节点句子窗口：小索引，大窗口（分小块--》匹配到--》扩大范围）
 2. Cross-Encoder 重排序（Re-ranking）
 1. LLM 重排（LLM-based Re-ranking）：让大模型排
-1. 去重与融合（Deduplication & Fusion）
-1. 上下文压缩（Context Compression）：生成摘要 -->
+1. 去重与融合（Deduplication & Fusion）-->
 
 1. 结构对齐（Structure Alignment）：chunk -->逻辑块回溯（子->父）❗
    - 这是 Parent-Child Chunking 真正的价值所在
