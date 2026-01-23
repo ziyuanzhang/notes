@@ -190,8 +190,6 @@
 2. 双库并行 + 逐步迁移：数据量大 + 允许部分延迟
 3. 版本化向量库 + 自动化 re-embed pipeline：长期产品演进
 
-## LlamaIndex + LangGraph 的 Agent 级架构图
-
 ## RAG 性能指标全流程优化
 
 | 目标              | 具体含义                                   | 优化手段                                         |
