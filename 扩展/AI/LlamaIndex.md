@@ -17,22 +17,24 @@
 ## 一个高级的 LlamaIndex 开发流应该是这样的
 
 1. 阶段 0: 治理与策略
-   - 权限 / Policy / Prompt 管理
+   - 权限/Policy
+   - Prompt 管理
+   - 审计/合规
 
 2. 阶段 1: 数据摄入与索引 (Ingestion & Indexing)
 
    ```bash
-      数据源
+      数据源【DB/文件/Web/API】
       --> 校验 & 清洗 ❗
-      --> 加载 (Documents)
+      --> 加载【Documents】
       --> 摄入管道 (IngestionPipeline)
-         |--> Node 建模 (语义节点/层次结构) ❗
-         |--> 切分 (Chunking)--【语义单元建模】❗
-         |--> 元数据提取 (Metadata Enrichment)【Filter / Context / Trace-可观测&debug】
-         └──> 嵌入 (Embedding Model) --【嵌入模型微调】
-      --> 去重 & 版本控制 (Dedup / Versioning)
-      --> 索引构建 (Index) (Vector / Keyword / Graph)
-      --> 持久化存储 (Storage) (VectorDB + DocStore)
+         |--> Node 建模【语义/层次/Parent-Child】 ❗
+         |--> 切分 Chunking（语义单元建模）--【结构感知/语义/Agentic】❗
+         |--> 元数据增强【Filter/Context/Trace-可观测&debug】
+         └──> 嵌入 (Embedding Model) --【可微调】
+      --> 去重 & 版本控制 (Dedup/Versioning)
+      --> 索引构建 (Index) 【Vector/Keyword/Graph】
+      --> 持久化存储 (Storage) 【VectorDB + DocStore】
    ```
 
 3. 阶段 2: 高级查询流程 (Advanced Querying)
@@ -40,17 +42,17 @@
    ```bash
       用户输入
       --> 会话上下文 (Conversation Context)
-      --> 查询变换 (Query Transformation) ❗
-      --> 路由/Agent (Router/Agent) (决策：查库 vs 调工具)----【Control Plane】
+      --> 查询变换 (Rewriting/Expansion/HyDE) ❗
+      --> 路由/Agent (Router/Agent) 【决策：查库 vs 调工具 -- Control Plane】
       --> 检索 (Retrieval) ❗
-         |-->混合检索（语义+关键词）：稠密向量DenseVector + 稀疏关键词
+         |-->混合检索（语义+关键词）：【稠密向量DenseVector + 稀疏关键词】
          └──>Fallback Path(失败处理)
       --> 节点后处理 (Node Post-processor) ❗
-         |--> 重排序 (Re-ranking) (Cohere/BGE) --【微调】
-         |--> 过滤 (Filtering) (元数据过滤)
-         └──> 上下文压缩/选择（Context Compression / Selection）
-      --> 响应合成 (Response Synthesis) (Tree Summarize / Compact) --【微调】
-      --> 结构化输出 (Structured Output) (Pydantic)
+         |--> 重排序 (Re-ranking) 【Cohere/BGE】--【可微调】
+         |--> 过滤 (Filtering) 【元数据过滤】
+         └──> 上下文压缩/选择（Context Compression/Selection）
+      --> 响应合成 (Response Synthesis) 【Tree Summarize / Compact】 --【可微调】
+      --> 结构化输出 (Structured Output) 【Pydantic】
    ```
 
 4. 阶段 3: 运维与迭代 (Ops & Iteration)
@@ -61,69 +63,132 @@
       --> 部署 (Deployment) --【API / Service Layer (RAG / Agent / Tool)】
    ```
 
-### 重点详情
+### 重要详情
 
-1. 数据处理
-   - 分块：文档层次结构：markdown
-   - 互联网搜到的文章，先虚拟检索，再喂给 llm
+#### 1. 数据处理
 
-2. node建模
-   - chunk_size；
-   - overlap；
-   - parent/child；
-   - section/heading
-   - page/table/code_block等
+1. 分块：文档层次结构：markdown
+2. 互联网搜到的文章，先虚拟检索，再喂给 llm
 
-   【层次结构、自动合并、知识图谱】
+#### 2. node建模
 
-3. 切分
-   - 固定大小分块（Fixed Size Chunking）：适用：日志、代码、快速原型。
-   - 递归分块（Recursive Chunking）：
-     1. 原理：按语义分隔符优先级递归切分（如 \n\n > \n > 。 > ， > 空格）。
-     2. 优点：尽量保持段落/句子完整，平衡效率与语义。
-     3. 通用文档（PDF、网页、文章）——推荐作为默认方案。
+1. chunk_size；
+2. overlap；
+3. parent/child；
+4. section/heading
+5. page/table/code_block等
 
-   - 文档特定分块（Document Specific Chunking -- 结构感知分块）：
-     1. 适合：markdown,
-     2. 适用：企业知识库、技术文档、法律/医疗文本。
+【层次结构、自动合并、知识图谱】
 
-   - 语义分块（Semantic Chunking）: 适用：高质量知识库（如百科、论文）、对精度要求极高的场景。
-   - 智能代理分块（Agentic/LLM-Based Chunking）: 让大模型分
-   - 父子分块（Parent-Child Chunking）
-   - 滑动窗口（Slide Window Chunking）：100行的文章，浏览器窗口一次能显示10行，滚动鼠标每次移动5行；
+#### 3. 切分
 
-4. 预检索（正式检索之前，对原始 query 进行智能优化或增强）
-   - 查询改写（Query Rewriting）：把模糊/口语化问题改写为清晰、完整的问题；
-   - 查询扩展（Query Expansion）：在原 query 上添加同义词、术语、关键词；
-   - 假设文档生成（HyDE）：用 query 生成一个“假设答案”，再用它代替 query 去检索；
-   - 多路查询（Multi-Query Generation）：从原 query 衍生出多个子 query 并行检索；
-   - 意图路由（Intent Routing）：不改 query，但根据 query 决定“去哪个库查”；
-   - 对话压缩（Query Compression）：把多轮对话压缩成一个独立 query；
-   <!--
-   * 纠错与规范化：修正拼写错误、语法问题或术语不规范
-   * 微调嵌入模型； -->
+1. 固定大小分块（Fixed Size Chunking）：适用：日志、代码、快速原型。
+2. 递归分块（Recursive Chunking）：
+   - 原理：按语义分隔符优先级递归切分（如 \n\n > \n > 。 > ， > 空格）。
+   - 优点：尽量保持段落/句子完整，平衡效率与语义。
+   - 通用文档（PDF、网页、文章）——推荐作为默认方案。
 
-5. 检索
-   - 混合检索（Hybrid Search）：结合稀疏检索（BM25） + 密集检索（向量）
-   - 高级分块策略（Chunking Optimization）：较小的子块引用较大的父块
-   - 元数据过滤（Metadata Filtering）
-   * 向量索引优化--【慎重】
-   * 文档块先生成问题-->检索问题-->匹配文档块 / llm设生成答案-->检索（Hypothetical Questions and HyDE-假设文档嵌入）--【慎重】
-   * Embedding 模型选型与微调--【最后】
-   * 知识图谱（Graph RAG）：neo4j
+3. 文档特定分块（Document Specific Chunking -1. 结构感知分块）：
+   - 适合：markdown,
+   - 适用：企业知识库、技术文档、法律/医疗文本。
 
-6. 节点后处理
-   - 节点句子窗口：小索引，大窗口（分小块-->匹配到-->扩大范围）
-   - Cross-Encoder 重排序（Re-ranking）
-   - LLM 重排（LLM-based Re-ranking）：让大模型排
-   - 去重与融合（Deduplication & Fusion）
-   - 上下文压缩（Context Compression）：生成摘要
+4. 语义分块（Semantic Chunking）: 适用：高质量知识库（如百科、论文）、对精度要求极高的场景。
+5. 智能代理分块（Agentic/LLM-Based Chunking）: 让大模型分
+6. 父子分块（Parent-Child Chunking）
+7. 滑动窗口（Slide Window Chunking）：100行的文章，浏览器窗口一次能显示10行，滚动鼠标每次移动5行；
+
+#### 4. 预检索（正式检索之前，对原始 query 进行智能优化或增强）
+
+1. 查询改写（Query Rewriting）：把模糊/口语化问题改写为清晰、完整的问题；
+2. 查询扩展（Query Expansion）：在原 query 上添加同义词、术语、关键词；
+3. 假设文档生成（HyDE）：用 query 生成一个“假设答案”，再用它代替 query 去检索；
+4. 多路查询（Multi-Query Generation）：从原 query 衍生出多个子 query 并行检索；
+5. 意图路由（Intent Routing）：不改 query，但根据 query 决定“去哪个库查”；
+6. 对话压缩（Query Compression）：把多轮对话压缩成一个独立 query；
+<!--
+
+- 纠错与规范化：修正拼写错误、语法问题或术语不规范
+- 微调嵌入模型（专业领域）； -->
+
+#### 5. 检索
+
+1. 混合检索（Hybrid Search）：结合稀疏检索（BM25） + 密集检索（向量）
+2. 高级分块策略（Chunking Optimization）：较小的子块引用较大的父块
+3. 元数据过滤（Metadata Filtering）
+
+- 向量索引优化--【慎重】
+- 文档块先生成问题-->检索问题-->匹配文档块 / llm设生成答案-->检索（Hypothetical Questions and HyDE-假设文档嵌入）--【慎重】
+- Embedding 模型选型与微调--【最后专业领域】
+- 知识图谱（Graph RAG）：neo4j
+
+#### 6. 节点后处理
+
+<!-- 1. 节点句子窗口：小索引，大窗口（分小块--》匹配到--》扩大范围）
+2. Cross-Encoder 重排序（Re-ranking）
+1. LLM 重排（LLM-based Re-ranking）：让大模型排
+1. 去重与融合（Deduplication & Fusion）
+1. 上下文压缩（Context Compression）：生成摘要 -->
+
+1. 结构对齐（Structure Alignment）：chunk -->逻辑块回溯（子->父）❗
+   - 这是 Parent-Child Chunking 真正的价值所在
+
+2. 语义去噪（Noise Reduction）：Top-K 检索 ≠ 全部有用
+   - 轻量 LLM Binary Filter（强烈推荐）
+   - Embedding 相似度二次过滤
+
+3. 冗余折叠（Redundancy Collapse）：多个 chunk 说的是同一件事，只是表达不同❗
+   - 相似 Chunk 聚类：1️⃣cosine > 0.92 或 2️⃣ Cross-Encoder 相似
+   - 聚类后处理方式：1️⃣选代表 chunk 或2️⃣ 让 LLM 合并为一段「融合表述」
+     👉 Token 节省 + 语义密度提升
+
+4. 重要性评估（Salience Scoring）🔥
+
+   不是所有“相关”信息都“重要”。
+   多因子重要性评分（推荐）
+
+   | 因子 | 示例 |
+   | -----------1. | -----------------1. |
+   | Query 匹配度 | 与问题关键词 |
+   | 结构权重 | 标题 > 正文 > 脚注 |
+   | 新鲜度 | 版本 / 时间 |
+   | 权威度 | 官方文档 > 博客 |
+   | 任务匹配 | 教程 / 定义 / API |
+
+5. 关系补全（Relation Completion）🔥【Graph 思维】：检索结果是“点”，而不是“关系”
+   - 显式关系
+   - 隐式关系（LLM 推断）
+     👉 这是 Graph RAG 在生成阶段的核心价值
+
+6. 上下文压缩（Context Compression）进阶版
+
+7. Token Budgeting 裁剪❗（真实生产必备）
+
+   `total_budget = model_limit - prompt - safety_margin` == 剩余可用预算 = 模型上下文上限 - 当前提示词消耗 - 安全缓冲/预留(一个较小的整数,如 50 或 100)
+
+8. Context → Prompt 的最终适配: 顺序影响巨大:定义 → 原理 → 示例
+
+   ```bash
+   ### Definition
+   ### Steps
+   ### Notes
+   ```
+
+#### 把这些能力映射回 LlamaIndex 组件
+
+| 能力       | LlamaIndex 对应                |
+| ---------- | ------------------------------ |
+| 去噪       | NodePostProcessor              |
+| 冗余折叠   | Custom Fusion Processor        |
+| 重要性评分 | Metadata + Reranker            |
+| 关系补全   | KnowledgeGraphIndex            |
+| 压缩       | ContextualCompressionRetriever |
+| Token 控制 | ResponseSynthesizer            |
 
 ### embedding演进
 
-- 全量重建：数据量 < 100 万
-- 双库并行 + 逐步迁移：数据量大 + 允许部分延迟
-- 版本化向量库 + 自动化 re-embed pipeline：长期产品演进
+1. 全量重建：数据量 < 100 万
+2. 双库并行 + 逐步迁移：数据量大 + 允许部分延迟
+3. 版本化向量库 + 自动化 re-embed pipeline：长期产品演进
 
 ## LlamaIndex + LangGraph 的 Agent 级架构图
 
