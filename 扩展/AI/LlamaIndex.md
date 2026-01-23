@@ -28,8 +28,8 @@
       --> 校验 & 清洗 ❗
       --> 加载【Documents】
       --> 摄入管道 (IngestionPipeline)
-         |--> Node 建模【语义/层次/Parent-Child】 ❗
-         |--> 切分 Chunking（语义单元建模）--【结构感知/语义/Agentic】❗
+         |--> Node 建模 【可被检索 + 可被组合 + 可被追溯 + 可被推理的最小知识单元】❗
+         |--> 切分 Chunking【是 Node 建模的工具】❗
          |--> 元数据增强【Filter/Context/Trace-可观测&debug】
          └──> 嵌入 (Embedding Model) --【可微调】
       --> 去重 & 版本控制 (Dedup/Versioning)
@@ -65,22 +65,33 @@
 
 ### 重要详情
 
-#### 1. 数据处理
+#### 1、 数据处理
 
 1. 分块：文档层次结构：markdown
 2. 互联网搜到的文章，先虚拟检索，再喂给 llm
 
-#### 2. node建模
+#### 2、 node建模
 
-1. chunk_size；
-2. overlap；
-3. parent/child；
-4. section/heading
-5. page/table/code_block等
+```bash
+TextNode(
+  id_,
+  text, # 实际的文本块（用于生成 Embedding）。
+  embedding,
+  metadata, # 元数据
+  relationships # 关系: 指向其他节点的链接（Parent, Child, Previous, Next）
+)
+```
 
-【层次结构、自动合并、知识图谱】
+Node 建模与关系增强:
 
-#### 3. 切分
+1. 层次化建模 (Parent-Child / Small-to-Big)
+2. 窗口上下文建模 (Sentence Window)：Embedding 仅针对“当前句子”，但 Node 实际上携带了“前后 N 句”作为 Metadata。
+3. 语义与元数据增强
+   - 自动生成文档标题
+   - 自动提取关键词
+   - 自动生成摘要（成本较高）
+
+#### 3、切分
 
 1. 固定大小分块（Fixed Size Chunking）：适用：日志、代码、快速原型。
 2. 递归分块（Recursive Chunking）：
@@ -97,11 +108,11 @@
 6. 父子分块（Parent-Child Chunking）
 7. 滑动窗口（Slide Window Chunking）：100行的文章，浏览器窗口一次能显示10行，滚动鼠标每次移动5行；
 
-#### 4. 预检索（正式检索之前，对原始 query 进行智能优化或增强）
+#### 4、 预检索（正式检索之前，对原始 query 进行智能优化或增强）
 
 1. 查询改写（Query Rewriting）：把模糊/口语化问题改写为清晰、完整的问题；
 2. 查询扩展（Query Expansion）：在原 query 上添加同义词、术语、关键词；
-3. 假设文档生成（HyDE）：用 query 生成一个“假设答案”，再用它代替 query 去检索；
+3. 假设文档生成（HyDE）：用 query 生成一个“假设答案”，再用它代替 query 去检索；【慎重】
 4. 多路查询（Multi-Query Generation）：从原 query 衍生出多个子 query 并行检索；
 5. 意图路由（Intent Routing）：不改 query，但根据 query 决定“去哪个库查”；
 6. 对话压缩（Query Compression）：把多轮对话压缩成一个独立 query；
@@ -110,18 +121,17 @@
 - 纠错与规范化：修正拼写错误、语法问题或术语不规范
 - 微调嵌入模型（专业领域）； -->
 
-#### 5. 检索
+#### 5、 检索
 
 1. 混合检索（Hybrid Search）：结合稀疏检索（BM25） + 密集检索（向量）
 2. 高级分块策略（Chunking Optimization）：较小的子块引用较大的父块
 3. 元数据过滤（Metadata Filtering）
 
-- 向量索引优化--【慎重】
-- 文档块先生成问题-->检索问题-->匹配文档块 / llm设生成答案-->检索（Hypothetical Questions and HyDE-假设文档嵌入）--【慎重】
-- Embedding 模型选型与微调--【最后专业领域】
 - 知识图谱（Graph RAG）：neo4j
+- 向量索引优化--【慎重】
+- Embedding 模型选型与微调--【最后专业领域】
 
-#### 6. 节点后处理
+#### 6、 节点后处理
 
 <!-- 1. 节点句子窗口：小索引，大窗口（分小块--》匹配到--》扩大范围）
 2. Cross-Encoder 重排序（Re-ranking）
