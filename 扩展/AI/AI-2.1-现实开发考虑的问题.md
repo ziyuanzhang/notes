@@ -5,14 +5,27 @@
   3. 构建索引和查询是分开的吧？实际应用时怎么把他们关联起来，怎么确定用哪个索引查询？
   4. 中大型公司，怎么跨部门查询？例如老板
   5. 行政的文件有的只能部门访问，有的给公司成员访问，有的对外全部公开，怎么设计？
+  6. 公司组织架构扩展或者改变，已经存在元数据中的数据，怎么修改，以适应行的组织架构？
 
   ❌ 不要「每个文件一个知识库」
   ❌ 不要「每个部门一个 VectorDB 实例」
   ✅ 要「统一向量库 + 严格 Metadata + Policy 控制」
   ✅ 访问控制不在向量库，而在 RAG Query 层 & Agent 层
   ✅ 知识库 = 数据 + 索引 + 权限 + 治理 + 生命周期
+  ❌ 不要把“组织结构”硬编码进文档元数据
+  ✅ 元数据里只存“稳定 ID”，变化通过“映射层”解决
 
 普通员工--》部门负责人--》老板--》法务--》审计
+
+```bash
+# 把问题拆成两层
+数据层（稳定）        决策层（可变）
+-------------------------------
+dept_id               org_tree
+role_id        +       dept_mapping
+kb_id                 acl_policy
+
+```
 
 ```bash
 # 知识库实体
@@ -28,6 +41,7 @@ KnowledgeBase = {
 
 ```bash
 Node.metadata = {
+  # 错误 ❌
     "department": "hr",                # 部门
     "doc_id": "hr_policy_2025.pdf",     # 原始文档
     "doc_type": "pdf|image|html",
@@ -42,6 +56,39 @@ Node.metadata = {
     "acl_roles": ["employee"],     # 角色白名单
     "kb_id": "kb_admin"
 }
+metadata = {
+  # 正确 ✅
+    "owner_dept_id": "dept_admin", # 永不变（UUID / 业务主键）
+    "kb_id": "kb_admin", # 稳定
+    "visibility": "internal", # 稳定
+    "acl_dept_ids": ["dept_admin"], # 稳定
+    "acl_role_ids": ["role_employee"]
+}
+```
+
+```bash
+# 组织结构独立成一个服务 / 表
+OrgService
+ ├─ dept_id
+ ├─ dept_name
+ ├─ parent_dept_id
+ ├─ effective_from
+ └─ effective_to
+
+```
+
+```bash
+# 用「动态映射」，不是改元数据
+用户
+ ↓
+user.dept_id = dept_x
+ ↓
+OrgService.resolve_accessible_depts(dept_x)
+ ↓
+返回一组 dept_ids
+ ↓
+RAG filter 用这组 dept_ids
+
 ```
 
 ```bash
