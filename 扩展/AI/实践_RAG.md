@@ -126,6 +126,7 @@ Node 建模与关系增强:
 3. 元数据过滤（Metadata Filtering）
 
 - 知识图谱（Graph RAG）：neo4j
+- LightRAG
 - 向量索引优化--【慎重】
 - Embedding 模型选型与微调--【最后专业领域】
 
