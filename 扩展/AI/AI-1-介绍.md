@@ -88,36 +88,6 @@ LLM、RAG、Agent、CMP、A2A、n8n、skill、
 
 ![agent流程图](./img/operating_process/agent流程图.png)
 
-## Agent 设计模式（Agent 框架与策略）
-
-1. ChainofThought（CoT+思维链）：
-
-   核心思想：让模型在回答前，把推理过程一步步写出来。不是一口气报出答案，而是把整个推理过程展示出来。
-
-2. Self-Ask（自问自答）：
-
-   核心思想：让模型在回答时学会“反问自己”，把大问题拆成多个小问题，然后逐个回答。
-
-3. ReAct（推理 + 行动）：
-
-   核心思想：在推理（Reasoning）和外部行动（Acting，比如调用搜索引擎或 API）之间交替进行。
-
-4. Plan-and-Execute（计划与执行）：
-
-   核心思想：把任务拆成两个阶段，先生成计划（Planning），再逐步执行（Execution）。
-
-5. TreeofThoughts（ToT，树状思维）：
-
-   核心思想：不是单线思维，而是生成多条思路分支，像树一样展开，再通过评估机制选出最佳分支。
-
-6. Reflexion/IterativeRefinement（反思与迭代优化）
-
-   核心思想：Agent 具备自我纠错的能力，犯错后会总结失败原因，再带着反思尝试下一次。
-
-7. Role-playingAgents（角色扮演式智能体或者机器是多智能体协作）
-
-   核心思想：把任务拆分给不同角色的 Agent，每个 Agent 都有专属职责，通过对话协作完成任务。
-
 ##
 
 1. tiktoken：计算 token 数量；
