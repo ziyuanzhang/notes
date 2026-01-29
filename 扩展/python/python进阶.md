@@ -1,20 +1,17 @@
 # python 进阶
 
 - 面向过程 与 面向对象
-
   1. 面向过程：强调过程，第一步、第二步、第三步。。。。
   2. 面向对象：强调以“对象为基础”完成各种操作，对象是具有属性和方法的（例：洗衣服，交给别人/机器，让它做）。
      - 它是基于面向过程的
 
 - 封装、继承、多态
-
   1. 封装：【好处：简化编程】；隐藏对象的属性和实现细节，仅对外公开接口；
   2. 继承：【好处：代码复用】；子类继承父类的属性和方法；使得子类对象（实例）具有父类的特征和行为；
   3. 多态：【好处：解耦合，可扩展】同一个事物在不同时刻做出的反应不一样；例：（同一个人）在教室是学生，在商场是顾客，在家是。。。
      - 同一个函数接收参数不一样，表现出来的结果也不一样；
 
 - 类与对象
-
   1. 类：是抽象模板（图纸）
   2. 对象：是类的具体实例（按图纸造出来的东西）；有 属性（名词）、方法（动词）
 
@@ -23,14 +20,12 @@
 ## 类
 
 - self 关键字：用于指向“对象实例本身”；
-
   1. 谁调用，指向谁
   2. 类似 js 中的 this 关键字
 
 - 魔法方法：
 
   在 Python 中，有一些可以"给 Python 类增加魔力的特殊方法"，它们"总是被双下划线所包围"，我们称之为魔法方法。"在特殊情况下会被自动调用"，不需要开发者手劲去调用。
-
   1. `__init__()` ：在创建对象时调用，初始化方法；
   2. `__str__()` ：打印对象时调用，返回对象的字符串表示【不重写，print()对象时，返回对象的内存地址】；
   3. `__del__()` ： 当.py 文件执行结束后 或 手动删除对象后调用；
@@ -58,13 +53,11 @@
 ### 类的高级
 
 - 三种定义方式：
-
   1. `class 类名:`
   2. `class 类名():`
   3. `class 类名(父类):`
 
 - 多继承：优先左边顺序
-
   1. `class 类名(父类1, 父类2):`优先“父类 1 ”的属性名和方法
   2. mro: 查看继承顺序
 
@@ -230,7 +223,6 @@ payment()
 ```
 
 - 被装饰函数的 4 种情况：
-
   1. 无参无返: 计数用
   2. 有参无返回: 统计用
 
@@ -264,7 +256,6 @@ payment()
 
 - 赋值：只是创建别名，不创建新对象
 - 浅拷贝：创建新容器，但填充的是原内容的引用
-
   1. 对象没有嵌套结构或嵌套结构不可变
   2. 需要共享嵌套对象引用时
   3. 对性能要求较高时
@@ -286,13 +277,11 @@ payment()
 - 并行: 在一段时间内，真正的“同时一起”执行多个任务（需要多核 CPU）；
 
 1. Python (CPython)：进程优先策略
-
    - 由于 GIL（全局解释器锁）的存在，真正的并行只能通过多进程实现
    - 每个 Python 进程是独立的操作系统进程，有自己独立的内存空间和 Python 解释器
    - 进程间通信需要显式处理（队列、管道、共享内存等）
 
 2. Java：线程优先策略
-
    - 没有 GIL 的限制，可以直接使用多线程实现真正的并发
    - 线程共享内存空间，通信简单直接
    - 也支持多进程，但线程是首选的并发模型
@@ -320,7 +309,6 @@ payment()
 进程的特点:
 
 1. 进程之间数据是相互隔离的.
-
    - 因为子进程相当于是父进程的"副本"，会将父进程的"main 外资源"拷贝一份，即:各是各的
 
 2. 默认情况下，主进程会等待子进程执行结束再结束
@@ -361,7 +349,6 @@ payment()
 4. 线程之间共享全局变量数据出现错误问题（互斥锁解决）
 
 - 死锁：一直等待对方释放锁的情景就是死锁；
-
   - 死锁的原因:使用互斥锁的时候需要注意死锁的问题，未在合适的地方注意释放锁；
   - 死锁的结果:会造成应用程序的停止响应，应用程序无法再继续往下执行了；
 
@@ -478,3 +465,63 @@ payment()
 ```
 
 ## 数据结构 与 算法
+
+## 安装并初始化项目
+
+1. 安装uv
+   - Linux / macOS: `curl -LsSf https://astral.sh/uv/install.sh | sh`
+   - Windows (PowerShell): `powershell -ExecutionPolicy ByPass -Command "irm https://astral.sh/uv/install.ps1 | iex"`
+   - 或 `pip install uv`
+   - `uv --version`
+2. 初始化项目: `uv init my_project` ；`cd my_project`;
+3. 创建虚拟环境并激活：
+   - `uv venv`;
+   - Linux/macOS: `source .venv/bin/activate`
+   - Windows (PowerShell/CMD): `.venv\Scripts\activate`
+4. 添加”.python-version “文件，在src下写代码；
+5. git:
+   - `git add uv.lock`
+   - .gitignore（最小但正确）
+
+   ```gitignore
+     .venv/
+     __pycache__/
+     .mypy_cache/
+     .pytest_cache/
+     .ruff_cache/
+     .env
+   ```
+
+6. 安装开发依赖:`uv add --dev pytest mypy ruff`
+   在 pyproject.toml 中添加：
+
+   ```python
+      [tool.mypy]
+      python_version = "3.11"
+      strict = true
+
+      # 项目结构
+      packages = ["my_project"]
+      mypy_path = ["src"]
+
+      # 常见妥协
+      ignore_missing_imports = true
+      warn_unused_ignores = true
+      warn_return_any = true
+      warn_unreachable = true
+
+      [tool.ruff]  # 格式 + lint
+      target-version = "py311"
+      line-length = 88
+
+      [tool.ruff.lint] # 格式 + lint
+      select = ["E", "F", "I", "B", "UP"]
+      ignore = ["E501"]
+   ```
+
+   - 执行格式检查和格式化：`uv run ruff check .`；`uv run ruff format .`；
+   - 执行类型检查：`uv run mypy src`；
+
+👉 uv + mypy + ruff + src 布局
+👉 FastAPI + uv + mypy + ruff 标准骨架
+👉 LangGraph / LlamaIndex 项目如何用 uv 管理多子模块

@@ -17,66 +17,6 @@
 | NO.4       | pipenv                      |  600MB+        |     12s+       |      5min+   |
 | 拉出去枪毙 | conda                       | 1.2∼3GB        |    25∼60s      |      8∼20min |
 
-## 安装并初始化项目
-
-1. 安装uv
-   - Linux / macOS: curl -LsSf https://astral.sh/uv/install.sh | sh
-   - Windows (PowerShell): powershell -ExecutionPolicy ByPass -Command "irm https://astral.sh/uv/install.ps1 | iex"
-   - 或 pip install uv
-   - uv --version
-2. 初始化项目: uv init my_project ；cd my_project;
-3. 创建虚拟环境并激活：
-   - uv venv;
-   - Linux/macOS: source .venv/bin/activate
-   - Windows (PowerShell/CMD): .venv\Scripts\activate
-4. 添加”.python-version “文件，在src下写代码；
-5. git:
-   - git add uv.lock
-   - .gitignore（最小但正确）
-
-   ```gitignore
-     .venv/
-     __pycache__/
-     .mypy_cache/
-     .pytest_cache/
-     .ruff_cache/
-     .env
-   ```
-
-6. 安装开发依赖:uv add --dev pytest mypy ruff
-   在 pyproject.toml 中添加：
-
-   ```python
-      [tool.mypy]
-      python_version = "3.11"
-      strict = true
-
-      # 项目结构
-      packages = ["my_project"]
-      mypy_path = ["src"]
-
-      # 常见妥协
-      ignore_missing_imports = true
-      warn_unused_ignores = true
-      warn_return_any = true
-      warn_unreachable = true
-
-      [tool.ruff]  # 格式 + lint
-      target-version = "py311"
-      line-length = 88
-
-      [tool.ruff.lint] # 格式 + lint
-      select = ["E", "F", "I", "B", "UP"]
-      ignore = ["E501"]
-   ```
-
-   - 执行格式检查和格式化：uv run ruff check .；uv run ruff format .；
-   - 执行类型检查：uv run mypy src；
-
-👉 uv + mypy + ruff + src 布局
-👉 FastAPI + uv + mypy + ruff 标准骨架
-👉 LangGraph / LlamaIndex 项目如何用 uv 管理多子模块
-
 ## 字符串
 
 1. () 可以换行
