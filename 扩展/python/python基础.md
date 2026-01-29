@@ -74,6 +74,8 @@
    - 执行类型检查：uv run mypy src；
 
 👉 uv + mypy + ruff + src 布局
+👉 FastAPI + uv + mypy + ruff 标准骨架
+👉 LangGraph / LlamaIndex 项目如何用 uv 管理多子模块
 
 ## 字符串
 
