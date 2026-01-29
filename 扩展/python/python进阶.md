@@ -522,6 +522,7 @@ payment()
    - 执行格式检查和格式化：`uv run ruff check .`；`uv run ruff format .`；
    - 执行类型检查：`uv run mypy src`；
 
-👉 uv + mypy + ruff + src 布局
-👉 FastAPI + uv + mypy + ruff 标准骨架
-👉 LangGraph / LlamaIndex 项目如何用 uv 管理多子模块
+7. 同步下载pyproject.toml中的依赖：`uv sync`
+   👉 uv + mypy + ruff + src 布局
+   👉 FastAPI + uv + mypy + ruff 标准骨架
+   👉 LangGraph / LlamaIndex 项目如何用 uv 管理多子模块
