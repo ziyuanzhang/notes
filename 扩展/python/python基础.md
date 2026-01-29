@@ -17,13 +17,63 @@
 | NO.4       | pipenv                      |  600MB+        |     12s+       |      5min+   |
 | 拉出去枪毙 | conda                       | 1.2∼3GB        |    25∼60s      |      8∼20min |
 
-## 编译与执行
+## 安装并初始化项目
 
-- C/C++：源代码 → 编译器 → 机器码（直接由 CPU 执行）
-- Java：源代码 → 编译器 → 字节码 → JVM →（JIT 编译为机器码或解释执行）
-- Python (CPython)：源代码 → 编译器（Python 解释器） → 字节码 → Python 虚拟机 → 机器指令（纯解释执行，无 JIT）
+1. 安装uv
+   - Linux / macOS: curl -LsSf https://astral.sh/uv/install.sh | sh
+   - Windows (PowerShell): powershell -ExecutionPolicy ByPass -Command "irm https://astral.sh/uv/install.ps1 | iex"
+   - 或 pip install uv
+   - uv --version
+2. 初始化项目: uv init my_project ；cd my_project;
+3. 创建虚拟环境并激活：
+   - uv venv;
+   - Linux/macOS: source .venv/bin/activate
+   - Windows (PowerShell/CMD): .venv\Scripts\activate
+4. 添加”.python-version “文件，在src下写代码；
+5. git:
+   - git add uv.lock
+   - .gitignore（最小但正确）
 
-  **注：** PyPy 是 Python 的另一种实现，带有 JIT（即时编译），会在运行时将热点字节码编译为机器码，提升性能。
+   ```gitignore
+     .venv/
+     __pycache__/
+     .mypy_cache/
+     .pytest_cache/
+     .ruff_cache/
+     .env
+   ```
+
+6. 安装开发依赖:uv add --dev pytest mypy ruff
+   在 pyproject.toml 中添加：
+
+   ```python
+      [tool.mypy]
+      python_version = "3.11"
+      strict = true
+
+      # 项目结构
+      packages = ["my_project"]
+      mypy_path = ["src"]
+
+      # 常见妥协
+      ignore_missing_imports = true
+      warn_unused_ignores = true
+      warn_return_any = true
+      warn_unreachable = true
+
+      [tool.ruff]  # 格式 + lint
+      target-version = "py311"
+      line-length = 88
+
+      [tool.ruff.lint] # 格式 + lint
+      select = ["E", "F", "I", "B", "UP"]
+      ignore = ["E501"]
+   ```
+
+   - 执行格式检查和格式化：uv run ruff check .；uv run ruff format .；
+   - 执行类型检查：uv run mypy src；
+
+👉 uv + mypy + ruff + src 布局
 
 ## 字符串
 
@@ -35,7 +85,6 @@
    ```
 
 2. m.n 拼接符串：
-
    - m: 总宽度 -- 小数点占一位，小于总宽度不生效；
    - n: 小数位数（四舍五入）；
 
@@ -67,7 +116,6 @@
 ![python_数据类型](./img/python_数据类型.png)
 
 1. None 是类型'NoneType’的字面量，用于表示: 空的、无意义的;
-
    - 函数中无返回值，返回 none。
 
 ### 循环
@@ -124,7 +172,6 @@ str[0]="H" ❎：字符串不能改变值，会报错；
 ### dict 字典 -- 存 “键值对”
 
 - 键（key）：唯一、无序、无索引、无重复；
-
   1. 不可是数据容器（字符串除外）；一般为字符串、整数；
 
 - 值 (value)：任意类型；
@@ -159,7 +206,6 @@ str[0]="H" ❎：字符串不能改变值，会报错；
 2. 传参：
 
    `def user_info(name, age, gender):`
-
    - 按顺序：user_info("小明",20,"男")
    - 关键字参数：user_info("小明",age=20,gender="男") ; # 顺序传参写前面，剩余的 关键字参数 可乱序；
    - 缺省参数（默认参数）：放最后；
@@ -192,7 +238,6 @@ str[0]="H" ❎：字符串不能改变值，会报错；
 ## 文件 -- 打开 --> 读/写 --> 关闭
 
 1. open(name,mode,encoding)
-
    - name：文件名；
    - mode：打开模式(只读-r、写入-w、追加-a 等)；
    - encoding：编码格式；
@@ -241,7 +286,6 @@ finally:
    模块在使用前需要先导入 导入的语法如下，
 
    `[from 模块名] import [模块 | 类|变量 | 函数 |*][as 别名]`常用的组合形式如:
-
    - import 模块名
    - from 模块名 import 类、变量、方法等
    - from 模块名 import \*
@@ -249,7 +293,6 @@ finally:
    - from 模块名 import 功能名 as 别名
 
 2. `__name__`: 内置变量
-
    - 如果本文件被直接执行，则内置变量`__name__`会被赋值为:`"__main__"`;
    - 如果本文件被 import 或 from 导入，则内置变量`__name__`会被赋值为:`文件名称`;
 
@@ -271,7 +314,6 @@ finally:
 包含一个`__init__.py`文件，`__init__.py`文件可以不写内容，也可以写内容，内容可以执行一些初始化操作；
 
 1. 导入
-
    - import 包名.模块名: 包名.模块名.目标
    - from 包名 import \*: 模块名.目标
 
@@ -282,7 +324,6 @@ finally:
 2. 安装第三方包：pip install 包名(uv pip install 包名)
 
    在 Python 程序的生态中，有许多非常多的第三方包(非 Pvthon 官方)，可以极大的帮助我们提高开发效率，如:
-
    - 科学计算中常用的: numpy 包
    - 数据分析中常用的: pandas 包
    - 大数据计算中常用的: pyspark、apache-flink 包
