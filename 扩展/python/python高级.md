@@ -26,6 +26,112 @@
 
 ## 1. xx是什么？2.为什么有它？3.怎么用？
 
+## 垃圾回收机制：回收“没有任何变量名的“值
+
+## 编译型or解释型；强类型or弱类型；动态型or静态型
+
+1. 强类型：数据类型不可以被忽略的语言 即变量的数据类型一旦被定义，那就不会再改变，除非进行强转。
+2. 动态型：运行时才进行数据类型检查 即在变量赋值时，才确定变量的数据类型，不用事先给变量指定数据类型
+3. 静态型：需要事先给变量进行数据类型定义
+
+## 变量
+
+```python
+x=10
+y=x
+z=x
+# 给10绑定3个变量名
+del x # 解除变量名x与值10的绑定关系
+del y # 解除变量名y与值10的绑定关系
+# 此时 z=10
+z=123
+# 此时 z=123, 值10没有绑定关系了, 会被回收
+```
+
+- 变量值 的三大特性：
+  1. id：反应的是变量在内存中的唯一编号，内存地址不同id肯定不同（不是内存地址，是根据内存地址计算的编号）
+  2. type：变量值的类型
+  3. value：变量值
+
+  ```python
+  >>> x='Info Tony:18'
+  >>> id(x), type(x), x
+  4376607152，<class 'str'>, 'Info Tony:18'
+  ```
+
+- is 与 ==
+  `x="3.1415926"`
+  `y="3.1415926"`
+  1. is: 比较左右两个值身份id是否相等; x is y >>>False
+  2. ==: 比较左右两个值他们的值是否相等; x == y >>>True
+     **注：** 值相等，id可能不同，即两块不同的内存空间里可以存相同的值
+     `i=3.14`
+
+## 数据类型 与 数据类
+
+数据类型
+
+```bash
+object
+ ├── int, float, bool, complex(复数)
+ ├── str(不可变)
+ ├── list, tuple(不可变), range
+ ├── set, frozenset(不可变集合)
+ ├── dict
+ ├── bytes(不可变字节), bytearray, memoryview
+ ├── None(空值)
+ └── function, class, ...
+
+```
+
+数据类
+
+| 类型                 | 是否官方 | 是否推荐  | 特点             |
+| -------------------- | -------- | --------- | ---------------- |
+| `@dataclass`         | ✅       | ✅ 强烈   | 现代 Python 标准 |
+| `namedtuple`         | ✅       | ⚠️        | 老方案，不直观   |
+| `typing.NamedTuple`  | ✅       | ⚠️        | 不可变           |
+| `attrs`              | ❌       | ✅        | dataclass 超集   |
+| `pydantic.BaseModel` | ❌       | ✅（Web） | 校验 + 序列化    |
+
+```python
+# 1. 默认
+@dataclass
+class Point:
+    x: int
+    y: int
+    z: int = 18 # 默认值
+    members: list[str] = field(default_factory=list) # 使用 field() 的数据类
+    members: list[str] = []  # 大坑 ❌
+p = Point(1, 2)
+p.x = 10   # ✅ 可以改
+
+# 2. 不可变数据类
+@dataclass(frozen=True)
+class Point:
+    x: int
+    y: int
+p = Point(1, 2)
+p.x = 10  # ❌ 报错
+
+# 3. 默认值
+@dataclass
+class Team:
+    name: str
+    age: int = 18 # 默认值
+    members: list[str] = field(default_factory=list) # 使用 field() 的数据类
+    members: list[str] = []  # 大坑 ❌
+    classVal: str = field(compare=False) # 不参与比较
+
+# 4. 排序数据类
+@dataclass(order=True)
+class User:
+    age: int
+    name: str
+User(18, "A") < User(20, "B")  # True
+
+```
+
 ## 安装并初始化项目
 
 1. 安装uv
