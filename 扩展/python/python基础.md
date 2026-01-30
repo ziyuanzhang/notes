@@ -1,22 +1,5 @@
 # python 基础
 
-第三方库和工具，如 NumPy、Pandas、TensorFlow 和 PyTorch 等
-
-- 类型工具：
-  1. dataclass:主要用于简化类的创建;
-  2. typing: 类型检查;
-     - TypedDict
-     - NamedTuple
-  3. pydantic V2: (推荐用于 Python 3.11+) 处理复杂的数据验证;
-
-| 排名       | 工具                        |   镜像体积     |   冷启动时间   |   构建时间   |
-| ---------- | --------------------------- | -------------- | -------------- | ------------ |
-| NO.1       | python -m venv + pip-tools  |   90∼150MB     |     1.8∼3.5s   |    <90s      |
-| NO.2       | uv（Rust 版）               | 100∼180MB      |    1.2∼2.8s    |  <45s        |
-| NO.3       | poetry                      |  450∼800MB     |    8∼15s       |     3∼7min   |
-| NO.4       | pipenv                      |  600MB+        |     12s+       |      5min+   |
-| 拉出去枪毙 | conda                       | 1.2∼3GB        |    25∼60s      |      8∼20min |
-
 ## 字符串
 
 1. () 可以换行
