@@ -67,6 +67,127 @@ z=123
      **注：** 值相等，id可能不同，即两块不同的内存空间里可以存相同的值
      `i=3.14`
 
+### python 诡异现象
+
+核心关键词：缓存、复用、单例、编译期优化
+
+#### 一、数值类
+
+- 1️⃣小整数池；
+- 2️⃣ bool 是 int 的子类
+
+```python
+ # 1️⃣ 小整数池
+   a = 100
+   b = 100
+   a is b   # True
+ # 2️⃣ bool 是 int 的子类
+   isinstance(True, int)  # True
+   True + 1    # 2
+```
+
+#### 二、字符串类：比你想象得多
+
+- 3️⃣ 字符串字面量合并【✔ 编译期， ✔ Unicode/中文/emoji都适用】
+- 4️⃣ 字符串驻留（intern）【典型场景: dict key; 状态机; 词法分析】
+- 5️⃣ 标识符字符串自动 intern 【 如果它是: 合法标识符;且来源明确; 👉 很可能被自动 intern】
+
+```python
+ # 3️⃣ 字符串字面量合并
+   x = "abc"
+   y = "abc"
+   x is y   # True
+ # 4️⃣ 字符串驻留（intern）
+   import sys
+   a = sys.intern("hello")
+   b = sys.intern("hello")
+   a is b  # True
+ # 5️⃣ 标识符字符串自动 intern
+   x = "variable_name"
+```
+
+#### 三、空值与特殊对象：严格单例
+
+- 6️⃣ None 永远只有一个 【✔ 语言规范保证】
+- 7️⃣ True / False 也是单例
+- 8️⃣ Ellipsis（...）【用于：切片;类型提示】
+
+```python
+ # 6️⃣ None 永远只有一个
+   x = None
+   y = None
+   x is y   # True
+ # 7️⃣ True / False 也是单例
+   a = True
+   b = True
+   a is b   # True
+ # 8️⃣ Ellipsis（...）
+   x = ...
+   y = ...
+   x is y   # True
+```
+
+#### 四、容器 & 语法层面的“坑”
+
+- 9️⃣ 空元组是单例 【✔ 不可变，✔ 常量复用】
+- 🔟 空 frozenset 可能被复用【⚠️ 实现细节，别依赖】
+- 1️⃣1️⃣ 默认参数陷阱（复用的是同一个对象）【原因：默认参数在”函数定义时“创建；不是调用时】
+
+```python
+ # 9️⃣ 空元组是单例
+   a = ()
+   b = ()
+   a is b   # True
+ # 🔟 空 frozenset 可能被复用
+   a = frozenset()
+   b = frozenset()
+   a is b   # True（常见）
+ # 1️⃣1️⃣ 默认参数陷阱（复用的是同一个对象）
+   def f(x=[]):
+       x.append(1)
+       return x
+   f()  # [1]
+   f()  # [1, 1]
+```
+
+#### 五、编译期优化导致的“幻觉”
+
+- 1️⃣2️⃣ 常量折叠（Constant Folding）
+- 1️⃣3️⃣ 编译期字符串拼接
+- 1️⃣4️⃣ 同一行对象复用【⚠️ 不可预测】
+
+```python
+ # 1️⃣2️⃣ 常量折叠
+   x = 1 + 2 编译期直接变成：x = 6
+ # 1️⃣3️⃣ 编译期字符串拼接
+   x = "hello" + "world" 等价于： x = "helloworld"
+ # 1️⃣4️⃣ 同一行对象复用
+   a = 1000; b = 1000
+   a is b  # 有时 True
+```
+
+#### 六、类 / 函数层面的共享
+
+- 1️⃣5️⃣ 类属性共享
+- 1️⃣6️⃣ 闭包捕获的是“变量”，不是“值”
+
+```python
+ # 1️⃣5️⃣ 类属性共享
+   class A:
+      x = []
+
+    a1 = A()
+    a2 = A()
+    a1.x.append(1)
+    a2.x   # [1]
+ # 1️⃣6️⃣ 闭包捕获的是“变量”，不是“值”
+   funcs = []
+   for i in range(3):
+       funcs.append(lambda: i)
+
+   [f() for f in funcs]  # [2, 2, 2]
+```
+
 ## 数据类型 与 数据类
 
 数据类型
