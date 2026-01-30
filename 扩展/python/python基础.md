@@ -1,33 +1,5 @@
 # python 基础
 
-## 字符串
-
-1. () 可以换行
-
-   ```python
-    name=("hello"+"world"
-     +"!")
-   ```
-
-2. m.n 拼接符串：
-   - m: 总宽度 -- 小数点占一位，小于总宽度不生效；
-   - n: 小数位数（四舍五入）；
-
-   ```python
-     print("身高%7.2dcm" % 175.2252) # --> 身高 175.23cm
-   ```
-
-3. f_format 字符串格式化
-
-   ```python
-     name = "张三"
-     height = 175.22
-     money = 1000.123456
-     print(f"{name},身高{height}cm,工资{money:10.2f}") #--> 张三,身高175.22cm,工资   1000.12
-   ```
-
-4. t_format 字符串格式化
-
 ## 输入 与 输出
 
 ```python
@@ -75,6 +47,34 @@ print(str) --> hello world # 字符串本身没改，
 print(str2) --> heLLo worLd # 在原来的字符串的基础上，复制一份修改，返回新的；
 
 str[0]="H" ❎：字符串不能改变值，会报错；
+
+- 字符串操作
+
+1. () 可以换行
+
+   ```python
+    name=("hello"+"world"
+     +"!")
+   ```
+
+2. m.n 拼接符串：
+   - m: 总宽度 -- 小数点占一位，小于总宽度不生效；
+   - n: 小数位数（四舍五入）；
+
+   ```python
+     print("身高%7.2dcm" % 175.2252) # --> 身高 175.23cm
+   ```
+
+3. f_format 字符串格式化
+
+   ```python
+     name = "张三"
+     height = 175.22
+     money = 1000.123456
+     print(f"{name},身高{height}cm,工资{money:10.2f}") #--> 张三,身高175.22cm,工资   1000.12
+   ```
+
+4. t_format 字符串格式化
 
 ### 切片
 
