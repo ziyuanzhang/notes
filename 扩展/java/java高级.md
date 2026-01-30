@@ -8,6 +8,13 @@
 Python 和 Java 都会缓存小对象来优化性能
 不同点是：Java 把规则写进语言规范，而 Python 更多依赖 CPython 实现；
 
+- python
+  1. == 判断值
+  2. is 判断身份
+- java
+  1. equals 判断值
+  2. == 判断引用
+
 ### 一、整数缓存（最经典，对应 Python 小整数池）
 
 - 1️⃣ Integer Cache（JLS 明确规定）【🔑 规则（面试必背）：默认缓存范围：-128 ~ 127；Integer.valueOf() 会走缓存；new Integer(100) 永远新对象】
