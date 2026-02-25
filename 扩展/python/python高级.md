@@ -269,10 +269,15 @@ print('上')
   f.write('hello world')
   f.write('hello world')
 
-  # b 模式
+  # b 内容模式
   with open('file.txt', 'ab') as f:
-    res = f.read()
+    res = f.read() # utf-8的二进制
     print(type(res),res) # <class 'bytes'> ，b'\xe5\x93...' 【python解释器--默认给转化为十六进制了】
+
+    print(res.decode('utf-8'))
+
+  with open('file.txt', 'wb') as f:
+    f.write('你好'.encode('utf-8'))
 ```
 
 - mode: 读写模式,内容模式；
