@@ -232,11 +232,14 @@ print('上')
   2. 操作系统文件资源（fd）
 
 ```python
-f=open('test.txt', 'rt')
+f=open('test.txt', mode='rt', encoding='utf-8')
 res = f.read()
 f.close() # 释放操作系统资源（不写，操作系统会检测：1、在进程结束时回收，2、可能长时间不用后回收；导致：1、文件描述符耗尽，2、数据未写入磁盘，3、文件锁不释放）
 del f # 释放程序资源(可以不写)
 ```
+
+- mode: 读写模式,内容模式；
+- encoding: 文件解码格式
 
 - close() 的核心作用：
   1. 释放 OS 资源
@@ -253,6 +256,8 @@ del f # 释放程序资源(可以不写)
   2. 自动处理异常
   3. 防止资源泄露
   4. 让代码更安全
+
+`with open('test.txt', mode='rt',encoding='utf-8') as f:`
 
 ## python 诡异现象
 
