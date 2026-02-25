@@ -215,7 +215,17 @@ print('上')
 
 ###
 
-- 控制内容模式：t:文本模式（默认），b:二进制模式
+- 控制内容模式：
+  1. t:文本模式（默认）:
+     - 读写都是以“字符串（unicode）”为单位；
+     - 只针对文本文件
+     - 必须指定字符编码（即必须指定encoding参数）
+
+  2. b:二进制模式
+     - 读写都是以“字节（bytes）”为单位；
+     - 可以针对所有文件
+     - 一定不能指定字符编码（即不能指定encoding参数）
+
 - 读写模式：
   1. r:只读
   2. w:只写（清空）
@@ -258,6 +268,11 @@ print('上')
   # f.read() # 报错
   f.write('hello world')
   f.write('hello world')
+
+  # b 模式
+  with open('file.txt', 'ab') as f:
+    res = f.read()
+    print(type(res),res) # <class 'bytes'> ，b'\xe5\x93...' 【python解释器--默认给转化为十六进制了】
 ```
 
 - mode: 读写模式,内容模式；
