@@ -278,6 +278,14 @@ print('上')
 
   with open('file.txt', 'wb') as f:
     f.write('你好'.encode('utf-8'))
+
+  with open('test.jpg', 'rb') as f:
+    while True:
+      res = f.read(1024)
+      if len(res) == 0: # 读完
+        break
+
+      print(res)
 ```
 
 - mode: 读写模式,内容模式；
