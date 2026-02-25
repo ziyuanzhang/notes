@@ -215,12 +215,15 @@ print('上')
 
 ###
 
-- 控制内容模式：t: 文本模式（默认），b: 二进制模式
+- 控制内容模式：t:文本模式（默认），b:二进制模式
 - 读写模式：
   1. r:只读
   2. w:只写（清空）
   3. a:只追加
-  4. +：可读写；r+、w+、a+ （受r、w、a约束）
+  4. +:可读写；r+、w+、a+ （受r、w、a约束）
+     - r+: 指针在开头，覆盖替换；
+     - w+: 清空，再写；指针在末尾；
+     - a+: 追加，指针在末尾
 
 ### x=10 与open()
 
@@ -232,10 +235,24 @@ print('上')
   2. 操作系统文件资源（fd）
 
 ```python
-f=open('test.txt', mode='rt', encoding='utf-8')
-res = f.read()
-f.close() # 释放操作系统资源（不写，操作系统会检测：1、在进程结束时回收，2、可能长时间不用后回收；导致：1、文件描述符耗尽，2、数据未写入磁盘，3、文件锁不释放）
-del f # 释放程序资源(可以不写)
+
+  # r模式
+  f=open('test.txt', mode='rt', encoding='utf-8') # 指针在开头；f 叫文件对象，又称文件句柄；
+  res = f.read() # 一次读完所有，有可能撑爆内存；指针在末尾
+  res = f.read() # 没关闭，从指针位置开始读，指针在末尾，读不到内容；
+  f.close() # 释放操作系统资源（不写，操作系统会检测：1、在进程结束时回收，2、可能长时间不用后回收；导致：1、文件描述符耗尽，2、数据未写入磁盘，3、文件锁不释放）
+  del f # 释放程序资源(可以不写)
+
+  # w 模式
+  with open('file.txt', 'wt', encoding='utf-8') as f: # 先清空文件内容，指针停留在开头
+  f.write('hello world') # 写入, 指针停在末尾
+  f.write('hello world') # 追加, 从指针位置开始写
+
+  # a 模式
+  with open('file.txt', 'at', encoding='utf-8') as f: # 追加, 指针停留在末尾
+  # f.read() # 报错
+  f.write('hello world')
+  f.write('hello world')
 ```
 
 - mode: 读写模式,内容模式；
@@ -256,8 +273,6 @@ del f # 释放程序资源(可以不写)
   2. 自动处理异常
   3. 防止资源泄露
   4. 让代码更安全
-
-`with open('test.txt', mode='rt',encoding='utf-8') as f:`
 
 ## python 诡异现象
 
