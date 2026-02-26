@@ -249,9 +249,11 @@ print('上')
 
   # r模式
   f=open('test.txt', mode='rt', encoding='utf-8') # 指针在开头；f 叫文件对象，又称文件句柄；
-  res = f.read() # 一次读完所有，有可能撑爆内存；指针在末尾 ；（只是单纯的将硬盘的二进制读到内存中，不做字符转换，转换是python做的）
+  res = f.read() # 一次读完所有，有可能撑爆内存❗；指针在末尾 ；
+  # read（只是单纯的将硬盘的二进制读到内存中，不做字符转换，转换是python做的）
   res = f.read() # 没关闭，从指针位置开始读，指针在末尾，读不到内容；
-  res =f.readline() # 一次读一行，指针在末尾
+  res = f.readline() # 一次读一行，指针在末尾
+  res = f.readlines() # 一次读所有行，指针在末尾❗
   for line in f: # 每次读一行，防止内存撑爆，防止电脑卡顿
     print(line)
 
