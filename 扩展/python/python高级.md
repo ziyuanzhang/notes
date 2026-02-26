@@ -297,7 +297,7 @@ print('上')
 
       print(res)
 
-  with open('aa.txt', 'rb','utf-8') as f:
+  with open('aa.txt', 'rb','utf-8') as f: # 不常用
     # f.seek(n,模式)：
     f.seek(9,0) # 0 参照物是 文件开头位置；9 表示移动的字节数
     f.seek(9,1) # 1 参照物是 当前指针的位置；9 表示移动的字节数
