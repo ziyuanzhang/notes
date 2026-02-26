@@ -249,6 +249,7 @@ print('上')
 
   # r模式
   f=open('test.txt', mode='rt', encoding='utf-8') # 指针在开头；f 叫文件对象，又称文件句柄；
+  res =f.read(4) # 4是字符，不是字节
   res = f.read() # 一次读完所有，有可能撑爆内存❗；指针在末尾 ；
   # read（只是单纯的将硬盘的二进制读到内存中，不做字符转换，转换是python做的）
   res = f.read() # 没关闭，从指针位置开始读，指针在末尾，读不到内容；
@@ -263,15 +264,17 @@ print('上')
 
   # w 模式
   with open('file.txt', 'wt', encoding='utf-8') as f: # 先清空文件内容，指针停留在开头
-  f.write('hello world') # 写入, 指针停在末尾
-  f.write('hello world') # 追加, 从指针位置开始写
-  f.writelines(['hello world', 'hello world'])
+     f.write('hello world') # 写入, 指针停在末尾
+     f.write('hello world') # 追加, 从指针位置开始写; 没有立马写到硬盘中，攒一波再写或者关闭了再写
+     f.writelines(['hello world', 'hello world'])
+     f.flush() # 刷新缓冲区（立马存到硬盘中）
+     f.close() # 释放操作系统资源（存硬盘中）
 
   # a 模式
   with open('file.txt', 'at', encoding='utf-8') as f: # 追加, 指针停留在末尾
-  # f.read() # 报错
-  f.write('hello world')
-  f.write('hello world')
+     # f.read() # 报错
+     f.write('hello world')
+     f.write('hello world')
 
   # b 内容模式
   with open('file.txt', 'ab') as f:
@@ -288,11 +291,18 @@ print('上')
 
   with open('test.jpg', 'rb') as f:
     while True:
-      res = f.read(1024)
+      res = f.read(1024) # 1024是字节，不是字符
       if len(res) == 0: # 读完
         break
 
       print(res)
+
+  with open('aa.txt', 'rb','utf-8') as f:
+    # f.seek(n,模式)：
+    f.seek(9,0) # 0 参照物是 文件开头位置；9 表示移动的字节数
+    f.seek(9,1) # 1 参照物是 当前指针的位置；9 表示移动的字节数
+    f.seek(-9,2) # 2 参照物是 文件末尾位置；-9 表示向前移动的字节数
+    print(f.tel()) # 返回当前指针位置
 ```
 
 - mode: 读写模式,内容模式；
