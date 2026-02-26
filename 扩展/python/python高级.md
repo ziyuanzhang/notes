@@ -265,6 +265,7 @@ print('上')
   with open('file.txt', 'wt', encoding='utf-8') as f: # 先清空文件内容，指针停留在开头
   f.write('hello world') # 写入, 指针停在末尾
   f.write('hello world') # 追加, 从指针位置开始写
+  f.writelines(['hello world', 'hello world'])
 
   # a 模式
   with open('file.txt', 'at', encoding='utf-8') as f: # 追加, 指针停留在末尾
@@ -281,6 +282,9 @@ print('上')
 
   with open('file.txt', 'wb') as f:
     f.write('你好'.encode('utf-8'))
+    f.writelines(['你好'.encode('utf-8'), '你好'.encode('utf-8')]) # 其他语言转码，
+    # '你好'.encode('utf-8') === bytes('你好', encoding='utf-8')
+    f.writelines([b'hallo world',b'hello world']) # 英文直接加b就可以
 
   with open('test.jpg', 'rb') as f:
     while True:
