@@ -148,10 +148,10 @@ str[0]="H" ❎：字符串不能改变值，会报错；
           print(name, age)
 
           for arg in args:
-               print(arg)
+               print("args:",arg)  # args: 男，娃娃，玩具
 
           for key in kwargs:
-              print(key, kwargs[key])
+              print("kwargs:",key, kwargs[key]) # kwargs: grade 三年级； address 北京
 
       func("小明", 20, "男", "娃娃","玩具", grade="三年级",address="北京")
      ```
