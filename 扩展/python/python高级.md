@@ -484,7 +484,7 @@ Python 本质：
 
 ### global 与 nonlocal
 
-- global：让变量来自全局
+- global:让变量来自全局
 
   ```python
     x = 10
@@ -494,7 +494,7 @@ Python 本质：
         x = 20
   ```
 
-- nonlocal:用于闭包
+- nonlocal: 用于闭包
 
   ```python
   def outer():
