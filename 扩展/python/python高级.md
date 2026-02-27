@@ -372,7 +372,7 @@ wrapper(1,z=3,y=2)
   func(1,2,b=4,a=3)
   ```
 
-### 命名空间（名称空间）namespaces
+## 命名空间（名称空间）namespaces
 
 Python 本质：
 🔥 一切变量都存储在命名空间（dict）中；
