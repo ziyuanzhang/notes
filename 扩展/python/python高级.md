@@ -402,6 +402,29 @@ Python 本质：
 
   👉 内建命名空间是最后的兜底查找层。
 
+  ```python
+  x = 100
+
+  class A:
+      y = 200
+
+      def f(self):
+          z = 300
+          print(locals())
+  ```
+
+  结构：
+
+  ```code
+   builtins
+     ↓
+   global: x, A
+     ↓
+   class: y, f
+     ↓
+   local: z
+  ```
+
 - 内建命名空间包含 5 大类
   1. 内建函数
   2. 内建类型
