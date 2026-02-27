@@ -141,19 +141,18 @@ str[0]="H" ❎：字符串不能改变值，会报错；
        def user_info(name, age, *args , grade="二年级"):     # 一般不这么写
            print(name, age, args, grade)
 
-      user_info("小明", 20, "男", "娃娃","玩具", grade="三年级") # ✅ （一般不这么写）
+      user_info("小明", 20, "男", "娃娃","玩具", grade="三年级") # ✅（一般不这么写）  小明 20 ('男', '娃娃', '玩具') 三年级;
       user_info("小明", 20, "男", "娃娃","玩具","三年级") # ❌
       # ==========================================================================
       def func(name, age, *args, **kwargs):
-          print(name, age)
+          print(name, age, args, kwargs)
 
           for arg in args:
-               print("args:",arg)  # args: 男，娃娃，玩具
+               print("args:",arg)
 
           for key in kwargs:
-              print("kwargs:",key, kwargs[key]) # kwargs: grade 三年级； address 北京
-
-      func("小明", 20, "男", "娃娃","玩具", grade="三年级",address="北京")
+              print("kwargs:",key, kwargs[key])
+      func("小明", 20, "男", "娃娃","玩具", grade="三年级",address="北京") # 小明, 20, ('男', '娃娃', '玩具'), {'grade': '三年级', 'address': '北京'}
      ```
 
 3. 定义

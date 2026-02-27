@@ -363,6 +363,17 @@ def wrapper(*args, **kwargs):  # arg=(1,) kwargs={'y':2,'z':3}
 wrapper(1,z=3,y=2)
 ```
 
+- 命名关键字参数（了解）
+
+  ```python
+  def func(x,y,*,a,b): #其中，a和b是命名关键字参数，y和z是位置参数
+    print(x,y,a,b)
+
+  func(1,2,b=4,a=3)
+  ```
+
+### 命名空间（名称空间）namespaces
+
 ## python 诡异现象
 
 核心关键词：缓存、复用、单例、编译期优化
