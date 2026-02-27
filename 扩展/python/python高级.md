@@ -374,6 +374,73 @@ wrapper(1,z=3,y=2)
 
 ### 命名空间（名称空间）namespaces
 
+- 在 Python 中：
+  1. 全局命名空间 → globals()
+  2. 局部命名空间 → locals()
+  3. 类命名空间
+  4. 内建命名空间 → `__builtins__`
+
+- 栈里放的是：C 语言层的“函数调用栈帧”（frame）
+
+- 每次执行函数：创建一个 frame object，frame 里面有：
+  1. f_locals → 指向局部命名空间 dict
+  2. f_globals → 指向全局命名空间 dict
+  3. f_builtins → 指向内建命名空间 dict
+
+⚠️ 注意：frame 对象本身也在堆上。
+
+- 真正的“栈”只是：
+  1. C 语言调用栈
+  2. 存放指针、返回地址等
+
+- 在 Python 中：
+  1. 变量名存在命名空间 dict 中
+  2. 命名空间 dict 在堆
+  3. 对象在堆
+  4. frame 在堆
+  5. 栈只是解释器运行机制
+
+- `x=10`发生：
+
+  ```code
+  堆：
+      10 (int对象)
+      globals dict  { "x": 地址 }
+
+  栈：
+      当前frame指针
+      frame里持有对 globals dict 的引用
+  ```
+
+  关系：
+
+  ```code
+    frame
+      ↓
+    f_globals  →  dict对象 (堆)
+                       ↓
+                    "x" → int对象(堆)
+  ```
+
+- 函数局部变量
+
+  ```python
+    def f():
+      a = 100
+  ```
+
+  执行时：
+
+  ```code
+  堆：
+    100 (int对象)
+    locals dict { "a": 地址 }
+    frame对象
+
+  栈：
+      C函数调用栈帧
+  ```
+
 ## python 诡异现象
 
 核心关键词：缓存、复用、单例、编译期优化
