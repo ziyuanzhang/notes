@@ -484,14 +484,17 @@ Python 本质：
 
 ### global 与 nonlocal
 
-- global:让变量来自全局
+- global: 让变量来自全局
 
   ```python
     x = 10
-
+    y = 30
+    l = [11,22]
     def f():
         global x
-        x = 20
+        x = 20  # 全局的x
+        y = 35  # 新造了y, 和全局的没关系
+        l.append(33) # 改变全局的l
   ```
 
 - nonlocal: 用于闭包
@@ -499,10 +502,12 @@ Python 本质：
   ```python
   def outer():
       x = 10
-
+      l = []
       def inner():
           nonlocal x
-          x = 20
+          x = 20  # x -> 为outer内的x
+
+          l.append(33) # l --> 为outer内的l
   ```
 
 ## 函数
