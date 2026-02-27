@@ -350,6 +350,17 @@ def func(x,y,x):
 func(*[1,2,3]) # 1,2,3
 func(*{'x':1,'y':2,'z':3}) # func('x','y','z')
 func(**{'x':1,'y':2,'z':3}) # func(x=1,y=2,z=3)
+
+# ==================================================
+def index(x,y,z):
+  print(x,y,z)
+
+def wrapper(*args, **kwargs):  # arg=(1,) kwargs={'y':2,'z':3}
+  index(*args, **kwargs)
+  # index(*(1,),**{'y':2,'z':3})
+  # index(1,z=3,y=2)
+
+wrapper(1,z=3,y=2)
 ```
 
 ## python 诡异现象
