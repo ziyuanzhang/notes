@@ -491,7 +491,7 @@ Python 本质：
     y = 30
     l = [11,22]
     def f():
-        global x
+        global x # 主要用在：不可变类型
         x = 20  # 全局的x
         y = 35  # 新造了y, 和全局的没关系
         l.append(33) # 改变全局的l
@@ -504,7 +504,7 @@ Python 本质：
       x = 10
       l = []
       def inner():
-          nonlocal x
+          nonlocal x # 主要用在：不可变类型
           x = 20  # x -> 为outer内的x
 
           l.append(33) # l --> 为outer内的l
