@@ -638,9 +638,35 @@ f();
 
 装饰器：定义一个函数，该函数是用来为其他函数添加额外的功能
 
+在“不修改原函数及调用方式”的情况下，给它添加新功能；
+
 - 开放封闭原则：
   1. 开放：指对扩展功能是开放的
   2. 封闭：指对修改源代码是封闭的
+
+```python
+import time
+def index(x,y,z):
+  time.sleep(3)
+  print(x,y,z)
+
+def home(x):
+  time.sleep(3)
+  print(x)
+
+def outter(func):
+  def wrapper(*args, **kwargs): #形参 #arg=(1,) kwargs={'y':2,'z':3}
+    start = time.time()
+    res = (*args, **kwargs)
+    stop = time.time()
+    print(f'耗时：{stop-start}')
+    return res
+  return wrapper
+
+home = outter(home)
+res = home("hello") #偷梁换柱(home): home指向wrapper函数的内存地址
+print("返回值",res) # hello
+```
 
 ## python 诡异现象
 
