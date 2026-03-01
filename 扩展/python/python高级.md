@@ -655,7 +655,7 @@ def home(x):
   print(x)
 
 def outter(func):
-  def wrapper(*args, **kwargs): #形参 #arg=(1,) kwargs={'y':2,'z':3}
+  def wrapper(*args, **kwargs):
     start = time.time()
     res = (*args, **kwargs)
     stop = time.time()
@@ -666,6 +666,16 @@ def outter(func):
 home = outter(home)
 res = home("hello") #偷梁换柱(home): home指向wrapper函数的内存地址
 print("返回值",res) # hello
+
+# ==================================================
+@outter
+def index(x,y,z):
+  time.sleep(3)
+  print(x,y,z)
+  return "返回值"
+
+res = index(1,2,3)
+print("返回值",res)
 ```
 
 ## python 诡异现象
