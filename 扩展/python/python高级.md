@@ -544,8 +544,8 @@ func(**{'x':1,'y':2,'z':3}) # func(x=1,y=2,z=3)
 def index(x,y,z):
 print(x,y,z)
 
-def wrapper(*args, **kwargs):  # arg=(1,) kwargs={'y':2,'z':3}
-index(*args, **kwargs)
+def wrapper(*args, **kwargs): #形参 #arg=(1,) kwargs={'y':2,'z':3}
+index(*args, **kwargs) # 实参
 # index(*(1,),**{'y':2,'z':3})
 # index(1,z=3,y=2)
 
