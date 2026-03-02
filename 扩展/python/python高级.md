@@ -675,7 +675,8 @@ home = outter(home) # 偷梁换柱: 变量home: 指向wrapper函数的内存地�
 res = home("hello")
 print("返回值",res) # hello
 
-# ==================================================
+# == 语法糖 ================================================
+# 由于语法糖限制：outter函数只能有一个参数（只用来接受被装饰对象的内存地址）；
 @outter  # index = outter(index)
 def index(x,y,z):
   time.sleep(3)
@@ -684,7 +685,7 @@ def index(x,y,z):
 
 res = index(1,2,3)
 print("返回值",res)
-# =================================================
+# == 语法糖解析、装饰器函数属性 ===============================================
 @print('hello')  # ==> None=print('hello')(index) ==> index=None(index)
 def index(x,y,z):
   """ 函数文档 """
@@ -697,6 +698,25 @@ def index(x,y,z):
 print(index.__name__)
 print(index.__doc__)
 print(help(index))
+# ==有参数装饰器================================
+def auth(type):
+  def deco(func):
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+      if type == 'admin':
+        print("管理员权限")
+        return func(*args, **kwargs)
+      else type == 'user':
+        print("普通用户权限")
+        return func(*args, **kwargs)
+    return wrapper
+  return deco
+
+  @auth('admin') # deco=@auth('admin') ==> index=deco(index) ==》index=wrapper
+  def index(x,y,z):
+    print(x,y,z)
+    return "返回值-index"
+
 ```
 
 ## python 诡异现象
