@@ -646,6 +646,8 @@ f();
 
 ```python
 import time
+from functools import wraps # 将原函数的属性赋值给wrapper函数
+
 def index(x,y,z):
   time.sleep(3)
   print(x,y,z)
@@ -656,12 +658,17 @@ def home(x):
 
 def outter(func):
   # func:被装饰对象的内存地址
+  @wraps(func) # 将原函数的属性赋值给wrapper函数
   def wrapper(*args, **kwargs):
     start = time.time()
     res = func(*args, **kwargs)
     stop = time.time()
     print(f'耗时：{stop-start}')
     return res
+
+  # wrapper.__name__ = func.__name__
+  # wrapper.__doc__ = func.__doc__
+  # ...
   return wrapper
 
 home = outter(home) # 偷梁换柱: 变量home: 指向wrapper函数的内存地址
@@ -669,7 +676,7 @@ res = home("hello")
 print("返回值",res) # hello
 
 # ==================================================
-@outter
+@outter  # index = outter(index)
 def index(x,y,z):
   time.sleep(3)
   print(x,y,z)
@@ -677,6 +684,19 @@ def index(x,y,z):
 
 res = index(1,2,3)
 print("返回值",res)
+# =================================================
+@print('hello')  # ==> None=print('hello')(index) ==> index=None(index)
+def index(x,y,z):
+  """ 函数文档 """
+  pass
+
+# index.__name__ = 原函数.__name__
+# index.__doc__ = 原函数.__doc__
+# ...
+
+print(index.__name__)
+print(index.__doc__)
+print(help(index))
 ```
 
 ## python 诡异现象
