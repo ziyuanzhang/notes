@@ -657,14 +657,14 @@ def home(x):
 def outter(func):
   def wrapper(*args, **kwargs):
     start = time.time()
-    res = (*args, **kwargs)
+    res = func(*args, **kwargs)
     stop = time.time()
     print(f'耗时：{stop-start}')
     return res
   return wrapper
 
-home = outter(home) #偷梁换柱(home): home指向wrapper函数的内存地址
-res = home("hello")
+home = outter(home)
+res = home("hello") #偷梁换柱: home指向wrapper函数的内存地址
 print("返回值",res) # hello
 
 # ==================================================
