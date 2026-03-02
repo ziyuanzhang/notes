@@ -663,8 +663,8 @@ def outter(func):
     return res
   return wrapper
 
-home = outter(home)
-res = home("hello") #偷梁换柱(home): home指向wrapper函数的内存地址
+home = outter(home) #偷梁换柱(home): home指向wrapper函数的内存地址
+res = home("hello")
 print("返回值",res) # hello
 
 # ==================================================
@@ -672,7 +672,7 @@ print("返回值",res) # hello
 def index(x,y,z):
   time.sleep(3)
   print(x,y,z)
-  return "返回值"
+  return "返回值-index"
 
 res = index(1,2,3)
 print("返回值",res)
