@@ -655,6 +655,7 @@ def home(x):
   print(x)
 
 def outter(func):
+  # func:被装饰对象的内存地址
   def wrapper(*args, **kwargs):
     start = time.time()
     res = func(*args, **kwargs)
@@ -663,8 +664,8 @@ def outter(func):
     return res
   return wrapper
 
-home = outter(home)
-res = home("hello") #偷梁换柱: home指向wrapper函数的内存地址
+home = outter(home) # 偷梁换柱: 变量home: 指向wrapper函数的内存地址
+res = home("hello")
 print("返回值",res) # hello
 
 # ==================================================
