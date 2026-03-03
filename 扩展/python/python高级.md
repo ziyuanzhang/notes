@@ -766,6 +766,32 @@ def auth(type):
 
 在函数内一旦存在yield关键字，调用函数并不会执行函数体代码，会返回一个生成器对象，生成器即自定义的迭代器
 
+```python
+  def func():
+    print("hello")
+    yield 1
+    print("world")
+    yield 2
+    print("python")
+    yield 3
+    print("end")
+
+  g=func()
+  print(g) # <function func at 0x7f7c7c0c0c50>
+  # 生成迭代器
+  # g.__iter__() # <generator object func at 0x7f7c7c0c0c50>
+  # len('aaa')  # 'aaa'.__len__()
+  # next(g) # g.__next__()
+  res1= g.__next__() # hello
+  print(res1) # 1
+  res2= g.__next__() # world
+  print(res2) # 2
+  res3= g.__next__() # python
+  print(res3) # 3
+  res4= g.__next__() # end
+  print(res4) # 报错：StopIteration
+```
+
 ## python 诡异现象
 
 核心关键词：缓存、复用、单例、编译期优化
