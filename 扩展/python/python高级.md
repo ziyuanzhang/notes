@@ -834,6 +834,23 @@ def auth(type):
   print(res4) # 报错：StopIteration
 ```
 
+```python
+def dog(name):
+  print(f'{name}  is coming')
+  while True:
+    x= yield # x 拿到的是 yield 接收到的值
+    print(f'{name}  is eating {x}')
+
+g= dog('wangcai')
+g.send(None) # 等同于next(g)
+
+g.send('bone')
+g.send('fish')
+g.send('meat')
+g.close()
+g.send('egg') # 报错：StopIteration
+```
+
 ## python 诡异现象
 
 核心关键词：缓存、复用、单例、编译期优化
