@@ -725,6 +725,16 @@ def auth(type):
 
 迭代器：是迭代取值的工具，迭代是一个重复的过程，每次重复都是基于上一次的结果而继续的（单纯的重复不是迭代）；
 
+```python
+  d={"a":1,"b":2}
+  d_iter = d.__iter__()
+
+  print(d_iter.__next__()) #==> 'a'
+  print(d_iter.__next__()) #==> 'b'
+  print(d_iter.__next__()) # 抛出异常
+```
+
+- 迭代器对象：不依赖索引取值
 - 可迭代对象（可以转换成迭代器的对象）：内置有`__iter__`方法的的对象;
   1. `可迭代对象.__iter__()`: 得到迭代器对象
 
@@ -740,27 +750,17 @@ def auth(type):
 
   python为什么给迭代器对象内置`__iter__`方法: 为了让for循环的工作原理统一起来；
 
-- 迭代器对象：不依赖索引取值
+- ❗for 循环工作原理：
 
   ```python
-  d={"a":1,"b":2}
-  d_iter = d.__iter__()
-
-  print(d_iter.__next__()) #==> 'a'
-  print(d_iter.__next__()) #==> 'b'
-  print(d_iter.__next__()) # 抛出异常
+  d={'a':1, 'b':2, 'c':3}
+  for k in d: # ==> for k in d.__iter__()
+    print(k)
   ```
 
-* for 循环工作原理：
   1. `d.__iter__()`得到一个迭代器对象；
   2. `迭代器对象.__next__()`拿到一个返回值，然后将该值赋值给K；
   3. 循环往复步骤2，直到抛出StopIteration异常,for循环会捕捉异常然后结束循环；
-
-  ```python
-    d={'a':1, 'b':2, 'c':3}
-    for k in d: # ==> for k in d.__iter__()
-      print(k)
-  ```
 
 ### 生成器
 
