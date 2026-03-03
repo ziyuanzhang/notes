@@ -753,8 +753,7 @@ def auth(type):
 - ❗for 循环工作原理：
 
   ```python
-  d={'a':1, 'b':2, 'c':3}
-  for k in d: # ==> for k in d.__iter__()
+  for k in 可迭代对象: # ==> 可迭代对象.__iter__() ==> 迭代器对象 ==> next(迭代器对象)
     print(k)
   ```
 
