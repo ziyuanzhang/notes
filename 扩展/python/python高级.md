@@ -851,9 +851,29 @@ g.close()
 g.send('egg') # 报错：StopIteration
 ```
 
-## 三元表达式
+## 三元表达式 与 生成式(列表、字典、集合、生成器)
 
-语法格式：条件成立时返回的值 if 条件 else 条件不成立时返回的值
+- 语法格式：条件成立时返回的值 if 条件 else 条件不成立时返回的值
+- 列表生成式：arr=[表达式 for item in iterable if 条件]
+  `arr = [name for name in names if name[0] == 'w']`
+
+- 字典生成式
+  `items = [('name', 'wc'), ('age', 18), ('sex', 'male')];`
+  `dicts = {key: value for key, value in items if key != 'sex'}`
+
+- 集合生成式
+  `keys = {name for name in names if name[0] == 'w'}`
+
+- 生成器表达式：
+  `gen = (i for i in range(10) if i % 2 == 0)`
+
+## 递归 (python 没有尾递归)
+
+```python
+import sys;
+sys.getrecursionlimit() # ==> 1000 获取递归深度
+sys.setrecursionlimit(2000) # 设置递归深度
+```
 
 ## python 诡异现象
 
