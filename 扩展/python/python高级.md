@@ -776,9 +776,11 @@ def auth(type):
     print("end")
 
   g=func()
-  print(g) # <function func at 0x7f7c7c0c0c50>
+  # print(func) # <function func at 0x7f7c7c0c0c50>
   # 生成迭代器
-  # g.__iter__() # <generator object func at 0x7f7c7c0c0c50>
+  # print(g) # <generator object func at 0x7f7c7c0c0c50>
+  # print(g.__iter__()) # <generator object func at 0x7f7c7c0c0c50>
+
   # len('aaa')  # 'aaa'.__len__()
   # next(g) # g.__next__()
   res1= g.__next__() # hello
@@ -944,7 +946,7 @@ def auth(type):
 
 ## 数据类型 与 数据类
 
-数据类型
+- 数据类型
 
 ```bash
 object
@@ -959,7 +961,7 @@ object
 
 ```
 
-数据类
+- 数据类
 
 | 类型                 | 是否官方 | 是否推荐  | 特点             |
 | -------------------- | -------- | --------- | ---------------- |
