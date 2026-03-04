@@ -887,6 +887,21 @@ g.send('egg') # 报错：StopIteration
   - 优点：复杂问题流程化，进而简单化
   - 缺点：扩展性非常差
 
+爬虫（Scrapy框架）：1、目标站点发请求，拿数据；3、数据清洗；4、存数据库
+数据分析：
+
+- 匿名函数：fn=lambda 参数：函数体
+  `res = max(obj,key=lambda k:obj[k])`
+  `res = map(lambda x:x**2,range(10));res.__iter__();`
+  `res = filter(lambda x:x%2==0,range(10));res.__iter__();`
+  `res = reduce(lambda x,y:x+y,range(10),0);res.__iter__();`
+
+## 模块： 一些列功能的集合体
+
+1. 内置模块：python解释提供好的，C、C++语言便编写的；
+2. 第三方模块：
+3. 自定义模块：python、C、C++写的
+
 ## python 诡异现象
 
 核心关键词：缓存、复用、单例、编译期优化
