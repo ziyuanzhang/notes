@@ -860,8 +860,8 @@ g.send('egg') # 报错：StopIteration
   `arr = [name for name in names if name[0] == 'w']`
 
 - 字典生成式
-  `items = [('name', 'wc'), ('age', 18), ('sex', 'male')];`
-  `dicts = {key: value for key, value in items if key != 'sex'}`
+  `items = [('name', 'wc'), ('age', 18), ('sex', 'male')];
+`dicts = {key: value for key, value in items if key != 'sex'}`
 
 - 集合生成式
   `keys = {name for name in names if name[0] == 'w'}`
@@ -902,14 +902,50 @@ g.send('egg') # 报错：StopIteration
 2. 第三方模块：
 3. 自定义模块：python、C、C++写的
 
-- “首次导入”模块会发生什么？
-  1. 执行foo.py 文件;
-  2. 产生foo.py的命名空间，将foo.py运行过程产生的名称丢到foo.py的命名空间中；
-  3. 当前文件中产生一个foo名字，该名字指向2中产生的命名空间；
+- 首次导入 与 之后的导入
+  - “首次导入”模块会发生什么？
+    1. 执行foo.py 文件;
+    2. 产生foo.py的命名空间，将foo.py运行过程产生的名称丢到foo.py的命名空间中；
+    3. 当前文件中产生一个foo名字，该名字指向2中产生的命名空间；
 
-- 之后的导入，都是直接引用“首次导入”产生的命名空间（不会重复执行）；
+  - 之后的导入，都是直接引用“首次导入”产生的命名空间（不会重复执行）；
 
 - 起别名: `import foo as f` 把foo的内存地址给了f;
+
+- `__name__`
+  1. 当文件被运行时:`__name__`的值为`__main__`，
+  2. 当文件被作为模块导入时：`__name__`的值为模块名；
+
+```python
+# ==foo.py===============================================
+x=1
+def get():
+  print(x)
+
+def change():
+  globals x
+  x=0
+
+__all__ = ['x','get','change'] # 控制*代表的名字有哪些
+# from foo import *
+# ==run.py===============================================
+from foo import x # 指向foo中1的内存地址
+from foo import get #指向foo中get函数内存地址
+from foo import change
+# from foo import change as c
+  # ------------------
+  # print(x)
+  # x=33
+  # print(x)
+# --------------------
+get() # 获得foo的x
+change() #改变fooo的x
+get() # 获得foo的x
+print(x) # 指向当前x(1的内存地址)
+# --------------------
+from foo import x # 重新导入foo的x值为0
+print(x) # 0
+```
 
 ## python 诡异现象
 
