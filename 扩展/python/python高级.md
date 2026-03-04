@@ -806,6 +806,8 @@ def auth(type):
 
 在函数内一旦存在yield关键字，调用函数并不会执行函数体代码，会返回一个生成器对象，生成器即自定义的迭代器
 
+`x = yield 返回值`
+
 ```python
   def func():
     print("hello")
@@ -853,8 +855,8 @@ g.send('egg') # 报错：StopIteration
 
 ## 三元表达式 与 生成式(列表、字典、集合、生成器)
 
-- 语法格式：条件成立时返回的值 if 条件 else 条件不成立时返回的值
-- 列表生成式：arr=[表达式 for item in iterable if 条件]
+- 语法格式：条件成立时的值 if 条件 else 条件不成立时的值
+- 列表生成式：arr=[表达式 for item in 可迭代对象 if 条件]
   `arr = [name for name in names if name[0] == 'w']`
 
 - 字典生成式
@@ -870,10 +872,20 @@ g.send('egg') # 报错：StopIteration
 ## 递归 (python 没有尾递归)
 
 ```python
-import sys;
-sys.getrecursionlimit() # ==> 1000 获取递归深度
-sys.setrecursionlimit(2000) # 设置递归深度
+  import sys;
+  sys.getrecursionlimit() # ==> 1000 获取递归深度
+  sys.setrecursionlimit(2000) # 设置递归深度
 ```
+
+- 递归的2个阶段：递推、回归
+
+回溯：指的是一种通过“试错”来寻找解的方法；
+
+## 面相过程思想 与 面相对象思想
+
+- 面相过程思想：
+  - 优点：复杂问题流程化，进而简单化
+  - 缺点：扩展性非常差
 
 ## python 诡异现象
 
