@@ -943,7 +943,7 @@ from foo import change
   # print(x)
 # --------------------
 get() # 获得foo的x
-change() #改变fooo的x
+change() #改变foo的x
 get() # 获得foo的x
 print(x) # 指向当前x(1的内存地址)
 # --------------------
