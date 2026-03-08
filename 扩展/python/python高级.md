@@ -26,11 +26,15 @@
 
 ## 1. xx是什么？2. 为什么有它？3. 怎么用？
 
-## 编译型or解释型；强类型or弱类型；动态型or静态型
+## 编译型or解释型、强类型or弱类型、静态型or动态型
 
-- 强类型：数据类型不可以被忽略的语言 即变量的数据类型一旦被定义，那就不会再改变，除非进行强转。
-- 动态型：运行时才进行数据类型检查 即在变量赋值时，才确定变量的数据类型，不用事先给变量指定数据类型
-- 静态型：需要事先给变量进行数据类型定义
+- 强类型or弱类型
+  1. 强类型：数据类型不可以被忽略的语言，即变量的数据类型一旦被定义，那就不会再改变，除非进行强转。
+  2. 弱类型：数据类型可以被忽略的语言，数据类型可以被忽略，数据类型由数据内容决定。（例：linux中的shell语言）
+
+- 静态型or动态型
+  1. 静态型：在定义阶段指定数据类型，在运行时传其他类型报错；需要事先给变量进行数据类型定义
+  2. 动态型：在定义阶段只定义变量，不定义类型；在运行时（即在变量赋值时），才确定变量的数据类型；
 
 ## 垃圾回收机制：回收“没有任何变量名的“值
 
@@ -946,6 +950,115 @@ print(x) # 指向当前x(1的内存地址)
 from foo import x # 重新导入foo的x值为0
 print(x) # 0
 ```
+
+- python模块加载机制
+  1. 内存（内置模块、缓存）
+  2. 硬盘（自定义的文件）
+
+  ```python
+  import sys
+  print(sys.path) # 查看模块查找路径
+  sys.path.append('/Usrs/xxx/foo') # 添加 文件查找路径
+  import foo # 导入后能查到
+  ```
+
+- `sys.modules`:查看已经加载到内存中的模块
+  `del 模块名`：解除模块绑定（理论上模块应该被垃圾回收，实际还在内存中；原因：优化机制，减少下次导入时申请内存）
+
+### python模块加载机制 与 node 加载机制
+
+- Python: 模块是一个对象，被 import 系统动态加载。
+- Node CommonJS: 模块是一个函数执行环境，通过 require 运行。
+- Node ESM: 模块是一个静态依赖图，在执行前完成链接。
+
+#### python模块加载机制
+
+Python 的模块加载由 import system 控制，核心模块是：
+
+- importlib、
+- sys.modules、
+- sys.meta_path、
+- sys.path
+
+1. 第一步：检查缓存：`sys.modules`这是一个 全局模块缓存字典
+2. 第二步：查找模块：搜索顺序：sys.meta_path -> PathFinder -> sys.path
+   - sys.path: [ 当前脚本目录、PYTHONPATH、标准库目录、site-packages ]
+   - 按顺序寻找：
+
+   ```python
+     foo.py
+     foo/__init__.py
+     foo.so
+     foo.pyd
+   ```
+
+3. 第三步：创建 Module 对象，放入缓存中（⚠️先缓存、在执行 - 这是为了解决：循环引用）
+   `module = ModuleType("foo"); sys.modules["foo"] = module`
+4. 第四步：执行模块代码：模块变量全部进入：`module.__dict__`
+5. 第五步：绑定到当前命名空间：`foo -> module object`
+
+⚠️ 1、模块只执行一次：  
+⚠️ 2、循环引用问题：因为：module 先进入 sys.modules所以不会死循环，`但变量可能未初始化`。
+⚠️ 3、Python 模块是对象：模块本质是：ModuleType object
+
+#### Node.js 模块加载机制--1--CommonJS（传统）
+
+1. 第一步：检查缓存：`require.cache`
+2. 第二步：路径解析：
+   Node 按顺序查找：
+
+   ```js
+   ./foo
+   ./foo.js
+   ./foo.json
+   ./foo.node
+   // ========================
+   当前目录/node_modules
+   父目录/node_modules
+   根目录/node_modules
+   ```
+
+3. 第三步：创建 Module 对象,并加入缓存`require.cache`;
+
+   ```js
+   Module {
+     id
+     filename
+     exports
+     loaded
+   }
+   ```
+
+4. 第四步：代码包装；Node 不会直接执行 JS 文件，会先包一层函数：
+
+   ```js foo.js
+   (function (exports, require, module, __filename, __dirname) {
+     // foo.js 内容
+   });
+   ```
+
+5. 第五步：执行模块:
+   执行 wrapper function，最终返回：`module.exports`
+
+#### Node.js 模块加载机制--2--ES Module（现代）
+
+- Node 的 ESM 实现遵循：ECMAScript Module Spec
+- 加载流程：解析 → 链接 → 执行
+- ESM 关键特点: 静态分析: 在 编译阶段就解析:所以：import 不能写在 if 里
+- live binding: `export let count = 0` 其他模块引用：实时更新(不是拷贝)。
+
+#### Python vs Node 模块机制核心区别
+
+| 对比     | Python               | Node CommonJS    | Node ESM     |
+| -------- | -------------------- | ---------------- | ------------ |
+| 加载方式 | import               | require()        | import       |
+| 解析阶段 | 运行时               | 运行时           | 编译阶段     |
+| 缓存     | sys.modules          | require.cache    | Module Map   |
+| 模块本质 | Module object        | module.exports   | live binding |
+| 执行次数 | 一次                 | 一次             | 一次         |
+| 循环依赖 | 可运行但可能未初始化 | 容易 undefined   | 更安全       |
+| 作用域   | module.**dict**      | wrapper function | module scope |
+| 是否静态 | 否                   | 否               | 是           |
 
 ## python 诡异现象
 
