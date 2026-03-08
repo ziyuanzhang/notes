@@ -952,15 +952,17 @@ print(x) # 0
 ```
 
 - python模块加载机制
-  1. 内存（内置模块、缓存）
-  2. 硬盘（自定义的文件）
 
-  ```python
-  import sys
-  print(sys.path) # 查看模块查找路径
-  sys.path.append('/Usrs/xxx/foo') # 添加 文件查找路径
-  import foo # 导入后能查到
-  ```
+1. 内存（内置模块、缓存）
+2. 硬盘（自定义的文件）
+
+```python
+import sys
+print(sys.path) # 查看模块查找路径
+# 👉 环境变量是以执行文件为准的，“所有被导入的模块中” 或 “后续的其他文件中” 引用的sys.path都是参照执行文件的sys.path
+sys.path.append('/Usrs/xxx/foo') # 添加 文件查找路径
+import foo # 导入后能查到
+```
 
 - `sys.modules`:查看已经加载到内存中的模块
   `del 模块名`：解除模块绑定（理论上模块应该被垃圾回收，实际还在内存中；原因：优化机制，减少下次导入时申请内存）
@@ -1059,6 +1061,11 @@ Python 的模块加载由 import system 控制，核心模块是：
 | 循环依赖 | 可运行但可能未初始化 | 容易 undefined   | 更安全       |
 | 作用域   | module.**dict**      | wrapper function | module scope |
 | 是否静态 | 否                   | 否               | 是           |
+
+## 包（模块的一种）
+
+包：一个包含`__init__.py`文件的文件夹；
+包本质：是模块的模块的一种形式，用来当做模块导入；
 
 ## python 诡异现象
 
