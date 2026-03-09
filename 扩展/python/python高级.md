@@ -1099,7 +1099,15 @@ day
 - 相对导入：仅限于包内使用，不能跨出包(包内模块之间的导入，推荐使用相对导入)
   1. .:代表当前文件夹
   2. ..:代表上一层文件夹
-  `from .module import func`
+     `from .module import func`
+
+```python
+print(__file__) # 当前文件的绝对路径
+import os
+print(os.path.dirname(os.path.dirname(__file__))) # 当前文件的父目录的父目录
+BASE_DIR = os.path.dirname(os.path.dirname(__file__))
+sys.path.append(BASE_DIR) #基准目录，添加到环境变量
+```
 
 ## python 诡异现象
 
