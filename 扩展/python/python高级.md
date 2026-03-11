@@ -1109,6 +1109,39 @@ BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 sys.path.append(BASE_DIR) #基准目录，添加到环境变量
 ```
 
+## 常用模块
+
+### 时间模块
+
+- time模块
+  1. 时间戳：用于计算时间间隔（从1970-01-01 00:00:00 开始到现在的秒数）
+  2. 格式化字符串时间：用于展示时间（2026-03-11 21:46:00）
+  3. 结构化的时间：用于单独获取时间的某一部分（本地时间）
+
+  ```python
+  import time
+  # 时间戳:
+  print(time.time()) # 1647020160.0
+  # 按照格式显示的时间：
+  print(time.strftime("%Y-%m-%d %H:%M:%S")) # 2026-03-11 21:46:00
+  print(time.strftime("%Y-%m-%d %X")) # 2026-03-11 21:46:00
+  # 结构化时间：
+  tm = time.localtime() # (2026, 3, 11, 21, 46, 0, 0, 78, 0)
+  print(tm.tm_year)
+  # 1、format time <-->struct time <-->timestamp
+  # 2、世界标准时间与本地时间
+  # time.sleep(1) # 阻塞1秒
+  ```
+
+- datetime模块（类似js的moment.js、dayjs）
+
+```python
+import datetime
+print(datetime.datetime.now()) # 2026-03-11 21:46:00.000000
+print(datetime.datetime.utcnow()) # 世界标准时间
+
+```
+
 ## python 诡异现象
 
 核心关键词：缓存、复用、单例、编译期优化
