@@ -1142,6 +1142,31 @@ print(datetime.datetime.utcnow()) # 世界标准时间
 
 ```
 
+### random 随机数
+
+```python
+import random
+
+print(random.random()) # （0,1） 0<x<1 的小数
+print(random.randint(1, 10)) # [1,10] 1-10的整数
+print(random.randrange(1,3)) #[1,3) 1<=x<3 的整数
+print(random.choice([1,2,3,4,5]))
+print(random.shuffle([1,2,3,4,5]))
+print(random.sample([1,2,3,4,5], 2))
+print(random.uniform(1, 10)) # (1,10) 1<=x<10 的小数
+##==验证码==========
+ord('a') # 97
+ord('z') # 122
+chr(ord('a')) # a
+s1= chr(random.randint(ord('a'), ord('z')))
+s2 = str(random.randint(0,9))
+random.choice([s1,s2])
+```
+
+## 操作系统模块--1-- os模块
+
+## 系统模块 --2-- sys模块
+
 ## python 诡异现象
 
 核心关键词：缓存、复用、单例、编译期优化
