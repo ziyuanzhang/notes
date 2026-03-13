@@ -1107,6 +1107,10 @@ import os
 print(os.path.dirname(os.path.dirname(__file__))) # 当前文件的父目录的父目录
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 sys.path.append(BASE_DIR) #基准目录，添加到环境变量
+from pathlib import Path
+res = Path(__file__).parent.parent
+res.resolve() # 获取绝对路径
+
 ```
 
 ## 常用模块
@@ -1165,7 +1169,54 @@ random.choice([s1,s2])
 
 ## 操作系统模块--1-- os模块
 
+```python
+import os
+print(os.name) # 当前操作系统
+print(os.environ) # 环境变量-字典；
+print(os.getcwd()) # 当前工作目录
+print(os.listdir()) # 当前目录下的文件
+print(os.path.join('a', 'b', 'c')) # a/b/c
+print(os.path.exists('a')) # 判断文件是否存在
+# print(os.path.abspath('a')) 与 print(__file__) # 绝对路径
+# print(os.path.split('a/b/c')) # ('a/b', 'c')
+print(os.path.dirname('a/b/c')) # a/b
+print(os.path.basename('a/b/c')) # c
+print(os.path.getsize('a')) # 文件大小
+# print(os.path.getmtime('a')) # 文件修改时间
+# print(os.path.getatime('a')) # 文件访问时间
+# print(os.path.getctime('a')) # 文件创建时间
+print(os.path.isdir('a')) # 判断是否是目录
+print(os.path.isfile('a')) # 判断是否是文件
+# print(os.path.isabs('a')) # 判断是否是绝对路径
+print(os.path.realpath('a')) # 真实路径
+print(os.path.splitdrive('a')) # ('', 'a')
+print(os.path.commonpath(['a', 'b', 'c'])) # a
+print(os.path.commonprefix(['a', 'b', 'c']))
+os.mkdir('a') # 创建目录
+os.makedirs('a/b/c') # 创建目录
+os.rmdir('a') # 删除目录
+os.rename('a', 'b') # 重命名
+os.remove('a') # 删除文件
+os.chdir('a') # 切换目录
+os.chdir('..') # 返回上一级目录
+os.walk('a') # 遍历目录
+os.system('ls') # 执行系统命令
+# ----------------------------
+PATH=文件夹的路径 # 环境变量 -- 执行系统命令的时候用；
+sys.path # 环境变 -- 用在导模块的时候；
+os.environ['aaa'] ='111' # 环境变量 -- 用在全局变量中；
+```
+
 ## 系统模块 --2-- sys模块
+
+```python
+import sys
+
+sys.path # 路径
+python3.8 run.py 1 2 3
+# sys.argv # 获取python解释器后的参数值
+print(sys.argv) # ['run.py', '1', '2', '3']
+```
 
 ## python 诡异现象
 
