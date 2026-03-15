@@ -1,5 +1,7 @@
 # python 高级
 
+❗👉 🔥1️⃣❌❗✅⚠️
+
 第三方库和工具，如 NumPy、Pandas、TensorFlow 和 PyTorch 等
 
 - 类型工具：
@@ -337,6 +339,9 @@ print('上')
 - 🔥 作用域：是“变量在哪里可以访问”
   1. 访问规则
   2. LEGB 查找链
+
+`import ujson as json`: 命名空间没变（还是ujson），只是起了个别名，查找时还是找ujson;
+后续其他文件 用json还需要`import json`【涉及名称空间、模块缓存】
 
 ### 命名空间: 是名字到对象的映射。 本质就是：👉 一个 dict（字典）
 
@@ -1000,7 +1005,7 @@ Python 的模块加载由 import system 控制，核心模块是：
 5. 第五步：绑定到当前命名空间：`foo -> module object`
 
 ⚠️ 1、模块只执行一次：  
-⚠️ 2、循环引用问题：因为：module 先进入 sys.modules所以不会死循环，`但变量可能未初始化`。
+⚠️ 2、循环引用问题：因为：module 先进入 sys.modules所以不会死循环，`但变量可能未初始化`。  
 ⚠️ 3、Python 模块是对象：模块本质是：ModuleType object
 
 #### Node.js 模块加载机制--1--CommonJS（传统）
@@ -1115,7 +1120,7 @@ res.resolve() # 获取绝对路径
 
 ## 常用模块
 
-### 时间模块
+### 一、 时间模块
 
 - time模块
   1. 时间戳：用于计算时间间隔（从1970-01-01 00:00:00 开始到现在的秒数）
@@ -1146,7 +1151,7 @@ print(datetime.datetime.utcnow()) # 世界标准时间
 
 ```
 
-### random 随机数
+### 二、 random 随机数
 
 ```python
 import random
@@ -1167,7 +1172,7 @@ s2 = str(random.randint(0,9))
 random.choice([s1,s2])
 ```
 
-## 操作系统模块--1-- os模块
+### 三、 操作系统模块--1-- os模块
 
 ```python
 import os
@@ -1207,7 +1212,7 @@ sys.path # 环境变 -- 用在导模块的时候；
 os.environ['aaa'] ='111' # 环境变量 -- 用在全局变量中；
 ```
 
-## 系统模块 --2-- sys模块
+### 四、 系统模块 --2-- sys模块
 
 ```python
 import sys
@@ -1217,6 +1222,163 @@ python3.8 run.py 1 2 3
 # sys.argv # 获取python解释器后的参数值
 print(sys.argv) # ['run.py', '1', '2', '3']
 ```
+
+```python
+# 进度条
+import time
+res =''
+for i in range(50):
+  res+=''
+  time.sleep(0.1)
+  print('\r[%-50s]' %,end='')
+  # \r 回到行首
+```
+
+### 五、 shutil模块 -- 【文件copy、解压缩】
+
+### 六、 序列化反序列化 --1-- json(通用) & pickle（python专用）模块
+
+- 序列化：用于将对象序列化成字符串；用于存储和数据传输；
+
+  python(列表) <--> 特定格式(跨平台交互--通用的，所有语言都能识别) <--> java(数组)
+
+  内存中的数据 --> 序列化 --> 特定格式（json或pickle格式）  
+  `{'aa':'aa'} --> 序列化str({'aa':'11'}) --> "{'aa':'11'}"`
+
+- 反序列化：用于将字符串反序列化成对象；
+
+  `{'aa':'aa'} <-- 反序列化eval({'aa':'11'}) <-- "{'aa':'11'}"`
+
+```python
+import json
+# 序列化
+json_res= json.dumps([1,'aa',True,False,None])
+print(json_res,type(json_res))  # [1, "aa", true, false, null] <class 'str'>
+# json.dump([1,'aa',True,False,None], fp) # ⚠️将对象序列化成字符串并写入文件
+
+# 反序列化: json格式中字符串的引号必须是双引号
+l = json.loads('[1, "aa", true, false, null]') # 将字符串反序列化成对象
+# json.load(fp) # ⚠️将文件内容读取成对象
+print(l,type(l)) # [1, 'aa', True, False, None] <class 'list'>
+
+print(json.dumps({'aa':'aa'}))
+print(json.loads('{"aa":"aa"}'))
+print(json.dumps({'aa':'aa'}, ensure_ascii=False))
+print(json.dumps({'aa':'aa'}, indent=2))
+print(json.dumps({'aa':'aa'}, indent=2, ensure_ascii=False))
+```
+
+- pickle：用法与json类似（python2与python3不同，要指定协议）
+
+  ```python
+  import pickle
+
+  res = pickle.dumps([1,'aa',True,False,None])
+  print(pickle.loads(res)) # [1, 'aa', True, False, None]
+
+  s =pickle.loads(res)
+  print(s) # [1, 'aa', True, False, None]
+  ```
+
+### 🔥猴子补丁：替换第三方的部分功能
+
+直接在入口文件中修改，后续其他文件导入使用“自动使用”
+
+```python
+# ujson 效率比json高
+import json
+import ujson
+json.dumps = ujson.dumps
+json.loads = ujson.loads
+
+
+```
+
+### 七、 序列化反序列化 --2-- shelve 模块(了解)
+
+对pickle的封装
+
+### 八、 序列化反序列化 --3-- xml 模块(了解)
+
+### 九、 加载配置文件 -- configparser 模块【配置文件】
+
+加载某种特定格式的配置文件
+
+```python
+# test.ini
+[section1] #分组
+k=v1
+k2=v2
+user=zhang
+password=123
+is_admin=True
+
+[section2]
+k1=v3
+# config.py
+import configparser
+config = configparser.ConfigParser()
+config.read('test.ini') # 加载配置文件
+print(config['section1']['k'])
+print(config.get('section1', 'k2')) # 获取section1的k2的值
+print(config.getboolean('section1', 'is_admin')) # 获取section1的is_admin的值
+```
+
+### 十、 哈希模块 -- hashlib 模块【hash加密】
+
+- hash算法：该算法接受传入的内容，经过运算得到一串hash值；
+
+- hash算法特点：  
+  1、只要传入的内容一样，得到的hash值必然一样；  
+  2、不能由hash值推算出原始内容；  
+  3、只要使用的hash算法不变，无论传入的内容多大，得到的hash值长度是固定的；
+
+- 撞库破解md5：不停试账户密码，直到找到；
+
+```python
+import hashlib
+# print(hashlib.md5('123456'.encode('utf-8')).hexdigest())
+m=hashlib.md5()
+m.update('hello'.encode('utf-8')) # 只能接受byte值
+m.update('world'.encode('utf-8'))
+res=m.hexdigest() # 拼成'helloword'后获取hash值
+print(res)
+
+# print(hashlib.sha1('123456'.encode('utf-8')).hexdigest())
+
+
+```
+
+### 十一、 执行系统命令 -- subprocess 模块【子进程】
+
+执行系统命令的
+
+```python
+os.system('dir') # “应用程序”向“操作系统”提交指令;
+import subprocess
+
+subprocess.call('dir')
+subprocess.call('dir', shell=True)
+
+res = subprocess.run('dir', shell=True, capture_output=True)
+print(res.stdout.decode('utf-8'))
+print(res.stderr.decode('utf-8'))
+print(res.returncode)
+print(res.args) # 运行命令的参数
+print(res.stdout) # 运行命令的输出
+print(res.stderr) # 运行命令的错误输出
+
+obj = subprocess.Popen('ls /root', shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+# stdout: 标准输出给stdout; stderr: 错误输出stderr
+res =obj.stdout.read()
+print(res.decode('utf-8')) #编码（'utf-8'）是系统的默认编码（win:gbk,linux:utf-8），不是我们指定的
+print(res.decode('utf-8'))
+print(obj.returncode)
+
+
+```
+
+### 十二、 logging 模块
 
 ## python 诡异现象
 
