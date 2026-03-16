@@ -1380,6 +1380,30 @@ print(obj.returncode)
 
 ### 十二、 logging 模块
 
+日志级别：debug > info > warning > error > critical
+
+```python
+import logging
+
+  # 1、基础配置--了解
+    logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(name)s -%(levelname)s -%(module)s: %(message)s')
+    # 参数1、日志输出位置：1文件、2默认终端；filename='access.log' (不配置，默认终端)
+    # 参数2、日志格式：%(asctime)s - %(name)s - %(levelname)s - %(message)s
+    # 参数3、时间格式 datefmt='%Y-%m-%d %H:%M:%S %p'
+    # 参数4、日志级别：level=默认30；大于等于30才输出；小于30不输出；
+
+    logging.debug('调试--debug') # 级别 10 --默认不输出
+    logging.info('消息--info') # 级别 20--默认不输出
+    logging.warning('警告--warning') # 级别 30
+    logging.error('错误--error') # 级别 40
+    logging.critical('严重--critical') # 级别 50
+
+  # 2、日志配置 -- 单独文件
+
+```
+
+### 十三、 re 模块 -- 【正则模块】
+
 ## python 诡异现象
 
 核心关键词：缓存、复用、单例、编译期优化
