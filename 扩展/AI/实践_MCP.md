@@ -1,4 +1,4 @@
-# MCP: Model Context Protocol
+# MCP: Model Context Protocol（模型上下文协议）
 
 - MCP 体系主要由三部分组成:
 
@@ -15,13 +15,11 @@
 - FastMCP 分 服务端 和 客户端
 
 - FastMCP 服务器开发涉及三个核心组件:
-
   1. Resources(资源): 结构化数据，提供上下文信息
   2. Tools(工具): 可执行函数，允许模型执行操作
   3. Prompts(提示): 可重用的交互板
 
 - 服务器开发的关键要素
-
   1. 类型安全的接口定义
   2. 自动化的文档生成
   3. 内置的错误处理机制
