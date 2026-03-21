@@ -2,7 +2,7 @@
 
 AI 原生应用的 11 个关键要素，涵盖模型、框架、提示词、RAG、记忆、工具、数据、评估、安全与合规、监控与运维、用户体验设计等方面
 
-LLM、token、context、prompt、tool、RAG、CMP、Agent、Agent Skill、A2A、n8n、Clawdbot
+LLM、token、context、prompt、tool、RAG、CMP、Agent、Agent Skill、A2A、n8n、openClaw
 
 ## 名词
 
