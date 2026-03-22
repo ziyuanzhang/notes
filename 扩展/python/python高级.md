@@ -1823,3 +1823,14 @@ User(18, "A") < User(20, "B")  # True
    👉 uv + mypy + ruff + src 布局
    👉 FastAPI + uv + mypy + ruff 标准骨架
    👉 LangGraph / LlamaIndex 项目如何用 uv 管理多子模块
+
+## PyCharm 插件
+
+file--> settings--> plugin (安装完重启 pycharm)
+
+1. 代码统计（Statistics）:按完在pyCharm左下角，点击-->刷新（refresh）查看；
+2. 错误检查（Inspections）:按完在pyCharm左下角，点击-->Errors & Warnings（Errors and Warnings）查看；
+3. 错误修复（Quick Fix）:按完在pyCharm左下角，点击-->Quick Fix（Quick Fix）查看；
+4. 快速修复（Quick Fix）:按完在pyCharm左下角，点击-->Quick Fix（Quick Fix）查看；
+5. 快速修复（Quick Fix）:按完在pyCharm左下角，点击-->Quick Fix（Quick Fix）查看；
+6. 快速修复（Quick Fix）:按完在pyCharm左下角，点击-->Quick Fix（Quick Fix）查看；
