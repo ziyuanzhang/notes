@@ -1495,23 +1495,57 @@ import logging
 
       # 4、使用
       import settings
+      # 4.1
       from logging import getLogger, config
-      config.dictConfig(settings.LOGGING_DIC)
+      if not logging.getLogger().handlers:
+        config.dictConfig(settings.LOGGING_DIC)
       logger1 = getLogger('用户交易')
       logger1.info('info')
 
-      import logging.config
-      logging.config.dictConfig(settings.LOGGING_DIC)
+      # 4.2
+      import logging.config # 导入config模块时，logging模块也会被导入所有有getLogger模块可用
+      if not logging.getLogger().handlers:
+        logging.config.dictConfig(settings.LOGGING_DIC)
       logger2 = logging.getLogger('专门的采集')
       logger2.info('info')
 
-      logger3 = logging.getLogger('用户操作') # 匹配不到进‘’中
+      logger3 = logging.getLogger('用户操作') # 匹配不到,进''中
       logger3.info('info')
 
 
 ```
 
 ### 十三、 re 模块 -- 【正则模块】
+
+![正则表达式](./img/正则表达式.png)
+
+```python
+
+import re
+#1、返回所有满足匹配条件的结果,放在列表里
+print(re.findall('e','alex make love') )   #['e', 'e', 'e'],
+#2、只到找到第一个匹配然后返回一个包含匹配信息的对象,该对象可以通过调用group()方法得到匹配的字符串,如果字符串没有匹配，则返回None。
+print(re.search('e','alex make love').group()) #e,
+
+#3、同search,不过在字符串开始处进行匹配,完全可以用search+^代替
+print(re.match('e','alex make love'))    #None,match
+
+#4、先按'a'分割得到''和'bcd',再对''和'bcd'分别按'b'分割
+print(re.split('[ab]','abcd'))     #['', '', 'cd']，
+#5
+print('===>',re.sub('a','A','alex make love')) #===> Alex mAke love，不指定n，默认替换所有
+print('===>',re.sub('a','A','alex make love',1)) #===> Alex make love
+print('===>',re.sub('a','A','alex make love',2)) #===> Alex mAke love
+print('===>',re.sub('^(\w+)(.*?\s)(\w+)(.*?\s)(\w+)(.*?)$',r'\5\2\3\4\1','alex make love')) #===> love make alex
+
+print('===>',re.subn('a','A','alex make love')) #===> ('Alex mAke love', 2),结果带有总共替换的个数
+
+#6
+obj=re.compile('\d{2}')
+
+print(obj.search('abc123eeee').group()) #12
+print(obj.findall('abc123eeee')) #['12'],重用了obj
+```
 
 ## python 诡异现象
 
