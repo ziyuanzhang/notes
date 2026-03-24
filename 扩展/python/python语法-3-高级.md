@@ -1580,6 +1580,8 @@ print(Student.set_name) # 本质是Student.__dict__['set_name'] ==> <function St
 stu1_obj = Student() # 创建对象, 绑定对象与类的关联关系（❗不是执行类，而是告诉解释器用这个类模板产生对象；类的执行：是在类定义时执行的）
 stu2_obj = Student()
 print(stu1_obj.__dict__) # 本质是stu1_obj.__dict__ ==> {}:为什么是空的，因为刚刚造了个对象，还没有放东西
+stu1_obj.student_name = "李四"
+print(stu1_obj.student_name) # 本质是stu1_obj.__dict__['student_name'] ==> 李四
 ```
 
 ## a
