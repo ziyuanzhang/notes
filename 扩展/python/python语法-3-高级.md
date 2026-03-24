@@ -508,7 +508,7 @@ Python 本质：
 - 调用阶段:
 
 1. 通过函数名找到函数内存地址
-2. 然后加括号就是在出发函数体代码的执行
+2. 然后加括号就是在 触发函数体代码的执行，❗产生名称空间（命名空间）
 
 - 形参与实参：
 
@@ -1548,6 +1548,41 @@ print(obj.findall('abc123eeee')) #['12'],重用了obj
 1️⃣ 封装（Encapsulation）: 把数据和操作数据的方法绑定在一起，并隐藏内部细节;  
 2️⃣ 继承（Inheritance）: 子类继承父类的属性和方法，并扩展新的属性和方法;  
 3️⃣ 多态（Polymorphism）: 同一个方法，不同对象表现不同;
+
+### 类
+
+类体中最常见的是变量与函数的定义，但是类体其实是可以包含任意其他代码的；  
+📌 类体代码：是在类定义阶段就会立即执行，会产生类的名称空间（命名空间）；
+
+```python
+class Student:
+  student_name = "张三"
+
+  def set_name(self, name):
+    self.student_name = name
+
+  print("=====") # 定义时运行；
+
+print(Student.__dict__) # 类的名称空间的内容 ==>
+# {
+# '__module__': '__main__',
+# 'student_name': 0,
+# 'set_name': <function Student.set_name at 0x0000020EA0E5EA60>,
+# '__dict__': <attribute '__dict__' of 'Student' objects>,
+# '__weakref__': <attribute '__weakref__' of 'Student' objects>,
+# '__doc__': None
+# }
+
+# 访问类的属性
+print(Student.student_name) # 本质是Student.__dict__['student_name'] ==> 0
+print(Student.set_name) # 本质是Student.__dict__['set_name'] ==> <function Student.set_name at 0x0000020EA0E5EA60>
+# ===========================
+stu1_obj = Student() # 创建对象, 绑定对象与类的关联关系（❗不是执行类，而是告诉解释器用这个类模板产生对象；类的执行：是在类定义时执行的）
+stu2_obj = Student()
+print(stu1_obj.__dict__) # 本质是stu1_obj.__dict__ ==> {}:为什么是空的，因为刚刚造了个对象，还没有放东西
+```
+
+## a
 
 ## python 诡异现象
 
