@@ -1,5 +1,15 @@
 # AI-2-开发认知
 
+```code
+App（React Native / TS）
+        ↓
+API 层（Node / Java）
+        ↓
+AI 层（Python）
+        ↓
+推理优化（C++ / Rust）
+```
+
 - AI 开发分层体系
 
   ![AI开发分层体系](./img/AI体系/AI开发分层体系-千问.png)
