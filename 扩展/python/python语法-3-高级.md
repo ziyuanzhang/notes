@@ -1531,9 +1531,7 @@ print(obj.findall('abc123eeee')) #['12'],重用了obj
 
 - 函数：用来封装“可复用的功能（行为）”；
 - 对象：就是“容器”，用来封装“数据+功能”，将程序“整合”起来; 👉 对象：封装"数据+行为"的实体，是程序运行的基本单位
-
 - 类：对象的抽象模板，是定义"同类对象"共有属性和方法的"模板"; 👉 注意：类不是“装对象的容器”; 类是“生成对象的规则”
-
 - 👍 程序最终用的是对象【程序运行时操作的都是对象，类只存在于设计阶段（或语法层面）】
 
 📌 本质：面向对象 = 用对象组织程序，而不是用函数堆代码；
@@ -1555,33 +1553,110 @@ print(obj.findall('abc123eeee')) #['12'],重用了obj
 📌 类体代码：是在类定义阶段就会立即执行，会产生类的名称空间（命名空间）；
 
 ```python
+# 👉 类定义时，会执行类体代码，生成类对象（只执行一次）
 class Student:
-  student_name = "张三"
+  # stu_name = "张三"
+  # stu_age = 18
+  # stu_gender = "男"
+  stu_school = "上海大学"
+  count = 0 # 静态变量 --> 统计实例化次数
 
-  def set_name(self, name):
-    self.student_name = name
+  def __init__(self,name=None): # 1、构造函数，初始化参数；2、类调用阶段运行(即生成对象实例时)，3、self:对象实例本身；4、可以给默认值；
+    self.stu_name = name # 初始化参数
+    Student.count += 1
+    print("=====") # 也可以放其他代码,类调用时立即执行；
+    return None # 默认就是 None，可以不写；如果写了非 None 会报错(建议：直接省略，不写)
 
-  print("=====") # 定义时运行；
+  def set_name(self, name): # self只是个参数名字，写成X、Y也可以；❗指向调用者，类似js的call/apply/bind
+    self.stu_name = name # ❗self上的属性，就当没有；初始化后才有
+
+  def choose(self, course):
+    self.course = course
+
+  print("=====") # 定义时运行（只执行一次）；
+
+  # 读到 class
+  # 1️⃣ 执行 class 里的代码（print 会执行）
+  # 2️⃣ 把执行过程中产生的变量/函数收集起来（形成一个 dict）
+  # 3️⃣ 用这个 dict 创建“类对象 Student”
+
 
 print(Student.__dict__) # 类的名称空间的内容 ==>
 # {
-# '__module__': '__main__',
-# 'student_name': 0,
-# 'set_name': <function Student.set_name at 0x0000020EA0E5EA60>,
-# '__dict__': <attribute '__dict__' of 'Student' objects>,
-# '__weakref__': <attribute '__weakref__' of 'Student' objects>,
-# '__doc__': None
+#   '__module__': '__main__',
+#   'stu_school': '上海大学',
+#   '__init__': <function Student.__init__ at 0x1031c98a0>,
+#   'set_name': <function Student.set_name at 0x1031c9da0>,
+#   '__dict__': <attribute '__dict__' of 'Student' objects>,
+#   '__weakref__': <attribute '__weakref__' of 'Student' objects>,
+#   '__doc__': None
 # }
 
-# 访问类的属性
-print(Student.student_name) # 本质是Student.__dict__['student_name'] ==> 0
+
+print('========访问类的属性===============')
+print(Student.stu_school) # 本质是Student.__dict__['stu_school'] ==> "上海大学"
+# print(Student.stu_name) # ❗报错，因为stu_name是实例属性，对象实例才能访问，类没有这个属性；
 print(Student.set_name) # 本质是Student.__dict__['set_name'] ==> <function Student.set_name at 0x0000020EA0E5EA60>
-# ===========================
-stu1_obj = Student() # 创建对象, 绑定对象与类的关联关系（❗不是执行类，而是告诉解释器用这个类模板产生对象；类的执行：是在类定义时执行的）
-stu2_obj = Student()
-print(stu1_obj.__dict__) # 本质是stu1_obj.__dict__ ==> {}:为什么是空的，因为刚刚造了个对象，还没有放东西
-stu1_obj.student_name = "李四"
-print(stu1_obj.student_name) # 本质是stu1_obj.__dict__['student_name'] ==> 李四
+
+print('=========访问对象属性===============')
+# 调用类，其实就是在调用类这个“可调用对象”，触发 __call__，内部完成实例化流程了；简化版【类名() = 创建对象 + 自动调用 __init__】
+stu1_obj = Student() # 创建对象, 绑定对象与类的关联关系（❗不是执行类，而是告诉解释器用这个类模板产生对象）
+print(stu1_obj.__dict__) # 本质是stu1_obj.__dict__ ==> {'stu_name': None} 已经被 __init__ 初始化了;
+stu1_obj.stu_name = "李四"
+print(stu1_obj.stu_name) # 本质是stu1_obj.__dict__['stu_name'] ==> 李四
+# 🔥 实例化发生3件事：
+# step1、产生空对象；
+# step2、调用类中的__init__方法，然后将空对象和调用类时括号内的参数一起传给__init__；
+# step3、返回初始化完的对象（调用类的返回值，不是init的返回值）；
+
+stu2_obj = Student("张三") # 实例化（即创建对象）时，会自动触发__init__并将生成的对象传给它，❗Student.__init__(空对象,,,)
+
+print("======类中存放的是 对象'共有的'数据+功能 =====================")
+print( id(stu1_obj.stu_school) == id(stu2_obj.stu_school) ) # id 相同，共用类的属性
+# 1️⃣ 先找 stu1_obj.__dict__ ❌ 没有; 2️⃣ 再找 Student.__dict__ ✅ 找到了; 3️⃣ 返回
+
+
+print('========访问类方法===============')
+# 实例对象调用方法时，会自动把“对象本身”作为第一个参数（self）传进去
+print(Student.set_name) #  <function Student.set_name at 0x0000020EA0E5EA60> 本质是Student.__dict__['set_name']
+print(stu1_obj.set_name) # <bound method Student.set_name of <__main__.Student object at 0x10263fce0>>
+# Student.set_name("李四") # ❌ 报错：TypeError: missing 1 required positional argument: 'self' --->因为：没有自动传 self
+Student.set_name(stu1_obj, "李四") # ✅
+stu1_obj.set_name("李四") # 实际等价于：Student.set_name(stu1_obj, "李四") # obj.fn() ≈ Class.fn(obj)
+
+stu1_obj.choose("Python 开发")
+print(stu1_obj.course) #  Python 开发
+print(stu2_obj.course) #  ❌ 报错，因为 course 属性只属于对象实例，对象实例没有 course 属性；
+# stu1_obj.set_name
+#   ↓
+# 先找 stu1_obj.__dict__ ❌ 没有
+#   ↓
+# 找到 Student.set_name ✅
+#   ↓
+# 📌自动绑定 stu1_obj
+#   ↓
+# 得到 bound method
+#   ↓
+# 调用时自动传入 stu1_obj
+```
+
+✅ 1. 类是“共享区”: 放公共数据 + 方法
+✅ 2. 对象是“私人空间”: `__dict__` 里存自己的数据
+✅ 3. 查找规则（必须记住）: 对象 → 类 → 父类 → 报错
+
+✅ Python：方法 = 函数 + 自动绑定对象（self）
+✅ JS：this = 谁调用函数，就指向谁（可以被 call/apply/bind 改）
+
+```python
+# python3中 类就是类型，类型就是类
+l=['a', 'b', 'c'] # l=List('a', 'b', 'c')
+l.append('d')
+print(l) # ['a', 'b', 'c', 'd']
+
+# list.append('d') # ❌ 报错
+list.append(l,'d') # ✅
+print(l) # ['a', 'b', 'c', 'd', 'd']
+
 ```
 
 ## a
