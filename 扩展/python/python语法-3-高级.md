@@ -1260,6 +1260,9 @@ print(json.dumps({'aa':'aa'}, indent=2, ensure_ascii=False))
   print(s) # [1, 'aa', True, False, None]
   ```
 
+json模块： 不支持 python对象（实例）序列换；
+pickle模块：可以将 python对象（实例）序列化成字符串；
+
 ### 🔥猴子补丁：替换第三方的部分功能
 
 直接在入口文件中修改，后续其他文件导入使用“自动使用”
@@ -1527,6 +1530,14 @@ print(obj.search('abc123eeee').group()) #12
 print(obj.findall('abc123eeee')) #['12'],重用了obj
 ```
 
+### 十四、 uuid模块
+
+```python
+import uuid
+print(uuid.uuid4()) # 9c5d0c0c-d0c9-4c0c-9c0c-c0c9d0c0c0c0
+
+```
+
 ## 面向对象思想
 
 - 函数：用来封装“可复用的功能（行为）”；
@@ -1658,6 +1669,8 @@ list.append(l,'d') # ✅
 print(l) # ['a', 'b', 'c', 'd', 'd']
 
 ```
+
+### 封装 --》隐藏属性
 
 ## a
 
