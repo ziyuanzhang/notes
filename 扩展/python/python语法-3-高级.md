@@ -1651,12 +1651,12 @@ print(stu2_obj.course) #  ❌ 报错，因为 course 属性只属于对象实例
 # 调用时自动传入 stu1_obj
 ```
 
-✅ 1. 类是“共享区”: 放公共数据 + 方法
-✅ 2. 对象是“私人空间”: `__dict__` 里存自己的数据
-✅ 3. 查找规则（必须记住）: 对象 → 类 → 父类 → 报错
+✅ 1. 类是“共享区”: 放公共数据 + 方法;  
+✅ 2. 对象是“私人空间”: `__dict__` 里存自己的数据;  
+✅ 3. 查找规则（必须记住）: 对象 → 类 → 父类 → 报错;
 
-✅ Python：方法 = 函数 + 自动绑定对象（self）
-✅ JS：this = 谁调用函数，就指向谁（可以被 call/apply/bind 改）
+✅ Python：方法 = 函数 + 自动绑定对象（self）;  
+✅ JS：this = 谁调用函数，就指向谁（可以被 call/apply/bind 改）;
 
 ```python
 # python3中 类就是类型，类型就是类
@@ -1670,7 +1670,98 @@ print(l) # ['a', 'b', 'c', 'd', 'd']
 
 ```
 
-### 封装 --》隐藏属性
+### 封装 --》隐藏(伪私有)
+
+如何隐藏: 在“属性名、方法名”前加`__前缀`,就会实现一个对外隐藏属性效果;
+
+1️⃣`__属性`和`__方法` ==》 `_类名__属性`和`_类名__方法`: 隐藏（伪私有，本质是改名，不是隐藏）;  
+2️⃣`__属性__`/`__方法__`: 内置属性/方法（python解释器自带的），可以访问、可以重写、不建议乱改（约定俗成）;
+
+🔥 Python 里 `__xxx` 并不是“真正隐藏”，而是：`名称改写（name mangling）机制，用来避免 子类覆盖冲突，而不是做权限控制`
+
+```python
+class Foo:
+  __x=1 # 隐藏属性x(不是绝对隐藏)--》 _Foo__x,  ❗这种隐藏对外不对内,因为`__`开头的属性会在检查类内代码语法时统一发生变形;
+
+  def __init__(self,name,age):
+    self.__name=name  # 隐藏name(不是绝对隐藏) --》_Foo__name,
+    self.__age=age   # 隐藏age(不是绝对隐藏) --》_Foo__age
+
+  def get_name(self):
+    # 添加逻辑
+    return self.__name
+
+  def set_name(self,name):
+     # 添加逻辑
+    self.__name=name
+
+  def __f1(self): #隐藏方法f1(不是绝对隐藏) --》_Foo__f1
+    print('from test')
+
+  def f2(self):
+    print(self.__x) # print(self._Foo__x)
+    print(self.__f1) # print(self._Foo__f1)
+
+Foo.__y=3 # ❗这种变形操作（名称改写）在“类定义阶段”发生一次，之后定义的`__`开头的属性都不会发生变形;
+# 👉 因为：
+#   1. 类体代码会被 Python 编译；
+#   2. 编译时才做改名；
+#   3. 类外只是普通赋值；
+print(Foo.__dict__) # 👉查看类属性 ===>
+#{
+#  '__module__': '__main__',
+#  '_Foo__x': 1,
+#  '__init__': <function Foo.__init__ at 0x1047898a0>,
+#  '_Foo__f1': <function Foo.__f1 at 0x10460d760>,
+#  'f2': <function Foo.f2 at 0x104789e40>,
+#  '__dict__': <attribute '__dict__' of 'Foo' objects>,
+#  '__weakref__': <attribute '__weakref__' of 'Foo' objects>,
+#  '__doc__': None
+#  '__y': 3
+#}
+
+# 访问“隐藏”属性（不推荐）
+print(Foo._Foo__x) # 1
+print(Foo._Foo__f1) # <function Foo.__f1 at 0x10460d760>
+
+obj=Foo('张三',18)
+obj.f2()
+# print(obj.name,obj.age)
+print(obj.__dict__) # 👉实力的 {'_Foo__name': '张三', '_Foo__age': 18}
+```
+
+1️⃣ `__xxx`（双下划线开头）： 触发 名称改写（name mangling）; `__x → _类名__x`
+
+特点：
+
+- ❌ 不是严格私有
+- ✔ 只是防止子类覆盖
+- ✔ 外部仍可访问（不推荐）
+
+2️⃣ `_xxx`（单下划线）: 只是约定俗成的“不要访问”; `_x`
+
+特点：
+
+- ✔ 完全公开
+- ✔ 只是“君子协议”
+
+3️⃣ `__xxx__`（双下划线前后）: Python 内置魔法方法; 比如：`__init__`;`__str__`;`__dict__`
+
+特点：
+
+- ✔ 可以访问
+- ✔ 可以重写
+- ❗ 不要乱定义（可能冲突解释器）
+
+**注** 为什么 Python 不做真正 private？
+
+👉 因为 Python 的哲学是：“我们都是成年人”（consenting adults）
+
+核心思想：
+
+- 不强制限制访问
+- 通过约定 + 命名规范
+- 给你自由，同时你自己负责
 
 ## a
 
