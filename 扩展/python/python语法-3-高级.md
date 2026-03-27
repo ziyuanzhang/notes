@@ -1849,37 +1849,6 @@ class Sub2(Parent2,Parent1):
 print(Sub1.x) # 111
 ```
 
-#### 组合
-
-🔥 Python 组合本质：对象 = 数据 + 行为 + 其他对象
-
-👉 组合 = 拼装能力；
-
-```python
-class Fly:
-    def fly(self):
-        print("飞")
-
-
-class Swim:
-    def swim(self):
-        print("游")
-
-
-class Duck:
-    def __init__(self):
-        self.fly_ability = Fly()
-        self.swim_ability = Swim()
-```
-
-👉 鸭子不是“继承飞 + 游”，而是“组合能力”；
-
-### 多态
-
-## a
-
-### 继承
-
 ```python
 class Person:
   school='上海大学'
@@ -1920,6 +1889,35 @@ class Teacher(Person):
     Person.__init__(self,name,age,sex)
     self.level=level
 ```
+
+#### 组合
+
+🔥 Python 组合本质：对象 = 数据 + 行为 + 其他对象
+
+👉 组合 = 拼装能力；
+
+```python
+class Fly:
+    def fly(self):
+        print("飞")
+
+
+class Swim:
+    def swim(self):
+        print("游")
+
+
+class Duck:
+    def __init__(self):
+        self.fly_ability = Fly()
+        self.swim_ability = Swim()
+```
+
+👉 鸭子不是“继承飞 + 游”，而是“组合能力”；
+
+### 多态
+
+## a
 
 ## python 诡异现象
 
