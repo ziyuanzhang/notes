@@ -1878,6 +1878,49 @@ class Duck:
 
 ## a
 
+### 继承
+
+```python
+class Person:
+  school='上海大学'
+  def __init__(self,name,age,sex):
+    self.name=name
+    self.age=age
+    self.sex=sex
+  def f1(self):
+    print('Person.f1')
+  def f2(self):
+    print('Person.f2')
+    self.f1() # 当 stu_obj.f2() 运行时，会自动把 stu_obj 传给 self，查找顺序：stu_obj.f1 --> Student.f1 --> Person.f1
+    Person.f1(self)
+    self.__f3() # self.__f3()
+
+  def __f3(self): # _Person__f3
+    print('Person.f3')
+
+class Student(Person):
+  def __init__(self,name,age,sex,course):
+    super().__init__(name,age,sex)
+    self.course=course
+  def f1(self):
+    print('Student.f1')
+  def __f3(self): # _Student__f3
+    print('Student.__f3')
+
+
+
+stu_obj=Student('张三',18,'男','Python 3.x')
+print(stu_obj.__dict__) #  {'_Person__name': '张三', '_Person__age': 18, '_Person__sex': '男', 'course': 'Python 3.x'}
+print(stu_obj.school) # 上海大学
+stu_obj.f2() # Person.f2 --> Student.f1
+
+
+class Teacher(Person):
+  def __init__(self,name,age,sex,level):
+    Person.__init__(self,name,age,sex)
+    self.level=level
+```
+
 ## python 诡异现象
 
 核心关键词：缓存、复用、单例、编译期优化
