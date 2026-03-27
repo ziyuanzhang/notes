@@ -79,9 +79,8 @@
 
 file--> settings--> plugin (安装完重启 pycharm)
 
-1. 代码统计（Statistics）:按完在pyCharm左下角，点击-->刷新（refresh）查看；
-2. 错误检查（Inspections）:按完在pyCharm左下角，点击-->Errors & Warnings（Errors and Warnings）查看；
-3. 错误修复（Quick Fix）:按完在pyCharm左下角，点击-->Quick Fix（Quick Fix）查看；
-4. 快速修复（Quick Fix）:按完在pyCharm左下角，点击-->Quick Fix（Quick Fix）查看；
-5. 快速修复（Quick Fix）:按完在pyCharm左下角，点击-->Quick Fix（Quick Fix）查看；
-6. 快速修复（Quick Fix）:按完在pyCharm左下角，点击-->Quick Fix（Quick Fix）查看；
+1. 代码统计（Statistics）: 按完在pyCharm左下角，点击-->刷新（refresh）查看；
+2. 错误检查（Inspections/ Code Inspection）: 内置；
+3. 错误修复（Quick Fix）: 内置；
+4. Rainbow Brackets (彩虹括号)：
+5. SonarLint (代码体检)：比 PyCharm 自带的检查更严格；

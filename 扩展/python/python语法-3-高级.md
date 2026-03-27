@@ -1214,7 +1214,7 @@ for i in range(50):
   # \r 回到行首
 ```
 
-### 五、 shutil模块 -- 【文件copy、解压缩】
+### 五、 shutil 模块 -- 【文件copy、解压缩】
 
 ### 六、 序列化反序列化 --1-- json(通用) & pickle（python专用）模块
 
@@ -2032,6 +2032,16 @@ len({'a':1, 'b':2})
   print(Animal.create_id(1,2)) #
   print(obj.create_id(1,2)) #
 ```
+
+## 面向对象高级
+
+### 反射
+
+### 内置方法
+
+### 元类（了解）
+
+### re
 
 ## 内置函数
 
