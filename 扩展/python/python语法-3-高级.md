@@ -1966,6 +1966,220 @@ class Duck:
 
 ### 多态 ：同一种事物有多重形态 (在继承背景下表现的形式)
 
+```python
+class Animal:
+    def say(self):
+        print("叫")
+
+class Dog(Animal):
+    def say(self):
+        super().say()
+        print("汪汪汪")
+
+class Pig(Animal):
+    def say(self):
+        super().say()
+        print("哼哼哼")
+
+obj1 = Animal()
+obj2 = Dog()
+obj3 = Pig()
+
+# 定义统一的接口，接收传入的动物对象
+def animal_say(animal):
+  animal.say()
+
+animal_say(obj1)
+animal_say(obj2)
+animal_say(obj3)
+
+len('hello')
+len([1,2,3])
+len({'a':1, 'b':2})
+
+```
+
+### 绑定方法 与 非绑定方法(静态方法)
+
+- 绑定方法: 调用时，会自动传入调用者，当做第一个参数；
+  1. 绑定给对象（实例）的方法: 调用者是对象，自动传入的是对象;
+  2. 绑定给类的方法: 调用者类，自动传入的是类; `@classmethod`
+
+- 非绑定方法(静态方法): 类和对象都可以调用(就是个普通函数)
+
+```python
+  class Animal:
+
+      @staticmethod # 非绑定方法(静态方法)【❗类作用域里的普通函数】
+      def create_id(x,y):
+          print(f'{x},{y}')
+          import uuid
+          return uuid.uuid4()
+
+      @classmethod # 类方法【绑定方法 -- 用的较少】
+      def f1(cls):
+        pass
+
+      def eat(self): # 对象（实例）方法【绑定方法】
+        print(self)
+
+  obj=Animal()
+  obj.eat()
+
+  print(Animal.create_id) # <function Animal.create_id at 0x102db4c20>
+  print(obj.create_id) # <function Animal.create_id at 0x102db4c20>
+
+  print(Animal.create_id(1,2)) #
+  print(obj.create_id(1,2)) #
+```
+
+## 内置函数
+
+```bash
+① 认识对象：dir / type / id / help
+
+② 计算：len / max / min / sum / abs / round
+
+③ 逻辑：all / any
+
+④ 数据处理：enumerate / zip / map / filter / sorted / reversed / range
+
+⑤ 类型转换：int / str / list / dict ...
+
+⑥ 迭代器：iter / next
+
+⑦ 反射：getattr / setattr / hasattr / delattr
+
+⑧ 执行：eval / exec
+
+⑨ 作用域：locals / globals / vars
+
+⑩ 环境：__name__ / __file__ / __doc__ / __annotations__
+```
+
+1. 对象 & 类型（基础认知）
+
+   ```python
+    dir(obj)        # 查看对象属性（含方法）
+    help(obj)       # 查看帮助文档
+    type(obj)       # 获取对象类型
+    id(obj)         # 获取对象唯一标识（内存地址）
+    isinstance(obj, cls)  # 是否是某类型
+    issubclass(A, B)      # 是否是子类
+   ```
+
+2. 数值 & 计算
+
+   ```python
+    len(obj)        # 长度（依赖 __len__）
+    abs(x)          # 绝对值（__abs__）
+    max(iterable)   # 最大值
+    min(iterable)   # 最小值
+    sum(iterable)   # 求和
+    round(x, n)     # 四舍五入
+    pow(x, y)       # 幂运算（x**y）
+    divmod(a, b)    # (商, 余数)
+   ```
+
+3. 逻辑判断
+
+   ```python
+    all(iterable)   # 全为 True 才 True
+    any(iterable)   # 有一个 True 就 True
+   ```
+
+4. 迭代 / 函数式编程（核心🔥）
+
+   ```python
+    enumerate(iterable)          # (索引, 元素)
+    zip(a, b, ...)              # 打包
+    map(func, iterable)         # 映射
+    filter(func, iterable)      # 过滤
+    sorted(iterable, key=...)   # 排序（返回新对象）
+    reversed(iterable)          # 反转迭代器
+    range(start, stop, step)    # 生成序列
+    list(iterable)      # 转列表
+    tuple(iterable)
+    set(iterable)
+    dict(iterable)
+   ```
+
+5. 迭代器底层（进阶🔥）
+
+   ```python
+    iter(obj)    # 获取迭代器（__iter__）
+    next(it)     # 获取下一个值（__next__）
+   ```
+
+6. 反射（动态编程核心🔥）
+
+   ```python
+    hasattr(obj, 'x')         # 是否有属性
+    getattr(obj, 'x', None)   # 获取属性
+    setattr(obj, 'x', v)      # 设置属性
+    delattr(obj, 'x')         # 删除属性
+   ```
+
+7. 作用域 / 环境
+
+   ```python
+    locals()     # 当前作用域变量
+    globals()    # 全局变量
+    vars(obj)    # 对象属性字典（__dict__）
+   ```
+
+8. 执行代码（危险⚠️）
+
+   ```python
+    eval("1+2")      # 表达式（有返回值）
+    exec("a=1")      # 代码块（无返回值）
+   ```
+
+9. 输入输出
+
+   ```python
+    print(...)       # 输出
+    input(...)       # 输入
+   ```
+
+10. 类型转换（非常重要🔥）
+
+    ```python
+      int(x)
+      float(x)
+      str(x)
+      bool(x)
+
+      list(x)
+      tuple(x)
+      set(x)
+      dict(x)
+    ```
+
+11. 模块 & 运行环境变量
+
+    ```python
+      __name__        # 当前模块名
+      __file__        # 文件路径
+      __doc__         # 文档
+      __package__     # 包名
+      __annotations__ # 类型注解
+    ```
+
+12. 对象/函数判断（补充🔥）
+
+    ```python
+      callable(obj)   # 是否可调用
+    ```
+
+13. 格式化 & 表达（补充）
+
+    ```python
+      format(x, ".2f")   # 格式化
+      repr(obj)          # 官方字符串（给程序员看）
+      str(obj)           # 用户字符串
+    ```
+
 ## a ==============================================================================
 
 ## python 诡异现象
