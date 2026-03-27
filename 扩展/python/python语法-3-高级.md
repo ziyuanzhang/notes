@@ -1763,6 +1763,119 @@ print(obj.__dict__) # 👉实力的 {'_Foo__name': '张三', '_Foo__age': 18}
 - 通过约定 + 命名规范
 - 给你自由，同时你自己负责
 
+#### property -- 装饰器
+
+👉 把“方法调用”伪装成“属性访问”
+
+将绑定给对象的“方法”伪装成“属性”: 改变调用方式 `实例.函数名()==》实例.函数名`
+
+```python
+class People:
+  def __init__(self,name,age):
+    self.__name=name
+    self.__age=age
+  # ======旧写发==============
+
+  def get_name(self):
+    return self.__name
+
+  def set_name(self,name):
+    if not isinstance(name, str):
+        raise TypeError("必须是字符串")
+    self.__name=name
+
+  def del_name(self):
+    del self.__name
+  name=property(get_name,set_name,del_name)  #等价于：👉 给 name 这个“属性”绑定了三个方法：
+
+  # ======新写发==============
+  @property # property 是个“中间人” 👉 拦截属性操作
+  def age(self):
+    return self.__age
+
+  @age.getter
+  def age(self):
+    return self.__age
+
+  @age.setter
+  def age(self,age):
+    self.__age=age
+
+  @age.deleter
+  del age(self):
+    del self.__age
+
+obj=People('张三',18)
+obj.name='李四'
+print(obj.name) # 李四·
+```
+
+### 继承与组合
+
+| 对比   | 继承           | 组合            |
+| ------ | -------------- | --------------- |
+| 关系   | is-a（是一个） | has-a（有一个） |
+| 耦合   | 高             | 低              |
+| 灵活性 | 差             | 强              |
+| 推荐   | ❌ 少用        | ✅ 多用         |
+
+#### 继承 -- 解决类与类之间代码冗余问题
+
+1. python的多继承
+   - 优点: 子类可以同时遗传多个父类的属性，最大限度地重用代码
+   - 缺点: 多继承可能会引发可恶的萎形问题，扩展性变差，  
+     如果真的涉及到一个子类不可避免地要重用多个父类的属性，应该使用MixiS；
+2. 如何找出继承关系-》抽象
+3. 属性查找顺序
+4. 继承的实现原理
+   - MROT
+   - 菱形问题/钻石问题
+   - 多继承背景下的属性查找探讨
+
+```python
+class Parent1:
+  x=111
+  pass
+
+class Parent2:
+  pass
+
+class Sub1(Parent1):
+  pass
+
+class Sub2(Parent2,Parent1):
+  pass
+
+print(Sub1.x) # 111
+```
+
+#### 组合
+
+🔥 Python 组合本质：对象 = 数据 + 行为 + 其他对象
+
+👉 组合 = 拼装能力；
+
+```python
+class Fly:
+    def fly(self):
+        print("飞")
+
+
+class Swim:
+    def swim(self):
+        print("游")
+
+
+class Duck:
+    def __init__(self):
+        self.fly_ability = Fly()
+        self.swim_ability = Swim()
+```
+
+👉 鸭子不是“继承飞 + 游”，而是“组合能力”；
+
+### 多态
+
 ## a
 
 ## python 诡异现象
