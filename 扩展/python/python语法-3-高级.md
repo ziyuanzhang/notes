@@ -1730,38 +1730,34 @@ obj.f2()
 print(obj.__dict__) # 👉实力的 {'_Foo__name': '张三', '_Foo__age': 18}
 ```
 
-1️⃣ `__xxx`（双下划线开头）： 触发 名称改写（name mangling）; `__x → _类名__x`
+- 1️⃣ `__xxx`（双下划线开头）： 触发 名称改写（name mangling）; `__x → _类名__x`
 
-特点：
+  特点：
+  - ❌ 不是严格私有
+  - ✔ 只是防止子类覆盖
+  - ✔ 外部仍可访问（不推荐）
 
-- ❌ 不是严格私有
-- ✔ 只是防止子类覆盖
-- ✔ 外部仍可访问（不推荐）
+- 2️⃣ `_xxx`（单下划线）: 只是约定俗成的“不要访问”; `_x`
 
-2️⃣ `_xxx`（单下划线）: 只是约定俗成的“不要访问”; `_x`
+  特点：
+  - ✔ 完全公开
+  - ✔ 只是“君子协议”
 
-特点：
+- 3️⃣ `__xxx__`（双下划线前后）: Python 内置魔法方法; 比如：`__init__`;`__str__`;`__dict__`
 
-- ✔ 完全公开
-- ✔ 只是“君子协议”
+  特点：
+  - ✔ 可以访问
+  - ✔ 可以重写
+  - ❗ 不要乱定义（可能冲突解释器）
 
-3️⃣ `__xxx__`（双下划线前后）: Python 内置魔法方法; 比如：`__init__`;`__str__`;`__dict__`
+- 👉 **注** 为什么 Python 不做真正 private？
 
-特点：
+  因为 Python 的哲学是：“我们都是成年人”（consenting adults）
 
-- ✔ 可以访问
-- ✔ 可以重写
-- ❗ 不要乱定义（可能冲突解释器）
-
-**注** 为什么 Python 不做真正 private？
-
-👉 因为 Python 的哲学是：“我们都是成年人”（consenting adults）
-
-核心思想：
-
-- 不强制限制访问
-- 通过约定 + 命名规范
-- 给你自由，同时你自己负责
+  核心思想：
+  - 不强制限制访问
+  - 通过约定 + 命名规范
+  - 给你自由，同时你自己负责
 
 #### property -- 装饰器
 
@@ -1821,14 +1817,15 @@ print(obj.name) # 李四·
 
 #### 继承 -- 解决类与类之间代码冗余问题
 
-1. python的多继承
-   - 优点: 子类可以同时遗传多个父类的属性，最大限度地重用代码
-   - 缺点: 多继承可能会引发可恶的萎形问题，扩展性变差，  
-     如果真的涉及到一个子类不可避免地要重用多个父类的属性，应该使用MixiS；
+1. 多继承 `类.mro()`列表顺序: --- 【方法解析顺序 (Method Resolution Order, MRO) 】
+   - 菱形类：就近原则，广度优先查找
+   - 非菱形类：就近原则：深度优先查找
 
-2. 实例属性查找顺序: 实例--》类--》父类--》父类的父类--》... --》object
+2. Mixin机制: 减少继承的深度；（类似早起react/vue2的Mixin）
 
-3. `类.mro()`列表顺序；
+3. 实例属性查找顺序: 实例--》类--》父类--》父类的父类--》... --》object
+
+4. 调用super()会得到一个特殊的对象，该对象会参照“发起属性查找那个类”的mro, 从当前位置向后查找；
 
 ##### 单继承
 
@@ -1855,7 +1852,7 @@ class Person:
 # ======学生==================================
 class Student(Person):
   def __init__(self,name,age,sex,course):
-    super().__init__(name,age,sex)
+    super().__init__(name,age,sex) # super()遵循 MRO规则
     self.course=course
   def f1(self):
     print('Student.f1')
@@ -1873,37 +1870,77 @@ class Teacher(Person):
     self.level=level
 ```
 
-##### 多继承 -- 就近原则，深度优先查找
+##### 多继承
 
-- 菱形继承：一个子类继承多个父类，最终汇聚到非object类上
+- 菱形继承：一个子类继承多个父类，最终汇聚到非object类上 -- ❗就近原则，广度优先查找
 
-```python
-class A:
-  pass
+  ```python
+  class A:
+    pass
+  class B(A):
+    def test(self):
+      print("B")
+  class C(A):
+    def test(self):
+      print("C")
+  class D(A):
+    def test(self):
+      print("D")
+  class Z(B,C,D):
+    pass
 
-class B(A):
-  def test(self):
-    print("B")
+  # ❗mro查找: 类以及该类的对象访问属性都是参照 该类的mro列表顺序；
+  # 总结:类相关的属性査找(类名,属性、该类的对象,属性)都是参照该类的mro
+  print(Z.mro()) # [<class '__main__.Z'>, <class '__main__.B'>, <class '__main__.C'>, <class '__main__.D'>, <class '__main__.A'>, <class 'object'>]
+  print(Z.__mro__) # (<class '__main__.Z'>, <class '__main__.B'>, <class '__main__.C'>, <class '__main__.D'>, <class '__main__.A'>, <class 'object'>)
+  obj = Z()
+  obj.test() # B
+  ```
 
-class C(A):
-  def test(self):
-    print("C")
+- 非菱形继承：❗就近原则：深度优先查找
 
-class D(B,C):
-  pass
+  ```python
+  class A:
+    pass
+  class B(A):
+    pass
+  class E:
+    pass
+  class F(E):
+    pass
+  class G(F):
+    pass
+  class D(B,G):
+    pass
 
-# ❗mro查找: 类以及该类的对象访问属性都是参照 该类的mro列表顺序；
-# 总结:类相关的属性査找(类名,属性、该类的对象,属性)都是参照该类的mro
-print(D.mro()) # [<class '__main__.D'>, <class '__main__.B'>, <class '__main__.C'>, <class '__main__.A'>, <class 'object'>]
-print(D.__mro__) # (<class '__main__.D'>, <class '__main__.B'>, <class '__main__.C'>, <class '__main__.A'>, <class 'object'>)
+  print(D.mro()) # [<class '__main__.D'>, <class '__main__.B'>, <class '__main__.A'>, <class '__main__.G'>, <class '__main__.F'>, <class '__main__.E'>, <class 'object'>]
+  print(D.__mro__) #
 
-obj =D()
-obj.test() # B
-```
+  ```
 
-- 非菱形继承：就近原则：深度优先查找
+- 在子类派生的新方法中重用父类方法 -- super()
 
-#### 组合
+  调用super()会得到一个特殊的对象，该对象会参照“发起属性查找那个类”的mro, 从当前位置向后查找；
+
+  ```python
+  class A:
+    def test(self):
+      super().test()
+
+  class B:
+    def test(self):
+      print("B")
+
+  class Z(A,B):
+    pass
+
+  obj=Z()
+  obj.test() # B
+  print(Z.mro()) # [<class '__main__.Z'>, <class '__main__.A'>, <class '__main__.B'>, <class 'object'>]
+
+  ```
+
+#### 组合： 一个对象的某个属性值 为另一个对象
 
 🔥 Python 组合本质：对象 = 数据 + 行为 + 其他对象
 
@@ -1930,7 +1967,7 @@ class Duck:
 
 ### 多态
 
-## a
+## a ==============================================================================
 
 ## python 诡异现象
 
