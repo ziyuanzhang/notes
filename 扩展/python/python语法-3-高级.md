@@ -1825,39 +1825,25 @@ print(obj.name) # 李四·
    - 优点: 子类可以同时遗传多个父类的属性，最大限度地重用代码
    - 缺点: 多继承可能会引发可恶的萎形问题，扩展性变差，  
      如果真的涉及到一个子类不可避免地要重用多个父类的属性，应该使用MixiS；
-2. 如何找出继承关系-》抽象
-3. 属性查找顺序
-4. 继承的实现原理
+
+2. 属性查找顺序: 实例--》类--》父类--》父类的父类--》object
+3. 继承的实现原理
    - MROT
    - 菱形问题/钻石问题
    - 多继承背景下的属性查找探讨
 
 ```python
-class Parent1:
-  x=111
-  pass
-
-class Parent2:
-  pass
-
-class Sub1(Parent1):
-  pass
-
-class Sub2(Parent2,Parent1):
-  pass
-
-print(Sub1.x) # 111
-```
-
-```python
+# ======父类==================================
 class Person:
   school='上海大学'
   def __init__(self,name,age,sex):
     self.name=name
     self.age=age
     self.sex=sex
+
   def f1(self):
     print('Person.f1')
+
   def f2(self):
     print('Person.f2')
     self.f1() # 当 stu_obj.f2() 运行时，会自动把 stu_obj 传给 self，查找顺序：stu_obj.f1 --> Student.f1 --> Person.f1
@@ -1866,7 +1852,7 @@ class Person:
 
   def __f3(self): # _Person__f3
     print('Person.f3')
-
+# ======学生==================================
 class Student(Person):
   def __init__(self,name,age,sex,course):
     super().__init__(name,age,sex)
@@ -1876,14 +1862,11 @@ class Student(Person):
   def __f3(self): # _Student__f3
     print('Student.__f3')
 
-
-
 stu_obj=Student('张三',18,'男','Python 3.x')
 print(stu_obj.__dict__) #  {'_Person__name': '张三', '_Person__age': 18, '_Person__sex': '男', 'course': 'Python 3.x'}
 print(stu_obj.school) # 上海大学
 stu_obj.f2() # Person.f2 --> Student.f1
-
-
+# ======教师==================================
 class Teacher(Person):
   def __init__(self,name,age,sex,level):
     Person.__init__(self,name,age,sex)
