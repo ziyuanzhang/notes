@@ -1826,11 +1826,11 @@ print(obj.name) # 李四·
    - 缺点: 多继承可能会引发可恶的萎形问题，扩展性变差，  
      如果真的涉及到一个子类不可避免地要重用多个父类的属性，应该使用MixiS；
 
-2. 属性查找顺序: 实例--》类--》父类--》父类的父类--》object
-3. 继承的实现原理
-   - MROT
-   - 菱形问题/钻石问题
-   - 多继承背景下的属性查找探讨
+2. 实例属性查找顺序: 实例--》类--》父类--》父类的父类--》... --》object
+
+3. `类.mro()`列表顺序；
+
+##### 单继承
 
 ```python
 # ======父类==================================
@@ -1872,6 +1872,36 @@ class Teacher(Person):
     Person.__init__(self,name,age,sex)
     self.level=level
 ```
+
+##### 多继承 -- 就近原则，深度优先查找
+
+- 菱形继承：一个子类继承多个父类，最终汇聚到非object类上
+
+```python
+class A:
+  pass
+
+class B(A):
+  def test(self):
+    print("B")
+
+class C(A):
+  def test(self):
+    print("C")
+
+class D(B,C):
+  pass
+
+# ❗mro查找: 类以及该类的对象访问属性都是参照 该类的mro列表顺序；
+# 总结:类相关的属性査找(类名,属性、该类的对象,属性)都是参照该类的mro
+print(D.mro()) # [<class '__main__.D'>, <class '__main__.B'>, <class '__main__.C'>, <class '__main__.A'>, <class 'object'>]
+print(D.__mro__) # (<class '__main__.D'>, <class '__main__.B'>, <class '__main__.C'>, <class '__main__.A'>, <class 'object'>)
+
+obj =D()
+obj.test() # B
+```
+
+- 非菱形继承：就近原则：深度优先查找
 
 #### 组合
 
