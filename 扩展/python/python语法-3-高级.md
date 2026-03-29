@@ -2035,11 +2035,104 @@ len({'a':1, 'b':2})
 
 ## 面向对象高级
 
-### 反射
+- 对象属性查找：对象实例.属性--》类.属性--》父类.属性--》...--》object.属性
+- 类属性查找：
+  1. 类.属性--》父类.属性--》object.属性
+  2. 类.属性--》元类.属性--》type.属性
+
+### 反射 -- 动态语言：不确定对象中有什么，只有运行到的时候才知道
+
+程序在运行过程中可以“动态”获取对象的信息；
+
+```python
+  hastattr(obj, 'name')
+  getattr(obj, 'name')
+  setattr(obj, 'name', '张三')
+  delattr(obj, 'name')
+```
 
 ### 内置方法
 
+定义在类内部，以`__开头`,并以`__结尾`的方法;  
+特点：会在某种条件下自动触发；
+`__str__`: 打印对象时会触发，然后将返回值（必须是字符串类型）当做本次打印的结果输出；
+`__del__`: 清理对象时会触发，会先执行该方法（程序运行完，会清理自己申请的内存空间）；
+
 ### 元类（了解）
+
+元类：是用来实例化产生类的类；  
+元类 --实例化--> 类（People）--实例化--> 对象（obj）  
+class 定义的类、内置的类 都是由元类type实例化产生的；
+
+```python
+print(type(obj)) # 类： <class '__main__.People'>
+print(type(People)) # 元类： <class 'type'>
+print(type(int)) # 元类： <class 'type'>
+```
+
+- class关键字创造类People的步骤
+- 类有三大特征
+  1. 类名: class_name="People"
+  2. 类的基类: class_bases=(object,)
+  3. 执行类体代码拿到类的名称空间
+
+     ```python
+       class_dic={}
+
+       class_body="""
+        def _init__(self,name,age):
+           self.name=name
+           self.age=age
+         def say(self):
+           print('%s:%s' %(self.name,self.name))
+       """
+       exec(class_body,{} class_dic)
+
+       print(class_dic)
+     ```
+
+  4. 调用元类: `People = type(class_name, class_bases, class_dic)`
+
+- 如何自动元类
+
+  ```python
+    class Mymeta(type): #只有继承type类的类才是元类
+      def __init__(cls, class_name, class_bases, class_dic):
+        if not class_name.startswith('_'):
+          raise NameError('类名必须以_开头')
+      # 当前所在的类，调用时所传入的参数，返回一个类对象
+      def __new__(cls, *args, **kwargs):
+        # 造Mymeta对象
+        # return super().__new__(cls，*args, **kwargs)
+        return type.__new__(cls, class_name, class_bases, class_dic)
+      def __call__(cls, *args, **kwargs):
+       people_obj = cls.__new__(cls)
+        cls.__init__(people_obj, *args, **kwargs)
+        return people_obj
+    # People = Mymeta(class_name, class_bases, class_dic)
+    # 调用Mymeta发生三件事，调用Mymeta就是type.__call__
+    # 1. 先造一个空对象==》People,调用类内的__new__方法
+    # 2. 调用Mymeta的__init__方法，完成初始化对象
+    # 3. 返回初始化好的对象（People）
+
+    # 类的产生
+    # People=M要么他（）=》type.__call__
+    # 1.type.__call__函数内先调用Mymeta内的__new__方法
+    # 2.type.__call__函数内先调用Mymeta内的__init__方法
+    # 3.type.__call__函数内返回一个初始化好的对象
+    class People(metaclass=Mymeta):
+      def __init__(self, name, age):
+        self.name = name
+        self.age = age
+      def __new__(cls, *args, **kwargs):
+        return super().__new__(cls)
+    # 类的调用
+    # obj = People('张三', 18)==>Mymeta.__call__ ==>干了三件事
+    # 1. Mymeta.__call__函数内先调用People内的__new__方法
+    # 2. Mymeta.__call__函数内先调用People内的__init__方法
+    # 3. Mymeta.__call__函数内返回一个初始化好的对象
+    obj = People('张三', 18)
+  ```
 
 ### re
 
