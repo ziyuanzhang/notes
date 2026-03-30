@@ -47,7 +47,7 @@
    IP Header:传输层的数据 再增加头部,包括原地址和目标地址；
    IP 数据：把传输层数据切割成一个个小块（帧）
 
-4. 链路层 ---->多种底层网络协议 Ethernet,wifi(设备-->设备)；提供 form(原来)mac 地址，to（到哪去）mac 地址
+4. 链路层 ---->多种底层网络协议 Ethernet,wifi(设备-->设备)；提供 from(原来)mac 地址，to（到哪去）mac 地址
    Frame Header: 上一层每个小块增加头部；
    Frame Data :
    Frame Footer: 上一层每个小块增加尾部；
