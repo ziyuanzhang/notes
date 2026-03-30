@@ -1,43 +1,41 @@
-## break 与 continue 与 return
+# break 与 continue 与 return
 
 - break ：跳出循环/代码块；
-
-        1. 循环或者 switch 中；
-        2. 带标签的“循环”代码块中使用；
-        3. 带标签的“非循环”代码中使用
+  1. 循环或者 switch 中；
+  2. 带标签的“循环”代码块中使用；
+  3. 带标签的“非循环”代码中使用
 
 - continue ：跳过本次循环继续执行
-
-        1. 循环或者 switch 中；
-        2. 带标签的“循环”代码块中使用；
+  1. 循环或者 switch 中；
+  2. 带标签的“循环”代码块中使用；
 
 - return：只能出现在函数内,停止函数。
 
-#### break: 跳出标签 foo 所在的循环/代码块
+## break: 跳出标签 foo 所在的循环/代码块
 
-```
-    foo:for (let i = 0; i < 4; i++) {
-            for (let j = 0; j < 4; j++) {
-                if (i * j >= 3) {
-                    console.log("stop:", i, j)
-                    break foo
-                }
-                console.log(i, j)
-            }
-        }
-    // 0 0
-    // 0 1
-    // 0 2
-    // 0 3
-    // 1 0
-    // 1 1
-    // 1 2
-    // stop:1 3
+```js
+foo: for (let i = 0; i < 4; i++) {
+  for (let j = 0; j < 4; j++) {
+    if (i * j >= 3) {
+      console.log("stop:", i, j);
+      break foo;
+    }
+    console.log(i, j);
+  }
+}
+// 0 0
+// 0 1
+// 0 2
+// 0 3
+// 1 0
+// 1 1
+// 1 2
+// stop:1 3
 ```
 
-#### break: bar 为标签；跳出代码块
+## break: bar 为标签；跳出代码块
 
-```
+```js
 
     function foo() {
         bar: {
@@ -51,9 +49,9 @@
     // world
 ```
 
-#### continue:执行 foo 循环的下一轮循环
+## continue:执行 foo 循环的下一轮循环
 
-```
+```js
     for (let i = 0; i < 4; i++) {
         for (let j = 0; j < 4; j++) {
             if (i == j) {

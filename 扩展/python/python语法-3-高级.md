@@ -2138,6 +2138,27 @@ print(type(int)) # 元类： <class 'type'>
 
 为了增强程序的健壮性，即便是程序运行过程中出错了，也不要终止程序# 而是捕捉异常并处理:将出错信息记录到日志内
 
+```python
+try:
+  子代码块
+except 异常类型1 as e:
+  pass
+except 异常类型2 as e:
+  pass
+except （异常类型3,异常类型4） as e:
+  pass
+except Exception as e:
+  # 所有异常都可以匹配到
+else:
+  # 1.如果没有异常，则会执行; 2.必须搭配 except
+ finally:
+ # 无论是否发生异常，都会执行
+```
+
+## 网络编程
+
+CS架构(Client-Server) 、BS架构(Browser-Server)
+
 ## a ==============================================================================
 
 ## 内置函数

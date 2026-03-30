@@ -1,6 +1,6 @@
-npm install serve -g ; 本地服务：serve
+# vscode 插件 [参考](https://github.com/varHarrie/YmxvZw/issues/10)
 
-# vscode 插件 https://github.com/varHarrie/YmxvZw/issues/10
+npm install serve -g ; 本地服务：serve
 
 1. Auto Close Tag: 自动补全标签； （新版已内置-2023-09-19）
 2. Auto Rename Tag: 同步修改标签； （新版已内置-2023-09-19）
