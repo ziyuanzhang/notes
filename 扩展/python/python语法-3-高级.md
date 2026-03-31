@@ -2140,12 +2140,12 @@ print(type(int)) # 元类： <class 'type'>
 
 ```python
 try:
-  子代码块
+  有可能抛出异常的代码
 except 异常类型1 as e:
   pass
 except 异常类型2 as e:
   pass
-except （异常类型3,异常类型4） as e:
+except (异常类型3,异常类型4) as e:
   pass
 except Exception as e:
   # 所有异常都可以匹配到
