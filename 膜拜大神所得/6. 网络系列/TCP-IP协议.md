@@ -157,7 +157,7 @@
    - 作用: 同一局域网内: 设备 → 设备;
    - 数据结构:
      1. Frame Header: 为每个 IP 包添加头部【当前MAC地址、下一跳MAC地址】;
-     2. Frame Data :
+     2. Frame Data:
      3. Frame Footer: 为每个 IP 包添加尾部【差错检测（CRC）】;
    - 数据单元: 数据帧（Frame）;
 
