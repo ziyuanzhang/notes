@@ -2185,12 +2185,11 @@ ip + MAC + port(端口,应用程序的id)
   | SYN 队列（半连接池）    | SYN_RECV    | 等 ACK        |
   | Accept 队列（全连接池） | ESTABLISHED | 等应用 accept |
 
-  =================
-  1. SYN 队列满：新 SYN 被丢弃 或 启用 SYN Cookie
-  2. Accept 队列满：
-     - TCP 已建立，但应用不 accept
-     - 客户端会感觉：
-       👉 连接成功但卡住
+- SYN 队列满：新 SYN 被丢弃 或 启用 SYN Cookie
+- Accept 队列满：
+  - TCP 已建立，但应用不 accept
+  - 客户端会感觉：
+    👉 连接成功但卡住
 
 1. 洪水攻击（SYN Flood）:
    - 本质：攻击者：疯狂发 SYN, 但不回 ACK;
