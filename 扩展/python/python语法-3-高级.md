@@ -2395,6 +2395,8 @@ Accept 队列（全连接池）    ESTABLISHED（已连接）          等应用
 
 ```python
 #  ===================== 服务端 =========简版，单线程，每次发送小于1024字节的数据=================
+# 1.一直提供服务
+# 2.并发地提供服务
 import socket
 # 1. 创建套接字
 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM) # 流失协议==》TCP协议
