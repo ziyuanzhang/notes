@@ -2405,7 +2405,7 @@ try:
     while True:
       # 3.发送数据
       msg = input("输入消息: ")
-        if msg == 'exit':
+      if msg == 'exit':
             break
         client.send(msg.encode('utf-8'))
 
