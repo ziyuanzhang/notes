@@ -2364,7 +2364,7 @@ Accept 队列（全连接池）    ESTABLISHED（已连接）          等应用
 import socket
 # 1. 创建套接字
 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM) # 流失协议==》TCP协议
-# 2.1. 允许端口复用（避免重启时报错）
+# 2-1. 允许端口复用（避免重启时报错）
 server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 # 2. 绑定
 server.bind(('127.0.0.1', 8080)) # 0-65535,1024以前的都被系统保留使用
