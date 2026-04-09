@@ -2354,50 +2354,69 @@ Accept 队列（全连接池）    ESTABLISHED（已连接）          等应用
       - ❗注意：原来的 fd（listen socket）不变 → 继续负责接收新连接
       - 📌 如果没有连接：accept 会阻塞
 
-- ip:
-  - 0,0,0,0: 监听所有网卡（是否能访问取决于网络环境）；
-  - 127.x.x.x: 永远只在本机内部通信
-  - 192.168.x.x: 局域网可访问
+10. ip:
+    - 0,0,0,0: 监听所有网卡（是否能访问取决于网络环境）；
+    - 127.x.x.x: “本地回环”，永远只在本机内部通信
+    - 192.168.x.x: 局域网可访问
 
 ```python
-#  ===================== 服务端 ==========================
+#  ===================== 服务端 =========简版，单线程，每次发送小于1024字节的数据=================
 import socket
 # 1. 创建套接字
-phone = socket.socket(socket.AF_INET, socket.SOCK_STREAM) # 流失协议==》TCP协议
+server = socket.socket(socket.AF_INET, socket.SOCK_STREAM) # 流失协议==》TCP协议
+# 2.1. 允许端口复用（避免重启时报错）
+server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 # 2. 绑定
-phone.bind(('127.0.0.1', 8080)) #0-65535,1024以前的都被系统保留使用
+server.bind(('127.0.0.1', 8080)) # 0-65535,1024以前的都被系统保留使用
 # 3. 监听
-phone.listen(5) # 5：半连接池大小，最多允许挂起5个客户端
-# 4. 等待客户端连接
+server.listen(5) # 最多允许挂起5个客户端【已完成连接队列 + 半连接队列的上限（实现相关）】；
+print("服务端启动...")
+
 while True:
-  conn_fd, client_addr = phone.accept()
-  print('conn_fd:', conn_fd)
+  # 4. 等待客户端连接
+  conn_fd, client_addr = server.accept()
   print('客户端ip与端口:', client_addr)
-  # 5. 接收数据
-  while True:
-    data = conn_fd.recv(1024) # 1024字节，最大接收的数据量为1204Bytes,收到的是bytes类型
-    if not data:
-      break
-    print('recv:', data.decode('utf-8'))
-    # 6. 发送数据
-    conn_fd.send(data.upper())
-    # 7. 关闭套接字(❗必须关闭)
-    conn_fd.close()
-    # 8. 关闭套接字（可选）
-    phone.close()
-    break
+  try:
+    while True:
+      # 5. 接收数据
+      data = conn_fd.recv(1024) # 1024字节，最大接收的数据量为1024Bytes,收到的是bytes类型
+      if not data:
+        print("客户端断开") # 👉 表示：对方调用了 close()（正常断开）
+        break
+      print('recv:', data.decode('utf-8'))
+
+      # 6. 发送数据
+      conn_fd.send(data.upper())
+  except Exception as e:
+        print("连接异常:", e)
+  finally:
+        # 7. 关闭套接字(❗必须关闭)
+        conn_fd.close()
+        print("连接关闭")
+# 关闭套接字（一般不用）
+# server.close()
 # ====================== 客户端 ===============================
 import socket
 # 1.初始化
-phone = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-# 2.建立连接
-phone.connect(('127.0.0.1', 8080))
-# 3.发送数据
-phone.send('哈哈哈'.encode('utf-8'))
-data = phone.recv(1024)
-print('recv:', data.decode())
-# 4.关闭连接（❗必须关闭）
-phone.close()
+client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+try:
+    # 2.建立连接
+    client.connect(('127.0.0.1', 8080))
+    while True:
+      # 3.发送数据
+      msg = input("输入消息: ")
+        if msg == 'exit':
+            break
+        client.send(msg.encode('utf-8'))
+
+      # 4.接收数据
+      data = client.recv(1024)
+      if not data:
+        break
+      print('recv:', data.decode())
+finally:
+    # 5.关闭连接（❗必须关闭）
+    client.close()
 ```
 
 ## a ==============================================================================
