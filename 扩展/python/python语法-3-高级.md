@@ -2407,26 +2407,26 @@ server.listen(5) # 最多允许挂起5个客户端【已完成连接队列 + 半
 print("服务端启动...")
 
 while True:
-# 4. 等待客户端连接
-conn_fd, client_addr = server.accept()
-print('客户端ip与端口:', client_addr)
-try:
-  while True:
-    # 5. 接收数据
-    data = conn_fd.recv(1024) # 1024字节，最大接收的数据量为1024Bytes,收到的是bytes类型
-    if not data:
-      print("客户端断开") # 👉 表示：对方调用了 close()（正常断开）
-      break
-    print('recv:', data.decode('utf-8'))
+    # 4. 等待客户端连接
+    conn_fd, client_addr = server.accept()
+    print('客户端ip与端口:', client_addr)
+    try:
+      while True:
+        # 5. 接收数据
+        data = conn_fd.recv(1024) # 1024字节，最大接收的数据量为1024Bytes,收到的是bytes类型
+        if not data:
+          print("客户端断开") # 👉 表示：对方调用了 close()（正常断开）
+          break
+        print('recv:', data.decode('utf-8'))
 
-    # 6. 发送数据
-    conn_fd.send(data.upper())
-except Exception as e:
-      print("连接异常:", e)
-finally:
-      # 7. 关闭套接字(❗必须关闭)
-      conn_fd.close()
-      print("连接关闭")
+        # 6. 发送数据
+        conn_fd.send(data.upper())
+    except Exception as e:
+          print("连接异常:", e)
+    finally:
+          # 7. 关闭套接字(❗必须关闭)
+          conn_fd.close()
+          print("连接关闭")
 # 关闭套接字（一般不用）
 # server.close()
 # ====================== 客户端 ===============================
