@@ -2354,6 +2354,52 @@ Accept 队列（全连接池）    ESTABLISHED（已连接）          等应用
       - ❗注意：原来的 fd（listen socket）不变 → 继续负责接收新连接
       - 📌 如果没有连接：accept 会阻塞
 
+- ip:
+  - 0,0,0,0: 监听所有网卡（是否能访问取决于网络环境）；
+  - 127.x.x.x: 永远只在本机内部通信
+  - 192.168.x.x: 局域网可访问
+
+```python
+#  ===================== 服务端 ==========================
+import socket
+# 1. 创建套接字
+phone = socket.socket(socket.AF_INET, socket.SOCK_STREAM) # 流失协议==》TCP协议
+# 2. 绑定
+phone.bind(('127.0.0.1', 8080)) #0-65535,1024以前的都被系统保留使用
+# 3. 监听
+phone.listen(5) # 5：半连接池大小，最多允许挂起5个客户端
+# 4. 等待客户端连接
+while True:
+  conn_fd, client_addr = phone.accept()
+  print('conn_fd:', conn_fd)
+  print('客户端ip与端口:', client_addr)
+  # 5. 接收数据
+  while True:
+    data = conn_fd.recv(1024) # 1024字节，最大接收的数据量为1204Bytes,收到的是bytes类型
+    if not data:
+      break
+    print('recv:', data.decode('utf-8'))
+    # 6. 发送数据
+    conn_fd.send(data.upper())
+    # 7. 关闭套接字(❗必须关闭)
+    conn_fd.close()
+    # 8. 关闭套接字（可选）
+    phone.close()
+    break
+# ====================== 客户端 ===============================
+import socket
+# 1.初始化
+phone = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+# 2.建立连接
+phone.connect(('127.0.0.1', 8080))
+# 3.发送数据
+phone.send('哈哈哈'.encode('utf-8'))
+data = phone.recv(1024)
+print('recv:', data.decode())
+# 4.关闭连接（❗必须关闭）
+phone.close()
+```
+
 ## a ==============================================================================
 
 ## 内置函数
