@@ -2359,6 +2359,40 @@ Accept 队列（全连接池）    ESTABLISHED（已连接）          等应用
     - 127.x.x.x: “本地回环”，永远只在本机内部通信
     - 192.168.x.x: 局域网可访问
 
+11. 发送路径
+
+    ```code
+        ① 应用程序
+            ↓ send()
+        ② 用户态 → 内核态（拷贝）
+                    ↓
+        ③ Socket 发送缓冲区（Socket在内核中）
+            ↓
+        ④ TCP/IP 协议栈（分包）
+            ↓
+        ⑤ DMA 直接写入内存（内核空间）
+            ↓
+        ⑥ 网卡
+            ↓
+        ⑦ 网络
+    ```
+
+12. 数据接收（从网络到程序）
+
+    ```code
+        ① 网卡（NIC）
+            ↓
+        ② DMA 直接写入内存（内核空间）
+            ↓
+        ③ 操作系统网络协议栈（TCP/IP）
+            ↓
+        ④ Socket 接收缓冲区（recv buffer）
+            ↓
+        ⑤ 应用程序调用 recv()
+            ↓
+        ⑥ 数据从“内核态”拷贝到“用户态”
+    ```
+
 ```python
 #  ===================== 服务端 =========简版，单线程，每次发送小于1024字节的数据=================
 import socket
@@ -2373,26 +2407,26 @@ server.listen(5) # 最多允许挂起5个客户端【已完成连接队列 + 半
 print("服务端启动...")
 
 while True:
-  # 4. 等待客户端连接
-  conn_fd, client_addr = server.accept()
-  print('客户端ip与端口:', client_addr)
-  try:
-    while True:
-      # 5. 接收数据
-      data = conn_fd.recv(1024) # 1024字节，最大接收的数据量为1024Bytes,收到的是bytes类型
-      if not data:
-        print("客户端断开") # 👉 表示：对方调用了 close()（正常断开）
-        break
-      print('recv:', data.decode('utf-8'))
+# 4. 等待客户端连接
+conn_fd, client_addr = server.accept()
+print('客户端ip与端口:', client_addr)
+try:
+  while True:
+    # 5. 接收数据
+    data = conn_fd.recv(1024) # 1024字节，最大接收的数据量为1024Bytes,收到的是bytes类型
+    if not data:
+      print("客户端断开") # 👉 表示：对方调用了 close()（正常断开）
+      break
+    print('recv:', data.decode('utf-8'))
 
-      # 6. 发送数据
-      conn_fd.send(data.upper())
-  except Exception as e:
-        print("连接异常:", e)
-  finally:
-        # 7. 关闭套接字(❗必须关闭)
-        conn_fd.close()
-        print("连接关闭")
+    # 6. 发送数据
+    conn_fd.send(data.upper())
+except Exception as e:
+      print("连接异常:", e)
+finally:
+      # 7. 关闭套接字(❗必须关闭)
+      conn_fd.close()
+      print("连接关闭")
 # 关闭套接字（一般不用）
 # server.close()
 # ====================== 客户端 ===============================
@@ -2400,23 +2434,23 @@ import socket
 # 1.初始化
 client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 try:
-    # 2.建立连接
-    client.connect(('127.0.0.1', 8080))
-    while True:
-      # 3.发送数据
-      msg = input("输入消息: ")
-      if msg == 'exit':
-            break
-        client.send(msg.encode('utf-8'))
+  # 2.建立连接
+  client.connect(('127.0.0.1', 8080))
+  while True:
+    # 3.发送数据
+    msg = input("输入消息: ")
+    if msg == 'exit':
+          break
+      client.send(msg.encode('utf-8'))
 
-      # 4.接收数据
-      data = client.recv(1024)
-      if not data:
-        break
-      print('recv:', data.decode())
+    # 4.接收数据
+    data = client.recv(1024)
+    if not data:
+      break
+    print('recv:', data.decode())
 finally:
-    # 5.关闭连接（❗必须关闭）
-    client.close()
+  # 5.关闭连接（❗必须关闭）
+  client.close()
 ```
 
 ## a ==============================================================================
