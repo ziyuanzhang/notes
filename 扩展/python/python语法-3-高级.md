@@ -1350,15 +1350,14 @@ print(res.returncode)
 print(res.args) # 运行命令的参数
 print(res.stdout) # 运行命令的输出
 print(res.stderr) # 运行命令的错误输出
-
+# ==================================================================================================
 obj = subprocess.Popen('ls /root', shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 # stdout: 标准输出给stdout; stderr: 错误输出stderr
-res =obj.stdout.read()
-print(res.decode('utf-8')) #编码（'utf-8'）是系统的默认编码（win:gbk,linux:utf-8），不是我们指定的
-print(res.decode('utf-8'))
+stdout_res = obj.stdout.read()
+stderr_res = obj.stderr.read()
+print(stdout_res.decode('utf-8')) #编码（'utf-8'）是系统的默认编码（win:gbk,linux:utf-8），不是我们指定的
+print(stderr_res.decode('utf-8'))
 print(obj.returncode)
-
-
 ```
 
 ### 十二、 logging 模块
@@ -2425,21 +2424,23 @@ server.bind(('127.0.0.1', 8080)) # 0-65535,1024以前的都被系统保留使用
 server.listen(5) # 最多允许挂起5个客户端【已完成连接队列 + 半连接队列的上限（实现相关）】；
 print("服务端启动...")
 
+# 第一件事:循环地从“Accept 队列”中 拿 链接对象
 while True:
     # 4. 等待客户端连接
     conn_fd, client_addr = server.accept()
     print('客户端ip与端口:', client_addr)
     try:
+      #第二件事:拿到链接对象后，与其进行循环通信
       while True:
         # 5. 接收数据
-        data = conn_fd.recv(1024) # 1024字节，最大接收的数据量为1024Bytes,收到的是bytes类型
+        data = conn_fd.recv(1024) # 1024字节，最大接收的数据量为1024Bytes,收到的是bytes类型【从本地缓存中读取数据】
         if not data:
           print("客户端断开") # 👉 表示：对方调用了 close()（正常断开）
           break
         print('recv:', data.decode('utf-8'))
 
         # 6. 发送数据
-        conn_fd.send(data.upper())
+        conn_fd.send(data.upper()) # 【先发给本地缓存】
     except Exception as e:
           print("连接异常:", e)
     finally:
