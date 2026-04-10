@@ -2230,6 +2230,14 @@ Accept 队列（全连接池）    ESTABLISHED（已连接）          等应用
 ![网络_五层协议](./img/网络_五层协议.png)
 ![网络_socket](./img/网络_socket层.png)
 
+1. 🔥 B/S vs C/S
+   - B/S = 浏览器帮你用 socket
+   - C/S = 你自己写 socket
+
+#### TCP、UDP共用
+
+TCP 和 UDP 的共同点是都基于 socket API，数据都经过内核协议栈和 socket 缓冲区。
+
 1. socket抽象层：封装应用层以外的所有层；
    - 👉 socket = 操作系统提供的 API，用来操作 TCP/IP 协议栈
    - 🔥 socket 的本质：socket = 应用程序访问 TCP/IP 的入口
@@ -2247,15 +2255,7 @@ Accept 队列（全连接池）    ESTABLISHED（已连接）          等应用
       网卡（发包）
    ```
 
-2. 🔥 B/S vs C/S
-   - B/S = 浏览器帮你用 socket
-   - C/S = 你自己写 socket
-
-3. 🔥 连接问题:
-   - 是否每次握手？ → 看是否复用连接;
-   - 会不会撑爆？ → 会（所以才有高并发架构）
-
-4. 浏览器 帮你封装了 socket【浏览器是 socket 的高级封装 + 协议实现器（HTTP/HTTPS）】
+2. 浏览器 帮你封装了 socket【浏览器是 socket 的高级封装 + 协议实现器（HTTP/HTTPS）】
 
    ```code
    访问：https://google.com 时，
@@ -2267,21 +2267,77 @@ Accept 队列（全连接池）    ESTABLISHED（已连接）          等应用
       * 接收响应
    ```
 
-5. 一个连接生命周期：建立 → 使用 → 空闲 → 超时关闭
-6. 很多客户端连接会撑爆服务端：👉 这是高并发的核心问题；
+   ✔ 本质：HTTP over TCP（或 QUIC over UDP）
+
+   👉 小补充（高级点）：
+   - HTTP/1.1 / HTTP/2 → TCP
+   - HTTP/3（QUIC）→ UDP
+
+3. 很多客户端连接会撑爆服务端：👉 这是高并发的核心问题；
    - 每个连接都占用：
      - 一个 socket（文件描述符）
      - 内核内存（缓冲区）
      - TCP 状态
 
-7. 服务端怎么解决“撑爆问题”？
-   1. ✅ IO 多路复用（核心）：一个线程管理成千上万连接
+4. 服务端怎么解决“撑爆问题”？
+   1. ✅ IO 多路复用（核心）：一个线程管理成千上万连接【也适合UDP】
    2. ✅ 连接池 / 限流
-   3. ✅ 负载均衡：把流量分散到多台服务器
+   3. ✅ 负载均衡：把流量分散到多台服务器【也适合UDP】
    4. ✅ 长连接优化：减少握手次数
-   5. ✅ 内核调优：1、 提高文件描述符上限；2、accept队列；3、半连接队列的最大长度
+   5. ✅ 内核调优：1、 提高文件描述符上限；2、accept队列；3、半连接队列的最大长度【也适合UDP】
 
-8. 程序结束后：socket会释放，但不是“立刻完全消失”
+   👉 UDP 也会撑爆（但更轻）
+
+5. ip:
+   - 0,0,0,0: 监听所有网卡（是否能访问取决于网络环境）；
+   - 127.x.x.x: “本地回环”，永远只在本机内部通信
+   - 192.168.x.x: 局域网可访问
+
+6. 发送路径
+
+   ```code
+       ① 应用程序
+           ↓ send()
+       ② 用户态 → 内核态（拷贝）
+                   ↓
+       ③ Socket 发送缓冲区（Socket在内核中）
+           ↓
+       ④ TCP/IP 协议栈（分包）
+           ↓
+       ⑤ DMA 直接写入内存（内核空间）
+           ↓
+       ⑥ 网卡
+           ↓
+       ⑦ 网络
+   ```
+
+7. 数据接收（从网络到程序）
+
+   ```code
+       ① 网卡（NIC）
+           ↓
+       ② DMA 直接写入内存（内核空间）
+           ↓
+       ③ 操作系统网络协议栈（TCP/IP）
+           ↓
+       ④ Socket 接收缓冲区（recv buffer）
+           ↓
+       ⑤ 应用程序调用 recv()
+           ↓
+       ⑥ 数据从“内核态”拷贝到“用户态”
+   ```
+
+#### TCP 专属
+
+TCP 是面向连接、可靠的流式协议，需要三次握手、四次挥手，有连接状态和队列；
+
+1. 🔥 连接问题:
+   - 是否每次握手？ → 看是否复用连接;
+   - 会不会撑爆？ → 会（所以才有高并发架构）
+
+2. 一个连接生命周期：建立 → 使用 → 空闲 → 超时关闭
+
+3. 程序结束后：socket会释放，但不是“立刻完全消失”
    🔹阶段1：程序运行中
 
    ```code
@@ -2318,7 +2374,7 @@ Accept 队列（全连接池）    ESTABLISHED（已连接）          等应用
             被动关闭方 → CLOSE_WAIT → LAST_ACK → CLOSED
    ```
 
-9. ![网络_socket套接字工作流程](./img/网络_socket套接字工作流程.png)
+4. ![网络_socket套接字工作流程](./img/网络_socket套接字工作流程.png)
 
    ```code
       【服务端】：  socket → bind → listen →（等待）
@@ -2354,47 +2410,8 @@ Accept 队列（全连接池）    ESTABLISHED（已连接）          等应用
       - ❗注意：原来的 fd（listen socket）不变 → 继续负责接收新连接
       - 📌 如果没有连接：accept 会阻塞
 
-10. ip:
-    - 0,0,0,0: 监听所有网卡（是否能访问取决于网络环境）；
-    - 127.x.x.x: “本地回环”，永远只在本机内部通信
-    - 192.168.x.x: 局域网可访问
-
-11. 发送路径
-
-    ```code
-        ① 应用程序
-            ↓ send()
-        ② 用户态 → 内核态（拷贝）
-                    ↓
-        ③ Socket 发送缓冲区（Socket在内核中）
-            ↓
-        ④ TCP/IP 协议栈（分包）
-            ↓
-        ⑤ DMA 直接写入内存（内核空间）
-            ↓
-        ⑥ 网卡
-            ↓
-        ⑦ 网络
-    ```
-
-12. 数据接收（从网络到程序）
-
-    ```code
-        ① 网卡（NIC）
-            ↓
-        ② DMA 直接写入内存（内核空间）
-            ↓
-        ③ 操作系统网络协议栈（TCP/IP）
-            ↓
-        ④ Socket 接收缓冲区（recv buffer）
-            ↓
-        ⑤ 应用程序调用 recv()
-            ↓
-        ⑥ 数据从“内核态”拷贝到“用户态”
-    ```
-
 ```python
-#  ===================== 服务端 ========= 简版: 单线程，每次发送小于1024字节的数据，一次只能处理一个链接（多个链接需要等待） =================
+#  =======TCP============== 服务端 ========= 简版: 每次发送小于1024字节的数据；单线程，一次只能处理一个链接（多个链接需要等待） =================
 # 1.一直提供服务
 # 2.并发地提供服务
 import socket
@@ -2426,7 +2443,7 @@ while True:
     except Exception as e:
           print("连接异常:", e)
     finally:
-          # 7. 关闭套接字(❗必须关闭)
+          # 7. 关闭连接(❗必须关闭)
           conn_fd.close()
           print("连接关闭")
 # 关闭套接字（一般不考虑）
@@ -2454,6 +2471,81 @@ finally:
   # 5.关闭连接（❗必须关闭）
   client.close()
 ```
+
+#### UDP 专属
+
+UDP 是无连接、面向数据报的协议，不保证可靠性，但开销小、延迟低，不存在粘包和连接状态。
+
+```python
+# =======UDP============== 服务端 =========
+import socket
+# 1.初始化
+server = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+# 2-1. 端口复用
+server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+# 2.绑定
+server.bind(('127.0.0.1', 8080))
+print("UDP 服务端启动...")
+try:
+    while True:
+      # 3.接收数据
+      data, client_addr = server.recvfrom(1024)
+      print(f"客户端: {client_addr}")
+      print('recv:', data.decode('utf-8'))
+      # 4.发送数据
+      server.sendto(data.upper(), client_addr)
+except Exception as e:
+  print("异常:", e)
+finally:
+  # 5.关闭套接字
+  server.close()
+
+# =======UDP============== 客户端 =========
+import socket
+# 1.初始化
+client = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+try:
+  while True:
+    msg = input("输入消息: ")
+    if msg == 'exit':
+      break
+    # 2.发送数据
+    client.sendto(msg.encode('utf-8'), ('127.0.0.1', 8080))
+    # 3.接收数据
+    data, server_addr = client.recvfrom(1024) # 👉 相当于：从内核 socket buffer 取一个完整数据报（datagram）
+    print("recv:", data.decode('utf-8'))
+finally:
+  # 5.关闭连接（必须关闭）
+  client.close()
+```
+
+#### TCP VS UDP 区别
+
+1. send / recv vs sendto / recvfrom
+   - TCP： send / recv（基于连接）
+   - UDP： sendto / recvfrom（必须带地址）
+
+2. 粘包问题
+   - TCP：会粘包（流式）
+   - UDP：不会粘包（报文边界天然存在）
+
+3. TIME_WAIT
+   - TCP：有（主动关闭方）
+   - UDP：没有
+
+4. accept()
+   - TCP：必须 accept
+   - UDP：没有 accept（直接收包）
+
+5. 连接数量 vs 并发
+   - TCP：每个连接一个 socket（重）
+   - UDP：一个 socket 可服务所有客户端（轻）
+
+   👉 这就是：为什么 DNS / 游戏 / 直播用 UDP
+
+- 🔥 一句话本质区别
+  - TCP：维护“连接状态”（stateful）
+  - UDP：无状态（stateless）
 
 ## a ==============================================================================
 
