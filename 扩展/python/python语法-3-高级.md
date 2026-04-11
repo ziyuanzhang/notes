@@ -1542,7 +1542,6 @@ print(uuid.uuid4()) # 9c5d0c0c-d0c9-4c0c-9c0c-c0c9d0c0c0c0
 struct = “Python ↔ 二进制数据”的打包/解包工具
 
 1. 打包（pack）：把 Python 数据 → bytes（二进制）
-
 2. 解包（unpack）：把 bytes → Python 数据
 3. 计算大小（calcsize）
 
