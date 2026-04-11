@@ -1529,7 +1529,7 @@ print(obj.search('abc123eeee').group()) #12
 print(obj.findall('abc123eeee')) #['12'],重用了obj
 ```
 
-### 十四、 uuid模块 --【Python 数据类型 和 二进制数据（bytes）之间进行转换】
+### 十四、 uuid模块
 
 ```python
 import uuid
@@ -1537,7 +1537,7 @@ print(uuid.uuid4()) # 9c5d0c0c-d0c9-4c0c-9c0c-c0c9d0c0c0c0
 
 ```
 
-### 十五、 struct 模块
+### 十五、 struct 模块 --【Python 数据类型 和 二进制数据（bytes）之间进行转换】
 
 struct = “Python ↔ 二进制数据”的打包/解包工具
 
