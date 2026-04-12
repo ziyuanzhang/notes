@@ -2736,6 +2736,36 @@ finally:
 
 ## 进程 -- 并发编程
 
+- ✅ Linux（fork）：
+  1. 使用 fork()【复制内存】
+  2. 子进程 = 父进程的“克隆”
+  3. 代码不会重新执行
+
+  👉 就像复制内存快照
+
+- Windows（spawn）【重新执行文件】
+  1. 没有 fork，只能 重新启动一个 Python 解释器
+  2. 然后：👉 import 你的主程序文件，再执行一遍
+
+```python
+from multiprocessing import Process
+import time
+def task(name):
+  print("子进程开始执行:", name)
+  time.sleep(3)
+  print("子进程结束:", name)
+
+if __name__ == '__main__':
+  p = Process(target=f, args=(1, 2))
+  p.start()
+  p.join()
+  print("主进程结束")
+  p.terminate()
+  print("主进程结束")
+  p.is_alive()
+
+```
+
 ## a ==============================================================================
 
 ## 内置函数
