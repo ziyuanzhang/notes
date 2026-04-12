@@ -2598,122 +2598,130 @@ finally:
 
 ### socketserver模块 -- 服务器【实现并发】
 
-- socketserver -- TCP
+Python 特有：GIL（重点🔥）
 
-  ```code -- 生命周期
-    client.connect()
-       ↓
-    server.accept()
-       ↓
-    创建线程
-       ↓
-    handle()
-       ↓
-    while recv/send
-       ↓
-    客户端关闭 → recv=0
-       ↓
-    break → close
-  ```
+- 在 CPython：
+  - 👉 同一时刻：只能有 1 个线程执行 Python 字节码
+  - 👉 结果：
+    1. 多线程 ≠ 并行（CPU密集）
+    2. 多线程适合 IO（网络、文件）
 
-  ```python
-  # ================ TCP 服务器 ===========================
+#### socketserver -- TCP
+
+```code -- 生命周期
+  client.connect()
+     ↓
+  server.accept()
+     ↓
+  创建线程
+     ↓
+  handle()
+     ↓
+  while recv/send
+     ↓
+  客户端关闭 → recv=0
+     ↓
+  break → close
+```
+
+```python
+# ================ TCP 服务器 ===========================
+import socketserver
+class MyTCPHandler(socketserver.BaseRequestHandler):
+  def handle(self):
+    print("原来的conn_fd:", self.request)
+    print("客户端:", self.client_address)
+    try:
+      while True:
+          data = self.request.recv(1024)
+          if not data:
+            print("客户端断开")
+            break
+          print("收到:", data)
+          self.request.send(data.upper())
+    except Exception as e:
+        print("异常:", e)
+    finally:
+      self.request.close() # 对方主动关闭、网络异常、业务逻辑结束、超时 等
+      print("连接关闭:", self.client_address)
+
+# 1. 初始化
+server = socketserver.ThreadingTCPServer(('127.0.0.1', 8080), MyTCPHandler)
+# 2. 启动
+print("服务器启动...")
+server.serve_forever()
+# 等同于
+# while True:
+#     conn_fd, client_addr = server.accept()
+#     创建新线程(handle(conn))
+# ============= TCP 客户端 ===========================
+import socket
+client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+client.connect(('127.0.0.1', 8080))
+try:
+  while True:
+    msg = input("输入消息: ")
+    if msg == 'exit':
+      break
+    client.send(msg.encode('utf-8'))
+    data = client.recv(1024)
+    print("recv:", data.decode('utf-8'))
+except Exception as e:
+  print("异常:", e)
+finally:
+  client.close()
+  print("连接已关闭")
+```
+
+#### socketserver -- UDP
+
+👉 UDP 编程 = “一包一处理”，没有连接、没有循环、没有状态
+
+```python
+  # ================ UDP 服务器 ===========================
   import socketserver
-  class MyTCPHandler(socketserver.BaseRequestHandler):
+  class MyUDPHandler(socketserver.BaseRequestHandler):
     def handle(self):
-      print("原来的conn_fd:", self.request)
-      print("客户端:", self.client_address)
+      data, sock = self.request
+      client_addr = self.client_address
+      print("客户端:", client_addr)
+      print("收到:", data)
+
       try:
-        while True:
-            data = self.request.recv(1024)
-            if not data:
-              print("客户端断开")
-              break
-            print("收到:", data)
-            self.request.send(data.upper())
+          sock.sendto(data.upper(), client_addr)
       except Exception as e:
-          print("异常:", e)
-      finally:
-        self.request.close()
-        print("连接关闭:", self.client_address)
+        print("异常:", e)
 
-  # 1. 初始化
-  server = socketserver.ThreadingTCPServer(('127.0.0.1', 8080), MyTCPHandler)
-  # 2. 启动
-  print("服务器启动...")
-  server.serve_forever()
-  # 等同于
-  # while True:
-  #     conn_fd, client_addr = server.accept()
-  #     创建新线程(handle(conn))
-  # ============= TCP 客户端 ===========================
-  import socket
-  client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-  client.connect(('127.0.0.1', 8080))
-  try:
-    while True:
-      msg = input("输入消息: ")
-      if msg == 'exit':
-        break
-      client.send(msg.encode('utf-8'))
-      data = client.recv(1024)
-      print("recv:", data.decode('utf-8'))
-  except Exception as e:
-    print("异常:", e)
-  finally:
-    client.close()
-    print("连接已关闭")
-  ```
+# 1. 创建服务器
+server = socketserver.ThreadingUDPServer(('127.0.0.1', 8080), MyUDPHandler)
+# 2. 启动
+print("服务器启动...")
+server.serve_forever()
+# 等同于
+# while True:
+#   conn_fd, client_addr = server.recvfrom(1024)
+#   print("收到:", data)
+#   server.sendto(data.upper(), client_addr)
 
-- socketserver -- UDP
+# ============= UDP 客户端 ===========================
+import socket
+client = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+try:
+  while True:
+    msg = input("输入消息: ")
+    if msg == 'exit':
+      break
 
-  👉 UDP 编程 = “一包一处理”，没有连接、没有循环、没有状态
-
-  ```python
-    # ================ UDP 服务器 ===========================
-    import socketserver
-    class MyUDPHandler(socketserver.BaseRequestHandler):
-      def handle(self):
-        data, sock = self.request
-        client_addr = self.client_address
-        print("客户端:", client_addr)
-        print("收到:", data)
-
-        try:
-            sock.sendto(data.upper(), client_addr)
-        except Exception as e:
-          print("异常:", e)
-
-  # 1. 创建服务器
-  server = socketserver.ThreadingUDPServer(('127.0.0.1', 8080), MyUDPHandler)
-  # 2. 启动
-  print("服务器启动...")
-  server.serve_forever()
-  # 等同于
-  # while True:
-  #   conn_fd, client_addr = server.recvfrom(1024)
-  #   print("收到:", data)
-  #   server.sendto(data.upper(), client_addr)
-
-  # ============= UDP 客户端 ===========================
-  import socket
-  client = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-  try:
-    while True:
-      msg = input("输入消息: ")
-      if msg == 'exit':
-        break
-
-      client.sendto(msg.encode('utf-8'), ('127.0.0.1', 8080))
-      data, server_addr = client.recvfrom(1024)
-      print("recv:", data.decode('utf-8'))
-      print("来自:", server_addr)
-  except Exception as e:
-    print("异常:", e)
-  finally:
-    client.close()
-    print("客户端关闭")
-  ```
+    client.sendto(msg.encode('utf-8'), ('127.0.0.1', 8080))
+    data, server_addr = client.recvfrom(1024)
+    print("recv:", data.decode('utf-8'))
+    print("来自:", server_addr)
+except Exception as e:
+  print("异常:", e)
+finally:
+  client.close()
+  print("客户端关闭")
+```
 
 ## ------ 接下来课程安排 ------
 
