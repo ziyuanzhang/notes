@@ -2743,28 +2743,79 @@ finally:
 
   👉 就像复制内存快照
 
-- Windows（spawn）【重新执行文件】
+- ❌ Windows（spawn）【重新执行文件】
   1. 没有 fork，只能 重新启动一个 Python 解释器
-  2. 然后：👉 import 你的主程序文件，再执行一遍
+  2. 然后：👉 import 主程序文件，再执行一遍
+
+- ❗关键问题来了: 如果没有把“创建进程的代码”放进 main 保护里（`if __name__ == "__main__":`里面）那么子进程在 import 时会：👉 从头到尾再执行一遍代码，于是：
+  - 主进程运行 → 创建子进程
+  - 子进程启动 → 再执行这段代码 → 又创建子进程
+  - 子子进程 → 再执行 → 无限套娃递归
+
+- `__name__ == "__main__"` 到底干了啥？
+
+  Python 规则：
+  - 直接运行脚本 → `__name__ == "__main__"`
+  - 被 import → `__name__ == "模块名"`
+  - 在 Windows 子进程中：子进程执行的是：`import 你的脚本`所以`__name__ != "__main__"`,
+  - `if __name__ == "__main__"`: 不成立
+    → 不会创建新进程
+    → 避免递归
 
 ```python
 from multiprocessing import Process
 import time
-def task(name):
+# ======== 进程创建：方式1 ========================
+def task(name,n):
   print("子进程开始执行:", name)
-  time.sleep(3)
+  time.sleep(n)
   print("子进程结束:", name)
 
 if __name__ == '__main__':
-  p = Process(target=f, args=(1, 2))
+  # 1. 创建一个对象
+  p = Process(target=task, args=('zhangsan', 3))
+  # 2. 开启进程
+  p.start() # 告诉操作系统帮忙创建一个进程（应用程序没办法直接与硬件打交道的，必须通过操作系统）
+  print("主进程")
+
+  start = time.time()
+  p_list=[]
+  for i in range(3):
+    p = Process(target=task, args=(f'lisi{i}', i))
+    p.start()
+    p_list.append(p)
+  for p in p_list:
+    p.join() # ❗等待子进程结束，才继续进行主进程
+  end = time.time()
+  print("总耗时:", end-start) # 总耗时: 3.1s,不到4s
+# ========= 进程创建： 方式2 =================
+class MyProcess(Process):
+  def run(self):
+    print("子进程开始执行:", self.name)
+    time.sleep(3)
+    print("子进程结束:", self.name)
+
+if __name__ == '__main__':
+  p = MyProcess(name='MyProcess')
+  p.start()
+  print("主进程")
+# ========= 进程间数据是隔离的 =================
+money = 100
+def task(name):
+  global money
+  money =666
+  print("子进程:", money)
+if __name__ == '__main__':
+  p = Process(target=task, args=('lisi',))
   p.start()
   p.join()
-  print("主进程结束")
-  p.terminate()
-  print("主进程结束")
-  p.is_alive()
-
+  print("主进程:", money)
 ```
+
+- 创建进程就是在内存中申请一块内存空间将需要运行的代码丢进去;
+- 一个进程对应在内存中就是一块独立的内存空间;
+- 多个进程对应在内存中就是多块独立的内存空间;
+- 进程与进程之间数据默认情况下是无法直接交互，如果想交互可以借助于第三方工具、模块
 
 ## a ==============================================================================
 
