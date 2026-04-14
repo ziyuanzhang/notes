@@ -1,5 +1,7 @@
 # python 高级 [原文地址](https://www.bilibili.com/video/BV1Sp4y1U7Jr)
 
+🔥 先看 膜拜大神所得/计算机科学速成课/通用讲解.md
+
 ## 运行python3步骤
 
 - 1、python解释器启动--解释器从硬盘读到内存（相当于启动文本编辑器）；
@@ -2799,7 +2801,7 @@ if __name__ == '__main__':
   p = MyProcess(name='MyProcess')
   p.start()
   print("主进程")
-# ========= 进程间数据是隔离的 =================
+# ========= ❗进程间数据是隔离的 =================
 money = 100
 def task(name):
   global money
