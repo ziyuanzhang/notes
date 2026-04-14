@@ -2940,7 +2940,42 @@ if __name__ == '__main__':
 
 ### 进程对象及其方法
 
-### 僵尸进程与孤儿进程
+一台计算机上面运行着很多进程，那么计算机是如何区分并管理这些进程服务端的呢?
+
+计算机会给每一个运行的进程分配一个PID号
+
+```python
+  from multiprocessing  import Process, current_process
+  import os
+  import time
+
+  def task():
+    print(f'子进程 -- 当前进程PID: {current_process().pid}' )
+    print(f'子进程 -- 当前进程PID: {os.getpid()}')
+    print(f'子进程 -- 父进程PID: {os.getppid()}')
+
+  if __name__ == '__main__':
+    p = Process(target=task)
+    p.start()
+
+    print(f'主进程 -- 当前进程PID: {current_process().pid}')
+    print(f'主进程 -- 当前进程PID: {os.getpid()}')
+    print(f'主进程 -- 父进程PID: {os.getppid()}')
+
+    p.terminate() # 停止当前进程（告诉操作系统帮你去杀死当前进程 但是需要一定的时间）
+    time.sleep(0.1)
+    print(p.is_alive()) # 获取进程是否存活
+
+    p.join() # ❗等待子进程结束，才继续进行主进程
+
+```
+
+### 僵尸进程与孤儿进程（了解）
+
+- 孤儿进程：父进程死了，孩子还活着（被 init进程 接管）
+- 僵尸进程：孩子死了，父进程没“收尸”（必须处理）
+
+  解决：父进程必须调用：`os.wait()` 或 `os.waitpid(pid, 0)`
 
 ### 守护进程
 
