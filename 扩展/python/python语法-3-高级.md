@@ -2972,14 +2972,55 @@ if __name__ == '__main__':
 
 ### 僵尸进程与孤儿进程（了解）
 
-- 孤儿进程：父进程死了，孩子还活着（被 init进程 接管）
 - 僵尸进程：孩子死了，父进程没“收尸”（必须处理）
+  1. 解决：父进程必须调用：`os.wait()` 或 `os.waitpid(pid, 0)`
 
-  解决：父进程必须调用：`os.wait()` 或 `os.waitpid(pid, 0)`
+- 孤儿进程：父进程死了，孩子还活着（被“init进程”接管）
 
 ### 守护进程
 
+```python
+  from multiprocessing  import Process, current_process
+  import time
+  def task():
+    print(f"{current_process().name} is running")
+    time.sleep(5)
+    print(f"{current_process().name} is done")
+
+  if __name__ == "__main__":
+      p = Process(target=task)
+      p.daemon = True # 守护进程 (❗一定要放在start()之前，否则会报错)
+      p.start()
+      print(f"{current_process().name} is done")
+      time.sleep(10)
+      print(f"{current_process().name} is done")
+```
+
 ### 互斥锁
+
+- 多个进程操作同一份数据的时候，会出现数据错乱的问题,针对上述问题；
+
+  解决方式就是加锁处理: 将并发变成串行，牺牲效率但是保证了数据的安全
+
+- 注意:
+  1. 锁不要轻易的使用，容易造成死锁现象(我们写代码一般不会用到，都是内部封装好的)
+  2. 锁只在处理数据的部分加来保证数据安全(只在争抢数据的环节加锁处理即可)
+
+```python
+from multiprocessing import Process, Lock, Queue
+  def task(i, lock):
+    lock.acquire()
+    print(f"{i} is working")
+    lock.release()
+
+if __name__ == "__main__":
+  lock = Lock()
+  for i in range(10):
+    p = Process(target=task, args=(i, lock))
+    p.start()
+
+
+```
 
 ### 队列介绍
 
@@ -2987,7 +3028,9 @@ if __name__ == '__main__':
 
 ### 生产者消费者模型
 
-### 线程相关知识点
+## 线程相关知识点
+
+## 线程池
 
 ## a ==============================================================================
 
