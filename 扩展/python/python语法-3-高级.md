@@ -889,9 +889,16 @@ g.send('egg') # 报错：StopIteration
 
 ## 模块： 一些列功能的集合体
 
-1. 内置模块：python解释提供好的，C、C++语言便编写的；
-2. 第三方模块：
-3. 自定义模块：python、C、C++写的
+- 三者区别
+  1. 内置模块：python解释提供好的，C、C++语言便编写的；
+  2. 第三方模块：
+  3. 自定义模块：python、C、C++写的
+
+  | 类型       | 来源       | 是否需要安装 | 示例        |
+  | ---------- | ---------- | ------------ | ----------- |
+  | 标准库模块 | Python自带 | ❌ 不需要    | `os`, `sys` |
+  | 第三方模块 | pip安装    | ✅ 需要      | `requests`  |
+  | 自定义模块 | 自己写     | ❌ 不需要    | `my_module` |
 
 - 首次导入 与 之后的导入
   - “首次导入”模块会发生什么？
@@ -939,17 +946,16 @@ print(x) # 0
 ```
 
 - python模块加载机制
+  1. 内存（内置模块、缓存）
+  2. 硬盘（自定义的文件）
 
-1. 内存（内置模块、缓存）
-2. 硬盘（自定义的文件）
-
-```python
-import sys
-print(sys.path) # 查看模块查找路径
-# 👉 环境变量是以执行文件为准的，“所有被导入的模块中” 或 “后续的其他文件中” 引用的sys.path都是参照执行文件的sys.path
-sys.path.append('/Usrs/xxx/foo') # 添加 文件查找路径
-import foo # 导入后能查到
-```
+  ```python
+  import sys
+  print(sys.path) # 查看模块查找路径
+  # 👉 环境变量是以执行文件为准的，“所有被导入的模块中” 或 “后续的其他文件中” 引用的sys.path都是参照执行文件的sys.path
+  sys.path.append('/Usrs/xxx/foo') # 添加 文件查找路径
+  import foo # 导入后能查到
+  ```
 
 - `sys.modules`:查看已经加载到内存中的模块
   `del 模块名`：解除模块绑定（理论上模块应该被垃圾回收，实际还在内存中；原因：优化机制，减少下次导入时申请内存）
@@ -1102,6 +1108,10 @@ res.resolve() # 获取绝对路径
 
 ## 常用模块
 
+👉 标准库 = 官方自带的一大堆模块集合（我们常说的模块）
+👉 模块 = Python 代码的基本组织单位（我们写的代码文件 -- .py）
+👉 包 = 文件夹 + 多个模块
+
 ### 一、 时间模块
 
 - time模块
@@ -1156,53 +1166,87 @@ random.choice([s1,s2])
 
 ### 三、 操作系统模块--1-- os模块
 
+👉 本质：Python 对 操作系统功能的封装
+👉 os = 你可以“操作系统”的工具箱
+
 ```python
-import os
-print(os.name) # 当前操作系统
-print(os.environ) # 环境变量-字典；
-print(os.getcwd()) # 当前工作目录
-print(os.listdir()) # 当前目录下的文件
-print(os.path.join('a', 'b', 'c')) # a/b/c
-print(os.path.exists('a')) # 判断文件是否存在
-# print(os.path.abspath('a')) 与 print(__file__) # 绝对路径
-# print(os.path.split('a/b/c')) # ('a/b', 'c')
-print(os.path.dirname('a/b/c')) # a/b
-print(os.path.basename('a/b/c')) # c
-print(os.path.getsize('a')) # 文件大小
-# print(os.path.getmtime('a')) # 文件修改时间
-# print(os.path.getatime('a')) # 文件访问时间
-# print(os.path.getctime('a')) # 文件创建时间
-print(os.path.isdir('a')) # 判断是否是目录
-print(os.path.isfile('a')) # 判断是否是文件
-# print(os.path.isabs('a')) # 判断是否是绝对路径
-print(os.path.realpath('a')) # 真实路径
-print(os.path.splitdrive('a')) # ('', 'a')
-print(os.path.commonpath(['a', 'b', 'c'])) # a
-print(os.path.commonprefix(['a', 'b', 'c']))
-os.mkdir('a') # 创建目录
-os.makedirs('a/b/c') # 创建目录
-os.rmdir('a') # 删除目录
-os.rename('a', 'b') # 重命名
-os.remove('a') # 删除文件
-os.chdir('a') # 切换目录
-os.chdir('..') # 返回上一级目录
-os.walk('a') # 遍历目录
-os.system('ls') # 执行系统命令
-# ----------------------------
-PATH=文件夹的路径 # 环境变量 -- 执行系统命令的时候用；
-sys.path # 环境变 -- 用在导模块的时候；
-os.environ['aaa'] ='111' # 环境变量 -- 用在全局变量中；
+  import os
+  os.name # 当前操作系统
+   # ==========1️⃣ 文件 & 目录操作==================================
+  os.getcwd()        # 当前工作目录
+  os.listdir()       # 列出当前目录下的内容
+
+  os.chdir("path")  # 切换目录
+  os.mkdir("test") # 创建目录
+  os.remove("a.txt") # 删除文件
+  os.rename('a', 'b') # 重命名
+  os.rmdir('a') # 删除目录
+  os.chdir('a') # 切换目录
+  os.chdir('..') # 返回上一级目录
+  os.walk('a') # 遍历目录
+
+
+  os.path.isdir('a') # 判断是否是目录
+  os.path.isfile('a') # 判断是否是文件
+  os.path.getsize('a') # 文件大小
+
+  # ===========2️⃣ 路径处理（重点🔥）==================================
+  os.path.abspath("a.txt")  # 绝对路径  与 print(__file__)
+  os.path.join("a", "b")  # 拼路径（跨平台）
+  # 👉 推荐：永远用 os.path.join，不要手写 /
+  os.path.exists("a.txt")  # 判断文件是否存在
+  os.path.isdir("dir")  # 是否目录
+
+  os.path.isabs('a') # 判断是否是绝对路径
+  os.path.realpath('a') # 真实路径
+  os.path.split('a/b/c') # ('a/b', 'c')
+  os.path.dirname('a/b/c') # a/b
+  os.path.basename('a/b/c') # c
+
+  # ==========3️⃣ 环境变量==================================
+  os.environ["PATH"]      # 获取环境变量
+  os.environ["JAVA_HOME"] = "/xxx"  # 设置环境变量
+  os.environ # 环境变量-字典；
+  os.environ['aaa'] ='111' # 环境变量 -- 用在全局变量中；
+
+
+  # ==========4️⃣ 进程相关==================================
+  os.getpid()   # 当前进程ID
+  os.getppid()  # 父进程ID
+
+  # ==========5️⃣ 执行系统命令==================================
+  os.system("ls")   # Linux / macOS
+  os.system("dir")  # Windows
+  # ⚠️ 实际开发更推荐用：
+  import subprocess
 ```
 
 ### 四、 系统模块 --2-- sys模块
 
-```python
-import sys
+👉 本质：Python 对 操作系统功能的封装
+👉 sys = 控制 Python 程序运行方式的工具
 
-sys.path # 路径
-python3.8 run.py 1 2 3
-# sys.argv # 获取python解释器后的参数值
-print(sys.argv) # ['run.py', '1', '2', '3']
+```python
+  import sys
+  print(sys.argv)  # 获取python解释器后的参数值
+  # ====== 1️⃣ 命令行参数 ===============================
+  python3.8 test.py a b c   #  ['test.py', 'a', 'b', 'c']
+
+  # ====== 2️⃣ 退出程序 ====================================
+  sys.exit(0) # 程序控制
+
+  # ====== 3️⃣ 模块搜索路径（超重要🔥）====================
+  sys.path # --》 👉 决定："import xxx" 去哪里找模块
+  # 可以动态添加路径： sys.path.append("/my/module/path")
+
+  # ======== 4️⃣ 标准输入输出 =================
+  sys.stdin
+  sys.stdout  # 标准输出 sys.stdout.write("hello\n")
+  sys.stderr
+
+  # ======== 5️⃣ 解释器信息 ================
+  sys.version      # Python版本
+  sys.platform     # 操作系统类型
 ```
 
 ```python
@@ -1215,6 +1259,30 @@ for i in range(50):
   print('\r[%-50s]' %,end='')
   # \r 回到行首
 ```
+
+### 🔥os 与 sys
+
+👉 os 是“操作系统接口层”
+👉 sys 是“Python解释器控制层”
+
+| 维度     | os               | sys              |
+| -------- | ---------------- | ---------------- |
+| 作用对象 | 操作系统         | Python解释器     |
+| 侧重点   | 外部环境         | 程序本身         |
+| 常见用途 | 文件、目录、进程 | 参数、路径、退出 |
+| 类比     | “工具箱”         | “控制台”         |
+
+1. 场景1：路径问题: 👉 找文件路径：
+   - os.path 👉 处理路径字符串
+   - sys.path 👉 决定 import 路径
+
+2. 场景2：运行脚本
+   - sys.argv : sys 控制输入
+   - os.system(): os 执行命令
+
+3. 场景3：跨平台
+   - os.name 👉 粗粒度（nt / posix）
+   - sys.platform 👉 更细
 
 ### 五、 shutil 模块 -- 【文件copy、解压缩】
 
@@ -1558,6 +1626,57 @@ struct = “Python ↔ 二进制数据”的打包/解包工具
  print(num)  # (10,) ⚠️ 注意：返回的是 元组
  # === 计算大小（calcsize）=====================================
  struct.calcsize('i')  # 4
+```
+
+### 十六、 pathlib 模块（官方标准库） 与 os.path（传统路径处理方式）
+
+👉 os.path = 字符串拼路径（旧时代）
+👉 pathlib = 对象操作路径（现代Python）
+
+pathlib 是一个用于处理文件系统路径的标准库模块，而 pathlib里的 Path 是该模块中最核心的类。
+
+```python
+from pathlib import Path
+import os
+# ==== 1️⃣ 拼接路径 ====================
+p = Path("a") / "b" / "c.txt"  # 【pathlib】
+os.path.join("a", "b", "c.txt")
+
+# ==== 2️⃣ 判断是否存在 ==================
+p.exists() # 【pathlib】
+os.path.exists(p)
+
+# ==== 3️⃣ 判断文件/目录 ==================
+p.is_file() # 【pathlib】
+p.is_dir() # 【pathlib】
+
+os.path.isfile(p)
+os.path.isdir(p)
+
+# ==== 4️⃣ 获取绝对路径==================
+p.resolve() # 【pathlib】
+os.path.abspath(p)
+
+# ==== 5️⃣ 获取文件名 / 后缀（优势巨大🔥） ================
+p.name        # 文件名   【pathlib】
+p.stem        # 文件名（无后缀）  【pathlib】
+p.suffix      # 后缀   【pathlib】
+
+os.path.basename(p)
+os.path.splitext(p)
+
+# ==== 6️⃣ 遍历目录 ================
+p = Path(".")  #【pathlib】
+for file in p.iterdir():
+    print(file)
+
+# ==== 7️⃣ 递归查找（超强🔥） ================
+list(p.glob("*.py"))# 【pathlib】
+list(p.rglob("*.py")) # 👉 rglob = 递归搜索
+
+# ==== 8️⃣ 读写文件（优雅🔥） ================
+p.write_text("hello") #【pathlib】
+content = p.read_text()
 ```
 
 ## 面向对象思想
@@ -2818,6 +2937,22 @@ if __name__ == '__main__':
 - 一个进程对应在内存中就是一块独立的内存空间;
 - 多个进程对应在内存中就是多块独立的内存空间;
 - 进程与进程之间数据默认情况下是无法直接交互，如果想交互可以借助于第三方工具、模块
+
+### 进程对象及其方法
+
+### 僵尸进程与孤儿进程
+
+### 守护进程
+
+### 互斥锁
+
+### 队列介绍
+
+### 进程间通信IPC机制
+
+### 生产者消费者模型
+
+### 线程相关知识点
 
 ## a ==============================================================================
 
