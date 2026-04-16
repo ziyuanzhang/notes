@@ -3042,10 +3042,6 @@ if __name__ == "__main__":
     p.start()
 ```
 
-### 进程间通信IPC机制
-
-### 生产者消费者模型
-
 ## 队列 vs 管道
 
 - 队列（Queue）: 高级封装，安全、好用（推荐）
@@ -3132,25 +3128,41 @@ q.get_nowait() # （❗不精确，不是实时的）
   - 任务调度
   - 并发安全要求高
 
-- 生产者-消费者模型（Queue）
+#### 进程间通信IPC机制
 
-  ```python
-  from multiprocessing import Process, Queue
+```python
+  def task(q):
+     q.put('呼叫！呼叫！')
+     prtint('hahahah')
 
-  def producer(q):
-      for i in range(5):
-          q.put(i)
+  if __name__ == '__main__':
+    q = Queue()
+    p = Process(target=task, args=(q,))
+    p.start()
+    print(q.get()) # 呼叫！呼叫！
+```
 
-  def consumer(q):
-      while True:
-          print(q.get())
+#### 生产者-消费者模型（Queue）
 
-  if __name__ == "__main__":
-      q = Queue()
+```python
+from multiprocessing import Process, Queue
 
-      Process(target=producer, args=(q,)).start()
-      Process(target=consumer, args=(q,)).start()
-  ```
+def producer(q):
+    for i in range(5):
+        q.put(i)
+
+def consumer(q):
+    while True:
+        print(q.get())
+
+if __name__ == "__main__":
+    q = Queue()
+
+    Process(target=producer, args=(q,)).start()
+    Process(target=consumer, args=(q,)).start()
+
+   # q.get() 主进程获得数据
+```
 
 ### 管道 Pipe -- 多个进程同时send()：数据错乱/崩溃
 
@@ -3160,7 +3172,7 @@ q.get_nowait() # （❗不精确，不是实时的）
   - ❌ 不安全（多进程同时用会出问题）
   - ❌ 没有锁
 
-* 👉 推荐场景：
+- 👉 推荐场景：
   - 只有两个进程通信
   - 对性能要求极高
   - 你能控制并发（不会同时写）
