@@ -3161,7 +3161,6 @@ if __name__ == "__main__":
     Process(target=producer, args=(q,)).start()
     Process(target=consumer, args=(q,)).start()
 
-   # q.get() 主进程获得数据
 ```
 
 ### 管道 Pipe -- 多个进程同时send()：数据错乱/崩溃
