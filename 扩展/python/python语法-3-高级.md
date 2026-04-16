@@ -2938,7 +2938,7 @@ if __name__ == '__main__':
 - 多个进程对应在内存中就是多块独立的内存空间;
 - 进程与进程之间数据默认情况下是无法直接交互，如果想交互可以借助于第三方工具、模块
 
-### 进程对象及其方法
+### 进程对象及其方法（守护进程、停止当前进程、获取进程是否存活、等待子进程）
 
 一台计算机上面运行着很多进程，那么计算机是如何区分并管理这些进程服务端的呢?
 
@@ -2952,10 +2952,12 @@ if __name__ == '__main__':
   def task():
     print(f'子进程 -- 当前进程PID: {current_process().pid}' )
     print(f'子进程 -- 当前进程PID: {os.getpid()}')
+    time.sleep(5)
     print(f'子进程 -- 父进程PID: {os.getppid()}')
 
   if __name__ == '__main__':
     p = Process(target=task)
+    p.daemon = True # 守护进程 (❗一定要放在start()之前，否则会报错)
     p.start()
 
     print(f'主进程 -- 当前进程PID: {current_process().pid}')
@@ -2976,25 +2978,6 @@ if __name__ == '__main__':
   1. 解决：父进程必须调用：`os.wait()` 或 `os.waitpid(pid, 0)`
 
 - 孤儿进程：父进程死了，孩子还活着（被“init进程”接管）
-
-### 守护进程
-
-```python
-  from multiprocessing  import Process, current_process
-  import time
-  def task():
-    print(f"{current_process().name} is running")
-    time.sleep(5)
-    print(f"{current_process().name} is done")
-
-  if __name__ == "__main__":
-      p = Process(target=task)
-      p.daemon = True # 守护进程 (❗一定要放在start()之前，否则会报错)
-      p.start()
-      print(f"{current_process().name} is done")
-      time.sleep(10)
-      print(f"{current_process().name} is done")
-```
 
 ### 互斥锁
 
@@ -3018,11 +3001,52 @@ if __name__ == "__main__":
   for i in range(10):
     p = Process(target=task, args=(i, lock))
     p.start()
-
-
 ```
 
-### 队列介绍
+### 队列介绍 与 管道介绍
+
+- 🔥 Python3 中的两种 Queue: 1、 线程用的队列; 2、 进程用的队列
+  1. 线程用的队列 `import queue`
+     - 创建队列 `q = queue.Queue()`
+     - q.put(1) print(q.get())
+
+  2. 进程用的队列 `from multiprocessing import Queue`
+     - 创建队列 `q = Queue()`
+     - q.put(1) print(q.get())
+     - ❗底层基于 管道 + 锁
+     - 支持跨进程通信（IPC）
+
+| 对比           | queue.Queue | multiprocessing.Queue |
+| -------------- | ----------- | --------------------- |
+| 用途           | 线程间通信  | 进程间通信            |
+| 是否跨进程     | ❌ 不可以   | ✅ 可以               |
+| 是否需要序列化 | ❌ 不需要   | ✅ 需要（pickle）     |
+| 性能           | 快          | 相对慢                |
+
+```python
+from multiprocessing import Queue
+q = Queue(5) # 括号内可以传数字(队列长度 -- 队列最大可以同时存放的数据量）;不传则，默认32767个
+q.put(111)
+q.put(222)
+q.put(333)
+q.put(444)
+q.put(555)
+q.put(666) # 当队列数据放满了之后，如果还有数据要放程序会阻塞，直到有位置让出来， ❗不会报错；
+
+v1=q.get()
+v2=q.get()
+v3=q.get()
+v4=q.get()
+v5=q.get()
+v6=q.get() # 队列中如果已经没有数据的话,❗get方法会原地阻塞
+# v6=q.get(timeout=3) # 没有数据之后原地等待三秒,之后再报错 queue.Empty
+# v6=q.get_nowait() # get_nowait方法不会阻塞，如果队列中没有数据，❗直接报错queue.Empty
+
+# ===============================================================================
+q.full() # 判断队列是否已满（❗不精确，不是实时的）
+q.empty() # 判断队列是否为空（❗不精确，不是实时的）
+q.get_nowait() # （❗不精确，不是实时的）
+```
 
 ### 进程间通信IPC机制
 
