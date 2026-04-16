@@ -2996,7 +2996,7 @@ if __name__ == '__main__':
 
   if __name__ == '__main__':
     p = Process(target=task)
-    p.daemon = True # 守护进程 (❗一定要放在start()之前，否则会报错)
+    p.daemon = True # 守护进程 (❗daemon 必须在 start() 前设置，因为进程启动后属性不可修改；守护进程会在"主进程"退出时被强制终止)
     p.start()
 
     print(f'主进程 -- 当前进程PID: {current_process().pid}')
@@ -3007,7 +3007,11 @@ if __name__ == '__main__':
     time.sleep(0.1)
     print(p.is_alive()) # 获取进程是否存活
 
-    p.join() # ❗等待子进程结束，才继续进行主进程
+   # p.join() # ❗等待子进程结束，才继续进行主进程
+   # ==== ⚠️ 这样写：daemon 的意义就没了,因为：又主动等它结束了  ==========================================
+    p.daemon = True
+    p.start()
+    p.join()
 
 ```
 
@@ -3161,6 +3165,51 @@ if __name__ == "__main__":
     Process(target=producer, args=(q,)).start()
     Process(target=consumer, args=(q,)).start()
 
+```
+
+#### JoinableQueue
+
+JoinableQueue: 是'带任务完成确认机制'的队列，通过 task_done() 和 join() 实现任务同步。
+
+```python
+
+from multiprocessing import Process, JoinableQueue
+import time
+
+def worker(q):
+    while True:
+        task = q.get()
+        if task is None:
+            break
+
+        print(f"处理任务: {task}")
+        time.sleep(1)
+
+        q.task_done()  # 🔥 完成任务（消费者调用）
+
+if __name__ == "__main__":
+    q = JoinableQueue() # 👉  内部维护一个：“未完成任务计数器”
+
+    # 启动消费者
+    for _ in range(2):
+        p = Process(target=worker, args=(q,))
+        p.daemon = True
+        p.start()
+
+    # 生产任务
+    for i in range(5):
+        q.put(i) # 放任务
+
+    q.join()  # 🔥 等待所有任务完成（生产者调用）
+    print("所有任务完成")
+```
+
+流程：
+
+```code
+  put()        → +1
+  task_done()  → -1
+  join()       → 等待计数器变为 0
 ```
 
 ### 管道 Pipe -- 多个进程同时send()：数据错乱/崩溃
