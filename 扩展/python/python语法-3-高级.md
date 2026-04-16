@@ -3005,23 +3005,52 @@ if __name__ == "__main__":
 
 ### 队列 vs 管道
 
+- 队列（Queue）: 高级封装，安全、好用（推荐）
+  1. 👉 Queue = Pipe + 锁 + 缓冲 + 封装
+
+     ```code
+       Queue.put() --> pickle序列化 --> 写入 Pipe --> 另一端读取 --> 反序列化
+
+       Queue
+        ├── Pipe（管道）
+        ├── Lock（锁）
+        ├── Buffer（缓冲区）
+        └── pickle（序列化）
+     ```
+
+- 管道（Pipe）: 底层通信工具，更轻量但更原始
+  1. Pipe 本质就是：👉 两个端点的连接（socket/管道）  
+     `parent_conn  ⇄  child_conn`
+
+- Queue 是基于 Pipe 的进程安全通信队列，而 Pipe 是更底层的双向通信通道。
+- IPC（进程间通信）
+
+| 对比           | Queue              | Pipe             |
+| -------------- | ------------------ | ---------------- |
+| 抽象层级       | 高级               | 低级             |
+| 是否安全       | ✅ 安全            | ❌ 不安全        |
+| 是否支持多进程 | ✅ 多生产者/消费者 | ❌ 只适合2个端点 |
+| 是否有锁       | ✅ 有              | ❌ 没有          |
+| 性能           | 较慢               | 更快             |
+| 使用难度       | 简单               | 稍复杂           |
+
+#### 队列 Queue -- 会 阻塞
+
 - 🔥 Python3 中的两种 Queue: 1、 线程用的队列; 2、 进程用的队列
   1. 线程用的队列 `import queue`
      - 创建队列 `q = queue.Queue()`
-     - q.put(1) print(q.get())
+     - q.put(1); print(q.get())
 
   2. 进程用的队列 `from multiprocessing import Queue`
      - 创建队列 `q = Queue()`
-     - q.put(1) print(q.get())
-     - ❗底层基于 管道 + 锁
-     - 支持跨进程通信（IPC）
+     - q.put(1); print(q.get())
 
-| 对比           | queue.Queue | multiprocessing.Queue |
-| -------------- | ----------- | --------------------- |
-| 用途           | 线程间通信  | 进程间通信            |
-| 是否跨进程     | ❌ 不可以   | ✅ 可以               |
-| 是否需要序列化 | ❌ 不需要   | ✅ 需要（pickle）     |
-| 性能           | 快          | 相对慢                |
+  | 对比           | queue.Queue | multiprocessing.Queue |
+  | -------------- | ----------- | --------------------- |
+  | 用途           | 线程间通信  | 进程间通信            |
+  | 是否跨进程     | ❌ 不可以   | ✅ 可以               |
+  | 是否需要序列化 | ❌ 不需要   | ✅ 需要（pickle）     |
+  | 性能           | 快          | 相对慢                |
 
 ```python
 from multiprocessing import Queue
@@ -3046,6 +3075,68 @@ v6=q.get() # 队列中如果已经没有数据的话,❗get方法会原地阻塞
 q.full() # 判断队列是否已满（❗不精确，不是实时的）
 q.empty() # 判断队列是否为空（❗不精确，不是实时的）
 q.get_nowait() # （❗不精确，不是实时的）
+```
+
+- 📌 特点：
+  - ✅ 线程/进程安全
+  - ✅ FIFO（先进先出）
+  - ✅ 自动加锁
+  - ✅ 自动处理并发
+  - ❗ 底层用 pickle（有开销）
+
+- 👉推荐场景：
+  - 多个生产者 + 多个消费者
+  - 任务调度
+  - 并发安全要求高
+
+- 生产者-消费者模型（Queue）
+
+  ```python
+  from multiprocessing import Process, Queue
+
+  def producer(q):
+      for i in range(5):
+          q.put(i)
+
+  def consumer(q):
+      while True:
+          print(q.get())
+
+  if __name__ == "__main__":
+      q = Queue()
+
+      Process(target=producer, args=(q,)).start()
+      Process(target=consumer, args=(q,)).start()
+  ```
+
+#### 管道 Pipe -- 多个进程同时send()：数据错乱/崩溃
+
+- 📌 特点：
+  - ✅ 双向通信
+  - ✅ 速度更快（比 Queue）
+  - ❌ 不安全（多进程同时用会出问题）
+  - ❌ 没有锁
+
+* 👉 推荐场景：
+  - 只有两个进程通信
+  - 对性能要求极高
+  - 你能控制并发（不会同时写）
+
+```python
+  from multiprocessing import Process, Pipe
+
+  def worker(conn):
+      conn.send("hello")
+      conn.close()
+
+  if __name__ == "__main__":
+      parent_conn, child_conn = Pipe()
+
+      p = Process(target=worker, args=(child_conn,))
+      p.start()
+
+      print(parent_conn.recv())
+      p.join()
 ```
 
 ### 进程间通信IPC机制
