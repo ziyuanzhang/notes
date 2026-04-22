@@ -2983,6 +2983,8 @@ if __name__ == '__main__':
 
 计算机会给每一个运行的进程分配一个PID号
 
+- daemon 不是“守护别人”，而是“被主进程绑定生死的进程”
+
 ```python
   from multiprocessing  import Process, current_process
   import os
@@ -2996,7 +2998,7 @@ if __name__ == '__main__':
 
   if __name__ == '__main__':
     p = Process(target=task)
-    p.daemon = True # 守护进程 (❗daemon 必须在 start() 前设置，因为进程启动后属性不可修改；守护进程会在"主进程"退出时被强制终止)
+    p.daemon = True # 守护进程 (❗daemon 必须在 start() 前设置，因为进程启动后属性不可修改；守护进程会在"主进程"退出时被强制终止；daemon 不是“守护别人”，而是“被主进程绑定生死的进程”)
     p.start()
 
     print(f'主进程 -- 当前进程PID: {current_process().pid}')
@@ -3035,10 +3037,9 @@ if __name__ == '__main__':
 ```python
 from multiprocessing import Process, Lock, Queue
   def task(i, lock):
-    lock.acquire()
+    lock.acquire() #抢锁
     print(f"{i} is working")
-    lock.release()
-
+    lock.release() # 释放锁
 if __name__ == "__main__":
   lock = Lock()
   for i in range(10):
