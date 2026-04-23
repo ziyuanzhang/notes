@@ -2605,7 +2605,7 @@ import socket
 import subprocess
 import struct
 # 1. 创建套接字
-server = socket.socket(socket.AF_INET, socket.SOCK_STREAM) # 流失协议==》TCP协议
+server = socket.socket(socket.AF_INET, socket.SOCK_STREAM) # 流式协议==》TCP协议
 # 2-1. 允许端口复用（避免重启时报错）
 server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 # 2. 绑定
@@ -2983,7 +2983,7 @@ if __name__ == '__main__':
 
 计算机会给每一个运行的进程分配一个PID号
 
-- daemon 不是“守护别人”，而是“被主进程绑定生死的进程”
+- 📌daemon 不是“守护别人”，而是“被主进程绑定生死的进程”
 
 ```python
   from multiprocessing  import Process, current_process
@@ -3098,27 +3098,14 @@ if __name__ == "__main__":
 
 ```python
 from multiprocessing import Queue
-q = Queue(5) # 括号内可以传数字(队列长度 -- 队列最大可以同时存放的数据量）;不传则，默认32767个
-q.put(111)
-q.put(222)
-q.put(333)
-q.put(444)
-q.put(555)
-q.put(666) # 当队列数据放满了之后，如果还有数据要放程序会阻塞，直到有位置让出来， ❗不会报错；
+q = Queue(5) # 括号内可以放数字来限制队列的大小; 不传则，默认32767个
+q.put(111) # 放数据：当队列满了，继续放会阻塞，直到有位置让出来， ❗不会报错；
+q.get() # 取数据：当队列空了，继续取会阻塞；
+q.get(timeout=3) # 取数据：没有数据之后原地等待三秒,之后再报错 queue.Empty
 
-v1=q.get()
-v2=q.get()
-v3=q.get()
-v4=q.get()
-v5=q.get()
-v6=q.get() # 队列中如果已经没有数据的话,❗get方法会原地阻塞
-# v6=q.get(timeout=3) # 没有数据之后原地等待三秒,之后再报错 queue.Empty
-# v6=q.get_nowait() # get_nowait方法不会阻塞，如果队列中没有数据，❗直接报错queue.Empty
-
-# ===============================================================================
-q.full() # 判断队列是否已满（❗不精确，不是实时的）
+# ==========================以下方法 ❗不精确，不是实时的==================
 q.empty() # 判断队列是否为空（❗不精确，不是实时的）
-q.get_nowait() # （❗不精确，不是实时的）
+q.get_nowait() # 取数据：不会阻塞，如果队列中没有数据，直接报错queue.Empty（❗不精确，不是实时的）
 ```
 
 - 📌 特点：
@@ -3244,6 +3231,35 @@ if __name__ == "__main__":
 ```
 
 ## 线程相关知识点
+
+```python
+from threading import Thread
+import time
+class MyThread(Thread):
+  def __init__(self, name):
+    super().__init__()
+    self.name = name
+
+  def run(self):
+    print(f"hello{self.name}")
+    time.sleep(1)
+    print(f"world{self.name}")
+
+def test('name'):
+  print(f"hello{name}")
+  time.sleep(1)
+  print(f"world{name}")
+
+if __name__ == "__main__":
+  t = MyThread('zhangsan')
+  print('主线程2')
+  t.start()
+
+  t2 =Thread(target=test,args=('lisi',))
+  print('主线程1')
+  t2.start()
+
+```
 
 ## 线程池
 
