@@ -2605,7 +2605,7 @@ import socket
 import subprocess
 import struct
 # 1. 创建套接字
-server = socket.socket(socket.AF_INET, socket.SOCK_STREAM) # 流式协议==》TCP协议
+server = socket.socket(socket.AF_INET, socket.SOCK_STREAM) # 流式协议==》TCP协议  【不写默认TCP协议】
 # 2-1. 允许端口复用（避免重启时报错）
 server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 # 2. 绑定
