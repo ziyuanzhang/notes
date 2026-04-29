@@ -1260,7 +1260,7 @@ for i in range(50):
   # \r 回到行首
 ```
 
-### 🔥os 🆚 sys
+### 🔥os 与 sys
 
 👉 os 是“操作系统接口层”
 👉 sys 是“Python解释器控制层”
@@ -1335,7 +1335,7 @@ p.write_text("hello") #【pathlib】
 content = p.read_text()
 ```
 
-### 六、 shutil 模块【文件copy、解压缩】 🆚 zipfile模块
+### 六、 shutil 模块【文件copy、解压缩】 与 zipfile模块
 
 - zipfile：压缩 / 解压 zip 文件
 - shutil：文件操作工具箱（更通用）
@@ -3062,7 +3062,7 @@ if __name__ == "__main__":
     p.start()
 ```
 
-## 队列 vs 管道
+## 队列 与 管道
 
 - 队列（Queue）: 高级封装，安全、好用（推荐）
   1. 👉 Queue = Pipe + 锁 + 缓冲 + 封装
@@ -3400,7 +3400,7 @@ while True:
 
 👉 GIL 本质是：用“全局串行”换“实现简单 + 线程安全”
 
-### GIL 🆚 互斥锁
+### GIL 与 互斥锁
 
 ```python
 from threading import Thread, Lock
