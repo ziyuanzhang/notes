@@ -1112,7 +1112,7 @@ res.resolve() # 获取绝对路径
 👉 模块 = Python 代码的基本组织单位（我们写的代码文件 -- .py）
 👉 包 = 文件夹 + 多个模块
 
-### 一、 时间模块
+### 一、 时间、日期模块 -- time模块、datetime模块
 
 - time模块
   1. 时间戳：用于计算时间间隔（从1970-01-01 00:00:00 开始到现在的秒数）
@@ -1143,7 +1143,7 @@ print(datetime.datetime.utcnow()) # 世界标准时间
 
 ```
 
-### 二、 random 随机数
+### 二、 随机数、数学运算模块 -- random、math模块
 
 ```python
 import random
@@ -1164,9 +1164,9 @@ s2 = str(random.randint(0,9))
 random.choice([s1,s2])
 ```
 
-### 三、 操作系统模块--1-- os模块
+### 三、 操作系统模块--1-- os模块【操作系统交互】
 
-👉 本质：Python 对 操作系统功能的封装
+👉 os本质：Python 对 操作系统功能的封装
 👉 os = 你可以“操作系统”的工具箱
 
 ```python
@@ -1221,9 +1221,9 @@ random.choice([s1,s2])
   import subprocess
 ```
 
-### 四、 系统模块 --2-- sys模块
+### 四、 系统模块 --2-- sys模块【解释器与运行时】
 
-👉 本质：Python 对 操作系统功能的封装
+👉 sys本质：Python 解释器级别控制
 👉 sys = 控制 Python 程序运行方式的工具
 
 ```python
@@ -1284,9 +1284,71 @@ for i in range(50):
    - os.name 👉 粗粒度（nt / posix）
    - sys.platform 👉 更细
 
-### 五、 shutil 模块 -- 【文件copy、解压缩】
+### 五、 pathlib 模块（官方标准库） 与 os.path（传统路径处理方式）
 
-### 六、 序列化反序列化 --1-- json(通用) & pickle（python专用）模块
+👉 os.path = 字符串拼路径（旧时代）
+👉 pathlib = 对象操作路径（现代Python）
+
+pathlib 是一个用于处理文件系统路径的标准库模块，而 pathlib里的 Path 是该模块中最核心的类。
+
+```python
+from pathlib import Path
+import os
+# ==== 1️⃣ 拼接路径 ====================
+p = Path("a") / "b" / "c.txt"  # 【pathlib】
+os.path.join("a", "b", "c.txt")
+
+# ==== 2️⃣ 判断是否存在 ==================
+p.exists() # 【pathlib】
+os.path.exists(p)
+
+# ==== 3️⃣ 判断文件/目录 ==================
+p.is_file() # 【pathlib】
+p.is_dir() # 【pathlib】
+
+os.path.isfile(p)
+os.path.isdir(p)
+
+# ==== 4️⃣ 获取绝对路径==================
+p.resolve() # 【pathlib】
+os.path.abspath(p)
+
+# ==== 5️⃣ 获取文件名 / 后缀（优势巨大🔥） ================
+p.name        # 文件名   【pathlib】
+p.stem        # 文件名（无后缀）  【pathlib】
+p.suffix      # 后缀   【pathlib】
+
+os.path.basename(p)
+os.path.splitext(p)
+
+# ==== 6️⃣ 遍历目录 ================
+p = Path(".")  #【pathlib】
+for file in p.iterdir():
+    print(file)
+
+# ==== 7️⃣ 递归查找（超强🔥） ================
+list(p.glob("*.py"))# 【pathlib】
+list(p.rglob("*.py")) # 👉 rglob = 递归搜索
+
+# ==== 8️⃣ 读写文件（优雅🔥） ================
+p.write_text("hello") #【pathlib】
+content = p.read_text()
+```
+
+### 六、 shutil 模块【文件copy、解压缩】 与 zipfile模块
+
+- zipfile：压缩 / 解压 zip 文件
+- shutil：文件操作工具箱（更通用）
+  1. shutil 是“高级文件操作”，底层其实用的是 os模块
+
+| 对比点   | zipfile               | shutil               |
+| -------- | --------------------- | -------------------- |
+| 作用范围 | 只处理 zip            | 文件系统操作（更广） |
+| 压缩控制 | ✅ 精细控制（文件级） | ❌ 粗粒度            |
+| API 难度 | 稍复杂                | 更简单               |
+| 常用场景 | 处理压缩包            | 复制/移动/删除       |
+
+### 七、 序列化反序列化 --1-- json(通用) & pickle（python专用）模块
 
 - 序列化：用于将对象序列化成字符串；用于存储和数据传输；
 
@@ -1347,13 +1409,13 @@ json.loads = ujson.loads
 
 ```
 
-### 七、 序列化反序列化 --2-- shelve 模块(了解)
+### 八、 序列化反序列化 --2-- shelve 模块(了解)
 
 对pickle的封装
 
-### 八、 序列化反序列化 --3-- xml 模块(了解)
+### 九、 序列化反序列化 --3-- xml 模块(了解)
 
-### 九、 加载配置文件 -- configparser 模块【配置文件】
+### 十、 加载配置文件 -- configparser 模块【配置文件】
 
 加载某种特定格式的配置文件
 
@@ -1377,7 +1439,7 @@ print(config.get('section1', 'k2')) # 获取section1的k2的值
 print(config.getboolean('section1', 'is_admin')) # 获取section1的is_admin的值
 ```
 
-### 十、 哈希模块 -- hashlib 模块【hash加密】
+### 十一、 哈希模块 -- hashlib 模块【hash加密】
 
 - hash算法：该算法接受传入的内容，经过运算得到一串hash值；
 
@@ -1402,7 +1464,7 @@ print(res)
 
 ```
 
-### 十一、 执行系统命令 -- subprocess 模块【子进程】
+### 十二、 执行系统命令 -- subprocess 模块【子进程--系统级别】
 
 执行系统命令的: subprocess 用的是“管道（Pipe）”，不是队列（Queue）。
 
@@ -1469,7 +1531,7 @@ subprocess 做的事情其实是：
 
     👉 这些不是 Python 进程对象，不能用 multiprocessing.Queue
 
-### 十二、 logging 模块
+### 十三、 logging 模块
 
 日志级别：debug > info > warning > error > critical
 
@@ -1606,7 +1668,7 @@ import logging
 
 ```
 
-### 十三、 re 模块 -- 【正则模块】
+### 十四、 re 模块 -- 【正则模块】
 
 ![正则表达式](./img/正则表达式.png)
 
@@ -1638,7 +1700,7 @@ print(obj.search('abc123eeee').group()) #12
 print(obj.findall('abc123eeee')) #['12'],重用了obj
 ```
 
-### 十四、 uuid模块
+### 十五、 uuid模块
 
 ```python
 import uuid
@@ -1646,7 +1708,7 @@ print(uuid.uuid4()) # 9c5d0c0c-d0c9-4c0c-9c0c-c0c9d0c0c0c0
 
 ```
 
-### 十五、 struct 模块 --【Python 数据类型 和 二进制数据（bytes）之间进行转换】
+### 十六、 struct 模块 --【Python 数据类型 和 二进制数据（bytes）之间进行转换】
 
 struct = “Python ↔ 二进制数据”的打包/解包工具
 
@@ -1667,56 +1729,9 @@ struct = “Python ↔ 二进制数据”的打包/解包工具
  struct.calcsize('i')  # 4
 ```
 
-### 十六、 pathlib 模块（官方标准库） 与 os.path（传统路径处理方式）
+### 十七、 collections模块 --【提供增强版数据结构】
 
-👉 os.path = 字符串拼路径（旧时代）
-👉 pathlib = 对象操作路径（现代Python）
-
-pathlib 是一个用于处理文件系统路径的标准库模块，而 pathlib里的 Path 是该模块中最核心的类。
-
-```python
-from pathlib import Path
-import os
-# ==== 1️⃣ 拼接路径 ====================
-p = Path("a") / "b" / "c.txt"  # 【pathlib】
-os.path.join("a", "b", "c.txt")
-
-# ==== 2️⃣ 判断是否存在 ==================
-p.exists() # 【pathlib】
-os.path.exists(p)
-
-# ==== 3️⃣ 判断文件/目录 ==================
-p.is_file() # 【pathlib】
-p.is_dir() # 【pathlib】
-
-os.path.isfile(p)
-os.path.isdir(p)
-
-# ==== 4️⃣ 获取绝对路径==================
-p.resolve() # 【pathlib】
-os.path.abspath(p)
-
-# ==== 5️⃣ 获取文件名 / 后缀（优势巨大🔥） ================
-p.name        # 文件名   【pathlib】
-p.stem        # 文件名（无后缀）  【pathlib】
-p.suffix      # 后缀   【pathlib】
-
-os.path.basename(p)
-os.path.splitext(p)
-
-# ==== 6️⃣ 遍历目录 ================
-p = Path(".")  #【pathlib】
-for file in p.iterdir():
-    print(file)
-
-# ==== 7️⃣ 递归查找（超强🔥） ================
-list(p.glob("*.py"))# 【pathlib】
-list(p.rglob("*.py")) # 👉 rglob = 递归搜索
-
-# ==== 8️⃣ 读写文件（优雅🔥） ================
-p.write_text("hello") #【pathlib】
-content = p.read_text()
-```
+### 十八、 网络与接口模块 -- urllib (实际开发更喜欢第三方requests)
 
 ## 面向对象思想
 
