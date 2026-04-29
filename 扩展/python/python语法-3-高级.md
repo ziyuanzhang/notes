@@ -1260,7 +1260,7 @@ for i in range(50):
   # \r 回到行首
 ```
 
-### 🔥os 与 sys
+### 🔥os 🆚 sys
 
 👉 os 是“操作系统接口层”
 👉 sys 是“Python解释器控制层”
@@ -1284,7 +1284,7 @@ for i in range(50):
    - os.name 👉 粗粒度（nt / posix）
    - sys.platform 👉 更细
 
-### 五、 pathlib 模块（官方标准库） 与 os.path（传统路径处理方式）
+### 五、 pathlib 模块（官方标准库） 🆚 os.path（传统路径处理方式）
 
 👉 os.path = 字符串拼路径（旧时代）
 👉 pathlib = 对象操作路径（现代Python）
@@ -1335,7 +1335,7 @@ p.write_text("hello") #【pathlib】
 content = p.read_text()
 ```
 
-### 六、 shutil 模块【文件copy、解压缩】 与 zipfile模块
+### 六、 shutil 模块【文件copy、解压缩】 🆚 zipfile模块
 
 - zipfile：压缩 / 解压 zip 文件
 - shutil：文件操作工具箱（更通用）
@@ -3324,12 +3324,19 @@ if __name__ == "__main__":
 # task--线程名字:Thread-2 (task)
 # task--进程id:90733
 # ****************************************
-
+主线程结束
+   ↓
+如果还有非守护线程 → 继续运行
+   ↓
+当只剩守护线程
+   ↓
+进程退出 → 守护线程被干掉 ✅
 
 ```
 
+### 多线程服务端
+
 ```python
-# ======== 多线程服务端 ===========
 def talk(conn):
   while True:
     try:
@@ -3347,6 +3354,51 @@ while True:
   t =Thread(target=talk, args=(conn,))
   t.start()
 ```
+
+### 线程互斥锁 -- 加锁
+
+### GIL全局解释器锁
+
+👉 GIL（全局解释器锁）= 同一时刻只允许一个线程执行 Python 字节码
+
+1. GIL（全局解释器锁）不是 Python 语言规范的一部分，而是 CPython 解释器的实现机制；
+2. GIL 的作用是保证 CPython 内部对象模型（尤其是引用计数）的线程安全；
+3. 在 GIL 存在下，同一进程内多个线程无法同时执行 Python 字节码（CPU 密集型任务无法并行）；
+4. GIL 不能保证应用层数据安全，多线程访问共享数据仍需加锁（如 Lock）；
+5. GIL 并不是解释型语言的通病，而是 CPython 的设计权衡，不同语言和实现有不同策略。
+
+- 🚫 GIL 带来的直接影响
+  1. 多线程 ≠ 并行（CPU 密集型）❌
+  2. IO 密集型没问题 ✅
+
+- 那为什么 Python 不去掉 GIL？：
+
+  因为去掉 GIL 会让单线程性能下降，同时大幅增加实现复杂度（内存管理、锁粒度等），CPython 选择的是“牺牲多线程 CPU 并行能力，换取简单性和单线程性能”。
+
+- GIL 切换机制
+
+  ```code
+  大致机制：
+
+    * 执行一定字节码数量
+    * 或遇到 IO
+    * 或主动让出
+
+  👉 类似：
+
+    * 线程A：拿到GIL → 执行一会 → 释放
+    * 线程B：抢到GIL → 执行 → 释放
+  ```
+
+- 怎么绕过 GIL？
+  1. 多进程（最常用）
+     - 每个进程都有自己的 GIL;
+     - 真正并行 ✅
+
+  2. C扩展（底层释放GIL），例：numpy、pytorch；
+  3. asyncio（不是并行，是协程）
+
+👉 GIL 本质是：用“全局串行”换“实现简单 + 线程安全”
 
 ## 线程池
 
