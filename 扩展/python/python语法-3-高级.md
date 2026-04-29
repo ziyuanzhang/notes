@@ -3400,6 +3400,50 @@ while True:
 
 👉 GIL 本质是：用“全局串行”换“实现简单 + 线程安全”
 
+### GIL 🆚 互斥锁
+
+```python
+from threading import Thread, Lock
+import time
+
+lock = Lock()
+money = 100
+
+
+def task():
+    global money
+    # ----写法1 -------
+    lock.acquire()
+
+    tmp = money
+    time.sleep(0.1)
+    money = tmp - 1
+
+    lock.release()
+    # ----写法2 -------
+    # with lock:
+    #     tmp = money
+    #     time.sleep(0.1)
+    #     money = tmp - 1
+
+
+if __name__ == "__main__":
+    list = []
+    for i in range(100):
+        t = Thread(target=task)
+        t.start()
+        list.append(t)
+
+    for t in list:
+        t.join()
+    print(money)
+
+# 100个线程起起来之后要先去抢GIL
+# 我进入IO,GIL自动释放,但是我手上还有一个自己的互斥锁;
+# 其他线程虽然抢到了GIL但是抢不到互斥锁
+
+```
+
 ## 线程池
 
 ## a ==============================================================================
