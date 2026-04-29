@@ -3235,30 +3235,64 @@ if __name__ == "__main__":
 ```python
 from threading import Thread
 import time
+
+
 class MyThread(Thread):
-  def __init__(self, name):
-    super().__init__()
-    self.name = name
+    def __init__(self, name):
+        super().__init__()
+        self.name = name
 
-  def run(self):
-    print(f"hello{self.name}")
+    def run(self):
+        print(f"hello:{self.name}")
+        time.sleep(1)
+        print(f"world:{self.name}")
+
+
+def test(name):
+    print(f"hello:{name}")
     time.sleep(1)
-    print(f"world{self.name}")
+    print(f"world:{name}")
 
-def test('name'):
-  print(f"hello{name}")
-  time.sleep(1)
-  print(f"world{name}")
 
 if __name__ == "__main__":
-  t = MyThread('zhangsan')
-  print('主线程2')
+    t = MyThread("zhangsan")
+    print("主线程1")
+    t.start()
+    t.join()  # 阻塞当前线程，等待子线程结束
+
+    t2 = Thread(target=test, args=("lisi",))
+    print("主线程2")
+    t2.start()
+    print("主线程3")
+# ======= 输出结果：============
+# 主线程1
+# hello:zhangsan
+# world:zhangsan
+# 主线程2
+# hello:lisi
+# 主线程3
+# world:lisi
+
+```
+
+```python
+# 多线程服务端
+def talk(conn):
+  while True:
+    try:
+      data = conn.recv(1024)
+      if not data:
+        break
+      print(data.decode('utf-8'))
+      conn.send(f"{data.upper()}")
+    except ConnectionResetError: as e:
+      print(e)
+      break
+
+while True:
+  conn, addr = s.accept()
+  t =Thread(target=talk, args=(conn,))
   t.start()
-
-  t2 =Thread(target=test,args=('lisi',))
-  print('主线程1')
-  t2.start()
-
 ```
 
 ## 线程池
