@@ -3247,9 +3247,11 @@ if __name__ == "__main__":
 
 ## 线程相关知识点
 
+👉 守护线程不是“跟主线程死”，而是“随进程一起死”
+
 ```python
-from threading import Thread
-import time
+from threading import Thread, current_thread, active_count
+import time, os
 
 
 class MyThread(Thread):
@@ -3258,15 +3260,27 @@ class MyThread(Thread):
         self.name = name
 
     def run(self):
-        print(f"hello:{self.name}")
+        print(f"MyThread--hello:{self.name}")
         time.sleep(1)
-        print(f"world:{self.name}")
+        print(f"MyThread--world:{self.name}")
+        print(f"MyThread--线程名字:{current_thread().name}")
+        print(f"MyThread--进程id:{os.getpid()}")
+        print("*" * 40)
 
 
-def test(name):
-    print(f"hello:{name}")
-    time.sleep(1)
-    print(f"world:{name}")
+def task(name):
+    print(f"task--hello:{name}")
+    time.sleep(2)
+    print(f"task--world:{name}")
+    print(f"task--线程名字:{current_thread().name}")
+    print(f"task--进程id:{os.getpid()}")
+    print("*" * 40)
+
+
+def task2(name):
+    print(f"task2--hello:{name}")
+    time.sleep(3)
+    print(f"task2--world:{name}")
 
 
 if __name__ == "__main__":
@@ -3275,23 +3289,47 @@ if __name__ == "__main__":
     t.start()
     t.join()  # 阻塞当前线程，等待子线程结束
 
-    t2 = Thread(target=test, args=("lisi",))
+    t2 = Thread(target=task, args=("lisi",))
     print("主线程2")
     t2.start()
-    print("主线程3")
+    print("主线程2.1")
+    print(f"主线程--名字:{current_thread().name}")
+    # 2（MyThread已经结束了）
+    print(f"主线程--活跃线程数:{active_count()}")  # 统计当前正在活跃的线程数
+
+    print(f"主线程--进程id:{os.getpid()}")
+
+    t3 = Thread(target=task2, args=("wangwu",))
+    t3.daemon = True  # 守护线程（当进程退出时会被强制终止；程序会等待所有非守护线程结束后才退出）
+    t3.start()
+    print("主线程3")  # ❗守护线程不是“跟主线程死”，而是“随进程一起死”
+
+
 # ======= 输出结果：============
 # 主线程1
-# hello:zhangsan
-# world:zhangsan
+# MyThread--hello:zhangsan
+# MyThread--world:zhangsan
+# MyThread--线程名字:zhangsan
+# MyThread--进程id:90733
+# ****************************************
 # 主线程2
-# hello:lisi
+# task--hello:lisi
+# 主线程2.1
+# 主线程--名字:MainThread
+# 主线程--活跃线程数:2
+# 主线程--进程id:90733
+# task2--hello:wangwu
 # 主线程3
-# world:lisi
+# task--world:lisi
+# task--线程名字:Thread-2 (task)
+# task--进程id:90733
+# ****************************************
+
 
 ```
 
 ```python
-# 多线程服务端
+# ======== 多线程服务端 ===========
 def talk(conn):
   while True:
     try:
