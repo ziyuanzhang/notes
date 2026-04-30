@@ -1748,6 +1748,20 @@ collections
 
 ### 十八、 网络与接口模块 -- urllib (实际开发更喜欢第三方requests)
 
+### 十九、 进程模块 -- multiprocessing
+
+### 二十、 线程模块 -- threading
+
+### 二十一、 线程池进程池 -- concurrent.futures
+
+concurrent（并发）：代表这个模块的用途，也就是用来处理并发编程的。  
+futures（未来）：代表了它的核心设计理念——“未来对象”（Future Object）。
+
+concurrent.其他？目前是没有的。  
+在 Python 的标准库中，concurrent 这个包下面，只有 futures 这一个子模块。
+
+### 二十一、 协程模块 -- asyncio
+
 ## 面向对象思想
 
 - 函数：用来封装“可复用的功能（行为）”；
@@ -3769,6 +3783,9 @@ Event 管“开关”，Condition 管“条件 + 队列”，Semaphore 管“名
 参考 “队列 与 管道”
 
 ## 进程池与线程池
+
+池是用来保证计算机硬件安全的情况下最大限度的利用计算机;  
+它降低了程序的运行效率但是保证了计算机硬件的安全 从而让你写的程序能够正常运行;
 
 ## 协程
 
