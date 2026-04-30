@@ -1733,7 +1733,7 @@ struct = “Python ↔ 二进制数据”的打包/解包工具
 
 👉 在 list / dict / set / tuple 基础上，给你更强的“变种结构”
 
-```code
+```bash
 collections
 ├── deque: 双端队列
 ├── Counter:  计数神器
@@ -3110,14 +3110,9 @@ if __name__ == "__main__":
 
 ### 队列 Queue -- 会 阻塞
 
-- 🔥 Python3 中的两种 Queue: 1、 线程用的队列; 2、 进程用的队列
-  1. 线程用的队列 `import queue`
-     - 创建队列 `q = queue.Queue()`
-     - q.put(1); print(q.get())
-
-  2. 进程用的队列 `from multiprocessing import Queue`
-     - 创建队列 `q = Queue()`
-     - q.put(1); print(q.get())
+- 🔥 Python3 中的两种 Queue:
+  1. 线程用的队列;
+  2. 进程用的队列
 
   | 对比           | queue.Queue | multiprocessing.Queue |
   | -------------- | ----------- | --------------------- |
@@ -3127,15 +3122,33 @@ if __name__ == "__main__":
   | 性能           | 快          | 相对慢                |
 
 ```python
+# ===== 进程队列=======================================
 from multiprocessing import Queue
 q = Queue(5) # 括号内可以放数字来限制队列的大小; 不传则，默认32767个
 q.put(111) # 放数据：当队列满了，继续放会阻塞，直到有位置让出来， ❗不会报错；
 q.get() # 取数据：当队列空了，继续取会阻塞；
 q.get(timeout=3) # 取数据：没有数据之后原地等待三秒,之后再报错 queue.Empty
 
-# ==========================以下方法 ❗不精确，不是实时的==================
+# *********** 以下方法 ❗不精确，不是实时的 ************
 q.empty() # 判断队列是否为空（❗不精确，不是实时的）
 q.get_nowait() # 取数据：不会阻塞，如果队列中没有数据，直接报错queue.Empty（❗不精确，不是实时的）
+# ===== 线程队列=======================================
+from queue import Queue, LifoQueue, PriorityQueue
+
+q2 = Queue()
+q2.put(1)
+q2.get()
+
+q3 = LifoQueue(4)  # 后进先出
+
+
+q4 = PriorityQueue(4)  # 优先级高的先执行
+# put括号内放一个元祖;第一个放数字表示优先级; 需要注意的是: 数字越小优先级越高!!!
+q4.put((11, "111"))
+q4.put((22, "222"))
+q4.put((0, "0"))
+q4.put((-5, "-5"))
+print(q4.get())  # (-5,'-5')
 ```
 
 - 📌 特点：
@@ -3695,8 +3708,8 @@ t2 = threading.Thread(target=consumer)
 
 t1.start()
 t2.start()
-t1.join()
-t2.join()
+t1.join()# 阻塞当前线程，等待子线程结束
+t2.join()# 阻塞当前线程，等待子线程结束
 # ============== 流程 ===================================
 # ******** 第一步：消费者 ********
 #   with cond:
@@ -3752,6 +3765,8 @@ Event 管“开关”，Condition 管“条件 + 队列”，Semaphore 管“名
 ![python并发同步工具图Lock_RLock_Event_Semaphore_Condition](./img/python并发同步工具图Lock_RLock_Event_Semaphore_Condition.png)
 
 ### 线程队列（queue 模块）
+
+参考 “队列 与 管道”
 
 ## 进程池与线程池
 
