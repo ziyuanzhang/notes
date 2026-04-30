@@ -1731,6 +1731,21 @@ struct = “Python ↔ 二进制数据”的打包/解包工具
 
 ### 十七、 collections模块 --【提供增强版数据结构】
 
+👉 在 list / dict / set / tuple 基础上，给你更强的“变种结构”
+
+```code
+collections
+├── deque: 双端队列
+├── Counter:  计数神器
+├── defaultdict: 自动初始化(自动补默认值)
+├── namedtuple: 结构体(带名字的元组)
+├── ChainMap: 合并 dict
+└── OrderedDict: 有序 dict（历史遗留）
+```
+
+👉 dataclass / pydantic 决定“一个数据长什么样”
+👉 collections 决定“一堆数据怎么高效地玩”
+
 ### 十八、 网络与接口模块 -- urllib (实际开发更喜欢第三方requests)
 
 ## 面向对象思想
@@ -3444,23 +3459,299 @@ if __name__ == "__main__":
 
 ```
 
-### 其他（了解）
+### 死锁(Deadlock)与递归锁（RLock）
 
-- 死锁与递归锁(了解)
-  1. 死锁：本质 多个线程（或进程）互相持有对方需要的锁，谁也不释放 → 永远卡住；
-  2. 递归锁：本质 同一个线程，可以多次获取同一把锁，不会被自己卡死
+1. 死锁：本质 多个线程（或进程）互相持有对方需要的锁，谁也不释放 → 永远卡住；
+2. 递归锁：本质 同一个线程，可以多次获取同一把锁，不会被自己卡死；（内部采用记数，每次加/减1）
 
-  | 对比点     | 死锁              | 递归锁         |
-  | ---------- | ----------------- | -------------- |
-  | 本质       | 多线程互相卡住    | 单线程重复加锁 |
-  | 是否正常   | ❌ bug            | ✅ 正常机制    |
-  | 是否能恢复 | ❌ 不能           | ✅ 可以        |
-  | 发生原因   | 锁顺序混乱        | 重复加锁       |
-  | 解决方式   | 统一顺序 / 减少锁 | 用 RLock       |
+| 对比点     | 死锁              | 递归锁         |
+| ---------- | ----------------- | -------------- |
+| 本质       | 多线程互相卡住    | 单线程重复加锁 |
+| 是否正常   | ❌ bug            | ✅ 正常机制    |
+| 是否能恢复 | ❌ 不能           | ✅ 可以        |
+| 发生原因   | 锁顺序混乱        | 重复加锁       |
+| 解决方式   | 统一顺序 / 减少锁 | 用 RLock       |
 
-- 信号量(了解)
-- Event事件(了解)
-- 线程q(了解)
+### 信号量（Semaphore）
+
+- 锁 = 一次只允许 1 个人进（一把钥匙）
+- 信号量 = 允许 N 个人同时进（N 张门票，限流）
+- 信号量也可能导致死锁 👇
+  1. 一个线程拿了不 release
+  2. 或多个资源顺序混乱
+
+- 信号量解决什么问题
+  1. 限流（最常见），比如：
+     - 数据库连接最多 10 个
+     - 接口并发最多 5 个
+     - 爬虫同时请求数限制
+
+  2. 资源池控制，比如：
+     - 连接池
+     - 线程池内部控制
+     - GPU 资源
+
+- Semaphore 和 Lock / RLock 的区别
+
+  | 类型      | 同时允许几个线程 | 是否可重入 | 场景            |
+  | --------- | ---------------- | ---------- | --------------- |
+  | Lock      | 1                | ❌         | 简单互斥        |
+  | RLock     | 1                | ✅         | 递归/嵌套调用   |
+  | Semaphore | N                | ❌         | 限流 / 资源控制 |
+
+- 概念串：
+  1. Lock → 互斥（1个线程）
+  2. RLock(递归锁) → 可重入互斥（1个线程，可重复）
+  3. Semaphore → 多个线程同时访问（N个）
+  4. Deadlock(死锁) → 锁用错了，大家一起卡死
+
+```python
+import threading
+import time
+
+sem = threading.Semaphore(3) # 同一时间最多只有3个线程在执行，其他线程在排队（ ❌ release 多了会控制失效 ）
+sem = threading.BoundedSemaphore(3) #（✅ 更安全，多 release 会直接报错）
+
+def task(i):
+  # 1.
+   sem.acquire()
+    print("进入")
+    # 执行业务
+    sem.release()
+    # 2.
+    # with sem:
+    #     print(f"{i} 进入")
+    #     time.sleep(2)
+    #     print(f"{i} 离开")
+
+
+for i in range(10):
+    threading.Thread(target=task, args=(i,)).start()
+# ======= 输出结果：============
+# 0 进入
+# 1 进入
+# 2 进入
+# 0 离开
+# 1 离开
+# 2 离开
+# 3 进入
+# 4 进入
+# 5 进入
+# 3 离开
+# 6 进入
+# 4 离开
+# 7 进入
+# 5 离开
+# 8 进入
+# 8 离开
+# 9 进入
+# 6 离开
+# 7 离开
+# 9 离开
+```
+
+### 事件(Event)
+
+- 内部只有两种状态：
+  1. False：没触发 -- 阻塞（默认）
+  2. True ：已触发 -- 放行
+
+- 线程 和 进程 都有Event❗
+
+- 核心 API:
+
+  ```python
+      # from multiprocessing import Event
+      from threading import Thread, Event
+      e = Event() # 1.创建
+      e.set() # 2.设置事件（变成 True）, 相当于：发通知
+      e.clear() # 3.清除事件（变回 False）, 重置状态
+      e.wait() # 4.阻塞，直到 set() 被调用
+      e.is_set() # 5.判断状态
+  ```
+
+| 对比               | Event        | Lock         |
+| ------------------ | ------------ | ------------ |
+| 本质               | 信号通知     | 互斥控制     |
+| 是否互斥           | ❌ 不互斥    | ✅           |
+| 多线程能否同时通过 | ✅ 可以      | ❌ 不行      |
+| 典型用途           | 控制执行时机 | 保护共享资源 |
+
+👉 Event = 用来做“（线程或进程）之间打信号”的工具
+
+Event 控“什么时候执行”，Lock 控“谁能执行”
+
+### 条件变量（Condition）
+
+👉 “满足某个条件才执行” + 可精确唤醒
+
+Condition = Lock + 等待队列 + 精准唤醒机制
+
+Condition = 线程在“条件不满足时等待”，在“条件满足时被唤醒”的机制
+
+它解决的是：👉 “线程不是随便执行，而是要等某个条件成立再执行”
+
+- 核心点：
+  - 必须配合 锁（Lock）
+  - wait() 会：
+    1. 释放锁📌
+    2. 进入等待队列（阻塞 -- 睡觉）
+    3. 被 notify 唤醒
+    4. 重新抢锁
+
+- 后续
+
+```code
+拿锁 → 判断条件 → 不满足 → 放锁睡觉
+        ↑
+    被唤醒后再回来
+```
+
+❗ wait 只是让你醒，不保证条件成立，所以必须用 while 再确认一次；
+（if 是“一次性”的判断， while 是“反复”的循环）
+
+👉 核心区别一句话：Event 是“通知发生了”，Condition 是“条件成立了”
+👉 一句话：Semaphore 是“限流”，Condition 是“逻辑控制”
+
+```python
+import threading
+from collections import deque
+
+cond = threading.Condition()
+queue = deque() # 用链表，不用数组
+# 👉 原因：
+# list 是“动态数组”：往头部插入 👉 后面所有元素都要往后挪
+# deque 是“双端队列（链表块结构）”：头尾操作都是 O(1)
+
+
+# ==== 生产者 做了三件事： ====
+# 1. 每隔1秒生产一个
+# 2. 放进队列
+# 3. notify() 👉 通知“有人可以消费了”
+#
+#  ⚠️ 注意：
+#   ❗ 没有任何“条件判断”
+#   ❗ 没有 wait()
+#   ❗ 👉 完全不会阻塞
+def producer():
+    for i in range(5):
+        # ❗time.sleep() 是阻塞当前线程的；不是“挡住 for”，而是：让当前线程停住（其他线程不卡），for 只能等它醒了再继续
+        time.sleep(1)
+        with cond:  # with cond: = 先加锁 → 执行 → 最后释放锁
+            queue.append(i)
+            print("生产:", i)
+            cond.notify()  # 唤醒一个
+            # cond.notify_all() → 全叫醒（多个消费者）
+        # ==== with cond:  等价 下面👇 =====
+        # cond.acquire() # 加锁
+        # try:
+        #    # 临界区代码
+        #    # queue.append(i)
+        #    # print("生产:", i)
+        #    # cond.notify()  # 唤醒一个
+        # finally:
+        #     cond.release() # 解锁
+    # 👇 通知结束
+    with cond:
+        queue.append(None)
+        cond.notify()
+        # cond.notify_all() → 全叫醒（多个消费者）
+
+
+# ====== 消费者：如果队列是空的，就等 ======
+# ****** 第一次 ******
+# while True
+#   with cond
+#     while not queue
+#       wait()   ← 暂停在这里 😴
+
+
+# ****** 👉 被唤醒后 *******
+# 从 wait() 返回
+#  ↓
+# 再次执行 while not queue 判断（if 是“一次性”的判断， while 是“反复”的循环）
+#  ↓
+# 如果 queue 有数据
+#  ↓
+# 继续往下执行
+def consumer():
+    while True:
+        with cond:  # with cond: = 先加锁 → 执行 → 最后释放锁
+            # ❗必须用 while，不能用 if，因为“被唤醒 ≠ 条件一定成立”
+            # ❗wait() 只是让你醒，不保证条件成立，所以必须用 while 再确认一次
+            #  例：🔥 情况1：虚假唤醒；情况2：多个消费者
+            while not queue:
+                cond.wait()  # ✅ 被唤醒 → 从 wait() 继续执行,返回到 while not queue
+            item = queue.pop(0)
+
+        if item is None:
+            break
+
+        print("消费:", item)  # ❗锁更小 → 并发更高（没必要在锁中）
+
+
+t1 = threading.Thread(target=producer)
+t2 = threading.Thread(target=consumer)
+
+t1.start()
+t2.start()
+t1.join()
+t2.join()
+# ============== 流程 ===================================
+# ******** 第一步：消费者 ********
+#   with cond:
+#       while not queue:
+#           cond.wait()
+# -----------------------
+#   拿锁 🔒
+#   发现 queue 为空
+#   → 调用 wait()
+#   → 释放锁 🔓
+#   → 睡觉 😴
+# ******** 第二步：生产者 ********
+#   with cond:
+#       queue.append(i)
+#       cond.notify()
+# -----------------------
+#   成功拿到锁 🔒
+#   → queue.append(1)
+#   → cond.notify()
+#   → 释放锁 🔓
+# ******** 第三步：消费者被唤醒（进入就绪态） ********
+#   被唤醒
+#   → 等待锁释放
+#   → 抢到锁 🔒
+#   → 从 wait() 返回
+#   → 再执行 while 判断
+#   → 条件满足 → 消费
+#   → 释放锁 🔓
+# ******** 🔁 再循环 ********
+
+```
+
+### Lock 🆚 RLock 🆚 Event 🆚 Condition 🆚 Semaphore
+
+Event 管“开关”，Condition 管“条件 + 队列”，Semaphore 管“名额（配额）”
+
+- Event 👉 大门开/关（开了大家都能进）
+- Semaphore 👉 车位数量（最多 N 辆车能进）
+- Condition 👉 “有空位才叫你进”（带排队 + 唤醒机制）
+
+| 维度           | Event                | Condition        | Semaphore    |
+| -------------- | -------------------- | ---------------- | ------------ |
+| 本质           | 标志位（True/False） | 条件 + 等待队列  | 计数器       |
+| 控制粒度       | 所有线程一起放行     | 精确唤醒某些线程 | 限制并发数量 |
+| 是否需要锁     | ❌                   | ✅ 必须配合锁    | 内部已实现   |
+| 是否有数量概念 | ❌                   | ❌               | ✅           |
+| 典型用途       | 广播通知             | 复杂线程协作     | 限流         |
+
+- Event 是基于标志位的广播通知机制，适合做线程间的开关控制；
+- Semaphore 是基于计数器的同步工具，用于限制并发访问资源的数量；
+- Condition 则是在锁的基础上实现的条件变量，支持线程在特定条件下等待和被唤醒，适用于复杂的线程协作场景。
+
+![python并发同步工具图Lock_RLock_Event_Semaphore_Condition](./img/python并发同步工具图Lock_RLock_Event_Semaphore_Condition.png)
+
+### 线程队列（queue 模块）
 
 ## 进程池与线程池
 
@@ -3898,13 +4189,37 @@ object
 
 - 数据类
 
-| 类型                 | 是否官方 | 是否推荐  | 特点             |
-| -------------------- | -------- | --------- | ---------------- |
-| `@dataclass`         | ✅       | ✅ 强烈   | 现代 Python 标准 |
-| `namedtuple`         | ✅       | ⚠️        | 老方案，不直观   |
-| `typing.NamedTuple`  | ✅       | ⚠️        | 不可变           |
-| `attrs`              | ❌       | ✅        | dataclass 超集   |
-| `pydantic.BaseModel` | ❌       | ✅（Web） | 校验 + 序列化    |
+| 类型                 | 是否官方 | 是否推荐  | 特点                |
+| -------------------- | -------- | --------- | ------------------- |
+| `@dataclass`         | ✅       | ✅ 强烈   | 现代 Python 标准 ✅ |
+| `namedtuple`         | ✅       | ⚠️        | 老方案，不直观      |
+| `typing.NamedTuple`  | ✅       | ⚠️        | 不可变              |
+| `attrs`              | ❌       | ✅        | dataclass 超集      |
+| `pydantic.BaseModel` | ❌       | ✅（Web） | 校验 + 序列化 ✅    |
+
+```bash
+🔹 容器层（装数据）
+   tuple / dict / list / collections
+
+🔹 轻量结构体（结构 + 可读性）
+   namedtuple / typing.NamedTuple / dataclass
+
+🔹 增强结构体（更多控制）
+   attrs
+
+🔹 数据模型层（校验 + 序列化 + 工程）
+   pydantic.BaseModel
+```
+
+🧭 你的“选择流程”
+
+- 1️⃣ 普通业务数据：用 @dataclass（默认答案）
+- 2️⃣ API、JSON、外部输入：用 pydantic
+- 3️⃣ 性能 + 不可变：用 namedtuple
+- 4️⃣ 觉得 dataclass 不够用： 再考虑 attrs
+
+👉 dataclass / pydantic 决定“一个数据长什么样”；
+👉 collections 决定“一堆数据怎么高效地玩”；
 
 ```python
 # 1. 默认
