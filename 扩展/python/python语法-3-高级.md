@@ -3895,10 +3895,163 @@ print(list(results))
 print("main")
 ```
 
-## 协程(Coroutine) -- gevent模块
+## 协程(Coroutine) -- asyncio模块（内置标准库）、gevent模块（第三方）
 
-协程(了解)
-协程实现TCP服务端的并发效果(了解)
+🔥 协程本质是：协作式切换（cooperative），不是抢占式;
+
+asyncio 的本质 = 事件循环 + epoll（IO多路复用） + 协程（状态机）
+
+把 asyncio 想成：一个调度中心（事件循环） + 一堆任务;
+
+async/await 不是消灭回调，而是把“回调逻辑”隐藏进编译器和事件循环里，让你用顺序代码表达异步流程。
+
+```python
+import asyncio
+
+async def task(name):  # 定义协程函数
+    print(f"{name} 开始")
+    await asyncio.sleep(2)  # 含义不是“阻塞”，而是❗“我现在要等，可以切去执行别的任务”
+    print(f"{name} 结束")
+
+async def main():
+    t1 = asyncio.create_task(task("A"))  # 把协程放进“调度队列”，并发执行
+    t2 = asyncio.create_task(task("B"))
+    await asyncio.gather(t1, t2)
+
+asyncio.run(main())  # 启动事件循环（event loop）
+
+# 任务执行
+#   ↓
+# 遇到 await（IO/等待）
+#   ↓
+# 主动让出控制权
+#   ↓
+# 事件循环去执行别的任务
+```
+
+❗不是所有函数都能 await `await time.sleep(2)` ❌
+必须是：`await asyncio.sleep(2)` ✅
+
+👉 原因：只有“异步函数”才能被调度
+
+- 线程/进程 → 抢占式并发
+- Condition → 线程协作
+- asyncio/gevent → 协程并发
+
+### 演进链路：阻塞 → select → epoll → 事件循环 → asyncio
+
+asyncio 的本质 = 事件循环 + epoll（IO多路复用/IO注册机制） + 协程（状态机）
+asyncio 基于事件循环，通过 epoll/select 监听 IO 事件，在协程遇到 await 时挂起任务，等内核通知后再恢复执行，本质上是通过状态机和回调机制实现的单线程高并发模型。
+
+1. 1️⃣ 阻塞 IO（最原始）
+   - 一个连接在等 → 整个线程卡住
+   - 并发能力极差
+
+2. 2️⃣ select（多路复用）
+   - 一次性监听多个 socket
+   - ❗ 每次都要全量扫描（O(n)）
+   - ❗ 连接数大时性能差
+
+   👉 本质：轮询
+
+3. 3️⃣ epoll（Linux）
+   👉 核心升级：
+   - ✅ 事件驱动（不是轮询）
+   - ✅ 只返回“有事件的 socket”
+   - ✅ 注册一次，长期监听
+
+   epoll 本质：内核级事件通知器（IO多路复用）
+
+   epoll 负责什么？
+   - 告诉你：哪些 socket 可读/可写
+   - ❗不执行你的代码
+   - ❗不负责调度
+
+4. 事件循环（Event Loop）：
+   - 解决的问题：“拿到事件之后，谁来调度执行？”
+   - 本质：一个任务调度器
+   - 事件循环在干嘛？
+
+     ```bash
+       while True:
+          1. 等 IO 事件（epoll/select）
+          2. 拿到就绪 socket
+          3. 执行对应任务（协程）
+          4. 遇到 await → 挂起
+     ```
+
+5. 协程关键特性
+   - async def：可暂停函数
+   - await：主动让出执行权
+
+6. 🔥 核心执行流程（必须掌握）
+
+   ```bash
+      1. 执行协程
+      2. 遇到 await reader.read()
+
+      3. asyncio：
+         - 注册 socket 到 epoll
+         - 告诉内核：有数据再通知
+
+      4. 当前协程挂起（让出 CPU）
+
+      5. 事件循环执行其他协程
+
+      6. 某一刻：socket 有数据
+
+      7. epoll 通知事件循环
+
+      8. 事件循环：找到对应协程 → 恢复执行
+
+      9. await 返回数据 → 继续执行
+   ```
+
+   一句话总结：await = “先挂起，等 IO 好了再回来继续”
+
+7. async/await 的本质: 语法糖（回调 + 状态机）
+   本质拆解:
+   - 异步流程 = 回调链
+   - async/await = 把回调写成顺序代码
+
+   👉 等价思想：
+   - await 前 → 发起 IO
+   - await 后 → IO 完成后的回调
+
+8. 协程本质: 可暂停 + 可恢复的函数（状态机）
+   - 核心一句话：async/await 不是消灭回调，而是隐藏回调
+
+9. 完整链路（终极版🔥）
+
+   ```bash
+     socket（网络 IO）
+         ↓
+     epoll（谁准备好了）
+         ↓
+     event loop（调度执行）
+         ↓
+     coroutine（执行任务）
+         ↓
+     await（挂起 & 恢复）
+   ```
+
+10. 把“角色分清楚”（非常关键）
+
+    | 组件       | 作用         |
+    | ---------- | ------------ |
+    | epoll      | 通知谁有数据 |
+    | event loop | 调度执行     |
+    | asyncio    | 提供编程模型 |
+    | coroutine  | 执行任务     |
+
+    ```bash
+        epoll 负责看
+        loop 负责转
+        await 负责让
+        协程负责干
+    ```
+
+### 协程实现TCP服务端的并发效果(了解)
 
 ## a ==============================================================================
 
