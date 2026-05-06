@@ -3379,22 +3379,35 @@ if __name__ == "__main__":
 ### 多线程服务端
 
 ```python
-def talk(conn):
-  while True:
-    try:
-      data = conn.recv(1024)
-      if not data:
-        break
-      print(data.decode('utf-8'))
-      conn.send(f"{data.upper()}")
-    except ConnectionResetError: as e:
-      print(e)
-      break
+import threading
+import socket
 
-while True:
-  conn, addr = s.accept()
-  t =Thread(target=talk, args=(conn,))
-  t.start()
+
+def handle(conn, addr):
+    while True:
+        try:
+            data = conn.recv(1024)
+            if not data:
+                break
+            conn.send(data.upper())
+        except ConnectionResetError as e:
+            print(e)
+            break
+    conn.close()
+
+
+def serve(ip, port):
+    s = socket.socket()
+    s.bind((ip, port))
+    s.listen(5)
+    while True:
+        conn, addr = s.accept()
+        t = threading.Thread(target=handle, args=(conn, addr))
+        t.start()
+
+
+if __name__ == "__main__":
+    serve("127.0.0.1", 8080)
 ```
 
 ### 线程互斥锁 -- 加锁
@@ -3500,6 +3513,8 @@ if __name__ == "__main__":
 | 解决方式   | 统一顺序 / 减少锁 | 用 RLock       |
 
 ### 信号量（Semaphore）
+
+Semaphore 是“有空位就进”，不是“等全部空出来再进”
 
 - 锁 = 一次只允许 1 个人进（一把钥匙）
 - 信号量 = 允许 N 个人同时进（N 张门票，限流）
@@ -3787,7 +3802,100 @@ Event 管“开关”，Condition 管“条件 + 队列”，Semaphore 管“名
 池是用来保证计算机硬件安全的情况下最大限度的利用计算机;  
 它降低了程序的运行效率，但是保证了计算机硬件的安全，从而让你写的程序能够正常运行;
 
-## 协程
+- ① Lock / Condition → 控制线程怎么配合
+- ② Thread / Process → 怎么执行任务
+- ③ Pool → 怎么管理执行资源
+
+- 线程池：适用于 IO 密集型任务，利用共享内存降低开销；
+- 进程池：适用于 CPU 密集型任务，通过多进程绕过 GIL 实现真正的并行计算。
+
+```python
+from concurrent.futures import ThreadPoolExecutor, ProcessPoolExecutor
+import time, os
+
+# concurrent（并发）:代表这个模块的用途，也就是用来处理"并发编程"的。
+# futures（未来）:代表了它的核心设计理念——“未来对象”（Future Object）。
+
+# -------- 线程池 -----------------------------------------------------------------
+# 括号内可以传数字 不传的话默认会开设当前计算机cpu个数五倍的线程
+pool = ThreadPoolExecutor(5)  # 池子里面固定只有五个线程
+"""
+池子造出来之后,里面会固定存在五个线程
+这个五个线程不会出现重复创建和销毁的过程
+
+池子的使用非常的简单
+你只需要将需要做的任务往池子中提交即可 自动会有人来服务你
+"""
+
+
+def task(n):
+    print("task:", n)
+    time.sleep(2)
+    return n * n
+
+
+arr = []
+for i in range(10):
+    res = pool.submit(task, i)  # 朝池子中提交任务异步提交
+    # print(res)  # <Future at 0x102c934d0 state=pending>
+    arr.append(res)
+    # res.add_done_callback(lambda x: print(x.result()))
+    # res.done()
+    # print(res.result())  # 获取"异步提交"的结果，❗将“并发”任务改成“串行（同步）”任务了
+
+pool.shutdown()  # 关闭线程池,(等待线程池中所有的任务运行完毕)
+
+for i in arr:
+    print("result--:", i.result())  # 获取"异步提交"的结果;
+
+print("main")
+# -------- map ----------------------------------
+with ThreadPoolExecutor(max_workers=3) as pool:
+    results = pool.map(task, range(5))
+
+print(list(results))
+# -------- 进程池 ----------------------------------
+# 括号内可以传数字 不传的话默认会开设当前计算机cpu个数进程
+pool = ProcessPoolExecutor(5)
+"""
+池子造出来之后,里面会固定存在五个进程
+这个五个进程不会出现重复创建和销毁的过程
+
+池子的使用非常的简单
+你只需要将需要做的任务往池子中提交即可 自动会有人来服务你
+"""
+
+
+def task(n):
+    print("task:", n, os.getpid())
+    time.sleep(2)
+    return n * n
+
+
+def call_back(res):
+    print("result--:", res.result())
+
+
+if __name__ == "__main__":
+
+    t_list = []
+    for i in range(10):
+        pool.submit(task, i).add_done_callback(call_back)
+#         res = pool.submit(task, i)  # 朝池子中提交任务异步提交
+#         t_list.append(res)
+
+# pool.shutdown()
+# for i in t_list:
+#     print("result--:", i.result())
+# ----------- map ----------------------------------
+with ProcessPoolExecutor(max_workers=3) as pool:
+    results = pool.map(task, range(5))
+
+print(list(results))
+print("main")
+```
+
+## 协程(Coroutine) -- gevent模块
 
 协程(了解)
 协程实现TCP服务端的并发效果(了解)
