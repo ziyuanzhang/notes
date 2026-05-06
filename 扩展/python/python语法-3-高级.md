@@ -3818,7 +3818,7 @@ import time, os
 
 # =========================== 线程池 ==================================
 # 括号内可以传数字 不传的话默认会开设当前计算机cpu个数五倍的线程
-pool = ThreadPoolExecutor(5)  # 池子里面固定只有五个线程
+pool = ThreadPoolExecutor(5)  # 1. 池子里面固定只有五个线程
 """
 池子造出来之后,里面会固定存在五个线程
 这个五个线程不会出现重复创建和销毁的过程
@@ -3836,14 +3836,14 @@ def task(n):
 
 arr = []
 for i in range(10):
-    res = pool.submit(task, i)  # 朝池子中提交任务异步提交
+    res = pool.submit(task, i)  # 2. 朝池子中提交任务异步提交
     # print(res)  # <Future at 0x102c934d0 state=pending>
     arr.append(res)
-    # res.add_done_callback(lambda x: print(x.result()))
+    # print(res.result())  # 3. 获取"异步提交"的结果，❗将“并发”任务改成“串行（同步）”任务了
+    # res.add_done_callback(lambda x: print(x.result())) # 4. 回调函数
     # res.done()
-    # print(res.result())  # 获取"异步提交"的结果，❗将“并发”任务改成“串行（同步）”任务了
 
-pool.shutdown()  # 关闭线程池,(等待线程池中所有的任务运行完毕)
+pool.shutdown()  # 5. 关闭线程池,(等待线程池中所有的任务运行完毕)
 
 for i in arr:
     print("result--:", i.result())  # 获取"异步提交"的结果;
