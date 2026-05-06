@@ -3816,7 +3816,7 @@ import time, os
 # concurrent（并发）:代表这个模块的用途，也就是用来处理"并发编程"的。
 # futures（未来）:代表了它的核心设计理念——“未来对象”（Future Object）。
 
-# -------- 线程池 -----------------------------------------------------------------
+# =========================== 线程池 ==================================
 # 括号内可以传数字 不传的话默认会开设当前计算机cpu个数五倍的线程
 pool = ThreadPoolExecutor(5)  # 池子里面固定只有五个线程
 """
@@ -3849,12 +3849,12 @@ for i in arr:
     print("result--:", i.result())  # 获取"异步提交"的结果;
 
 print("main")
-# -------- map ----------------------------------
+# ********** map **********
 with ThreadPoolExecutor(max_workers=3) as pool:
     results = pool.map(task, range(5))
 
 print(list(results))
-# -------- 进程池 ----------------------------------
+# ========================== 进程池 ==================================
 # 括号内可以传数字 不传的话默认会开设当前计算机cpu个数进程
 pool = ProcessPoolExecutor(5)
 """
@@ -3887,7 +3887,7 @@ if __name__ == "__main__":
 # pool.shutdown()
 # for i in t_list:
 #     print("result--:", i.result())
-# ----------- map ----------------------------------
+# ********** map **********
 with ProcessPoolExecutor(max_workers=3) as pool:
     results = pool.map(task, range(5))
 
@@ -4044,12 +4044,11 @@ asyncio 基于事件循环，通过 epoll/select 监听 IO 事件，在协程遇
     | asyncio    | 提供编程模型 |
     | coroutine  | 执行任务     |
 
-    ```bash
-        epoll 负责看
-        loop 负责转
-        await 负责让
-        协程负责干
-    ```
+11. 记忆口诀
+    - epoll： 负责看
+    - loop： 负责转
+    - await： 负责让
+    - 协程：负责干
 
 ### 协程实现TCP服务端的并发效果(了解)
 
