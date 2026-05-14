@@ -383,23 +383,41 @@ CREATE TABLE student (
     id BIGINT PRIMARY KEY AUTO_INCREMENT,
     name VARCHAR(50) NOT NULL,
     age INT,
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    email VARCHAR(100) UNIQUE,
+    status TINYINT DEFAULT 1,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    deleted_at DATETIME NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 ```
 
 1. 表名定义: CREATE TABLE student: 指示数据库创建一个名为 student 的新表。
 2. 字段定义: 这部分在括号 () 内，定义了表的每一列及其属性：
+   - `id BIGINT PRIMARY KEY AUTO_INCREMENT`
+     1. `id`：字段名。
+     2. `BIGINT`：数据类型为大整数，能存储非常大的数字。
+     3. `PRIMARY KEY`：设为主键，意味着该字段的值必须唯一且不能为空，是每条记录的唯一标识。
+     4. `AUTO_INCREMENT`：设置为自增。插入新数据时，如果未指定 `id` 值，数据库会自动生成一个比上一条记录大 1 的数字（通常从 1 开始）。
 
-   | 字段定义                                        | 详细解读                                                                                                                                                                                                                                                                                    |
-   | ----------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-   | `id BIGINT PRIMARY KEY AUTO_INCREMENT`          | `id`：字段名。<br>`BIGINT`：数据类型为大整数，能存储非常大的数字。<br>`PRIMARY KEY`：设为主键，意味着该字段的值必须唯一且不能为空，是每条记录的唯一标识。<br>`AUTO_INCREMENT`：设置为自增。插入新数据时，如果未指定 `id` 值，数据库会自动生成一个比上一条记录大 1 的数字（通常从 1 开始）。 |
-   | `name VARCHAR(50) NOT NULL`                     | `name`：字段名。<br>`VARCHAR(50)`：数据类型为可变长度字符串，最多存储 50 个字符。<br>`NOT NULL`：设置为非空约束。插入数据时，这个字段必须有值，不能留空。                                                                                                                                   |
-   | `age INT`                                       | `age`：字段名。<br>`INT`：数据类型为整数。没有额外约束，因此该字段允许为 `NULL`。                                                                                                                                                                                                           |
-   | `created_at DATETIME DEFAULT CURRENT_TIMESTAMP` | `created_at`：字段名，通常用于记录数据的创建时间。<br>`DATETIME`：数据类型为日期和时间。<br>`DEFAULT CURRENT_TIMESTAMP`：设置默认值为当前时间戳。当插入一条新记录且未指定 `created_at` 的值时，数据库会自动填入当前系统时间。                                                               |
+   - `name VARCHAR(50) NOT NULL`
+     1. `name`：字段名。
+     2. `VARCHAR(50)`：数据类型为字符型，最多存储 50 个字符。
+     3. `NOT NULL`：设置为非空约束。插入数据时，这个字段必须有值，不能留空。
+
+   - `age INT`没有额外约束，因此该字段允许为 `NULL`。
+     1. `age`：字段名。
+     2. `INT`：数据类型为整数。
+
+   - `created_at DATETIME DEFAULT CURRENT_TIMESTAMP`
+     1. `created_at`：字段名，通常用于记录数据的创建时间。
+     2. `DATETIME`：数据类型为日期和时间。
+     3. `DEFAULT CURRENT_TIMESTAMP`：设置默认值为当前时间。当插入一条新记录且未指定 `created_at` 的值时，数据库会自动填入当前系统时间。
 
 3. 表级选项: 这部分在括号 () 之外，用于定义整个表的属性：
    ENGINE=InnoDB: 指定表的存储引擎为 InnoDB。这是 MySQL 的默认引擎，也是目前最推荐的引擎，因为它支持事务处理、行级锁和外键，能保证数据的安全性和高并发性能。
    DEFAULT CHARSET=utf8mb4: 指定表的默认字符集为 utf8mb4。这是真正的 UTF-8 编码，能够兼容所有 Unicode 字符，包括 emoji 表情符号（如 😊）。如果只使用 utf8 (实际上是 utf8mb3)，则无法存储 emoji。
+
+⚠️ MySQL 的 utf8 不是完整 UTF-8; 它最多：3字节, 不能存：emoji; 中文乱码：必须用： utf8mb4
 
 ### --- 连接demo --真实开发用：连接池------
 
@@ -415,12 +433,6 @@ CREATE TABLE student (
     database='test_db'
   )
 ```
-
-### utf8 和 utf8mb4
-
-⚠️ MySQL 的 utf8 不是完整 UTF-8; 它最多：3字节, 不能存：emoji
-
-中文乱码：必须用： utf8mb4
 
 ## 十一、ORM (Object Relational Mapping): 对象关系映射
 
