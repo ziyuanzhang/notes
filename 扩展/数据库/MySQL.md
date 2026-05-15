@@ -243,3 +243,34 @@ mysql 命令是：连接数据库服务的客户端工具
     database='test_db'
   )
 ```
+
+## 配置文件 -- 常见配置 及 修改
+
+| 配置                          | 作用         |
+| ----------------------------- | ------------ |
+| port=3306                     | 端口         |
+| bind-address                  | 监听IP       |
+| max_connections               | 最大连接数   |
+| character-set-server=utf8mb4  | 字符集       |
+| default_authentication_plugin | 默认认证插件 |
+| slow_query_log=1              | 慢SQL日志    |
+| log-error                     | 错误日志     |
+
+- 配置文件修改
+  1. 编辑配置文件：sudo vim /etc/my.cnf 或者 sudo vim /etc/mysql/mysql.conf.d/mysqld.cnf
+  2. 在 [mysqld] 下添加：
+
+     ```bash
+        [mysqld]
+        skip-grant-tables
+     ```
+
+  3. 重启数据库：sudo service mysql restart
+
+- MySQL 启动本质
+  1. mysqld 进程启动
+  2. → 读取配置文件
+  3. → 初始化存储引擎
+  4. → 初始化网络
+  5. → 初始化权限系统
+  6. → 开始监听3306
