@@ -62,6 +62,57 @@ mysql 命令是：连接数据库服务的客户端工具
 
 ## 退出 -- MySQL： exit
 
+## 修改密码
+
+### 已知道旧密码
+
+1. 登录 MySQL `mysql -u root -p`输入旧密码。
+2. 修改密码（MySQL 5.7+ / 8.x 推荐）: `ALTER USER 'root'@'localhost' IDENTIFIED BY 'NewPassword123!';`
+3. 刷新权限（通常可省略）: `FLUSH PRIVILEGES;`
+4. 退出: `exit;`
+
+- 修改普通用户密码
+  1. `ALTER USER 'test'@'localhost'  IDENTIFIED BY '123456';`
+
+- 查看有哪些用户：`SELECT user, host FROM mysql.user;`，结果类似：
+
+  | user | host      |
+  | ---- | --------- |
+  | root | localhost |
+  | test | %         |
+
+- host 是什么意思？
+  1. “root@localhost”：只能本机登录
+  2. “root@%”：允许远程登录
+  3. 所以：`'root'@'localhost'`和`'root'@'%'`是不同用户，修改密码时必须对应。
+
+### 忘记 root 密码
+
+核心原理:正常：MySQL 登录时会检查 mysql.user 权限表; 忘记密码时：让 MySQL “跳过权限表”,即可直接登录。
+
+- Linux 重置 root 密码
+  1. 停止 MySQL:
+     - Ubuntu / Debian：`sudo systemctl stop mysql`
+     - CentOS：`sudo systemctl stop mysqld`
+
+  2. 跳过权限启动: `sudo mysqld_safe --skip-grant-tables &`
+
+     | 参数                | 作用         |
+     | ------------------- | ------------ |
+     | mysqld_safe         | 安全启动     |
+     | --skip-grant-tables | 跳过权限验证 |
+
+  3. 无密码登录: `mysql -u root`
+  4. 修改密码: MySQL 8：`ALTER USER 'root'@'localhost' IDENTIFIED BY 'NewPassword123!';`
+     - 如果报错：ALTER USER failed, 先：`FLUSH PRIVILEGES;`再执行。
+
+  5. 重启 MySQL: 先关闭刚才临时进程。再正常启动：`sudo systemctl restart mysql`
+
+### SQL 的换行本质
+
+- SQL 语句：“换行、空格、缩进”大多数情况下都只是：“空白字符”，数据库解析器（Parser）会自动忽略。
+- 真正结束 SQL 的是：“;” 分号。
+
 ## 操作数据库-演练 ⚠️ 铁律：MySQL 的每一条命令，最后都必须以英文分号 ; 结尾
 
 1. 创建数据库（数据库，可以创建多个数据库）

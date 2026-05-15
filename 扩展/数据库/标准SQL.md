@@ -188,7 +188,7 @@
   | 枚举     | ⚠️ 部分数据库支持     | MySQL/PostgreSQL 有 |
   | 集合 SET | ❌ 基本 MySQL 独有    | 很少见              |
 
-## ## 十三、真实建表（现代规范）
+## 十三、真实建表（现代规范）
 
 ```SQL
 CREATE TABLE student (
@@ -237,3 +237,8 @@ CREATE TABLE student (
    DEFAULT CHARSET=utf8mb4: 指定表的默认字符集为 utf8mb4。这是真正的 UTF-8 编码，能够兼容所有 Unicode 字符，包括 emoji 表情符号（如 😊）。如果只使用 utf8 (实际上是 utf8mb3)，则无法存储 emoji。
 
 ⚠️ MySQL 的 utf8 不是完整 UTF-8; 它最多：3字节, 不能存：emoji; 中文乱码：必须用： utf8mb4
+
+## SQL 的换行本质
+
+SQL 语句：“换行、空格、缩进”大多数情况下都只是：“空白字符”，数据库解析器（Parser）会自动忽略。
+真正结束 SQL 的是：“;” 分号。
