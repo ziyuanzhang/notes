@@ -113,7 +113,9 @@ mysql 命令是：连接数据库服务的客户端工具
 - SQL 语句：“换行、空格、缩进”大多数情况下都只是：“空白字符”，数据库解析器（Parser）会自动忽略。
 - 真正结束 SQL 的是：“;” 分号。
 
-## 操作数据库-演练 ⚠️ 铁律：MySQL 的每一条命令，最后都必须以英文分号 ; 结尾
+## 操作数据库 -- 演练
+
+⚠️ 铁律：MySQL 的每一条命令，最后都必须以英文分号 ; 结尾
 
 1. 创建数据库（数据库，可以创建多个数据库）
 
@@ -141,7 +143,7 @@ mysql 命令是：连接数据库服务的客户端工具
 
    提示 Database changed，说明你现在进入 school 这个数据库（文件夹）了
 
-4. 创建表
+4. 创建表（不写，引擎默认是InnoDB）
 
    我们来建一个叫 student（学生）的表，包含三个列：学号(id)、姓名(name)、年龄(age)。
 
@@ -150,7 +152,7 @@ mysql 命令是：连接数据库服务的客户端工具
       id INT,
       name VARCHAR(20),
       age INT
-   );
+   ) engine=InnoDB;
    ```
 
    解释：INT 代表整数，VARCHAR(20) 代表最长20个字符的文字
@@ -172,7 +174,7 @@ mysql 命令是：连接数据库服务的客户端工具
    我们把“学号1，张三，18岁”录进去：
 
    ```SQL
-   INSERT INTO student (id, name, age) VALUES (1, '张三', 18);
+   INSERT INTO student (id, name, age) VALUES (1, '张三', 18),(2,'李四',20);
    ```
 
    再录入一个李四：
@@ -194,6 +196,7 @@ mysql 命令是：连接数据库服务的客户端工具
 
    ```SQL
    SELECT * FROM student WHERE age = 18;
+   SELECT * FROM student WHERE age > 18;
    ```
 
 9. 修改数据（改）
