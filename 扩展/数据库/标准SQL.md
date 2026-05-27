@@ -75,7 +75,7 @@
 | `FULL JOIN`  | 全连接   | ⚠️ 部分数据库不完整 |
 | `ON`         | 关联条件 | ✅                  |
 
-## 七、字段-约束（Constraint）-- 这些属于 ANSI SQL 核心
+## 七、字段 - 约束（Constraint）-- 这些属于 ANSI SQL 核心
 
 | 约束                          | SQL标准通用性    | 作用                   | 常见写法                                          | 常见用途           | 特点 / 注意事项                                                     |
 | ----------------------------- | ---------------- | ---------------------- | ------------------------------------------------- | ------------------ | ------------------------------------------------------------------- |
@@ -204,7 +204,11 @@ CREATE TABLE student (
     status TINYINT DEFAULT 1,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    deleted_at DATETIME NULL
+    deleted_at DATETIME NULL,
+
+    -- # 联合唯一
+    CONSTRAINT uk_user_role
+    UNIQUE (user_id, role_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 ```
 
