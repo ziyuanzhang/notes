@@ -117,120 +117,136 @@ mysql 命令是：连接数据库服务的客户端工具
 
 ⚠️ 铁律：MySQL 的每一条命令，最后都必须以英文分号 ; 结尾
 
-1. 创建数据库（数据库，可以创建多个数据库）
+- 数据库
+  1. 创建数据库（数据库，可以创建多个数据库）
 
-   在 mysql> 后面输入：
+     在 mysql> 后面输入：
 
-   ```SQL
-   CREATE DATABASE school;
-   ```
+     ```SQL
+     CREATE DATABASE school;
+     ```
 
-   按下回车，意思是：创建一个叫 school 的数据库
+     按下回车，意思是：创建一个叫 school 的数据库
 
-2. 查看数据库 (查看一下是不是创建成功了)
+  2. 查看数据库 (查看一下是不是创建成功了)
 
-   ```SQL
-   SHOW DATABASES;
-   ```
+     ```SQL
+     SHOW DATABASES;
+     ```
 
-   你会看到一列数据库的名字，里面有你的 school
+     你会看到一列数据库的名字，里面有你的 school
 
-3. 使用数据库
+  3. 使用数据库
 
-   ```SQL
-   USE school;
-   ```
+     ```SQL
+     USE school;
+     ```
 
-   提示 Database changed，说明你现在进入 school 这个数据库（文件夹）了
+  4. 删除数据库(⚠️ 非常危险)
 
-4. 创建表（不写，引擎默认是InnoDB）
+     ```SQL
+     drop database test_db;
+     ```
 
-   我们来建一个叫 student（学生）的表，包含三个列：学号(id)、姓名(name)、年龄(age)。
+     提示 Database changed，说明你现在进入 school 这个数据库（文件夹）了
 
-   ```SQL
-   CREATE TABLE student (
-      id INT,
-      name VARCHAR(20),
-      age INT
-   ) engine=InnoDB;
-   ```
+- 表
+  1. 创建表（不写，引擎默认是InnoDB）
 
-   解释：INT 代表整数，VARCHAR(20) 代表最长20个字符的文字
+     我们来建一个叫 student（学生）的表，包含三个列：学号(id)、姓名(name)、年龄(age)。
 
-5. 查看有哪些表
+     ```SQL
+     CREATE TABLE student (
+        id INT,
+        name VARCHAR(20),
+        age INT
+     ) engine=InnoDB;
+     ```
 
-   ```SQL
-   SHOW TABLES;
-   ```
+     解释：INT 代表整数，VARCHAR(20) 代表最长20个字符的文字
 
-6. 查看表结构
+  2. 查看有哪些表
 
-   ```SQL
-   DESC student;
-   ```
+     ```SQL
+     SHOW TABLES;
+     ```
 
-7. 插入数据（增）
+  3. 查看表结构
 
-   我们把“学号1，张三，18岁”录进去：
+     ```SQL
+     DESC student;
+     ```
 
-   ```SQL
-   INSERT INTO student (id, name, age) VALUES (1, '张三', 18),(2,'李四',20);
-   ```
+  4. 删除表
 
-   再录入一个李四：
+     ```SQL
+       drop table users;
+     ```
 
-   ```SQL
-   INSERT INTO student (id, name, age) VALUES (2, '李四', 19);
-   ```
+  5. 修改表
+     1. 修改表名：alter tab1e 表名 rename 新表名;
+     2. 增加字段：alter table 表名 add 字段名 字段类型(宽度)约束条件;
+        - alter table 表名 add 字段名 字段类型(宽度)约東条件 first;
+        - alter table 表名 add 字段名 字段类型(宽度)约束条件 after 字段名;
+     3. 删除字段：alter table 表名 drop 字段名;
+     4. 修改字段
+        - alter table 表名 modify 字段名 字段类型(宽度)约東条件;
+        - alter table 表名 change 旧字段名 新字段名 字段类型(宽度)约東条件;
+     5. 复制表：不能复制主键外键索引
+        - create table表名select\*from 表;
 
-8. 查询数据（查）
+- 数据
+  1. 插入数据（增）
 
-   把学生表里的所有数据拿出来看看（`*` 代表所有列）：
+     我们把“学号1，张三，18岁”录进去：
 
-   ```SQL
-   SELECT * FROM student;
-   ```
+     ```SQL
+     INSERT INTO student (id, name, age) VALUES (1, '张三', 18),(2,'李四',20);
+     ```
 
-   此时你会看到一个漂亮的表格，里面有张三和李四。
-   - 如果我只想找18岁的人呢？
+     再录入一个李四：
 
-   ```SQL
-   SELECT * FROM student WHERE age = 18;
-   SELECT * FROM student WHERE age > 18;
-   ```
+     ```SQL
+     INSERT INTO student (id, name, age) VALUES (2, '李四', 19);
+     ```
 
-9. 修改数据（改）
+  2. 查询数据（查）
 
-   张三过生日了，变成 19 岁了：
+     把学生表里的所有数据拿出来看看（`*` 代表所有列）：
 
-   ```SQL
-   UPDATE student SET age = 19 WHERE name = '张三';
-   ```
+     ```SQL
+     SELECT * FROM student;
+     ```
 
-   ⚠️警告：千万别漏掉 WHERE 条件，否则全班同学都会变成19岁！
+     此时你会看到一个漂亮的表格，里面有张三和李四。
+     - 如果我只想找18岁的人呢？
 
-10. 删除数据（删）
+     ```SQL
+     SELECT * FROM student WHERE age = 18;
+     SELECT * FROM student WHERE age > 18;
+     ```
 
-    李四退学了，要把他的数据删掉：
+  3. 修改数据（改）
 
-    ```SQL
-    DELETE FROM student WHERE name = '李四';
-    ```
+     张三过生日了，变成 19 岁了：
 
-    ⚠️警告：同样不能漏掉 WHERE，否则表里的数据就全清空了！
+     ```SQL
+     UPDATE student SET age = 19 WHERE name = '张三';
+     ```
 
-11. 必须重点理解：where❗
-12. 删除表
+     ⚠️警告：千万别漏掉 WHERE 条件，否则全班同学都会变成19岁！
 
-    ```SQL
-      drop table users;
-    ```
+  4. 删除数据（删）
 
-13. 删除数据库(⚠️ 非常危险)
+     李四退学了，要把他的数据删掉：
 
-    ```SQL
-    drop database test_db;
-    ```
+     ```SQL
+     DELETE FROM student WHERE name = '李四';
+     ```
+
+     ⚠️警告：同样不能漏掉 WHERE，否则表里的数据就全清空了！
+
+  5. 必须重点理解：where❗
 
 ## 连接demo (真实开发用：连接池)
 

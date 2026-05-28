@@ -208,7 +208,13 @@ CREATE TABLE student (
 
     -- # 联合唯一
     CONSTRAINT uk_user_role
-    UNIQUE (user_id, role_id)
+    UNIQUE (user_id, role_id),
+
+    -- # 外键
+    foreign key (user_id) references user (id) -- 外键, 本表的user_id字段，关联user表的id字段(❗先建立user表)
+    on update cascade -- 更新时级联更新
+    on delete cascade -- 删除时级联删除
+
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 ```
 
@@ -246,6 +252,12 @@ CREATE TABLE student (
    DEFAULT CHARSET=utf8mb4: 指定表的默认字符集为 utf8mb4。这是真正的 UTF-8 编码，能够兼容所有 Unicode 字符，包括 emoji 表情符号（如 😊）。如果只使用 utf8 (实际上是 utf8mb3)，则无法存储 emoji。
 
 ⚠️ MySQL 的 utf8 不是完整 UTF-8; 它最多：3字节, 不能存：emoji; 中文乱码：必须用： utf8mb4
+
+## 十四、表关系【外键 -- 同步更新与删除】
+
+1. 一对多：外键字段建在多的一方（员工与部门）；
+2. 多对多：自己开设第三张存储（图书与作者）；
+3. 一对一：建在任意一方都可以但是推荐你建在查询频率较高的表中（作者与作者详情）
 
 ## SQL 的换行本质
 
