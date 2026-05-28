@@ -46,6 +46,16 @@
 | `LIKE`      | 模糊匹配 | ✅     |
 | `IS NULL`   | 判断空值 | ✅     |
 
+```SQL
+SELECT * FROM users WHERE age >= 18 AND age <= 25;
+SELECT * FROM users WHERE age BETWEEN 18 AND 25;
+SELECT * FROM users WHERE age NOT BETWEEN 18 AND 25;
+SELECT * FROM users WHERE age NOT IN (18,20);
+-- like: % 匹配任意多个字符，- 匹配任意单个字符
+SELECT * FROM users WHERE name like '张%';
+SELECT * FROM users WHERE name like '张%' OR name like '----';
+```
+
 ## 四、排序 / 分组 / 聚合（核心）
 
 | SQL标准语法 | 作用       | 通用性 |
@@ -54,6 +64,20 @@
 | `GROUP BY`  | 分组       | ✅     |
 | `HAVING`    | 分组后过滤 | ✅     |
 | `DISTINCT`  | 去重       | ✅     |
+
+```SQL
+-- AS 别名;
+-- 统计各部门年龄在30岁以上的、员工平均工资、并且保留平均薪资大于10000的部门
+SELECT post AVG(salary) AS 平均工资, MAX(salary) AS 最高工资 FROM users
+  WHERE age>30
+  ORDER BY POST
+  HAVING AVG(salary);
+
+-- 去重，限制（第5个开始，拉10条）
+SELECT DISTINCT name FROM users LIMIT 5,10;
+-- 正则匹配
+SELECT * FROM users name REGEXP '^张';
+```
 
 ## 五、聚合函数（通用）
 
@@ -67,6 +91,8 @@
 
 ## 六、JOIN（关系型数据库灵魂） -- 这是 SQL 最核心能力之一
 
+连表
+
 | JOIN类型     | 作用     | 通用性              |
 | ------------ | -------- | ------------------- |
 | `INNER JOIN` | 内连接   | ✅                  |
@@ -74,6 +100,11 @@
 | `RIGHT JOIN` | 右连接   | ✅（SQLite较特殊）  |
 | `FULL JOIN`  | 全连接   | ⚠️ 部分数据库不完整 |
 | `ON`         | 关联条件 | ✅                  |
+
+```SQL
+-- 内连接: users表、posts表
+SELECT * FROM users INNER JOIN posts ON users.id = posts.user_id
+```
 
 ## 七、字段 - 约束（Constraint）-- 这些属于 ANSI SQL 核心
 
@@ -103,6 +134,8 @@
 | `ROLLBACK`                    | 回滚事务 | ✅     |
 
 ## 九、子查询（Subquery）
+
+将一个查询语句的结果当做另外一个查询语句的条件去用
 
 | SQL标准语法   | 作用       | 通用性 |
 | ------------- | ---------- | ------ |
