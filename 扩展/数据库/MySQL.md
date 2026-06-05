@@ -259,8 +259,43 @@ mysql 命令是：连接数据库服务的客户端工具
     port=3306,
     user='root',
     password='123456',
-    database='test_db'
+    database='test_db' # 指定库
+    charset='utf8mb4' # 指定编码
+    autocommit=True # 自动提交,不需要conn.commit()
   )
+  # currsor = conn.cursor() # #括号内不加参数的话 那么查询出来的数据是元组的形式 数据不够明确 容易混乱
+  cursor = conn.cursor(cursor=pymysql.cursors.Dictcursor) # 典形式返回数据 数据有具体的描述信息 更加的合理方便
+  sql='select *from user'
+  affect_rows = cursor.execute(sq1) # 返回值是当前sq]语句执行的受影响的行数
+  # -------------------------------
+  cursor.fetchone() # 只能结果的一条
+  cursor.fetcha11() # 拿所有
+  cursor.fetchmany(n)#指定获取几条
+  # 上述三个方法在读取数据的时候有一个类似于文件指针的特点
+
+  cursor.scro11(1,'relative') # 相对于光标所在的当前位置往后移动
+  cursor.scro11(1,'absolute') # 相对于数据开头往后移动
+
+  # -----------------------------------
+  # sql注入
+  sql="select *from user where username='%s' andpassword='%s'"%(username ,password) # 不要自己拼接
+  sq1 ="select * from user where username=%s and password=%s"
+  execute(sq1,(username,password)) # 只能识别%s
+  # -- 增 --------------------------------
+  # sql =insert into user(name,password) values(%s, %s)
+  # rows = cursor.execute(sql,('jackson',123))
+  # rows2 = cursor.execute(sql,[('jackson',123),('xxx',254),('yyy',567)]) # 插入多条数据
+  # print (rows)
+  # conn.commit()#确认
+  # -- 改 --------------------------------
+  # sql =update user setname="jasonNBwhere id=1rows = cursor.execute(sql)
+  # print (rows)
+  # conn.commit()#确认
+  # -- 删 --------------------------------
+  # sql ='delete from user where id=1
+  # rows = cursor.execute(sql)
+  # print(rows)
+  # conn.commit()#确认
 ```
 
 ## 配置文件 -- 常见配置 及 修改
