@@ -1,5 +1,9 @@
 # fastApi
 
+https://blog.csdn.net/inuex/article/details/159608645
+handler(source_type)：获取基础类型的核心 schema，继承基础类型的所有验证规则（如str的非空、int的数值验证）；
+core_schema.chain_schema：按顺序执行多个 schema，先执行基础类型验证，再执行自定义验证；
+
 ```bash
 第一阶段：Python基础
 │
