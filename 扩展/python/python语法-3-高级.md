@@ -3251,10 +3251,11 @@ def test('name'):
   print(f"world{name}")
 
 if __name__ == "__main__":
+  # 线程1
   t = MyThread('zhangsan')
   print('主线程2')
   t.start()
-
+  # 线程2
   t2 =Thread(target=test,args=('lisi',))
   print('主线程1')
   t2.start()
