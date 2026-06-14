@@ -1,36 +1,278 @@
 # linux 操作系统
 
-1. 主要目录说明：
-   - /: 根目录，所有文件都存放在这里；
-   - /bin: 存放系统启动和运行所需的“基本命令”（如 ls, cp, mv, bash）（所有用户可用）；
-   - /sbin：存放“系统管理员专用”的管理命令（如 fdisk, ifconfig, reboot）（通常只有 root 能用）；
-   - /etc: 系统配置文件目录（如 passwd, fstab, nginx/, systemd/）（不放二进制程序）；
-   - /home: 普通用户的家目录。例：用户 alice 的主目录是 /home/alice；
-   - /root: root 用户的家目录（不是 /home/root！）。
-   - /tmp: 临时文件目录（所有用户可读写，系统重启后通常清空）。
-   - /usr: 存放只读的用户程序和数据（类似 Windows 的 Program Files）。
-     1. /usr/bin：非基本命令（如 git, python3, vim）
-     2. /usr/sbin：非基本系统管理命令
-     3. /usr/lib：程序库文件
-     4. /usr/share：架构无关的数据（文档、图标、字体等）
-     5. /usr/local：本地编译安装的软件（避免与系统包冲突）
+- Linux 不是：一堆命令，而是：一个“资源调度系统”
+  负责：
+  - 调度 CPU
+  - 调度内存
+  - 调度文件
+  - 调度网络
+  - 调度硬件
+  - 管理进程
+- Linux 本质上是：一个“资源抽象 + 资源调度”系统;
 
-   - /proc: 虚拟文件系统，提供内核和进程信息;
-   - /sys: 虚拟文件系统，用于内核与硬件交互（设备、驱动、电源管理等），比 /proc 更结构化;
+  Linux：一切皆文件（❗重要）; 设备、进程、磁盘、socket，很多都能抽象成文件。
 
-2. 内核：操作和控制硬件的核心程序，如：CPU、内存、硬盘、显卡、网卡、声卡、光驱、摄像头、鼠标、键盘等；
+- 而”应用程序“ 只是”向 Linux 申请资源“，这才是操作系统真正本质。
+- 整个 Linux 世界真正主线
+  1. Linux 是资源调度核心
+  2. 内核负责硬件管理
+  3. 用户程序通过 系统调用(syscall) 申请资源
+  4. 文件系统组织资源
+  5. 包管理器管理软件
+  6. 服务程序运行在用户空间
 
-3. linux 发行版（操作系统）有两部分组成： 1、Linux 系统内核 + 2、系统级应用程序（常用软件）
-   - 内核：提供系统最核心的功能，如: 调度 CPU、调度内存、调度文件系统、调度网络通讯、调度 I0 等；
-   - 系统级应用程序：可以理解为出厂自带程序，可供用户快速上手操作系统，如: 文件管理器、任务管理器、图片查看、音乐播放等。
+- 系统调用(syscall) 是整个用户态/内核态切换核心；syscall 是应用程序进入内核世界的唯一正规入口
+
+## 一、Linux 到底是什么（先建立总框架）
+
+- Linux 最核心是：操作系统 = 内核 + 系统软件 + 用户空间工具;
+  - 可以理解成：Linux发行版 = Linux内核 + GNU工具链 + 包管理器 + 桌面/服务程序 + 默认软件;
+  - Linux 内核 ≠ 完整操作系统；
+
+    Linus 写的：只是内核; 真正能使用：还需要shell、coreutils、包管理器、init系统、libc等等。
+    这也是：GNU/Linux这个名字来源。
+
+- Linux 内核（Kernel）：操作系统最核心部分；
+  - 负责：
+    1. 进程调度：谁使用 CPU。
+    2. 内存管理：谁占用内存。
+    3. 文件系统：硬盘怎么读写。
+    4. 网络协议栈：TCP/IP。
+    5. 设备驱动管理。
+       例如：
+       - 网卡
+       - 显卡
+       - 声卡
+       - 光驱
+       - 摄像头
+       - USB
+       - 键盘 等
+
+    6. IO调度：磁盘、网络 IO。
+
+## 一个真正重要的 Linux 分层认知（核心）
+
+1. 用户空间（User Space）
+   例如：
+   - 微信
+   - nginx
+   - python
+   - mysql
+   - bash
+
+   普通程序。 不能直接碰硬件。
+
+2. 内核空间（Kernel Space）:Linux Kernel。
+
+   真正控制：
+   - CPU
+   - 内存
+   - 磁盘
+   - 网卡
+
+3. 系统调用（syscall）: 连接"用户空间 ↔ 内核空间"的桥梁。
+   这部分以后：
+   - socket
+   - IO模型
+   - epoll
+   - asyncio
+
+   都会大量涉及。
+
+4. 用户态（User Mode）：权限受限。
+
+   不能：
+   - 操作硬件
+   - 修改页表
+   - 直接访问网卡
+
+5. 内核态（Kernel Mode）：最高权限。
+
+   可以：
+   - 控制 CPU
+   - 操作内存
+   - 驱动设备
+
+6. 为什么这样设计？
+   - 为了：安全与稳定；
+   - 否则：微信崩了 = 整个系统崩
 
 ## 数据流转（发送、接受 消息流程）
 
-用户--》软件（微信）--》操作系统--》网卡驱动--》物理网卡--》【服务器】--》物理网卡--》网卡驱动--》操作系统--》软件（微信）--》用户
+用户 --> 应用程序（微信）--> socket API --> 系统调用（syscall）--> Linux内核 --> TCP/IP协议栈 --> 网卡驱动 --> 物理网卡 --> 交换机/路由器 --> 网络
 
 - 物理网卡：千千万种
 - 网卡驱动：N 多种
 - 操作系统：主要作用是协助用户调度硬件工作，充当用户和计算机硬件之间的桥梁
+
+  应用程序：不能直接操作硬件, 必须：通过内核; 这就是：操作系统存在的意义之一;
+  例如：微信不能直接控制网卡, 必须：调用 Linux 内核接口
+
+```bash
+  用户
+   ↓
+  应用程序（Python/微信/nginx/MySQL）
+   ↓
+  系统调用（syscall）
+   ↓
+  Linux Kernel
+   ├── 进程调度
+   ├── 内存管理
+   ├── 文件系统
+   ├── TCP/IP协议栈
+   ├── 驱动程序
+   └── IO调度
+   ↓
+  硬件
+   ├── CPU
+   ├── 内存
+   ├── 磁盘
+   ├── 网卡
+   └── USB设备
+```
+
+## 二、Linux 目录结构
+
+1. /: 根目录，所有目录的起点。
+   - 类似 Windows：“C:\”; 但 Linux：没有盘符概念, 所有磁盘都会“挂载”到 ”/“ 下。
+
+2. /bin: 基础用户命令，存放系统启动和运行所需的“基本命令”（例：ls, cp, mv, cat, bash）；【所有用户可用】
+   - ⚠️ 现代很多发行版：“/bin -> /usr/bin” 已经合并。
+
+3. /sbin: 管理员命令，存放“系统管理员专用”的管理命令(例：reboot,fdisk,mount);【通常只有 root 能用】
+   - ⚠️现代系统也常并入：/usr/sbin。
+
+4. /etc: 系统配置目录(❗非常重要, 例：“/etc/passwd，”/etc/hosts“，”/etc/nginx/“，”/etc/mysql/“)。
+   - 特点：基本不放程序，而是：放配置文件【不放二进制程序】
+
+5. /home：普通用户家目录。（例：用户 alice 的主目录是 /home/alice，类似：”C:\Users\alice“）；
+6. /root：root 用户家目录。
+   - ⚠️ 注意：/root，不是 /home/root；
+
+7. /tmp：临时文件目录。 特点：所有人可写，常用于缓存，部分系统重启清空；
+8. /usr（Unix System Resources）：它不是：user，可以理解成：系统级应用程序目录；类似：Program Files（❗超级重要）
+   - /usr/bin：普通应用程序（例：git、python3、vim、node）；
+   - /usr/sbin：系统管理程序；
+   - /usr/lib：动态库（类似 Windows：dll）；
+   - /usr/share：架构无关资源（例：字体、文档、icon、locale）；
+   - /usr/local：本地手动安装的软件（例：./configure、make、make install）；
+     默认会进：/usr/local，作用：避免污染系统包，❗非常重要。
+9. /var（variable）：存放：经常变化的数据（例： 日志：/var/log、 MySQL 数据：/var/lib/mysql、 nginx 网站：部分发行版：/var/www）
+10. /proc：虚拟文件系统，提供内核和进程信息;。
+    - ⚠️ 不是真实磁盘文件。它是：内核实时映射（例：cat /proc/cpuinfo：查看 CPU）。
+
+11. /sys：也是虚拟文件系统。相比 /proc：更偏硬件与设备模型（例：电源、驱动、PCI设备、USB）；
+12. /boot: 启动相关文件。
+13. /lib: 系统动态库。
+    - 很多系统：⚠️ /lib -> /usr/lib
+
+14. /opt: 第三方大型软件。例如：Oracle,JetBrains
+
+## sudo 是什么
+
+你会经常看到：`sudo apt install`
+
+因为：安装软件需要：root 权限;
+
+sudo 意思：以管理员身份执行, 类似 Windows：“以管理员身份运行”
+
+## apt 是 Linux 的“软件安装管理器”，⚠️不是所有 Linux 都有 apt（重要），Linux 有很多发行版。
+
+- 可以理解成：Linux 的应用商店 + 安装器；
+  apt（Advanced Package Tool）：是 Debian / Ubuntu 系 Linux 的包管理工具, 因为：apt 属于 Debian 系生态
+
+  用于：
+  - 安装软件
+  - 卸载软件
+  - 更新软件
+  - 管理依赖
+
+    | 生态          | 包管理工具     | 安装内容 |
+    | ------------- | -------------- | -------- |
+    | Ubuntu/Debian | apt            | 系统软件 |
+    | CentOS        | yum/dnf        | 系统软件 |
+    | macOS         | App Store/brew | 系统软件 |
+    | Node.js       | npm/pnpm/yarn  | JS包     |
+    | Python        | pip            | Python包 |
+    | Rust          | cargo          | Rust包   |
+    | Go            | go mod         | Go模块   |
+
+- Linux 软件通常来自：软件仓库（repository）
+  类似：官方软件服务器，Ubuntu 官方维护大量软件。
+
+  apt 会：
+  - 连接软件仓库
+  - 下载软件
+  - 自动安装
+
+- Linux 用：`sudo apt install mysql-server`安装软件；
+  自动：
+  1. 下载
+  2. 安装
+  3. 配置依赖
+  4. 注册服务
+
+  一步完成。
+
+- apt install 到底干了什么？ 例：`sudo apt install mysql-server`
+  1. 去软件源查找 mysql-server，类似：软件数据库；
+  2. 下载软件包，比如：.deb文件。类似 Windows 的：.exe
+  3. 自动安装依赖，比如：MySQL 依赖：
+     - libc
+     - openssl
+     - networking
+
+     apt 自动帮你装。这就是：“依赖管理”
+
+  4. 注册系统服务，例如：systemctl start mysql就能启动。
+
+  “依赖树”: 是：包管理器最大价值, 否则：手工装依赖会地狱。
+
+- 软件源（repository）: 例如："/etc/apt/sources.list"; 里面配置：软件仓库地址,apt update 本质：同步软件索引;
+- systemd: 现代 Linux 的：服务管理器（init system）
+
+  负责：
+  1. 启动服务
+  2. 停止服务
+  3. 开机自启
+  4. 管理后台进程
+
+- systemctl:systemd 的命令工具。
+
+  例如：
+  1. systemctl start nginx
+  2. systemctl stop mysql
+  3. systemctl restart redis
+
+## apt 常用命令（以后天天用）
+
+1. 更新软件列表:`sudo apt update`意思：刷新软件仓库索引；类似：同步应用商店列表
+2. 升级软件:`sudo apt upgrade`
+3. 安装软件:`sudo apt install nginx`
+4. 卸载软件:`sudo apt remove nginx`
+5. 搜索软件:`apt search mysql`
+6. 搜索软件:`apt search mysql`
+
+## Linux 软件安装真正底层（进阶理解）
+
+apt 其实只是：高层工具;
+
+真正安装 ".deb 包"的是：dpkg
+
+关系：apt -> dpkg
+
+类似：pip -> python setup/install
+
+- .deb: Ubuntu/Debian 软件包格式。类似：Windows exe/msi; 但更接近：安装包 + 元数据;
+- dpkg: 底层包安装工具。只能：安装本地包, 不会自动解决依赖。
+- apt: 更高级。
+  会：
+  - 自动下载
+  - 自动解决依赖
+  - 自动更新仓库
+  - 自动安装依赖
+
+##
 
 ## 虚拟机
 
