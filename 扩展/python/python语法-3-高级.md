@@ -531,12 +531,12 @@ func(**{'x':1,'y':2,'z':3}) # func(x=1,y=2,z=3)
 
 # ==================================================
 def index(x,y,z):
-print(x,y,z)
+   print(x,y,z)
 
 def wrapper(*args, **kwargs): #形参 #arg=(1,) kwargs={'y':2,'z':3}
-index(*args, **kwargs) # 实参
-# index(*(1,),**{'y':2,'z':3})
-# index(1,z=3,y=2)
+   index(*args, **kwargs) # 实参
+   # index(*(1,),**{'y':2,'z':3})
+   # index(1,z=3,y=2)
 
 wrapper(1,z=3,y=2)
 ```
@@ -1815,30 +1815,30 @@ Paramiko 主要提供两大核心功能：
 ```python
 # 👉 类定义时，会执行类体代码，生成类对象（只执行一次）
 class Student:
-# stu_name = "张三"
-# stu_age = 18
-# stu_gender = "男"
-stu_school = "上海大学"
-count = 0 # 静态变量 --> 统计实例化次数
+    # stu_name = "张三"
+    # stu_age = 18
+    # stu_gender = "男"
+    stu_school = "上海大学"
+    count = 0 # 静态变量 --> 统计实例化次数
 
-def __init__(self,name=None): # 1、构造函数，初始化参数；2、类调用阶段运行(即生成对象实例时)，3、self:对象实例本身；4、可以给默认值；
- self.stu_name = name # 初始化参数
- Student.count += 1
- print("=====") # 也可以放其他代码,类调用时立即执行；
- return None # 默认就是 None，可以不写；如果写了非 None 会报错(建议: 直接省略，不写)
+    def __init__(self,name=None): # 1、构造函数，初始化参数；2、类调用阶段运行(即生成对象实例时)，3、self:对象实例本身；4、可以给默认值；
+     self.stu_name = name # 初始化参数
+     Student.count += 1
+     print("=====") # 也可以放其他代码,类调用时立即执行；
+     return None # 默认就是 None，可以不写；如果写了非 None 会报错(建议: 直接省略，不写)
 
-def set_name(self, name): # self只是个参数名字，写成X、Y也可以；❗指向调用者，类似js的call/apply/bind
- self.stu_name = name # ❗self上的属性，就当没有；初始化后才有
+    def set_name(self, name): # self只是个参数名字，写成X、Y也可以；❗指向调用者，类似js的call/apply/bind
+     self.stu_name = name # ❗self上的属性，就当没有；初始化后才有
 
-def choose(self, course):
- self.course = course
+    def choose(self, course):
+     self.course = course
 
-print("=====") # 定义时运行（只执行一次）；
+    print("=====") # 定义时运行（只执行一次）；
 
-# 读到 class
-# 1️⃣ 执行 class 里的代码（print 会执行）
-# 2️⃣ 把执行过程中产生的变量/函数收集起来（形成一个 dict）
-# 3️⃣ 用这个 dict 创建“类对象 Student”
+    # 读到 class
+    # 1️⃣ 执行 class 里的代码（print 会执行）
+    # 2️⃣ 把执行过程中产生的变量/函数收集起来（形成一个 dict）
+    # 3️⃣ 用这个 dict 创建“类对象 Student”
 
 
 print(Student.__dict__) # 类的名称空间的内容 ==>
