@@ -512,7 +512,7 @@ state 的数据都会被处理为 ref，访问 ref 是需要 .value，但 pinia 
   其实对于 npm 包，require 的规则是这样的：
   1. 查找 package.json 下是否定义了 main 字段，是则读取 main 字段下定义的入口。
   2. 如果没有 package.json 文件，则读取文件夹下的 index.js 或者 index.node。
-  3. 如果都 package.json、index.js、index.node 都找不到，抛出错误 module 'some-library' 。
+  3. 如果 package.json、index.js、index.node 都找不到，抛出错误 module 'some-library' 。
 
   那么看一下 vue 的 package.json 文件有这么一句：
 
