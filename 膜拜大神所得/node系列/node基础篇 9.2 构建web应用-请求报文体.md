@@ -12,7 +12,7 @@ var hasBody = function(req) {
 ```
 
 在 HTTP_Parser 解析报头结束后，报文内容部分会通过 data 事件触发，我们只需以流的方式处理即可。  
-将接收到的 Buffer 列表转化为一个 Buffer 对象后，再转换为没有乱码的字符串，暂时挂置在 req.rawBody 处。
+将接收到的 Buffer 列表转化为一个 Buffer 对象后，再转换为没有乱码的字符串，暂时挂载在 req.rawBody 处。
 
 ```
 function (req, res) {
@@ -135,7 +135,6 @@ Content-Type: application/javascript\r\n
    攻击者通过客户端能够十分容易地模拟伪造大量数据，如果攻击者每次提交 1MB 的内容，那么只要并发请求数量一大，内存就会很快地被吃光。
 
    解决方案：
-
    - 限制上传内容的大小，一旦超过限制，停止接收数据，并响应 400 状态码。
    - 通过流式解析，将数据流导向到磁盘中，Node 只保留文件路径等小数据。
 

@@ -7,7 +7,6 @@
 init_chat_model、invoke 方法、环境配置
 
 - 模型调用：有 2 中形式
-
   1. 模型对应的 api 接口（例：ChatDeepSeek、ChatOpenAI）：可以显示思考过程、细节等；
   2. init_chat_model：函数调用【独有速率限制参数 -— 单位时间内调用次数】
 
@@ -115,27 +114,22 @@ HumanMessage、AIMessage、SystemMessage、对话历史
 
 - 对话历史 -- 本质是 列表
 - 组成部分: SystemMessage、HumanMessage、ToolMessage、AIMessage
-
   1. role: system(系统消息)、user（用户输入）、assistant（模型输出）、tool(工具输出)
   2. content: 消息内容
   3. Metadata:（可选）额外信息，如：消息 ID、响应时间、token 消耗、消息标签等
 
 - 消息解析
-
   1. SystemMessage、HumanMessage: Content
   2. AIMessage 的 additional_kwargs
-
      - 属性
-
        1. tool_calls(list): 与该消息关联的工具调用；
        2. invalid_tool_calls(list): 与该消息关联的解析错误的工具调用；
-       3. usage_metadata(typedict): 包会该消息的使用元数据，例如 token 使用情况；
+       3. usage_metadata(typedict): 包含该消息的使用元数据，例如 token 使用情况；
        4. content_blocks(list): 消息中标准的、结构化的 ContentBlock 字典;
 
      - 方法 pretty_repr ->str: 返回该消息更易读的的可视化呈现形式;
 
   3. ToolMessage 的 additional_kwargs
-
      - 属性
        1. results(list): 工具的执行结果，列表内容由所定义工具而定;
        2. tool_call_id(str): 该消息消息所响应的工具调用唯一标识;
@@ -155,7 +149,6 @@ HumanMessage、AIMessage、SystemMessage、对话历史
   | 返回 `str`     | 工具应该返回字符串（AI 最容易理解）   |
 
 - 定义工具三类方式：
-
   1. @tool 装饰器定义
   2. 继承 BaseTool 类定义，必须重写`_run`函数
   3. 从 MCP 服务器获得
@@ -182,7 +175,6 @@ HumanMessage、AIMessage、SystemMessage、对话历史
 ```
 
 - 调用
-
   1. 直接调用（测试用）
 
      ```python
@@ -217,11 +209,9 @@ create_agent 创建 Agent、配置选项
 ```
 
 - Agent 核心组件：模型（Model）、工具（Tool）、记忆（Memory）
-
   1. 模型（Model）： Agent 的“大脑”，负责推理和决策过程。
   2. 工具(Tool)： Agent 与外部交互的“能力扩展“，每个工具提供一个功能，如搜索、翻译、计算等。
   3. 记忆（Memory）： 为 Agent 提供上下文感知能力，使其能够记住之前的交互历史并基于上下文做出决策（分 短期记忆、长期记忆）。
-
      - 短期记忆： 维护当前对话的上下文，如当前任务、当前对话、当前工具调用结果等。
      - 长期记忆： 跨对话会话的知识持久化存储，如数据库、文件系统、知识库等。
 
@@ -234,7 +224,6 @@ create_agent 创建 Agent、配置选项
 - 请求-->模型-->推理-->行动（调工具）-->（模型）观察（结果）-->输出
 
 - 默认的 Agent 是 reAct 流程：推理 + 行动 + 观察（循环）
-
   1. 推理（Reason）
   2. 行动（Action）
   3. 观察（Observation）
@@ -269,7 +258,6 @@ SQLite 持久化、状态恢复
 自定义中间件、钩子函数
 
 - 中间件的主要作用
-
   1. 行为记录：通过日志记录、分析和调试跟踪 Agent 行为；
   2. 格式约束：转换提示、工县选择和输出格式；
   3. 逻辑控制：增加了重试、后备和提前终止逻辑；
@@ -278,18 +266,14 @@ SQLite 持久化、状态恢复
 **注意：** middleware 参数传入一个列表，可以传入多个中间件；当同一位置有多个中间件时，会按照列表中的先后顺序触发；
 
 - 分类：预构建中间件 和 自定义中间件
-
   1. 预构建中间件（Built-in Middleware）：
-
      - Summarization: 触发时自动总结对话列表记录;
      - Human-in-the-loop: 暂停执行以供人工批准或修改工具调用;
      - To-do list: 为代理提供复杂多步骤任务的任务规划和跟踪能力;
      - Model call limit: 限制模型调用次数，以防止过高成本;
 
   2. 自定义中间件（Custom Middleware）：
-
      - 节点型钩子:
-
        1. before_agent: Agent 开始前(每次查询一次);
        2. before_model: 每次模型调用前
        3. after_model: 每次模型响应后
@@ -347,12 +331,10 @@ Pydantic 模型、输出解析
 Supervisor 模式、协作调度
 
 - 多 agent:2 种方式
-
   1. 集中式: user -> supervisor agent ->worker agent
   2. 轮换式: user -> agent1 --> user -->agent2
 
 - supervisor agent 步骤:
-
   1. 创建 2 个 worker agent，有各自的 tools;
   2. 把这 2 个 agent 封装成 2 个新的 tool;
   3. 创建 supervisor agent，配置 tools，使用的就是 这 2 个 work agent 封装的 tool;
