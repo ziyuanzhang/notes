@@ -428,7 +428,7 @@ DBAPI.rollback()
 
 如何利用 Table 元数据生成 INSERT SQL，并把 Python 数据写入数据库。
 
-完整生命周期
+- 完整生命周期
 
 ```bash
     Python代码
@@ -529,41 +529,41 @@ DBAPI cursor.execute(sql, params)
 
 ### 2. 使用 SELECT 语句
 
-1. 整体知识结构
+- 整体知识结构
 
-   ```bash
-   SELECT
-   │
-   ├── 1. 创建查询
-   │   ├── select()
-   │   ├── execute()
-   │   └── Result
-   │
-   ├── 2. 查询什么 # ⑤ 混合查询 select(User.name,Address) ---> tuple(string, Address)
-   │   ├── Table # ① 查询整个表； Core： select(user_table) --> tuple
-   │   ├── ORM Entity # ③ 查询 ORM 实体； select(User) --> User对象
-   │   ├── Column #  ② 查询某几个列； Core： select(user_table.c.id, user_table.c.name) --->tuple
-   │   ├── Label #  ④ 查询 ORM 字段 select(User.name,User.fullname) --->tuple
-   │   └── Text
-   │
-   ├── 3. 查询条件
-   │   ├── WHERE
-   │   ├── ORDER BY # 排序
-   │   ├── GROUP BY # 分组
-   │   ├── HAVING # 过滤
-   │   └── JOIN
-   │
-   ├── 4. 高级查询
-   │   ├── Alias # 别名
-   │   ├── Subquery # 普通子查询 --> 返回临时表
-   │   ├── Scalar Subquery # 标量子查询 --> 返回单个值
-   │   ├── CTE # 子查询(公共表达式) 与 Subquery（普通子查询）功能几乎一样，大型 SQL 一般推荐 CTE，可读性更好
-   │   ├── UNION （集合操作）
-   │   ├── EXISTS # 判断"是否存在满足条件的记录"
-   │   ├── SQL Function （SQL 函数 - func）
-   │   ├── Window Function （窗口函数）
-   │   └── Table Function （表值函数）
-   ```
+```bash
+SELECT
+│
+├── 1. 创建查询
+│   ├── select()
+│   ├── execute()
+│   └── Result
+│
+├── 2. 查询什么 # ⑤ 混合查询 select(User.name,Address) ---> tuple(string, Address)
+│   ├── Table # ① 查询整个表； Core： select(user_table) --> tuple
+│   ├── ORM Entity # ③ 查询 ORM 实体； select(User) --> User对象
+│   ├── Column #  ② 查询某几个列； Core： select(user_table.c.id, user_table.c.name) --->tuple
+│   ├── Label #  ④ 查询 ORM 字段 select(User.name,User.fullname) --->tuple
+│   └── Text
+│
+├── 3. 查询条件
+│   ├── WHERE
+│   ├── ORDER BY # 排序
+│   ├── GROUP BY # 分组
+│   ├── HAVING # 过滤
+│   └── JOIN
+│
+├── 4. 高级查询
+│   ├── Alias # 别名
+│   ├── Subquery # 普通子查询 --> 返回临时表
+│   ├── Scalar Subquery # 标量子查询 --> 返回单个值
+│   ├── CTE # 子查询(公共表达式) 与 Subquery（普通子查询）功能几乎一样，大型 SQL 一般推荐 CTE，可读性更好
+│   ├── UNION （集合操作）
+│   ├── EXISTS # 判断"是否存在满足条件的记录"
+│   ├── SQL Function （SQL 函数 - func）
+│   ├── Window Function （窗口函数）
+│   └── Table Function （表值函数）
+```
 
 - FROM、JOIN、join_from、select_from、ON：
   1. FROM: 从哪张表开始查询，`stmt = select(User.name)`SQLAlchemy 会自动推导 FROM为User；
@@ -577,7 +577,7 @@ DBAPI cursor.execute(sql, params)
      - `stmt = (select(User.name).select_from(Address))`
 
   5. select_from(): 只指定起始表，不会自动 JOIN; 只要 SELECT 中没有足够的信息确定表，就需要显式指定 FROM。
-     - `stmt = (select(User.name).select_from(Address))` --> 报错
+     - `stmt = (select(User.name).select_from(Address))` --> 报错⚠️
      - select_from() --> ROM;
      - join_from()-->FROM + JOIN
 
@@ -638,3 +638,106 @@ DBAPI cursor.execute(sql, params)
   ```
 
 ### 3. 使用 UPDATE 和 DELETE 语句
+
+- UPDATE 可以引用列：
+
+  ```python
+    stmt = (
+      update(user_table)
+      .where(user_table.c.name == "patrick")
+      .values(fullname="Patrick")
+    )
+    # ---- 可拼接（数据库里执行） -------
+    .values(
+      fullname="Username: " + user_table.c.name
+    )
+  ```
+
+- executemany 更新（批量更新）-- bindparam
+
+  ```python
+    stmt = (
+        update(user_table)
+        .where(user_table.c.name == bindparam("oldname"))
+        .values(name=bindparam("newname"))
+    )
+    # -----------
+    conn.execute(
+        stmt,
+        [{
+              "oldname":"jack",
+              "newname":"ed"
+          },
+          {
+              "oldname":"wendy",
+              "newname":"mary"
+          }]
+    )
+  ```
+
+- 单表 与 “MySQL多表” 的更新和删除
+
+  ```bash
+    # 一个表  （推荐写法）
+    .values(fullname="Tom")
+
+    # 多个表（MySQL 特有）  （必须写法）
+    .values({
+        user_table.c.fullname: "Tom",
+        address_table.c.email_address: "abc@qq.com"
+    })
+
+  ```
+
+  字典不是 MySQL 专用，而是 SQLAlchemy 为了解决"多表更新时列属于哪个表"的问题。
+  普通 UPDATE（包括 MySQL）依然推荐使用 .values(fullname="Tom")，只有 MySQL 多表 UPDATE 才必须使用字典指定每个列对应的表。
+
+- rowcount（重点）
+
+  ```python
+   # 执行 UPDATE、DELETE 后：
+    result = conn.execute(stmt)
+    print(result.rowcount) # -->3  不是：修改了3行；而是：匹配到了3行; ⚠️如果返回0，则没有匹配到任何行，ORM 就知道：提交失败。
+  ```
+
+- UPDATE RETURNING 与 DELETE RETURNING --> 返回匹配行的指定key
+
+  ```python
+  stmt = (
+      update(user_table)
+      .where(user_table.c.name=="patrick")
+      .values(fullname="Patrick")
+      .returning(
+          user_table.c.id,
+          user_table.c.name
+      )
+  )
+  ```
+
+  ```bash
+                      UPDATE / DELETE
+                             │
+            ┌────────────────┼────────────────┐
+            │                │                │
+        update()         delete()        returning()
+            │                │                │
+        where()          where()        返回匹配行
+            │
+        values()
+            │
+            ├── 普通赋值
+            ├── 列表达式
+            ├── 子查询（相关更新）
+            ├── UPDATE ... FROM（跨表更新）
+            ├── MySQL 多表 UPDATE
+            └── ordered_values()（MySQL 特有）
+
+  执行：
+  Connection.execute()
+          │
+          ▼
+  CursorResult
+          │
+          ├── rowcount（WHERE 匹配的行数）
+          └── 返回 RETURNING 的结果集（若使用）
+  ```
