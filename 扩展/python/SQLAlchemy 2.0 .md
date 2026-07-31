@@ -1,7 +1,5 @@
 # SQLAlchemy 2.0
 
-事务可以回滚数据，但通常不能回滚自增 ID（AUTO_INCREMENT / SEQUENCE）的消耗。所以数据库中的 ID 本来就不保证连续。
-
 ## 一、 Core 和 ORM 的本质区别
 
 1. Core 直接操作 SQL；
@@ -800,24 +798,38 @@ ORM 管对象, Core 管 SQL
         │             │
         └─── flush ───┘
               │
-           commit()
+           commit() --提交事务
               │
               ▼
           数据永久保存
               │
-           rollback()
+           rollback() --回滚事务
               │
               ▼
        对象恢复数据库状态
               │
-        session.close()
+        session.close() --关闭会话
               │
               ▼
         Detached（分离）
   ```
 
 - Autoflush（自动刷新）：
+
   `session.execute(select(...))` 执行顺序：SELECT/DELETE --> Autoflush --> UPDATE --> SELECT/DELETE
+
+- Identity Map：Session 使用 Identity Map 模式，确保内存中每个数据库主键只对应一个 Python 对象实
+
+- ORM 的“工作单元模式”会追踪所有类型的待同步更改
+  1. `session.new`:所有待插入的新对象。
+  2. session.dirty：所有待更新的已存在对象。
+  3. 待删除队列：所有待删除的对象。
+
+- `session.close()`会做三件事：
+  1. 回滚未提交事务（如果存在）。
+  2. 释放数据库连接回连接池。
+  3. 将所有对象从 Session 中移除，进入 Detached（分离） 状态。
+     - 此时 操作对象属性，不会报错，因为对象只是普通python对象；只是不会同步数据库。
 
 1. ORM 操作的是 Python 对象，不是 SQL。 对象创建后先处于 Transient 状态，加入 Session 后变为 Pending。
 2. Session 使用 Unit of Work（工作单元）模式，负责跟踪对象变化，统一生成 SQL。
