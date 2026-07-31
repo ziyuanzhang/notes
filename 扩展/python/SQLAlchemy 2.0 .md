@@ -1,5 +1,7 @@
 # SQLAlchemy 2.0
 
+事务可以回滚数据，但通常不能回滚自增 ID（AUTO_INCREMENT / SEQUENCE）的消耗。所以数据库中的 ID 本来就不保证连续。
+
 ## 一、 Core 和 ORM 的本质区别
 
 1. Core 直接操作 SQL；
@@ -741,3 +743,86 @@ SELECT
           ├── rowcount（WHERE 匹配的行数）
           └── 返回 RETURNING 的结果集（若使用）
   ```
+
+## 四、使用 ORM 进行数据操作
+
+ORM 管对象, Core 管 SQL
+
+- ORM 不直接操作 SQL，而是操作 Python 对象；
+- Session 负责跟踪对象变化，在合适的时候统一转换成 SQL。
+
+- 整个生命周期只有下面几个状态。
+
+  ```bash
+    创建对象
+       │
+       ▼
+    Transient（瞬态）
+       │ add()
+       ▼
+    Pending（挂起）
+       │ flush
+       ▼
+    Persistent（持久）
+       │ delete
+       ▼
+    Deleted（删除）
+       │ close
+       ▼
+    Detached（分离）
+  ```
+
+- ORM（Session）知识结构（推荐牢记）
+
+  ```bash
+           创建对象
+              │
+              ▼
+      Transient（瞬态）
+              │
+        session.add()
+              │
+              ▼
+       Pending（挂起）
+              │
+           flush()
+              │
+              ▼
+   INSERT / UPDATE / DELETE
+              │
+              ▼
+        Persistent（持久）
+        │             │
+        │修改属性      │delete()
+        │             │
+        ▼             ▼
+    Dirty（脏对象）  Deleted（待删除）
+        │             │
+        └─── flush ───┘
+              │
+           commit()
+              │
+              ▼
+          数据永久保存
+              │
+           rollback()
+              │
+              ▼
+       对象恢复数据库状态
+              │
+        session.close()
+              │
+              ▼
+        Detached（分离）
+  ```
+
+- Autoflush（自动刷新）：
+  `session.execute(select(...))` 执行顺序：SELECT/DELETE --> Autoflush --> UPDATE --> SELECT/DELETE
+
+1. ORM 操作的是 Python 对象，不是 SQL。 对象创建后先处于 Transient 状态，加入 Session 后变为 Pending。
+2. Session 使用 Unit of Work（工作单元）模式，负责跟踪对象变化，统一生成 SQL。
+3. flush() 才是真正发送 INSERT/UPDATE/DELETE 到数据库，但事务仍未提交。
+4. commit() = flush() + COMMIT，使事务永久生效。
+5. Session 通过 Identity Map 保证同一个主键在一个 Session 中只有一个 Python 对象实例。
+6. 修改对象属性会自动变成 UPDATE，session.delete() 会自动变成 DELETE，开发者通常无需手写这些 SQL。
+7. rollback() 会同时回滚事务并让对象恢复与数据库一致；close() 会释放连接并让对象进入 Detached 状态。
