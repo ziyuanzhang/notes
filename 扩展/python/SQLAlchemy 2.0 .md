@@ -742,7 +742,7 @@ SELECT
           └── 返回 RETURNING 的结果集（若使用）
   ```
 
-## 四、使用 ORM 进行数据操作
+## 四、使用 ORM 操作数据
 
 ORM 管对象, Core 管 SQL
 
@@ -838,3 +838,5 @@ ORM 管对象, Core 管 SQL
 5. Session 通过 Identity Map 保证同一个主键在一个 Session 中只有一个 Python 对象实例。
 6. 修改对象属性会自动变成 UPDATE，session.delete() 会自动变成 DELETE，开发者通常无需手写这些 SQL。
 7. rollback() 会同时回滚事务并让对象恢复与数据库一致；close() 会释放连接并让对象进入 Detached 状态。
+
+## 五、使用 ORM 关联对象
