@@ -1,5 +1,38 @@
 # SQLAlchemy 2.0
 
+```bash
+① Engine
+   ↓
+② MetaData / Table / Column
+   ↓
+③ Core SQL
+   select / insert / update / delete
+   ↓
+④ ORM 映射
+   class User
+   class Address
+   ↓
+⑤ Session
+   ↓
+⑥ relationship
+   User ↔ Address
+   ↓
+⑦ ORM 查询
+   select(User)
+   join()
+   where()
+   ↓
+⑧ 关系加载
+   selectinload()
+   joinedload()
+   contains_eager()
+   ↓
+⑨ 性能优化
+   N+1
+   lazy loading
+   raiseload
+```
+
 ## 一、 Core 和 ORM 的本质区别
 
 1. Core 直接操作 SQL；
@@ -840,3 +873,153 @@ ORM 管对象, Core 管 SQL
 7. rollback() 会同时回滚事务并让对象恢复与数据库一致；close() 会释放连接并让对象进入 Detached 状态。
 
 ## 五、使用 ORM 关联对象
+
+```bash
+ForeignKey   # --> 数据库层面 -- 表之间的外键
+   ↓
+relationship()   # --> ORM 层面 -- ORM 对象之间的关联
+   ↓
+Python 对象建立关联
+   ↓
+Session.add() 自动级联  # --> 保存-更新级联（save-update cascade）1. 添加一个对象，与对象相关联的对象都会被添加，2. 此时还未操作数据库
+   ↓
+commit() 自动按依赖顺序 INSERT
+   ↓
+查询时 relationship 可以帮助 JOIN
+   ↓
+访问关联属性时进行加载（延迟加载--Lazy Loading）
+   ↓
+selectinload / joinedload / contains_eager
+解决加载性能问题
+```
+
+1. ForeignKey 和 relationship()
+   - ForeignKey = 数据库外键
+   - relationship = ORM 对象之间的导航关系
+
+   ```python
+       class User(Base):
+           __tablename__ = "user_account"
+
+           addresses: Mapped[List["Address"]] = relationship(   # 一个 User --> 可以拥有多个 Address
+               back_populates="user"
+           )
+
+
+       class Address(Base):
+           __tablename__ = "address"
+
+           user: Mapped["User"] = relationship(   # 一个 Address  --> 属于一个 User
+               back_populates="addresses"  # back_populates: 是双向关系,告诉 SQLAlchemy：这两个 relationship 是同一条关系的两个方向。
+           )
+
+       # ==================================
+       数据库层
+       ForeignKey
+           ↓
+       address.user_id → user_account.id
+
+
+       ORM 层
+       relationship()
+           ↓
+       Address.user → User
+       User.addresses → Address[]
+   ```
+
+2. selectinload（解决延迟加载的 N+1 问题）: 把这一批 User 的 addresses 一次性批量查出来。
+
+3. joinedload: `select(Address).options(joinedload(Address.user))` 查出来的 每个Address，把它对应的 User 顺便一起查出来。。
+
+4. selectinload 🆚 joinedloadL:
+   - 一对多集合: selectinload 通常更舒服
+   - 多对一: joinedload 通常很合适
+
+5. join 🆚 joinedload
+   - join: `select(Address).join(Address.user)` --> `.where(User.name == "pkrabs")` : 用 User 进行过滤。
+   - joinedload: `select(Address).options(joinedload(Address.user))` : 只是希望查询 Address 的时候，顺便把 Address.user 加载出来。
+   - join() = 控制查询逻辑
+   - joinedload() = 控制对象加载方式
+
+6. contains_eager: 强制使用 JOIN 查询，并且可以控制 JOIN 的方向。
+
+   ```python
+   stmt = (
+       select(Address)
+       .join(Address.user)
+       .where(User.name == "pkrabs")
+       .options(
+           contains_eager(Address.user)
+       )
+   )
+   ```
+
+   - 告诉 SQLAlchemy: 这个 JOIN 已经是我自己写的了，你直接拿这个 JOIN 查询出来的数据填充 Address.user。
+   - join() + contains_eager(): 可以理解为：我自己负责 JOIN, SQLAlchemy 负责把 "JOIN 出来的数据" 装进 relationship
+
+```bash
+ForeignKey
+    ↓
+数据库怎么关联
+
+
+relationship()
+    ↓
+Python 对象怎么关联
+
+
+selectinload / joinedload
+    ↓
+关联对象什么时候、怎么加载
+```
+
+```bash
+                 数据库
+                   │
+        ┌──────────┴──────────┐
+        │                     │
+ user_account             address
+        │                     │
+        │<──── ForeignKey ────┤       # 数据库表之间的外键
+        │                     │
+        └─────────────────────┘
+                   │
+                   ▼
+              relationship()   # ORM 对象之间的关联
+                   │
+        ┌──────────┴──────────┐
+        │                     │
+      User                  Address
+        │                     │
+ addresses  ←────────────→  user
+        │
+        │ back_populates   # 建立双向 relationship
+        │
+        ▼
+     Session.add()
+        │
+        ▼
+   cascade 级联  # 添加父对象时自动关联子对象
+        │
+        ▼
+     commit()
+        │
+        ▼
+自动处理 INSERT 顺序
+        │
+        ▼
+      加载关系
+        │
+┌───────┼────────┐
+│       │        │
+lazy selectin  joined   # Lazy Loading: 访问关联属性时才查数据库
+        │
+        ▼
+     N+1 问题
+        │
+        ▼
+ selectinload()   # 批量查询关联对象，解决 N+1
+ / joinedload()  # 用 JOIN 一起加载关联对象
+ / contains_eager()  # 使用自己写的 JOIN 填充 relationship
+ / raiseload()  # 防止 ORM 偷偷发 SQL
+```
