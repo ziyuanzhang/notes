@@ -111,6 +111,22 @@ Docker 使用客户端-服务器架构；Docker 客户端和守护进程使用 R
 ![容器与镜像存储机制-2](./img/docker-容器与镜像存储机制-2.png)
 ![docker-应用](./img/docker-应用.png)
 
+## 下载镜像失败，处理
+
+1. 清理“悬空”镜像（安全，推荐）: `docker image prune`
+
+   这个命令只删除那些下载失败、标签为 <none> 的残留文件，绝对不会删除任何有名字（如 nginx, postgres）的正常镜像。
+
+2. 清理构建缓存（针对 EOF 错误有效）:`docker builder prune`
+
+   如果你是在构建过程中或者拉取层级时报错，清理 BuildKit 缓存通常能解决卡顿，且不影响已有镜像。
+
+3. 精确删除报错的那一个镜像（手术刀式清理）:
+   - 第一步：找到镜像名 ( docker-compose.yml 中的 image 字段,例: infiniflow/ragflow:dev)
+   - 第二步：精准删除`docker rmi infiniflow/ragflow:dev`
+
+4. 重启 Docker Desktop（必须做）
+
 ## 启动容器 -- 命令行 （了解，不做重点）
 
 docker run [OPTIONS] IMAGE [COMMAND] [ARG...]
@@ -207,6 +223,15 @@ docker run -d --name my-redis -p 6379:6379 --restart=always redis:latest
   | `--cap-drop`   | 移除特定权限                    | `--cap-drop=ALL`      |
   | `--read-only`  | 容器根文件系统只读              | `--read-only`         |
 
+## 查看容器：docker ps
+
+1. 确认容器是否在运行 docker ps | grep my-redis
+2. 查看容器日志，看 Redis 是否正常启动 docker logs my-redis
+
+## 进入容器：docker exec
+
+docker exec -it my-redis redis-cli ping
+
 ## docker Compose：docker 批量管理容器的工具
 
 compose.yaml ：代替命令行
@@ -231,23 +256,7 @@ compose.yaml ：代替命令行
 
   [docker-compose.yaml](./img/docker-compose.yaml)
 
-## 下载镜像失败，处理
-
-1. 清理“悬空”镜像（安全，推荐）: `docker image prune`
-
-   这个命令只删除那些下载失败、标签为 <none> 的残留文件，绝对不会删除任何有名字（如 nginx, postgres）的正常镜像。
-
-2. 清理构建缓存（针对 EOF 错误有效）:`docker builder prune`
-
-   如果你是在构建过程中或者拉取层级时报错，清理 BuildKit 缓存通常能解决卡顿，且不影响已有镜像。
-
-3. 精确删除报错的那一个镜像（手术刀式清理）:
-   - 第一步：找到镜像名 ( docker-compose.yml 中的 image 字段,例: infiniflow/ragflow:dev)
-   - 第二步：精准删除`docker rmi infiniflow/ragflow:dev`
-
-4. 重启 Docker Desktop（必须做）
-
-## docker 指令
+## ========== docker 指令 ===========
 
 ### 一、基本命令
 
