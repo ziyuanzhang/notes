@@ -8,21 +8,16 @@ Docker 使用客户端-服务器架构；Docker 客户端和守护进程使用 R
 
 1. Dockerfile：一个文本文件，包含一系列指令，用于自动构建镜像。
 2. 镜像（image）：一个只读模板，包含运行应用程序所需的所有内容：代码、运行时、库、环境变量和配置文件。
-
    - 例：雕版印刷的雕版
 
 3. 容器（container）：镜像的运行实例。
-
    - 容器是轻量、可移植、隔离的运行环境。
    - 同一镜像可以启动多个容器，彼此隔离。
    - 例：用雕版印出的书页；
 
 4. Volume(卷)：用于持久化容器数据；卷独立于容器生命周期，即使容器删除，数据仍保留。
-
    - 券：分为命名卷、绑定挂载（bind mount）、tmpfs 挂载（内存中）。
-
      1. 命名卷（Named Volume）：把数据保存到宿主机的磁盘上
-
         - 由 Docker 创建和管理；
         - 存储路径通常在 /var/lib/docker/volumes/ 下（Linux）；
         - 跨容器共享方便；
@@ -30,24 +25,20 @@ Docker 使用客户端-服务器架构；Docker 客户端和守护进程使用 R
         - demo: `-v my-vol:/app/data`
 
      2. 绑定挂载（Bind Mount）：直接映射 宿主机的指定路径 到容器内；
-
         - 可挂载文件或目录；
         - 修改宿主机文件 = 修改容器内文件（双向同步）；
         - 路径必须绝对路径。
         - demo: `-v /host/path:/container/path`
 
 5. 网络（Network）: 解决容器与外界、与容器之间通信；
-
    - Docker 提供多种网络驱动（bridge、host、overlay 等）。
    - 默认使用 bridge 网络，容器间可通过名称通信（需自定义网络）。
 
 6. Docker Compose：用于定义和运行多容器 应用程序的工具。
-
    - 使用 docker-compose.yml 文件配置服务(容器)、网络、卷等；
    - 通过 docker-compose up 一条命令，就可以启动整个应用栈；（前端、后端、数据库、缓存 redis、负载均衡等多个服务器）
 
 7. Docker Daemon(守护进程) 与 Client(客户端):
-
    - Docker Client(Docker 客户端)：用户使用的命令行工具，客户端通过 REST API 与守护进程通信，并指示它该做什么。
    - Docker Daemon（Docker 守护进程）：一个长期运行在后台的进程（dockerd）；
      1. 侦听 Docker API 请求并管理 Docker 对象（例：镜像、容器、网络和卷）。
@@ -56,7 +47,6 @@ Docker 使用客户端-服务器架构；Docker 客户端和守护进程使用 R
 8. Docker Desktop: 面向开发者的一体化桌面应用程序，用于在 Windows 和 macOS 上轻松使用 Docker。
 
    包含组件：
-
    - Docker Client（docker CLI）
    - Docker Daemon（运行在后台 VM 中，如 WSL2 或 Hyper-V）
    - Docker Compose
@@ -64,7 +54,6 @@ Docker 使用客户端-服务器架构；Docker 客户端和守护进程使用 R
    - GUI 界面（查看容器、镜像、资源使用等）
 
 9. Docker Hub / Registry（镜像仓库）：用于存储和分发镜像的服务。
-
    - Docker Hub 是官方公共仓库（https://hub.docker.com）
    - 也可以搭建私有 Registry。
 
@@ -84,7 +73,6 @@ Docker 使用客户端-服务器架构；Docker 客户端和守护进程使用 R
 ## Dockerfile：制作镜像 / 镜像分层机制
 
 1. 常见指令：
-
    - FROM: 基础环境；例: node:14-alpine`【必须】`
    - LABEL: 为镜像添加键值对形式的标签（如作者、版本、描述）。
    - RUN: 在镜像构建过程中执行 shell 命令（每条 RUN 创建一个新层，例：yarn install --production）。
@@ -110,7 +98,6 @@ Docker 使用客户端-服务器架构；Docker 客户端和守护进程使用 R
    ```
 
 2. 构建镜像: -t === -tag(标签)
-
    - 在构建期间给镜像打标签： `docker build -t my-username/my-image .` 最后的点（.）指当前文件夹;
    - 如果已经构建了镜像，则可以使用以下 `docker image tag`命令向图像添加另一个标签：
      `docker image tag my-username/my-image another-username/another-image:v1`
@@ -132,27 +119,93 @@ docker run -dp 127.0.0.1:3000:3000 getting-started
 
 docker run -dp 0.0.0.0:3000:3000 YOUR-USER-NAME/getting-started
 
+docker run -d --name my-redis -p 6379:6379 --restart=always redis:latest
+
 绑定 127.0.0.1 仅将容器的端口公开给环回接口。但是，绑定到 0.0.0.0 会在主机的所有接口上公开容器的端口，使其可供外界使用。
 
--d: 后台运行
--p: 端口映射
--it: 交互式运行
--v: 挂载卷
--e: 设置环境变量
---name: 容器名称
---restart: 容器启动失败时重启
---network: 容器网络
---rm: 容器退出时自动删除容器
---detach: 后台运行
---publish: 端口映射
---mount: 挂载卷
---volume: 挂载卷
---env: 设置环境变量
---entrypoint: 容器启动时执行的命令
---detach-keys: 容器退出时自动删除容器
---interactive: 交互式运行
---tty: 交互式运行
---env-file: 读取环境变量
+- 💡 实用技巧
+  1. 短参数可以合并：docker run -i -t -d 可以简写为 docker run -itd
+  2. 查看完整参数列表：直接运行 docker run --help 可以看到所有可用选项
+
+- 常用
+  -d: 后台运行
+  -p: 端口映射
+  -it: 交互式运行
+  -v: 挂载卷
+  -e: 设置环境变量
+  --name: 容器名称
+  --restart: 容器启动失败时重启
+  --network: 容器网络
+  --rm: 容器退出时自动删除容器
+  --detach: 后台运行
+  --publish: 端口映射
+  --mount: 挂载卷
+  --volume: 挂载卷
+  --env: 设置环境变量
+  --entrypoint: 容器启动时执行的命令
+  --detach-keys: 容器退出时自动删除容器
+  --interactive: 交互式运行
+  --tty: 交互式运行
+  --env-file: 读取环境变量
+
+- 🚀 基础运行控制
+
+  | 参数            | 简写 | 说明                                                        | 示例                         |
+  | --------------- | ---- | ----------------------------------------------------------- | ---------------------------- |
+  | `--detach`      | `-d` | 后台运行容器                                                | `docker run -d nginx`        |
+  | `--interactive` | `-i` | 保持标准输入打开                                            | `docker run -i ubuntu`       |
+  | `--tty`         | `-t` | 分配伪终端                                                  | `docker run -it ubuntu bash` |
+  | `--rm`          | -    | 容器退出后自动删除（适合临时测试）                          | `docker run --rm alpine`     |
+  | `--name`        | -    | 指定容器名称（默认随机生成）                                | `--name my_redis`            |
+  | `--restart`     | -    | 重启策略：`no` / `on-failure` / `always` / `unless-stopped` | `--restart=always`           |
+  | `--entrypoint`  | -    | 覆盖镜像默认的入口命令                                      | `--entrypoint /bin/sh`       |
+
+- 🌐 网络配置
+
+  | 参数            | 简写 | 说明                                    | 示例                          |
+  | --------------- | ---- | --------------------------------------- | ----------------------------- |
+  | `--publish`     | `-p` | 端口映射（宿主机端口:容器端口）         | `-p 6379:6379`                |
+  | `--publish-all` | `-P` | 自动映射所有暴露端口到随机宿主机端口    | `docker run -P nginx`         |
+  | `--network`     | -    | 指定网络模式（bridge/host/none/自定义） | `--network=host`              |
+  | `--dns`         | -    | 自定义 DNS 服务器                       | `--dns=8.8.8.8`               |
+  | `--add-host`    | -    | 添加主机名到 IP 的映射                  | `--add-host="db:192.168.1.1"` |
+  | `--hostname`    | `-h` | 指定容器主机名                          | `-h my-host`                  |
+
+- 💾 存储与数据管理
+
+  | 参数             | 简写 | 说明                                       | 示例                                         |
+  | ---------------- | ---- | ------------------------------------------ | -------------------------------------------- |
+  | `--volume`       | `-v` | 挂载宿主机目录或命名卷                     | `-v /data:/app/data`                         |
+  | `--mount`        | -    | 更灵活的挂载方式（支持 bind/volume/tmpfs） | `--mount type=bind,source=/data,target=/app` |
+  | `--tmpfs`        | -    | 挂载内存文件系统                           | `--tmpfs /tmp:size=100m`                     |
+  | `--volumes-from` | -    | 从其他容器挂载卷                           | `--volumes-from db_container`                |
+
+- ⚙️ 环境与配置
+
+  | 参数         | 简写 | 说明                         | 示例                    |
+  | ------------ | ---- | ---------------------------- | ----------------------- |
+  | `--env`      | `-e` | 设置环境变量                 | `-e REDIS_PASSWORD=123` |
+  | `--env-file` | -    | 从文件批量读取环境变量       | `--env-file=.env`       |
+  | `--workdir`  | `-w` | 指定容器内工作目录           | `-w /app`               |
+  | `--user`     | `-u` | 指定运行用户（UID 或用户名） | `--user=1000`           |
+
+- 📊 资源限制
+
+  | 参数              | 说明                     | 示例               |
+  | ----------------- | ------------------------ | ------------------ |
+  | `--memory` / `-m` | 内存上限（支持 b/k/m/g） | `-m 512m`          |
+  | `--cpus`          | 限制 CPU 核心数          | `--cpus=1.5`       |
+  | `--cpu-shares`    | CPU 权重（默认 1024）    | `--cpu-shares=512` |
+  | `--memory-swap`   | 内存 + swap 总量限制     | `--memory-swap=1g` |
+
+- 🔒 安全与权限
+
+  | 参数           | 说明                            | 示例                  |
+  | -------------- | ------------------------------- | --------------------- |
+  | `--privileged` | 特权模式，拥有所有 capabilities | `--privileged`        |
+  | `--cap-add`    | 添加特定权限                    | `--cap-add=NET_ADMIN` |
+  | `--cap-drop`   | 移除特定权限                    | `--cap-drop=ALL`      |
+  | `--read-only`  | 容器根文件系统只读              | `--read-only`         |
 
 ## docker Compose：docker 批量管理容器的工具
 
@@ -168,7 +221,6 @@ compose.yaml ：代替命令行
 - 扩容：docker compose scale x2=3（应用的实例启动 3 份）
 
 * 顶级元素：
-
   1. services：服务
   2. networks：网络
   3. volumes：卷
@@ -190,7 +242,6 @@ compose.yaml ：代替命令行
    如果你是在构建过程中或者拉取层级时报错，清理 BuildKit 缓存通常能解决卡顿，且不影响已有镜像。
 
 3. 精确删除报错的那一个镜像（手术刀式清理）:
-
    - 第一步：找到镜像名 ( docker-compose.yml 中的 image 字段,例: infiniflow/ragflow:dev)
    - 第二步：精准删除`docker rmi infiniflow/ragflow:dev`
 
