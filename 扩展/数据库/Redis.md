@@ -1,4 +1,4 @@
-# redis
+# redis (Remote Dictionary Server -- 远程字典服务器)
 
 Redis = “超级快的内存数据库 + 数据结构工具箱”
 本质上：Redis是“基于 epoll 的事件驱动服务器”
