@@ -5,6 +5,15 @@ Redis = “超级快的内存数据库 + 数据结构工具箱”
 
 Redis = “加速层”，MySQL = “最终存储”
 
+## 安装后的结构
+
+- redis-benchmark: 性能测试工具，服务启动后运行该命令，看看自己本子；
+- redis-check-aof: 修复有问题的AOF文件，rdb和aof后面讲；
+- redis-check-dump: 修复有问题的dump.rdb文件；
+- redis-cli: 客户端，操作入口；
+- redis-sentinel: redis集群使用；
+- redis-server: Redis服务器启动命令；
+
 ## Redis 为什么这么快？
 
 | 原因                | 重要程度   |
