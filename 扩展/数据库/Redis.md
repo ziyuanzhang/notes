@@ -78,7 +78,7 @@ help@类型
 - 分布式锁□
 - getset(先get再set)
 
-### list
+### list: 双端队列
 
 - lpush/rpush/lrange ：（push多个，也是一个一个插）
 - lpop/rpop
@@ -89,6 +89,15 @@ help@类型
 - rpoplpush 源列表目的列表
 - lset key index value
 - linsert key before/after 已有值 插入的新值
+
+### hash: KV模式不变，但V是一个键值对
+
+- hset/hget/hmset/hmget/hgetall/hdel
+- hlen
+- hexists key 在key里面的某个值的key
+- hkeys/hvals
+- hincrby/hincrbyfloat
+- hsetnx
 
 ## Redis 为什么这么快？
 
