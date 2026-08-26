@@ -123,6 +123,10 @@ help@类型
      - sintercard numkeys key [key ...]: 获取并集的元素个数
   3. SDIFF s1 s2 : 差集s1 - s2 → a（s1 有但 s2 没有的）
 
+### zset: 有序集合
+
+在set基础上，每个val值前加一个score分数值; 之前set是k1 v1 v2 v3,现在zset是k1 score1 v1 score2 v2
+
 ## Redis 为什么这么快？
 
 | 原因                | 重要程度   |
