@@ -81,6 +81,9 @@ help@类型
 ### list: 双端队列
 
 - lpush/rpush/lrange ：（push多个，也是一个一个插）
+  1. lpush key value [value ...]: 批量插入，从左到右
+  2. rpush key value [value ...]: 批量插入，从右到左
+
 - lpop/rpop
 - lindex: 按照索引下标获得元素(从上到下)
 - llen: 获取列表中元素的个数
@@ -93,11 +96,32 @@ help@类型
 ### hash: KV模式不变，但V是一个键值对
 
 - hset/hget/hmset/hmget/hgetall/hdel
+  1. hset key field value [ field value ... ]: 设置字段值,❗这里 key 为 “user:001”中的冒号（:）不是必须的，是约定的
+  2. hmset/hmget: 都成功,才返回ok
+
 - hlen
-- hexists key 在key里面的某个值的key
+- hexists key: 在key里面的某个值的key
 - hkeys/hvals
 - hincrby/hincrbyfloat
-- hsetnx
+- hsetnx: 是 "Hash SET if Not eXists" 的缩写，作用是：当 hash 中某个 field 不存在时，才设置它的值；如果已存在，则不做任何操作。
+
+### set: 无序不重复集合
+
+“单 key 对应多个 value，且 value 不重复”的无序集合
+
+- sadd key member [member ...]: 添加元素
+- smembers key: 遍历集合中的所有元素
+- sismember key member: 判断元素是否在集合中
+- srem key member [member ...]: 删除元素; ---->srem --> 是 Set Remove Member 的缩写，强调的是移除集合中的某个元素。
+- scard: 获取集合里面的元素个数
+- srandmember key[数字]: 从集合中随机展现"设置的数字个数"元素，元素不删除
+- spop key[数字]: 从集合中随机弹出一个元素，出一个删一个
+- smove key1 key2 在key1里已存在的某个值, 将key1里已存在的某个值赋给key2
+- 集合运算: SADD s1 a b c; SADD s2 b c d
+  1. SUNION s1 s2 : 并集s1 u s2 → a b c d
+  2. SINTER s1 s2 : 交集s1 n s2 → b c
+     - sintercard numkeys key [key ...]: 获取并集的元素个数
+  3. SDIFF s1 s2 : 差集s1 - s2 → a（s1 有但 s2 没有的）
 
 ## Redis 为什么这么快？
 
