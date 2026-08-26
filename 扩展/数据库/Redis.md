@@ -127,6 +127,18 @@ help@类型
 
 在set基础上，每个val值前加一个score分数值; 之前set是k1 v1 v2 v3,现在zset是k1 score1 v1 score2 v2
 
+- ZADD key score member [score member ...]: 添加元素
+- ZRANGE key start stop [WITHSCORES]: 按照元素分数从小到大的顺序,返回索引从start到stop之间的所有元素
+- zrevrange
+- ZRANGEBYSCORE key min max [WITHSCORES] [LIMIT offset count]: 获取指定分数范围的元素
+  1. withscores: 不包含
+  2. limmit 作用是返回限制
+
+- ZSCORE key member: 获取元素的分数
+- ZCARD keye: 获取集合中元素的数量
+- zrem key 某score下对应的value值，作用是删除元素
+- ZINCRBY key increment member: 增加某个元素的分数
+
 ## Redis 为什么这么快？
 
 | 原因                | 重要程度   |
