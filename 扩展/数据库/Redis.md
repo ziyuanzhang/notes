@@ -139,6 +139,28 @@ help@类型
 - zrem key 某score下对应的value值，作用是删除元素
 - ZINCRBY key increment member: 增加某个元素的分数
 
+### bitmap: 位图
+
+- setbit key offset val: 给指定key的值的第offset赋值val
+- getbit key offset:获取指定key的第offset位
+- bitcount key start end: 返回指定key中[start,end]中为1的数量
+- bitop operation destkey key: 对不同的二进制存储数据进行位运算(AND、OR、NOTXOR)
+
+### hyperloglog: 基数统计
+
+- pfadd key element [element ...]: 添加元素
+- pfcount key: 获取key的基数个数
+- pfmerge destkey key [key2 ...]: 合并多个key的基数统计值，并赋给destkey
+
+### geo: 地理位置
+
+- GEOADD: 添加经纬度坐标
+- GEOPOS: 返回经纬度
+- GEOHASH: 返回坐标的geohash表示
+- GEODIST: 两个位置之间距离
+- GEORADIUS
+- GEORADIUSBYMEMBER
+
 ## Redis 为什么这么快？
 
 | 原因                | 重要程度   |
