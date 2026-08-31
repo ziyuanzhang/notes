@@ -16,7 +16,7 @@ Redis = “加速层”，MySQL = “最终存储”
 - redis-sentinel: redis集群使用；
 - redis-server: Redis服务器启动命令；
 
-## Redis 数据结构
+## 一、Redis 数据结构
 
 | 类型                   | 用途       |
 | ---------------------- | ---------- |
@@ -160,6 +160,27 @@ help@类型
 - GEODIST: 两个位置之间距离
 - GEORADIUS
 - GEORADIUSBYMEMBER
+
+### bitfield (位域)
+
+- BITFIELD key [GET type offset]
+- BITFlELD key [SET type offset value]
+- BITFlELD key [INCRBY type offset increment]
+- 溢出控制OVERFLOW[WRAPISATIFAIL]
+
+## 二、Redis：持久化
+
+## 三、Redis 事物
+
+## 四、Redis 管道
+
+## 五、Redis 发布订阅
+
+## 六、Redis 复制(replica)
+
+## 七、Redis 哨兵(sentinel)
+
+## 八、Redis 集群(cluster)
 
 ## Redis 为什么这么快？
 
