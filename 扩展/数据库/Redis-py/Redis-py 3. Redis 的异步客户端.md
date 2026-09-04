@@ -2,6 +2,7 @@
 
 - redis.asyncio = Redis 的异步客户端；Redis 命令本身基本不变，只是需要 await，并且连接池、生命周期、并发模型需要正确处理。
 - lazy connection / 惰性连接
+- redis.Redis() 本身就已经管理连接池: 一个 Redis client 实例已经创建并管理自己的 connection pool。
 
 ```python
     import redis.asyncio as redis

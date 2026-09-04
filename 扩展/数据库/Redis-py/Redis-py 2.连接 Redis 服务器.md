@@ -1,7 +1,9 @@
 # 2. 连接 Redis 服务器
 
 - 最基础的 Redis 连接 → 集群连接 → TLS 安全连接 → 客户端缓存 → 连接池 → 重试 → 云 Redis 的故障迁移
-- 一个 Redis client 实例已经创建并管理自己的 connection pool。
+
+- redis.Redis() 本身就已经管理连接池: 一个 Redis client 实例已经创建并管理自己的 connection pool。
+
 - redis.Redis 不是 Redis 数据库本身。它是：Python 程序访问 Redis 的客户端对象。
 
 ## 最基础的 Redis 连接
