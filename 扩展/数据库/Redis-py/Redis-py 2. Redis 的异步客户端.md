@@ -4,7 +4,9 @@
 - lazy connection / 惰性连接
 - ❗redis.Redis() 本身就已经管理连接池: 一个 Redis client 实例已经创建并管理自己的 connection pool。
 
-## 异步流程
+在 asyncio/FastAPI 中，Redis 是一个异步 I/O 资源；应用应该长期持有并共享一个 Redis Client，让 Client 内部的连接池负责并发连接管理；普通 Redis 操作 await，独立 I/O 可以用 gather 并发，而 Pipeline、PubSub 等有状态对象要按 task 隔离。
+
+## 异步流程   redis-py 的 lazy connection（惰性连接）。
 
 ```bash
 请求 A
@@ -67,7 +69,8 @@ async def get_user(id: int):
 
 ## 连接池
 
-长时间运行的异步应用应该在启动时创建一个 Redis client，然后在所有请求和任务之间共享，在关闭时释放。
+- 长时间运行的异步应用应该在启动时创建一个 Redis client，然后在所有请求和任务之间共享，在关闭时释放。
+- ⚠️直接共享 Redis client，而不是多个 Redis client 共享同一个 ConnectionPool。
 
 ```python
 # ==== ❌ 错误思路 =========================================================
@@ -85,19 +88,194 @@ async def get_user(id: int):
 # ==== ✅ 正确的 FastAPI 思路 ==================================================================
 FastAPI 启动
      ↓
-创建 Redis Client
+创建 Redis Client (内部 Connection Pool)
      ↓
-Redis Client
+整个应用共享
      ↓
-内部 Connection Pool
-     ↓
-所有请求共享
+处理所有请求
      ↓
 FastAPI 关闭
      ↓
-关闭 Redis Client
+关闭 Redis Client / await redis.aclose()
 
 redis_client = redis.Redis(...) # 只创建一次。然后所有请求共用
 await redis_client.get(...)
 await redis_client.set(...)
+
+a, b, c = await asyncio.gather(
+    r.get("a"),
+    r.get("b"),
+    r.get("c")
+)
+```
+
+## Pipeline -- ❌ 不应该共享
+
+```python
+async with r.pipeline(transaction=True) as pipe:
+
+    pipe.set("a", "1")
+    pipe.set("b", "2")
+    pipe.get("a")
+    pipe.get("b")
+
+    results = await pipe.execute()
+```
+
+- pipe.set(...): 实际上只是：把命令放进 pipeline,还没有真正执行 Redis 请求。
+- execute() -> 真正发送执行
+
+### asyncio.gather 🆚 Pipeline
+
+gather强调：多个 Redis 操作并发执行；
+Pipeline强调：把多个 Redis 命令组织成一批发送/执行
+
+## WATCH：解决多个客户端同时修改同一个数据
+
+乐观锁 Optimistic Locking
+
+```python
+await pipe.watch("counter") # 监视 counter
+current = int(await pipe.get("counter"))
+pipe.multi()
+pipe.set("counter", str(current + 1))
+await pipe.execute()
+```
+
+## PubSub -- ❌ 不应该共享
+
+一个 PubSub 对象不能安全地在多个 task 之间共享。
+
+## Cluster 也支持 async
+
+```python
+  # ===== 同步 ==========================================
+      import redis
+      r = redis.Redis(
+          host="localhost",
+          port=6379,
+          decode_responses=True  #  可以让返回结果从 bytes 转成 Python str
+          username="default",
+          password="secret",
+          ssl=True, # TLS 安全连接(加密)
+      )
+  # ===== 异步 ==========================================
+  from redis.asyncio.cluster import RedisCluster
+  rc = RedisCluster(
+      host="localhost",
+      port=16379,
+      decode_responses=True
+  )
+  await rc.set("foo", "bar")
+  value = await rc.get("foo")
+  await rc.aclose()  # 或者 async with redis.Redis(...) as r:     ⚠️异步 Redis 使用完以后：关闭客户端。
+```
+
+## Timeout：异步 Redis 还能取消操作
+
+##
+
+```bash
+              FastAPI
+                 │
+                 │
+          asyncio Event Loop
+                 │
+       ┌─────────┼─────────┐
+       │         │         │
+     请求A      请求B      请求C
+       │         │         │
+       └─────────┼─────────┘
+                 ↓
+          Redis Client
+                 │
+           Connection Pool
+        ┌────┬────┬────┬────┐
+        ↓    ↓    ↓    ↓    ↓
+       C1    C2   C3   C4   C5
+        │    │    │    │    │
+        └────┴────┴────┴────┘
+                 ↓
+               Redis
+```
+
+```bash
+Redis Client
+    │
+    ├── 普通命令
+    │      └── await
+    │
+    ├── gather
+    │      └── 多个 I/O 并发
+    │
+    ├── Pipeline
+    │      └── 批量命令
+    │
+    ├── Transaction
+    │      └── MULTI / EXEC
+    │
+    ├── WATCH
+    │      └── 乐观锁
+    │
+    ├── PubSub
+    │      └── 发布/订阅
+    │
+    └── RedisCluster
+           └── Redis 集群
+```
+
+整个学习路线
+
+```bash
+Redis
+│
+├── ① 基础连接
+│     ├── redis.Redis
+│     ├── host
+│     ├── port
+│     ├── password
+│     └── decode_responses
+│
+├── ② 数据操作
+│     ├── String
+│     ├── Hash
+│     ├── List
+│     ├── Set
+│     └── ZSet
+│
+├── ③ Python redis-py
+│     ├── set/get
+│     ├── hset/hget
+│     ├── expire
+│     └── delete
+│
+├── ④ asyncio ⭐ 当前这篇
+│     ├── redis.asyncio
+│     ├── async/await
+│     ├── Connection Pool
+│     ├── gather
+│     └── lifecycle # 声明周期
+│
+├── ⑤ Redis 高级
+│     ├── Pipeline
+│     ├── Transaction
+│     ├── WATCH
+│     ├── Pub/Sub
+│     └── Lua
+│
+├── ⑥ FastAPI + Redis ⭐
+│     ├── lifespan
+│     ├── 依赖注入
+│     ├── Redis Client
+│     ├── Cache
+│     ├── Session
+│     └── Rate Limit
+│
+└── ⑦ Redis 生产环境
+      ├── Connection Pool
+      ├── 主从
+      ├── Sentinel
+      ├── Cluster
+      ├── 高可用
+      └── 性能优化
 ```
