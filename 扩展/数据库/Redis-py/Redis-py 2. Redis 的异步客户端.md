@@ -6,7 +6,7 @@
 
 在 asyncio/FastAPI 中，Redis 是一个异步 I/O 资源；应用应该长期持有并共享一个 Redis Client，让 Client 内部的连接池负责并发连接管理；普通 Redis 操作 await，独立 I/O 可以用 gather 并发，而 Pipeline、PubSub 等有状态对象要按 task 隔离。
 
-## 异步流程   redis-py 的 lazy connection（惰性连接）。
+## 异步流程 redis-py 的 lazy connection（惰性连接）
 
 ```bash
 请求 A
@@ -125,7 +125,7 @@ async with r.pipeline(transaction=True) as pipe:
 - pipe.set(...): 实际上只是：把命令放进 pipeline,还没有真正执行 Redis 请求。
 - execute() -> 真正发送执行
 
-### asyncio.gather 🆚 Pipeline
+## asyncio.gather 🆚 Pipeline
 
 gather强调：多个 Redis 操作并发执行；
 Pipeline强调：把多个 Redis 命令组织成一批发送/执行
@@ -173,9 +173,111 @@ await pipe.execute()
 
 ## Timeout：异步 Redis 还能取消操作
 
+## demo
+
+但在实际 FastAPI 项目中，我更推荐app.state.redis
+
+- app.state.redis
+- app.state.mysql
+- app.state.http_client
+- app.state.xxx
+
+```python
+from contextlib import asynccontextmanager
+
+import redis.asyncio as redis
+from fastapi import FastAPI, Request
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+
+    # =========================
+    # startup
+    print("🚀 startup")
+    # =========================
+    app.state.redis = redis.Redis(
+        host="localhost",
+        port=6379,
+        decode_responses=True,
+        max_connections=10,
+    )
+
+    await app.state.redis.ping()
+    print("✅ Redis connected")
+
+    yield
+    # =========================
+    # shutdown
+    print("🛑 shutdown")
+    # =========================
+    await app.state.redis.aclose()
+    print("✅ Redis closed")
+
+app = FastAPI(lifespan=lifespan)
+# ---------------------------------------------------------
+@app.get("/test")
+async def test(request: Request):
+    r = request.app.state.redis
+    await r.set("name", "张三")
+    name = await r.get("name")
+    return {
+        "name": name
+    }
+# ---------------------------------------------------
+from fastapi import Request
+def get_redis(request: Request):
+    return request.app.state.redis
+
+
+from typing import Annotated
+from fastapi import Depends
+
+@app.get("/test")
+async def test(
+    r: Annotated[redis.Redis, Depends(get_redis)]
+):
+    await r.set("name", "张三")
+    name = await r.get("name")
+    return {"name": name}
+```
+
 ##
 
+两个 FastAPI 容器虽然访问的是同一个 Redis，但它们拥有各自独立的 Redis Client 和连接池；一个容器关闭，不会影响另一个容器继续连接 Redis。
+
+redis服务器有最大连接数限制，真正需要整体关注的是“所有 FastAPI 实例的连接池总和”不能把 Redis 的连接能力耗尽。
+
 ```bash
+# FastAPl应用生命周期与 Redis 客户端初始化
+                  FastAPI
+                     │
+                     ↓
+              asyncio Event Loop
+                     │
+                     ↓
+              FastAPI lifespan
+               /             \
+          startup             shutdown（部署新版本、重启服务等）
+             │                    │
+             ↓                    ↓
+      创建 Redis Client       aclose()
+             │
+             ↓
+      Connection Pool
+             │
+      ┌──────┼──────┐
+      ↓      ↓      ↓
+    请求A   请求B   请求C
+      │      │      │
+    await  await  await
+      │      │      │
+      └──────┼──────┘
+             ↓
+           Redis
+
+# 运行时:请求并发与连接池复用
+
               FastAPI
                  │
                  │
@@ -196,7 +298,7 @@ await pipe.execute()
         │    │    │    │    │
         └────┴────┴────┴────┘
                  ↓
-               Redis
+               Redis（单实例）
 ```
 
 ```bash
