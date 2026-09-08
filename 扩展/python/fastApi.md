@@ -1,6 +1,6 @@
 # fastApi
 
-python_fastAPI_Pydantic2_SQLAIchemy2_SQLite3_Docker_pytest (https://blog.csdn.net/inuex?type=blog)
+python、fastAPI、Pydantic2、SQLAIchemy2、SQLite、Docker、pytest (https://blog.csdn.net/inuex?type=blog)
 
 (source_type)：获取基础类型的核心 schema，继承基础类型的所有验证规则（如str的非空、int的数值验证）；
 core_schema.chain_schema：按顺序执行多个 schema，先执行基础类型验证，再执行自定义验证；
@@ -341,15 +341,15 @@ core_schema.chain_schema：按顺序执行多个 schema，先执行基础类型�
 ## 理解架构
 
 ```理解架构：
-        Browser
-        ↓
-        Nginx
-        ↓
-        Gunicorn
-        ↓
-        Uvicorn Worker
-        ↓
-        FastAPI
+     Browser
+      ↓
+     Nginx
+      ↓
+     Gunicorn
+      ↓
+     Uvicorn Worker
+      ↓
+     FastAPI
 ```
 
 ```典型架构
@@ -391,6 +391,16 @@ core_schema.chain_schema：按顺序执行多个 schema，先执行基础类型�
         21 LangGraph
         22 Kubernetes
 ```
+
+- 前 17 步完成后，已经具备独立开发：
+  - 用户系统
+  - 管理后台 API
+  - 电商后端
+  - SaaS 系统
+  - AI 问答系统
+  - AI Agent 平台
+
+  的能力。
 
 | 概念        | 解决什么问题                                      |
 | ----------- | ------------------------------------------------- |
@@ -457,14 +467,3 @@ core_schema.chain_schema：按顺序执行多个 schema，先执行基础类型�
                               │
                         同步阻塞 I/O
 ```
-
-前 17 步完成后，已经具备独立开发：
-
-- 用户系统
-- 管理后台 API
-- 电商后端
-- SaaS 系统
-- AI 问答系统
-- AI Agent 平台
-
-的能力。
