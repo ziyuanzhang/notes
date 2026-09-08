@@ -15,7 +15,7 @@ Database: 真实结构
 ## 结构
 
 ```bash
-yourproject/
+your project/
 │
 ├── alembic.ini # Alembic 的配置入口。
 ├── pyproject.toml
@@ -37,11 +37,6 @@ yourproject/
     └── main.py
 ```
 
-- 最核心的概念: Revision 链表
-  - 一个 migration 文件：
-    1. revision: 当前版本
-    2. down_revision: 上一个版本
-
 | 操作                      | 开发   | 测试   | 生产   |
 | ------------------------- | ------ | ------ | ------ |
 | 修改 Model                | ✅     | ❌     | ❌     |
@@ -53,7 +48,7 @@ yourproject/
 
 ## 创建 Alembic 环境: `alembic init alembic`
 
-## 创建 Migration
+## 创建 Migration ❗最核心的概念
 
 - `alembic revision --autogenerate -m "add email"` 🆚 `alembic revision -m "create user table"Alembic`
 
