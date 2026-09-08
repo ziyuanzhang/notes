@@ -79,6 +79,10 @@ def downgrade(): # 数据库往后退
 
 ❗ 代码版本 + Migration 文件 = 数据库 Schema 的可重复演进过程。
 
+- revision 是开发人员“制作数据库变更说明书”；
+- upgrade 是各个环境“执行这份说明书”。
+- 开发、测试、生产都可能执行 upgrade，但每个环境应该连接自己的数据库。
+
 ## 迁移命令
 
 - 升级到当前最新版本: `alembic upgrade head`
