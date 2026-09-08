@@ -392,6 +392,72 @@ core_schema.chain_schema：按顺序执行多个 schema，先执行基础类型�
         22 Kubernetes
 ```
 
+| 概念        | 解决什么问题                                      |
+| ----------- | ------------------------------------------------- |
+| `yield`     | 暂停/恢复生成器，并产生一个值                     |
+| `await`     | 等待异步操作，并允许协程挂起                      |
+| `async def` | 定义协程函数 / 异步生成器                         |
+| Event Loop  | 调度异步 Task                                     |
+| Thread      | 操作系统真正调度的执行单元                        |
+| ThreadPool  | 管理一组 Worker Thread                            |
+| GIL         | CPython 对 Python 字节码并发执行的限制 (对线级别) |
+| ProcessPool | 用多个进程执行 CPU 密集任务                       |
+
+```bash
+# CPU 密集型
+                  FastAPI
+                     │
+           ┌─────────┴─────────┐
+           │                   │
+       async def             def
+           │                   │
+      Event Loop          ThreadPool
+           │                   │
+        await             Worker Thread
+           │                   │
+    异步 I/O              同步 I/O
+           │
+           │
+           └─────────────┐
+                         │
+                  CPU 密集型
+                         │
+                  ┌──────┴──────┐
+                  │             │
+              ProcessPool   专用计算库
+                  │             │
+              多进程并行      释放 GIL
+
+# FastAPI 最核心的运行模型就是：
+          FastAPI Worker Process
+                   │
+              Main Thread
+                   │
+              Event Loop
+                   │
+       ┌───────────┼───────────┐
+       ↓           ↓           ↓
+     Task A      Task B      Task C
+       │           │           │
+     await       await       await
+       │           │           │
+       └───────────┴───────────┘
+                   │
+            异步 I/O 完成
+                   │
+             Task Ready
+                   │
+              Event Loop
+                   │
+        ┌──────────┴──────────┐
+        ↓                     ↓
+  async execution       ThreadPool
+                              │
+                        Worker Thread
+                              │
+                        同步阻塞 I/O
+```
+
 前 17 步完成后，已经具备独立开发：
 
 - 用户系统
