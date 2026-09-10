@@ -1,4 +1,4 @@
-# fastApi\_认证、权限、安全、授权
+# fastApi 认证、权限、安全、授权
 
 Authentication(认证) --> JWT(签名) --> Scope --> Security --> Dependency Tree --> Authorization(授权)
 
@@ -185,6 +185,8 @@ Authorization(授权)
 
     # ------------ 获取信息 ---------------------------------------------------
     oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
+    # tokenUrl 是“告诉 FastAPI/OpenAPI 去哪里获取 token”的声明，不负责真正获取 token；它可以叫 login、auth/login 等，但最好与真实登录接口保持一致。
+
     # 流程: HTTP Request --》Authorization Header --》Bearer abc123 --》OAuth2PasswordBearer --》 "abc123" --》 token 参数
     # 作用: OAuth2PasswordBearer: 检查 Authorization Header，并把 Bearer 后面的 token 作为 str 返回；它本身还没有验证 token 是否有效。
     # 如果没有 Authorization Header，或者不是 Bearer：`401 Unauthorized`
@@ -199,7 +201,7 @@ Authorization(授权)
           username = payload.get("sub")
           if username is None:
               raise credentials_exception
-          token_data = TokenData(username=username) # 把字符串转换为数据结构，方便后面扩展（统一数据）
+          token_data = TokenData(username=username) # 把字符串转换为数据结构，方便后面扩展（统一数据）；直接用 字符串username也行
       except InvalidTokenError:
           raise credentials_exception
 
