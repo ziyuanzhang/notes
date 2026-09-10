@@ -183,14 +183,14 @@ Authorization(授权)
 
   ```python
 
-    # ---------------------------------------------------------------
+    # ------------ 获取信息 ---------------------------------------------------
     oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
     # 流程: HTTP Request --》Authorization Header --》Bearer abc123 --》OAuth2PasswordBearer --》 "abc123" --》 token 参数
     # 作用: OAuth2PasswordBearer: 检查 Authorization Header，并把 Bearer 后面的 token 作为 str 返回；它本身还没有验证 token 是否有效。
     # 如果没有 Authorization Header，或者不是 Bearer：`401 Unauthorized`
 
-    def fake_decode_token(token):
-        return User(username=token + "fakedecoded", email="john@example.com", full_name="John Doe")
+    class TokenData(BaseModel):
+        username: str | None = None
 
     async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]):
       credentials_exception = HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,detail="Could not validate credentials",headers={"WWW-Authenticate": "Bearer"},)
@@ -199,7 +199,7 @@ Authorization(授权)
           username = payload.get("sub")
           if username is None:
               raise credentials_exception
-          token_data = TokenData(username=username)
+          token_data = TokenData(username=username) # 把字符串转换为数据结构，方便后面扩展（统一数据）
       except InvalidTokenError:
           raise credentials_exception
 
@@ -212,6 +212,10 @@ Authorization(授权)
       if current_user.disabled:
           raise HTTPException(status_code=400,detail="Inactive user")
       return current_user
+
+    @app.get("/users/me/")
+      async def read_users_me(current_user: Annotated[User, Depends(get_current_active_user)],) -> User:
+          return current_user
   # ------------ 创建token -------------------------------------------------------
   def create_access_token(data: dict, expires_delta: timedelta | None = None):
     to_encode = data.copy()
