@@ -32,53 +32,60 @@ Authorization(授权)
 | Dependency Tree | 配置/依赖如何组织？ | Filter链 / 依赖分析 |
 | Authorization   | 允许访问吗？        | 访问决策            |
 
-## 逐层解释
+- 逐层解释
+  1. 1️⃣ Authentication（认证）: 验证用户身份的过程。常见方式：
+     - 用户名 + 密码
+     - OAuth2 / SSO
+     - 生物识别
 
-1. 1️⃣ Authentication（认证）: 验证用户身份的过程。常见方式：
-   - 用户名 + 密码
-   - OAuth2 / SSO
-   - 生物识别
+  2. 2️⃣ JWT（JSON Web Token）: 认证通过后，发一个"身份证"
 
-2. 2️⃣ JWT（JSON Web Token）: 认证通过后，发一个"身份证"
+     ```json
+     {
+       "sub": "user123",
+       "scope": "read:orders write:orders",
+       "exp": 1725926400
+     }
+     ```
 
-   ```json
-   {
-     "sub": "user123",
-     "scope": "read:orders write:orders",
-     "exp": 1725926400
-   }
-   ```
+     - 无状态、可自包含
+     - 由 Header + Payload + Signature 组成
+     - 客户端携带 Token 访问资源
 
-   - 无状态、可自包含
-   - 由 Header + Payload + Signature 组成
-   - 客户端携带 Token 访问资源
+  3. 3️⃣ Scope（权限范围）: Token 里声明了"能做什么"
 
-3. 3️⃣ Scope（权限范围）: Token 里声明了"能做什么"
+     `scope: "read:user write:user admin:system"`
+     - 定义 Token 的权限边界
+     - 是 认证 到 授权 的桥梁
+     - 服务端根据 scope 判断请求是否合法
 
-   `scope: "read:user write:user admin:system"`
-   - 定义 Token 的权限边界
-   - 是 认证 到 授权 的桥梁
-   - 服务端根据 scope 判断请求是否合法
+  4. 4️⃣ Security（安全体系）: 整体框架
+     涵盖：
 
-4. 4️⃣ Security（安全体系）: 整体框架
-   涵盖：
+     | 层面     | 内容         |
+     | -------- | ------------ |
+     | 传输安全 | HTTPS / TLS  |
+     | 身份认证 | JWT / OAuth2 |
+     | 授权控制 | RBAC / ABAC  |
+     | 数据安全 | 加密 / 脱敏  |
 
-   | 层面     | 内容         |
-   | -------- | ------------ |
-   | 传输安全 | HTTPS / TLS  |
-   | 身份认证 | JWT / OAuth2 |
-   | 授权控制 | RBAC / ABAC  |
-   | 数据安全 | 加密 / 脱敏  |
+  5. 5️⃣ Dependency Tree（依赖树）: 安全配置的组成结构
 
-5. 5️⃣ Dependency Tree（依赖树）: 安全配置的组成结构
+     两种理解：
+     - A. 框架层面（如 Spring Security）: 每个 Filter 是一个依赖节点，形成处理链。
+     - B. 供应链安全层面: 依赖树分析可以发现安全漏洞（如 npm audit、mvn dependency:tree）。
 
-   两种理解：
-   - A. 框架层面（如 Spring Security）: 每个 Filter 是一个依赖节点，形成处理链。
-   - B. 供应链安全层面: 依赖树分析可以发现安全漏洞（如 npm audit、mvn dependency:tree）。
-
-6. 6️⃣ Authorization（授权）: "你能做什么？"
+  6. 6️⃣ Authorization（授权）: "你能做什么？"
 
 ## 流程图
+
+| 东西                   | 含义                                              |
+| ---------------------- | ------------------------------------------------- |
+| `OAuth2PasswordBearer` | 从请求的 `Authorization: Bearer xxx` 中提取 token |
+| `tokenUrl="token"`     | 告诉 OpenAPI 去 `/token` 获取 token               |
+| `/token`               | 你自己实现的登录接口                              |
+| `access_token`         | `/token` 返回给客户端的实际 token                 |
+| JWT                    | `access_token` 可能采用的一种具体 token 格式      |
 
 - 认证图 + 验证图
 
@@ -106,7 +113,7 @@ Authorization(授权)
                       create_access_token()
                                │
                                ↓
-                              JWT  (一种 Token 格式,默认不是加密的，是签名的)
+                            JWT Token (一种具体 Token 格式,默认不是加密的，是签名的)
                                │
                                ↓
                          前端保存 token
@@ -120,7 +127,7 @@ Authorization(授权)
                       └────────┬─────────┘
                                │
                                ↓
-                      OAuth2PasswordBearer
+                      OAuth2PasswordBearer （从请求的 Authorization: Bearer xxx 中提取 token）
                                │
                                ↓
                             token
@@ -129,7 +136,7 @@ Authorization(授权)
                       get_current_user()
                                │
                                ↓
-                          jwt.decode()
+                          jwt.decode() （JWT 解析）
                                │
                       ┌────────┴────────┐
                       ↓                 ↓
@@ -255,3 +262,44 @@ Authorization(授权)
         return Token(access_token=access_token, token_type="bearer")
 
   ```
+
+## 登录后：每次请求都会JWT解析 和 数据库查询
+
+用户可能被: 删除、禁用、权限发生变化
+
+- JWT + 数据库
+- 常见的做法：JWT + Redis
+
+```bash
+  Bearer JWT
+      ↓
+  JWT decode
+      ↓
+  user_id = 123
+      ↓
+  Redis GET user:123
+      ↓
+  active
+      ↓
+  继续执行
+```
+
+### 权限变化怎么办？
+
+- 方案 A：JWT + Redis 用户状态
+  1. JWT --> user_id --> Redis --> user_status/ role / permission version
+
+- 方案 B：短生命周期 Access Token + 配合 Refresh Token
+  1. Access Token: 有效期：10～15 分钟
+
+- 方案 C：JWT + token version
+  1. user_id = 123; token_version = 5
+  2. 如果用户被踢下线、修改密码、注销所有设备：数据库 token_version 5 → 6
+  3. 旧 JWT: token_version = 5; 发现：5 != 6; 立即失效。
+
+## FastAPI Security → JWT → Redis → PostgreSQL → RBAC/Scope
+
+1. JWT：证明“这个请求带着谁的身份”
+2. Redis：快速判断“这个身份现在还能不能用”
+3. PostgreSQL：保存“用户和权限的权威数据”
+4. RBAC/Scope：判断“这个用户能不能做这件事”
