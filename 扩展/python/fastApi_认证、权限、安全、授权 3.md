@@ -2,6 +2,11 @@
 
 FastAPI + PostgreSQL + Redis + JWT + RBAC + AI/RAG
 
+- RBAC 是一种“权限管理思想/模型”；
+- Role 是角色；
+- Permission 是实际权限；
+- Scope 是 OAuth2 用来表示“访问范围/权限”的机制。
+
 ## 流程
 
 ```bash
@@ -86,33 +91,34 @@ FastAPI + PostgreSQL + Redis + JWT + RBAC + AI/RAG
 ## 整个知识体系
 
 ```bash
-                 FastAPI Security
-                       │
-        ┌──────────────┴──────────────┐
-        ↓                             ↓
- Authentication                  Authorization
-   “你是谁？”                    “你能干什么？”
-        │                             │
-        ↓                             ↓
- OAuth2 / JWT                        RBAC (用户是什么角色？)
-        │                             │
-        ↓                             ↓
-  access_token                       Role
-        │                             │
-        ↓                             ↓
-  current_user                   Permission
-                                      │
-                                      ↓
-                                    Scope (当前访问需要什么具体权限？)
-                                      │
-                                      ↓
-                                   API权限
-                                      │
-                                ┌─────┴─────┐
-                                ↓           ↓
-                              允许         403
+                    FastAPI Security
+                            │
+        ┌───────────────────┴───────────────────┐
+        ↓                                       ↓
+ Authentication                            Authorization
+   “你是谁？”                                  “你能干什么？”
+        │                                       │
+        ↓                                       ↓
+ OAuth2 / JWT                                  RBAC (基于角色管理权限)
+        │                                       │
+        ↓                                       ↓
+  access_token                                 Role (例 admin/operator)
+        │                                       │
+        ↓                                       ↓
+  current_user                             Permission (例 device:control)
+                                                │
+                                  ┌─────────────┴──────────────┐
+                                  ↓                            ↓
+                        OAuth2 Scope (拥有的权限)           其他权限机制
+                           (例 device:control)
+                                  │
+                                  ↓
+                               API 要求的权限
+                                  │
+                            ┌─────┴─────┐
+                            ↓           ↓
+                          允许         403
 ```
 
-- Authentication 负责证明“你是谁”，
-- RBAC 负责根据“你的角色”决定“你能做什么”，
+- Permission 可以通过 Scope 来表达，而不是一定存在严格的上下级关系
 - Scope/Permission 负责把“能做什么”细化到具体 API 权限。
