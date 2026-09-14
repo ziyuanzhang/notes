@@ -1,6 +1,6 @@
-# fastApi 认证、权限、安全、授权
+# fastApi - 认证、权限、安全、授权
 
-Authentication(认证) --> JWT(签名) --> Scope --> Security --> Dependency Tree --> Authorization(授权)
+Authentication(认证) --> JWT(签名) --> Scope(权限范围) --> Security(安全体系) --> Dependency Tree(依赖树) --> Authorization(授权)
 
 认证确认身份 → JWT 携带身份 → Scope 声明权限 → 纳入安全体系 → 通过依赖树组织配置 → 最终完成授权决策。
 
@@ -106,13 +106,13 @@ Authorization(授权)
                       create_access_token()
                                │
                                ↓
-                             JWT
+                              JWT  (一种 Token 格式,默认不是加密的，是签名的)
                                │
                                ↓
                          前端保存 token
                                │
                                │
-                 Authorization: Bearer <JWT>
+                 Authorization: Bearer <JWT> (一种携带 Token 的方式)
                                │
                                ↓
                       ┌──────────────────┐
