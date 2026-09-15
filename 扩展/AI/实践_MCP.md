@@ -11,6 +11,57 @@
 
 ## MCP VS HTTP
 
+- 什么时候获取Tools列表？
+
+  MCP Client 通常在 连接/初始化阶段 发现 Tools，并缓存；运行过程中如果工具列表发生变化，再刷新，而不是每次调用工具前都重新获取。
+
+- MCP Client 先从 MCP Server 获取可用 Tools 列表，然后把这些 Tool 的名称、描述、参数 Schema 等信息提供给 Agent/LLM；
+
+  ❗MCP Client 负责“连接、发现、调用”；LLM/Agent 负责“理解、选择、决定”。
+
+- 关键是区分这两个动作：
+  1. ① MCP Client 获取工 `(MCP Client --> tools/list --> MCP Server --> 返回所有 Tools)`；
+  2. ② Agent/LLM 选择工具 `( 用户需求 --> LLM --> 分析 Tool 的 name + description + input schema --> 选择 query_orders )`;
+  3. 然后才是：MCP Client 调用工具 `(MCP Client --> tools/call --> query_orders --> MCP Server --> 返回结果)`;
+
+- 建议：
+
+  ```bash
+    FastAPI
+       │
+       │ 启动
+       ↓
+    MCP Client Manager
+       │
+       ├── MCP Server A
+       │      ↓
+       │   tools/list
+       │
+       ├── MCP Server B
+       │      ↓
+       │   tools/list
+       │
+       └── MCP Server C
+              ↓
+           tools/list
+                ↓
+           缓存所有 Tools
+                ↓
+           LangGraph Agent
+                ↓
+            用户请求
+                ↓
+           LLM选择Tool
+                ↓
+           MCP Client
+                ↓
+            tools/call
+  ```
+
+  ❗“MCP Client 拿到 Tool 列表” ≠ “LLM 每次都把所有 Tool 列表原封不动塞进 Prompt”。
+
+  ❗Agent 框架通常还会做 Tool 注册、筛选、绑定（bind tools） 等处理。这个正好是 MCP → LangGraph → LLM 三者连接起来的关键。
+
 ## FastMCP V2.0
 
 - FastMCP 是一个基于 MCP 的开源项目，它提供了一套完整的 MCP 框架，用于构建 MCP 服务器。
