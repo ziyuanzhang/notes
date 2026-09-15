@@ -1,14 +1,397 @@
 # langChain-V1.x-1-简介
 
-LangChain 1.0（不单单指 langchain） = 协议（core）+ 编排（graph）+ Provider（插件）+ Service（serve）
+- LangChain = 零件/高层 Agent 框架
+- LangGraph = Agent 的流程引擎/运行时
+- Deep Agents = 在 LangGraph 之上封装好的“高级 Agent Harness（智能体运行套件）”
+- Managed Deep Agents = 把 Deep Agents 托管到 LangSmith 云上运行
+- LangSmith = 观测、评估、调试、部署平台，不是 Agent 框架本身
+
+## 流程图
+
+| 东西            | 主要负责                                                   |
+| --------------- | ---------------------------------------------------------- |
+| **LangGraph**   | Agent 怎么运行、状态、流程、暂停/恢复                      |
+| **LangChain**   | Model、Tool、Prompt、Middleware、Agent 等开发组件          |
+| **Deep Agents** | Planning、Todo、Files、Subagents、Skills 等高级 Agent 能力 |
+| **MCP**         | Agent 如何标准化连接外部工具/数据                          |
+| **RAGFlow**     | 文档解析、知识库、RAG                                      |
+| **FastAPI**     | 对外提供你的业务 API                                       |
+| **Redis**       | Cache、Session、Queue、State 等                            |
+| **PostgreSQL**  | 业务数据、审计、持久化等                                   |
 
 ```bash
-Message 是事实
-ToolCall 是事件
-Runnable 是行为
-Graph 是控制流
-Agent 是约定
+                         ┌──────────────────────────┐
+                         │       LangSmith          │
+                         │  Observability / Eval    │
+                         │  Debug / Deploy / Trace  │
+                         └────────────┬─────────────┘
+                                      │
+                       托管 / 观测 / 部署
+                                      │
+                    ┌─────────────────▼─────────────────┐
+                    │       Managed Deep Agents         │
+                    │                                   │
+                    │ LangSmith 托管的 Deep Agent Runtime│
+                    └─────────────────┬─────────────────┘
+                                      │
+                               基于 Deep Agents
+                                      │
+        ┌─────────────────────────────────────────────────────────────────────┐
+        │                         Deep Agents                                 │
+        │                    高级 Agent Harness                                │
+        │                                                                     │
+        │   ┌─────────────┐   ┌─────────────┐   ┌────────────────────────┐    │
+        │   │  Planning   │   │   Todo      │   │   Context Management   │    │
+        │   └─────────────┘   └─────────────┘   └────────────────────────┘    │
+        │                                                                     │
+        │   ┌─────────────┐   ┌─────────────┐   ┌────────────────────────┐    │
+        │   │    Files    │   │  Subagents  │   │       Skills           │    │
+        │   └─────────────┘   └─────────────┘   └────────────────────────┘    │
+        │                                                                     │
+        │   ┌─────────────┐   ┌─────────────┐                                 │
+        │   │    Tools    │   │   Memory    │                                 │
+        │   └─────────────┘   └─────────────┘                                 │
+        │                                                                     │
+        │              ↓ 使用 LangChain 核心组件                                │
+        │              ↓ 使用 LangGraph Runtime                                │
+        └──────────────────────────────┬──────────────────────────────────────┘
+                                       │
+                                       ▼
+        ┌─────────────────────────────────────────────────────────────────────┐
+        │                         LangChain                                   │
+        │                  LLM 应用 / Agent 高层组件                            │
+        │                                                                     │
+        │   ┌─────────────┐   ┌─────────────┐   ┌────────────────────────┐    │
+        │   │    Model    │   │    Tools    │   │       Middleware       │    │
+        │   │             │   │             │   │                        │    │
+        │   │ OpenAI      │   │ Search      │   │ before_model           │    │
+        │   │ Anthropic   │   │ DB          │   │ after_model            │    │
+        │   │ Qwen        │   │ HTTP API    │   │ before_tool            │    │
+        │   │ DeepSeek    │   │ Calculator  │   │ after_tool             │    │
+        │   └─────────────┘   └─────────────┘   └────────────────────────┘    │
+        │                                                                     │
+        │   ┌─────────────┐   ┌─────────────┐   ┌────────────────────────┐    │
+        │   │   Prompt    │   │   Messages  │   │   Structured Output    │    │
+        │   └─────────────┘   └─────────────┘   └────────────────────────┘    │
+        │                                                                     │
+        │   ┌─────────────┐   ┌─────────────┐   ┌────────────────────────┐    │
+        │   │     RAG     │   │ Retriever   │   │       Agent            │    │
+        │   │             │   │ VectorStore │   │     create_agent()     │    │
+        │   └─────────────┘   └─────────────┘   └───────────────┬────────┘    │
+        │                                                       │             │
+        └───────────────────────────────────────────────────────┼─────────────┘
+                                                                │
+                                                                ▼
+        ┌─────────────────────────────────────────────────────────────────────┐
+        │                         LangGraph                                   │
+        │                 Agent Runtime / Orchestration                       │
+        │                                                                     │
+        │   ┌─────────────┐   ┌─────────────┐   ┌────────────────────────┐    │
+        │   │    State    │   │    Nodes    │   │        Edges           │    │
+        │   └─────────────┘   └─────────────┘   └────────────────────────┘    │
+        │                                                                     │
+        │   ┌─────────────┐   ┌─────────────┐   ┌────────────────────────┐    │
+        │   │ Conditional │   │   Loops     │   │     Checkpoints        │    │
+        │   │    Edges    │   │             │   │     Persistence        │    │
+        │   └─────────────┘   └─────────────┘   └────────────────────────┘    │
+        │                                                                     │
+        │   ┌─────────────┐   ┌─────────────┐   ┌────────────────────────┐    │
+        │   │    HITL     │   │  Streaming  │   │ Durable Execution      │    │
+        │   └─────────────┘   └─────────────┘   └────────────────────────┘    │
+        │                                                                     │
+        └─────────────────────────────────────────────────────────────────────┘
+
+
+# --- 更准确是： ----------------
+LangChain
+  ├── Model
+  ├── Tools
+  ├── Prompt
+  ├── Messages
+  ├── RAG
+  ├── Middleware
+  │
+  └── Agent
+        │
+        ↓
+    LangGraph Runtime
+
+
+Deep Agents
+  ├── Planning
+  ├── Todo
+  ├── Files
+  ├── Skills
+  ├── Subagents
+  ├── Context Management
+  │
+  ├── LangChain building blocks
+  │
+  └── LangGraph Runtime
 ```
+
+### 1. LangGraph 的零部件
+
+- LangGraph 最核心的东西其实就是：
+
+  ```bash
+                      LangGraph
+                         │
+          ┌──────────────┼──────────────┐
+          ↓              ↓              ↓
+        State           Node           Edge
+          │              │              │
+     保存运行状态      执行逻辑       控制流程
+                         │
+                         ↓
+                ┌────────────────┐
+                │ Conditional    │
+                │ Edge           │
+                └────────────────┘
+  ```
+
+- 例如一个 Agent：
+
+  ```bash
+     START
+       │
+       ▼
+     ┌──────────────┐
+     │    Agent     │ ← Node
+     └──────┬───────┘
+            │
+            ▼
+        是否调用 Tool？ ← Conditional Edge
+           /    \
+         Yes     No
+          │       │
+          ▼       ▼
+       Tool      END
+        Node
+          │
+          └──────→ Agent
+  ```
+
+### 2. LangChain 的零部件
+
+```bash
+                         LangChain
+                            │
+       ┌──────────┬─────────┼──────────┬──────────┐
+       ↓          ↓         ↓          ↓          ↓
+     Model      Tools     Prompt     Messages   RAG
+       │          │         │          │          │
+       ↓          ↓         ↓          ↓          ↓
+    LLM/API     外部能力   指令模板    对话消息     检索
+       │
+       └────────────────┬────────────────────────┐
+                        ↓                        ↓
+                  Structured Output         Middleware
+                        │                        │
+                        └───────────┬────────────┘
+                                    ↓
+                                  Agent
+```
+
+例如：User --> Prompt --> Model --> Tool --> Tool Result --> Model --> Structured Output
+
+这些零件组合起来以后，才形成一个 Agent。
+
+### 3. LangChain Agent 的零部件
+
+LangChain Agent 的零部件
+
+```bash
+                    LangChain Agent
+                          │
+        ┌─────────────────┼─────────────────┐
+        ↓                 ↓                 ↓
+      Model             Tools          Middleware
+        │                 │                 │
+        │          ┌──────┼──────┐          │
+        │          ↓      ↓      ↓          │
+        │        Search   DB    MCP         │
+        │                                    │
+        └──────────────┬─────────────────────┘
+                       ↓
+                  Agent Loop
+                       │
+              ┌────────┴────────┐
+              ↓                 ↓
+          调用 Tool           直接回答
+              │
+              ↓
+           Tool Result
+              │
+              ↓
+             Model
+              │
+              └──────→ ...
+```
+
+这里的 Agent Loop，现在底层使用 LangGraph Runtime。所以：
+
+```bash
+LangChain Agent
+      │
+      ├── Model
+      ├── Tools
+      ├── Middleware
+      ├── Prompt
+      └── ...
+              │
+              ↓
+         LangGraph Runtime
+```
+
+LangGraph → LangChain Agent → Deep Agents : 其他的 Model、Tool、Middleware、RAG、Structured Output 等，是围绕 Agent 的“零件”。
+
+### 4. Deep Agents 的零部件
+
+Deep Agents 就是在普通 Agent 的基础上增加了一大堆“高级能力”。
+Deep Agents 是“基于 LangChain 的组件 + 基于 LangGraph 的运行时”，不是简单地“跳过 LangChain，直接构建在 LangGraph 上”。
+
+普通 Agent：User --> Agent --> Model --> Tool --> Model --> Answer
+Deep Agent：
+
+```bash
+                         Deep Agent
+                             │
+        ┌────────────────────┼────────────────────┐
+        ↓                    ↓                    ↓
+     Planning              Todo                Context
+        │                    │                    │
+        └────────────────────┼────────────────────┘
+                             ↓
+                         Agent Loop
+                             │
+            ┌────────────────┼────────────────┐
+            ↓                ↓                ↓
+          Tools            Files           Subagents
+            │                │                │
+            ↓                ↓                ↓
+         Search          write/read       子 Agent
+                             │
+                             ↓
+                           Skills
+                             │
+                             ↓
+                          Memory
+```
+
+因此 Deep Agent 特别适合：
+“给 Agent 一个复杂任务，让它自己规划、拆任务、调用工具、管理上下文、委派子 Agent，然后最终完成任务。”
+
+### 5. 结合 MCP
+
+MCP 并不是 LangGraph 的零部件，也不是 LangChain 的核心零部件。
+
+```bash
+                         FastAPI
+                            │
+                            ↓
+                      Agent Service
+                            │
+                  ┌─────────┴─────────┐
+                  ↓                   ↓
+              LangChain          Deep Agents
+                  │                   │
+                  └─────────┬─────────┘
+                            ↓
+                       LangGraph
+                         Runtime
+                            │
+               ┌────────────┼────────────┐
+               ↓            ↓            ↓
+             Tools         MCP          RAG
+               │            │            │
+               ↓            ↓            ↓
+             HTTP       MCP Server    RAGFlow
+                            │
+                            ↓
+                         Redis
+                       PostgreSQL
+```
+
+### 6. 总结
+
+- 企业级 Agent, LangGraph 反而非常重要
+
+  ```bash
+                      用户
+                       │
+                       ↓
+                    FastAPI
+                       │
+                       ↓
+                Authentication
+                       │
+                       ↓
+                      RBAC
+                       │
+                       ↓
+                   AI Gateway (AI网关)
+                       │
+                       ↓
+                  ┌──────────┐
+                  │ LangGraph│
+                  └────┬─────┘
+                       │
+         ┌─────────────┼─────────────┐
+         ↓             ↓             ↓
+     RAG Agent     Tool Agent    Research Agent
+         │             │             │
+      RAGFlow         MCP           Web
+         │             │             │
+         └─────────────┼─────────────┘
+                       ↓
+                      HITL
+                       ↓
+                     Audit
+                       ↓
+                   PostgreSQL
+                       │
+                       ↓
+                   Evaluation
+  ```
+
+  这种系统：LangGraph 非常适合。
+
+- Deep Agents 更适合另外一种场景
+  例如：“给我一个研究员 Agent。” 然后你希望它自己：
+
+  ```bash
+    计划
+     ↓
+    搜索
+     ↓
+    阅读
+     ↓
+    整理
+     ↓
+    写文件
+     ↓
+    调用 subagent
+     ↓
+    继续搜索
+     ↓
+    总结
+     ↓
+    生成报告
+  ```
+
+  这时候：Deep Agents 会比你自己从 LangGraph 0 开始造一个完整 Agent Harness 快很多。
+
+## 学习路径
+
+FastAPI + LangGraph + RAGFlow + FastMCP + Redis + PostgreSQL + JWT + RBAC + HITL + AI Gateway + Audit + Replay + Eval
+
+1. 第一阶段 LangChain --> 理解 Agent 基础
+2. 第二阶段LangGraph --> 真正理解 Agent Runtime
+3. 第三阶段Deep Agents --> 理解高级 Agent Harness
+4. 第四阶段自己部署 Deep Agents --> FastAPI + Docker + Redis + PostgreSQL
+5. 第五阶段LangSmith --> 理解 Observability / Eval / Deployment
+6. 第六阶段Managed Deep Agents --> 理解托管 Agent 基础设施
 
 ## LangChain1.0 构成: 轻核心与模块化
 
@@ -27,9 +410,7 @@ Agent 是约定
 2. 2️⃣ langchain（名字很大，地位已下降）：“默认拼装层”，对 langchain-core 的 封装 + 兼容；⚠️ 能不用就不用;
 
    agent 黑盒必须与 LangSmith 配合使用
-
    - 主要作用：
-
      - 把常用组件“顺手装一起”
      - 提供少量向后兼容接口
      - 简化新手体验
@@ -41,9 +422,7 @@ Agent 是约定
    ❗ 社区集成：1.0 之后官方态度： community ≈ “临时停靠区”，成熟了就拆到独立 provider 包
 
 4. 4️⃣ LLM / Embedding Provider（强解耦）
-
    - 好处：
-
      - 不污染核心
      - 你可以完全不装 OpenAI
      - Ollama / vLLM / 本地模型一等公民
@@ -66,7 +445,6 @@ Agent 是约定
    ❗ LangChain 官方明确：未来所有 Agent，都应该基于 langgraph
 
 7. 7️⃣ langServe（部署）
-
    - 功能：
      - 把 Runnable / Graph 直接暴露为 API
      - FastAPI 自动生成
@@ -107,7 +485,6 @@ Agent 是约定
 5. State Management: 状态管理
 
 - 中间件的四大功能
-
   1. 监控(Monitoring): 日志记录、分析、调试;
   2. 修改(Modification): 转换提示词、工具选择、输出格式;
   3. 控制(Control): 重试、降级、提前终止;
@@ -207,13 +584,11 @@ agent = create_agent(
 ### 人工干预（人在环上 -- Human-in-the-loop）
 
 - 创建、配置、运行
-
   1. 配置时：一定要配置 checkpointer，在 agent 执行中断后，维持中断前的图状态；
   2. 调用时：传入 config 记录线程信息；
   3. 运行时机：模型响应之后，任何工具调用之前，触发。
 
 - 运行流程
-
   1. Agent 调用模型后；
   2. 中间件验证“模型回复”是否符合中断策略；
   3. 当符合时: 中间件触发中断，并汇总信息交给 agent；
@@ -277,7 +652,6 @@ agent.invoke( # 编辑后继续
 - 调用时机：会在 agent 内部每次调用模型前，检查消息列表情况；
 
 - 使用场景：
-
   1. 长文本(Long-context): 超出上下文窗口的长期对话任务；
   2. 多轮次(multi-turn): 具有丰富历史记录的多轮对话，
   3. 高冗余(High-redundancy): 需要完整保留对话上下文的应用场景;
@@ -324,9 +698,7 @@ agent=create_agent(
 - tool_selector: 工具太多时
 
   在调用主模型前，利用大型语言模型智能选相关工具，通过结构化输出（定义了可用工具的名称及描述），提供工具子集给 agent 的主模型；
-
   1. 使用场景：
-
      - 多工具：拥有大量工具(10+)的代理，其中多数工具对每次查询而言并不相关；
      - 高成本：通过过滤无关工具来减少 token 使用量；
      - 高精度：通过减少冗余工具，提升模型聚焦度与谁确性。
@@ -351,7 +723,6 @@ agent=create_agent(
 - to_do_list: 能够为 agent 配备复杂多步骤任务的规划与追踪能力
 
   （主要适用于跨工具使用的多步骤复杂任务 或 需实时进度可见性的长期运行操作）
-
   1. 使用场景: 模型认为任务复杂，且需多步骤处理时才会生效
   2. 运行逻辑: 为 Agent(新增)写入 write-todos 工具,使 Agent 能够创建并管理复杂多步骤操作的结构化任务清单，其设计旨在协助代理跟踪进度，整理复杂任务，并为用产提供任务完成状态的可视化信息；
 
@@ -366,9 +737,7 @@ agent=create_agent(
   ```
 
   复杂任务时: agent 的回答会额外多出 todo 字段
-
   - to_do_list:
-
     1. content: 子任务的具体描述
     2. status: 子任务的当前执行状态
 
@@ -391,7 +760,6 @@ agent=create_agent(
 
 - 问题：1、大模型幻觉；2、上下文“长度”限制；3、模型“专业知识与时效性知识”不足
 - 解决：
-
   1. 数据源
   2. 文档解析
   3. 文本分割
@@ -408,14 +776,12 @@ agent=create_agent(
      - 文档检索过程优化
      - 上下文拼接策略优化
      - 生成策略优化
-
   - Graph RAG：基于知识图谱的新型检索方式
   - Agentic RAG：将 检索增强生成 与 agent 结合
 
 ### 语义搜索
 
 - 从 PDF 到向量库(知识库)
-
   1. 文档解析：读取 PDF，按页面管理，Document,List[Document]
   2. 分割文本，文本段（chunk），Document,List[Document]
   3. 向量化：文本段<=>向量，需要嵌入模型来辅助；
@@ -431,7 +797,6 @@ agent=create_agent(
 planning(规划)、file system（文件系统）、subagent（子代理）
 
 - 何时使用 Deep Agents：当您需要能够完成以下任务的代理时，请使用 Deep Agents：
-
   1. 处理需要规划和分解的复杂多步骤任务
   2. 通过文件系统工具管理大量上下文
   3. 将工作委托给专门的子代理以实现上下文隔离
