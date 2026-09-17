@@ -492,68 +492,6 @@ FastAPI + LangGraph + RAGFlow + FastMCP + Redis + PostgreSQL + JWT + RBAC + HITL
 
 ![langchain-agent运行流程](./img/langchain/langchain-agent运行流程.png)
 
-## langchain 分层
-
-- ✅ Layer 1：协议 & 抽象（唯一核心）
-
-  ```bash
-  langchain-core
-  ├── messages
-  ├── runnables
-  ├── tools
-  ├── output_parsers
-  ├── prompts
-  └── callbacks / tracing
-  ```
-
-- ✅ Layer 2：能力实现层（实现 Runnable）
-
-  ```bash
-  chat_models
-    ├── langchain-openai
-    ├── langchain-anthropic
-    └── langchain-vllm
-
-  langchain-mcp-adapters
-    └── MCP → BaseTool → Runnable
-  ```
-
-- ✅ Layer 3：控制流 & Agent 引擎
-
-  ```bash
-  LangGraph
-    ├── State
-    ├── Node (Runnable)
-    ├── Edge
-    └── Replay / Checkpoint
-  ```
-
-  这一层直接吃 core，不吃 langchain
-
-- ✅ Layer 4：Facade / 快速应用框架（可选）
-
-  ```bash
-  langchain
-  ├── agents
-  ├── chains
-  ├── memory
-  └── tool routing
-  ```
-
-- ✅ Layer 5：组织 & 多 Agent
-
-  ```base
-  DeepAgents
-    └── built on LangGraph
-  ```
-
-- ✅ Layer X：平台 & 监控（旁路）
-
-  ```bash
-  LangSmith
-    ↔ callbacks / tracing
-  ```
-
 ## 1、核心入口:create_agent()统-Agent 构建流程
 
 动态模型 Agent
