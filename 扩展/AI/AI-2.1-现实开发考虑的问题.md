@@ -1,4 +1,6 @@
-- lagngraph+llamaindex+mcp 开发agent， llamaindex做为RAG；
+# 现实开发考虑的问题
+
+- langgraph+llamaIndex+mcp 开发agent， llamaIndex做为RAG；
 - 公司有多个部门 例：人事，行政，产品研发部，每个部门有自己的文档，别的部门不以访问，各部门的文档有 多模态、pdf（简单和复杂）、网页；
   1. 一个index(索引)是一个知识库吗？怎么先构建知识库，在查询？
   2. 怎么做RAG？怎么区分访问？怎么做向量库，每个文件一个知识库？
