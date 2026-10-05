@@ -40,20 +40,29 @@
                                        当前运行时的上下文/依赖
 ```
 
-- Model 想，
-- Prompt 规定怎么想，
-- Tools 让它做事，
-- Middleware 改造执行过程，
-- Subagents 帮它分工，
-- Backend 给它提供运行环境；
-- Runtime Context 提供本次运行的信息，
-- Memory 保存长期信息，
-- Structured Output 规定最终怎么返回。
+- Model: 想，
+- Prompt: 规定怎么想，
+- Tools: 让它做事，
+- Middleware: 改造执行过程，
+- Subagents: 帮它分工，
+- Backend: 给它提供运行环境；
+- Runtime Context: 提供本次运行的信息，
+- Memory: 保存长期信息，
+- Structured Output: 规定最终怎么返回。
 
-- create_deep_agent() 负责把 Model、Prompt、Tools 组装成 Agent；
+- create_deep_agent(): 负责把 Model、Prompt、Tools 组装成 Agent；
 - Deep Agent Harness 再通过 Middleware、Subagents、Backend 等机制，让这个 Agent 从“会调用工具的 LLM”升级成“能够长期、复杂、自主完成任务的 Agent”。
 
-文档明确列出了 create_deep_agent 的主要可定制参数，包括：
+- 真正应该记住的“7句话”
+  1. ① create_deep_agent():
+  2. ② model: Agent 的大脑。
+  3. ③ tools: Agent 的手。
+  4. ④ subagents: 把复杂任务拆给专业 Agent。
+  5. ⑤ middleware: 在 Agent 执行链中插入能力/控制逻辑。
+  6. ⑥ backend + filesystem: 给 Agent 一个可以保存和操作中间产物的工作空间。
+  7. ⑦ skills + memory: Skills 告诉它“怎么做”，Memory 告诉它“需要知道什么”。
+
+## 文档明确列出了 create_deep_agent 的主要可定制参数，包括
 
 - model
 - system_prompt
@@ -71,8 +80,6 @@
 - profiles: 给不同模型“定制默认配置”
 
 这其实就是 Deep Agents 的“能力插槽”。
-
-## 说明
 
 ### middleware
 

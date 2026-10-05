@@ -1,5 +1,133 @@
 # agent
 
+Agent 本质上就是让 LLM 的“决策”进入一个可控的执行循环。
+LLM 只是输出 Tool Call 意图，真正的 Tool 调用由 Agent Runtime 执行。
+
+## agent 运行流程
+
+一次 agent.ainvoke() 内部，会有一个类似 while 的 Agent Loop；任务完成后就退出。
+一次 Agent 调用 = 一个有限的 Agent Loop。
+
+1. LLM 返回：
+
+   ```python
+     {
+       "tool_calls": [
+         {
+           "name": "get_weather",
+           "args": {
+             "city": "北京"
+           }
+         }
+       ]
+     }
+   ```
+
+2. Runtime ：
+
+   ```python
+   async def agent_runtime(user_message):
+       messages = [user_message]
+       while True:
+           # ① 调用 LLM
+           response = await llm.ainvoke(
+               messages,
+               tools=tools
+           )
+           # ② LLM 要调用工具
+           if response.tool_calls:
+               # ③ Runtime 执行 Tool
+               for tool_call in response.tool_calls:
+                   tool = tool_registry[tool_call["name"]]
+                   result = await tool.ainvoke(
+                       tool_call["args"]
+                   )
+                   messages.append(result)
+               # ④ 工具执行完，再回到 LLM
+               continue
+           # ⑤ LLM 没有 Tool Call
+           #    说明它认为可以回答了
+           return response
+   ```
+
+- 整个过程固定成这张脑图：
+
+  ```bash
+       ┌──────────────┐
+       │     LLM      │
+       └──────┬───────┘
+              │
+        有 tool_call?
+           /     \
+         是       否
+         ↓         ↓
+    执行 Tool     返回答案
+         │
+         ↓
+        LLM
+         │
+         └───────────↺
+     ## =====================================
+     agent.ainvoke(...)
+             │
+             ▼
+     ┌─────────────────────────┐
+     │      Agent Runtime      │
+     │                         │
+     │  ① 调用 LLM             │
+     │          │              │
+     │          ▼              │
+     │  ② LLM 输出             │
+     │     ├─ 普通回答 ─────────┼───→ 结束
+     │     │                   │
+     │     └─ Tool Call        │
+     │             │           │
+     │             ▼           │
+     │  ③ Runtime 找到 Tool    │
+     │             │           │
+     │             ▼           │
+     │  ④ 执行 Tool            │
+     │             │           │
+     │             ▼           │
+     │  ⑤ Tool Result         │
+     │             │           │
+     │             └───────────┤
+     │                         │
+     │          回到 ①         │
+     └─────────────────────────┘
+     ## ====== 再压缩成一句话 ======================
+        agent.ainvoke()
+            ↓
+        启动 Agent Loop
+            ↓
+        LLM 决策
+            ↓
+        有没有 tool_call？
+         ┌──┴──┐
+        否     是
+        │       │
+        结束    Runtime 执行 Tool
+                │
+                ↓
+              再问 LLM
+                │
+                └──→ 继续循环
+  ```
+
+- “没有 Tool Call”是最常见的正常退出条件，但不是唯一条件。
+- 常见退出条件
+
+  | 退出条件                    | 含义                              |
+  | --------------------------- | --------------------------------- |
+  | **LLM 没有 Tool Call**      | 最正常的成功结束                  |
+  | **达到最大迭代次数**        | 防止 Agent 无限循环               |
+  | **达到递归/图执行深度限制** | 防止 LangGraph/Agent 无限嵌套执行 |
+  | **超时**                    | 整个 Agent 执行时间超过限制       |
+  | **Tool 执行失败且无法继续** | 根据错误处理策略终止              |
+  | **LLM/API 调用失败**        | 模型请求失败，可能直接结束        |
+  | **用户/系统主动中断**       | HITL、取消任务等                  |
+  | **模型产生特定终止状态**    | Runtime 根据状态决定结束          |
+
 ## Agent 设计模式（Agent 框架与策略）
 
 1. ChainofThought（CoT+思维链）：
