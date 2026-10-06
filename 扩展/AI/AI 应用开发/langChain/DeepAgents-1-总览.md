@@ -97,9 +97,7 @@ Deep Agents = 把复杂 Agent 常用能力组装好的“高级 Agent Harness”
                                       └─────── Loop
 ```
 
-### 2. Capabilities：Agent 能做什么
-
-### 3. Context Management：Agent 怎么管理上下文
+### 2. Context Management：Agent 怎么管理上下文
 
 ```bash
                          Agent
@@ -129,6 +127,8 @@ Deep Agents = 把复杂 Agent 常用能力组装好的“高级 Agent Harness”
                            ▼
                           LLM
 ```
+
+### 3. Capabilities：Agent 能做什么
 
 ## Deep Agents 的四大核心能力
 
