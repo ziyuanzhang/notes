@@ -51,27 +51,128 @@ Deep Agents = 把复杂 Agent 常用能力组装好的“高级 Agent Harness”
 
 ## Deep Agents 的重点不是“让 Agent 会调用工具”，而是让 Agent 能够长期、复杂、多步骤地完成任务。
 
+## 从3个维度学习
+
+### 1. Runtime：Agent 怎么运行
+
+```bash
+                         Deep Agent
+                              │
+                              ▼
+                       agent.ainvoke()
+                              │
+                              ▼
+                    ┌─────────────────┐
+                    │  Agent Runtime  │
+                    └────────┬────────┘
+                             │
+                             ▼
+                       ┌───────────┐
+                       │ Agent Loop│
+                       └─────┬─────┘
+                             │
+                             ▼
+                            LLM
+                             │
+                    ┌────────┴────────┐
+                    │                 │
+                    ▼                 ▼
+                 Answer           Tool Call
+                    │                 │
+                    ▼                 ▼
+                   END              Runtime
+                                      │
+                                      ▼
+                                  Execute Tool
+                                      │
+                                      ▼
+                                  Tool Result
+                                      │
+                                      ▼
+                                    State
+                                      │
+                                      ▼
+                                     LLM
+                                      │
+                                      └─────── Loop
+```
+
+### 2. Capabilities：Agent 能做什么
+
+### 3. Context Management：Agent 怎么管理上下文
+
+```bash
+                         Agent
+                           │
+                           ▼
+                  Context Management
+                           │
+              ┌────────────┴────────────┐
+              │                         │
+              ▼                         ▼
+        Summarization              Offloading
+              │                         │
+              ▼                         ▼
+       压缩历史信息                 外置大量内容
+              │                         │
+              │                         ▼
+              │                    Filesystem
+              │                         │
+              │                    ┌────┴────┐
+              │                    ▼         ▼
+              │                 write      read
+              │
+              └────────────┬──────────────┘
+                           ▼
+                    Relevant Context
+                           │
+                           ▼
+                          LLM
+```
+
 ## Deep Agents 的四大核心能力
 
 ```bash
-                     Deep Agents
-                          │
-       ┌──────────────────┼──────────────────┐
-       ↓                  ↓                  ↓
-    Execution            Context            Delegation
-    执行环境              上下文管理            委派
-       │                  │                  │
-    Tools               Skills              Planning
-    Filesystem          Memory              Subagents
-    Code(执行代码)       Summarization(摘要)
-    HITL                Offloading(上下文卸载)
+Deep Agents
+│
+▼
+├── Execution environment (执行环境)
+│     ├── Tools (工具)
+│     │     ├── Custom tools (自定义工具)
+│     │     ├── MCP (Model Configuration Protocol)
+│     │     └── Built-in tools (内置工具)
+│     │
+│     ├── virtual Filesystem (虚拟文件系统)
+│     │     └── Backend (后端)
+│     │
+│     ├── Filesystem permissions (文件系统权限)
+│     └── Code execution(代码执行)
+│           ├── optional sandbox (可选沙盒)
+│           └── REPL (interpreter - 解释器)
+│
+├── Context Management  (上下文管理)
+│     ├── Skills (摘要)
+│     ├── Memory (长期记忆)
+│     ├── Summarization (摘要)
+│     ├── context Offloading (上下文卸载)
+│     └── Prompt Caching (缓存)
+│
+├── Delegation (委派)
+│     ├── Subagents (子代理)
+│     │    └── Agent Loop (代理循环)
+│     │
+│     └── optional task planning (可选的任务规划)
+│          └── Todo list (待办事项列表)
+│
+└── Steering (转向人工)
+      └── Human-in-the-loop (人类在环)
+           ├── approval (批准)
+           └── interrupts (中断)
 ```
 
-- 另外还有 Steering：
-  1. Human-in-the-loop
-  2. Permissions
+### 一、 Execution environment (执行环境)
 
-### ① Execution Environment：Agent 真正“干活”
+#### 1. Execution Environment：Agent 真正“干活”
 
 - 普通 Agent： LLM --> 调用几个 API
 - Deep Agents：
@@ -99,7 +200,7 @@ Deep Agents = 把复杂 Agent 常用能力组装好的“高级 Agent Harness”
 
     这就已经很接近：Coding Agent / Research Agent（研究型 Agent）/ Data Agent ,而不仅仅是聊天机器人。
 
-### ② Virtual Filesystem：这是 Deep Agents 很关键的设计
+#### 2. Virtual Filesystem：这是 Deep Agents 很关键的设计
 
 虚拟文件系统: Agent 不需要把所有东西都塞进：LLM Context，而可以：
 
@@ -123,7 +224,19 @@ Deep Agents = 把复杂 Agent 常用能力组装好的“高级 Agent Harness”
 
 - 文件系统实际上成为 Agent 的“外部工作记忆”。
 
-### ③ Skills：不要把所有知识塞进 System Prompt
+#### 3. MCP：Deep Agents 和你之前学的 MCP 完全可以接起来
+
+#### 4. Code Execution
+
+Deep Agents 支持两种：
+
+- Sandbox = 真正操作环境: execute --> shell --> Python / CLI / tests / dependencies
+- Interpreter = 轻量计算环境: eval --> JavaScript
+  - 它不是完整 Shell。
+
+### 二、上下文管理
+
+#### 1. Skills：不要把所有知识塞进 System Prompt
 
 ```bash
     skills/
@@ -144,7 +257,7 @@ Deep Agents = 把复杂 Agent 常用能力组装好的“高级 Agent Harness”
 
 这叫：Progressive Disclosure（渐进式披露）
 
-### ④ Memory：长期记忆
+#### 2. Memory：长期记忆
 
 Deep Agents 使用： AGENTS.md 作为一种 Memory 载体。
 
@@ -170,7 +283,7 @@ Agent 每次进入项目，都可以知道：
 
 而更像：项目级 Agent Instructions / Long-term Context
 
-### Skills 和 Memory 不一样
+#### Skills 和 Memory 不一样
 
 Skills: 我应该怎么做某类事情(步骤)？
 Memory: 这个项目/这个用户长期有什么规则（规则）？
@@ -178,7 +291,7 @@ Memory: 这个项目/这个用户长期有什么规则（规则）？
 Skill = 能力/方法
 Memory = 长期规则/偏好/上下文
 
-### ⑤ Context Management：Deep Agents 真正的“深”在哪里
+#### 3. Context Management：Deep Agents 真正的“深”在哪里
 
 ```bash
 Input Context: System Prompt + Memory + Skills + Tools
@@ -190,27 +303,21 @@ Isolation(隔离): 这是 Subagent 的核心, 每个 Subagent：自己的 Contex
 Long-term Memory
 ```
 
-### ⑥ Subagents：这是 Deep Agents 的另一大特色
+### 三、Delegation：委派
+
+#### 1. Subagents：这是 Deep Agents 的另一大特色
 
 每个 Subagent 有自己的 Context。 而且它只把最终结果返回给 Main Agent。
 
-### ⑦ Task Planning：Todo(待办事项 / 任务清单) -- 【可选】
+#### 2. Task Planning：Todo(待办事项 / 任务清单) -- 【可选】
 
 Planning 并不是 Deep Agents 的核心强制能力。
 
-### ⑧ Human-in-the-loop
+### 四、Steering：转向人工
+
+#### 1. Human-in-the-loop
 
 底层依赖：LangGraph interrupt / durable execution
-
-### ⑨ MCP：Deep Agents 和你之前学的 MCP 完全可以接起来
-
-### ⑩ Code Execution
-
-Deep Agents 支持两种：
-
-- Sandbox = 真正操作环境: execute --> shell --> Python / CLI / tests / dependencies
-- Interpreter = 轻量计算环境: eval --> JavaScript
-  - 它不是完整 Shell。
 
 ## Deep Agents 🆚 普通 LangChain Agent
 
@@ -305,59 +412,6 @@ Deep Agents: 我给 Agent 一个复杂任务，Agent 自己决定怎么完成;
 ## 生态关系图
 
 ```bash
-                 Application
-                      │
-                      ▼
-             ┌────────────────┐
-             │  Deep Agents   │
-             │ Agent Harness  │
-             └───────┬────────┘
-                     │
-             LangChain Building
-                  Blocks
-                     │
-      ┌──────────────┼──────────────┐
-      ↓              ↓              ↓
-    Model          Tools           MCP
-      │              │              │
-      └──────────────┼──────────────┘
-                     ↓
-               LangGraph Runtime
-                     │
-      ┌──────────────┼──────────────┐
-      ↓              ↓              ↓
-   Durable        Streaming        HITL
-   Execution                       State
-```
-
-然后旁边还有:
-
-```bash
-              Deep Agents Harness
-                     │
-       ┌─────────────┼──────────────┐
-       ↓             ↓              ↓
-   Filesystem      Memory         Skills
-       │             │              │
-       └─────────────┼──────────────┘
-                     ↓
-              Context Management
-                     │
-             ┌───────┴───────┐
-             ↓               ↓
-        Summarization    Offloading
-
-                     +
-
-             Delegation
-             ┌───────┴───────┐
-             ↓               ↓
-          Planning       Subagents
-```
-
-## 流程图
-
-```bash
                     AI Application
                          │
                          ▼
@@ -365,7 +419,7 @@ Deep Agents: 我给 Agent 一个复杂任务，Agent 自己决定怎么完成;
                          │
               ┌──────────┴──────────┐
               ↓                     ↓
-           Agent                  RAG
+           Agent                   RAG
               │                     │
               ↓                     ↓
          Deep Agents             RAGFlow
@@ -377,9 +431,7 @@ Deep Agents: 我给 Agent 一个复杂任务，Agent 自己决定怎么完成;
        └──────┬───────┘
               ↓
              MCP
-```
-
-```bash
+# ====================================================================================
              User
               │
               ▼
@@ -412,3 +464,109 @@ Deep Agents: 我给 Agent 一个复杂任务，Agent 自己决定怎么完成;
 ```
 
 Deep Agents / LangChain / LangGraph / MCP / Tool Calling / Context Engineering / HITL / Subagents 基本就串起来了。
+
+## 学习路线
+
+Runtime 是 Agent 执行过程中承载状态、配置、上下文、工具执行、后端访问等运行时信息/能力的概念
+
+```bash
+  1.  Deep Agents 是什么
+          ↓
+  2.  Quickstart
+          ↓
+  3.  核心架构 / Agent Loop
+          ↓
+  4.  Model
+          ↓
+  5.  Tools
+          ↓
+  6.  Runtime
+          ├── Runtime
+          ├── State
+          ├── Backend
+          ├── Permissions
+          ├── Filesystem
+          └── Sandbox
+          ↓
+  7.  Context Engineering
+          ├── Context Management
+          ├── Skills
+          ├── Memory
+          └── Retrieval
+          ↓
+  8.  Middleware
+          ├── Overview
+          ├── Built-in Middleware
+          └── Custom Middleware
+          ↓
+  9.  Subagents
+          ├── Delegation
+          ├── Subagents
+          ├── Dynamic Subagents
+          └── Async Subagents
+          ↓
+  10. Human-in-the-loop
+          ├── Steering
+          └── HITL
+          ↓
+  11. Fault Tolerance
+          ↓
+  12. Multimodal
+          ├── Interpreter
+          ├── Event Stream
+          └── Streaming
+          ↓
+  13. Evaluation
+          ↓
+  14. Production
+          ↓
+  15. Frontend / Protocol
+          ├── Frontend
+          ├── Modes
+          ├── ACP
+          ├── MCP + LangChain
+          ├── A2A
+          └── AG-UI
+
+# ======================= 始终围绕这一条主线： ===================================
+
+                    Deep Agent
+                        │
+                        ↓
+                 agent.ainvoke()
+                        │
+                        ↓
+                     Runtime
+                        │
+          ┌─────────────┼─────────────┐
+          ↓             ↓             ↓
+        State         Context       Middleware
+          │             │             │
+          ↓             ↓             ↓
+      Messages      Filesystem     Guardrail
+                        │             │
+                        ↓             ↓
+                      Tools        Retry/HITL
+                        │
+                        ↓
+                       LLM
+                        │
+                  ┌─────┴─────┐
+                  ↓           ↓
+               Answer      Tool Call
+                              │
+                              ↓
+                           Runtime
+                              │
+                       ┌──────┴──────┐
+                       ↓             ↓
+                    Tool         Subagent
+                       │             │
+                       └──────┬──────┘
+                              ↓
+                            State
+                              ↓
+                             LLM
+                              ↓
+                            Loop
+```

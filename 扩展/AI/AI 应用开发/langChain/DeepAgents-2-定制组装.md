@@ -126,17 +126,17 @@
 ### Backend：Deep Agent 的“文件存储层”
 
 - 值：
-  - StateBackend: 默认
-  - FilesystemBackend
+  - StateBackend: 默认 (当前 Thread (对话)临时空间)
+  - FilesystemBackend: 用本地磁盘(不同用户容易串)
   - LocalShellBackend
-  - StoreBackend
+  - StoreBackend: 跨 Thread 持久空间
   - ContextHubBackend
-  - CompositeBackend
+  - CompositeBackend:
 
 - StateBackend类似于
 
   ```bash
-    Thread A、B (A、B是两个不同的Agent)
+    Thread A、B (A、B是2次具体对话)
        ↓
     LangGraph Checkpoint
        ↓
