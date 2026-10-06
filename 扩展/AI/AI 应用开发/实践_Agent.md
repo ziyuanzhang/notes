@@ -114,8 +114,13 @@ LLM 只是输出 Tool Call 意图，真正的 Tool 调用由 Agent Runtime 执�
                 └──→ 继续循环
   ```
 
-- “没有 Tool Call”是最常见的正常退出条件，但不是唯一条件。
+- 最后用三句话记住
+  1. LLM:决定要不要调用 Tool，以及调用哪个 Tool。
+  2. Agent Runtime: 看到 LLM 的 Tool Call 后，负责真正执行 Tool。
+  3. MCP Client: 把这个 Tool 执行转换成 MCP 的 tools/call 请求发给 MCP Server。
+
 - 常见退出条件
+  “没有 Tool Call”是最常见的正常退出条件，但不是唯一条件。
 
   | 退出条件                    | 含义                              |
   | --------------------------- | --------------------------------- |
@@ -127,6 +132,8 @@ LLM 只是输出 Tool Call 意图，真正的 Tool 调用由 Agent Runtime 执�
   | **LLM/API 调用失败**        | 模型请求失败，可能直接结束        |
   | **用户/系统主动中断**       | HITL、取消任务等                  |
   | **模型产生特定终止状态**    | Runtime 根据状态决定结束          |
+
+  agent.ainvoke() 启动一次 Agent 执行；Runtime 在每一轮根据 LLM 输出决定“结束”还是“继续执行 Tool → 再调用 LLM”，同时受到最大步数、递归深度、超时和异常等安全边界约束。
 
 ## Agent 设计模式（Agent 框架与策略）
 
