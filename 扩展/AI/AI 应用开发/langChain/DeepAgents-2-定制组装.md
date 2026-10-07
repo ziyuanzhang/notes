@@ -1,57 +1,41 @@
 # DeepAgents-2-定制组装
 
 ```bash
-                                     create_deep_agent()
-                                            │
-                           ┌────────────────┼────────────────┐
-                           ↓                ↓                ↓
-                         Model            Prompt            Tools
-                           │                │                │
-                        GPT/Claude       Agent规则       普通Tool / MCP
-                           │                │                │
-                           └────────────────┼────────────────┘
-                                            ↓
-                               ┌────────────────────────┐
-                               │   Deep Agent Harness   │
-                               └────────────────────────┘
-                                            │
-       ┌────────────────────────────────────┼─────────────────────────────────────┐
-       ↓                                    ↓                                     ↓
-   Middleware                            Subagents                             Backend(运行环境/资源)
-       │                                    │                                     │
-  日志/摘要/HITL                          子Agent委派                              文件系统
-  Retry/权限等                               │                                     │
-       ↓                                    ↓                                     ↓
-       │                                专业Agent们                                ├── State (状态管理)
-       ├── Skills                           │                                     ├── Filesystem (文件系统)
-       ├── Memory                           ├──                                   ├── localShell (本地Shell)
-       ├── Summarization                    ├──                                   └── Sandbox (沙箱环境)
-       ├── HITL(人工接入)
-       ├── Permissions(权限)
-       ├── Planning(任务规划)
-       ├── Retry(重试)
-       └── ...(自定义)
+create_deep_agent(...)
+        │
+        ▼
+   Deep Agent Harness
+        │
+        │ agent.ainvoke(...)
+        ▼
+   Agent Runtime
+        │
+        ├── Runtime Context
+        ├── Middleware
+        ├── Subagents
+        ├── Tools
+        └── Execution Environment
 
-       └─────────────────────────────────────────────────────────────────────────────┘
-                                            │
-                                            ↓
-                                     Runtime Context(运行时上下文)
-                                            │
-                                       当前运行时的上下文/依赖
+# Runtime Context 是运行时提供/携带的上下文和依赖，不是 Harness 执行完之后产生的结果。
 ```
 
 - Model: 想，
 - Prompt: 规定怎么想，
 - Tools: 让它做事，
-- Middleware: 改造执行过程，
+- Middleware: 在 Agent 执行过程中插入能力，
 - Subagents: 帮它分工，
-- Backend: 给它提供运行环境；
+- Backend: 某些能力背后的资源/数据访问实现；
 - Runtime Context: 提供本次运行的信息，
 - Memory: 保存长期信息，
 - Structured Output: 规定最终怎么返回。
 
-- create_deep_agent(): 负责把 Model、Prompt、Tools 组装成 Agent；
-- Deep Agent Harness 再通过 Middleware、Subagents、Backend 等机制，让这个 Agent 从“会调用工具的 LLM”升级成“能够长期、复杂、自主完成任务的 Agent”。
+- Filesystem Tools = Agent 实际看到并调用的文件工具
+- State / Store / Filesystem = Backend 后面的数据落点
+
+- create_deep_agent(): 负责把 Model、Prompt、Tools 组装成 Deep Agent；
+- Deep Agent Harness: 给普通 Agent 加上 Deep Agent 的能力(通过 Middleware、Subagents、Backend 等机制，让这个 Agent 从“会调用工具的 LLM”升级成“能够长期、复杂、自主完成任务的 Agent”。)
+- Agent Runtime = 真正跑起来
+- Agent Loop = LLM → 判断 → Tool/Middleware/Subagent → 再 LLM → …
 
 - 真正应该记住的“7句话”
   1. ① create_deep_agent():
@@ -80,80 +64,6 @@
 - profiles: 给不同模型“定制默认配置”
 
 这其实就是 Deep Agents 的“能力插槽”。
-
-### middleware
-
-- 可以做：
-  - 日志
-  - Retry
-  - 权限
-  - PII 检测
-  - Human-in-the-loop
-  - Prompt 修改
-  - Summarization
-  - Tool Call 拦截
-  - 统计
-  - 审计
-
-  文档明确说 Deep Agents 支持 LangChain middleware，以及自己的 middleware
-
-- 默认情况下，Deep Agents 会自动组装类似：
-
-```bash
-  SkillsMiddleware
-          ↓
-  FilesystemMiddleware
-          ↓
-  SubAgentMiddleware
-          ↓
-  SummarizationMiddleware
-          ↓
-  PatchToolCallsMiddleware
-          ↓
-  AsyncSubAgentMiddleware
-          ↓
-  你的 Middleware
-          ↓
-  Profile Middleware
-          ↓
-  Prompt Cache
-          ↓
-  MemoryMiddleware
-          ↓
-  HumanInTheLoop
-```
-
-### Backend：Deep Agent 的“文件存储层”
-
-- 值：
-  - StateBackend: 默认 (当前 Thread (对话)临时空间)
-  - FilesystemBackend: 用本地磁盘(不同用户容易串)
-  - LocalShellBackend
-  - StoreBackend: 跨 Thread 持久空间
-  - ContextHubBackend
-  - CompositeBackend:
-
-- StateBackend类似于
-
-  ```bash
-    Thread A、B (A、B是2次具体对话)
-       ↓
-    LangGraph Checkpoint
-       ↓
-    StateBackend
-       ↓
-    Virtual Files
-  ```
-
-#### Sandbox(沙盒)：真正让 Agent“执行代码”
-
-- Sandbox 可以让 Agent：
-  - 写文件
-  - 安装依赖
-  - 执行命令
-  - 在隔离环境运行
-
-### Human-in-the-loop：让 Agent 不是什么都能自己干
 
 ### Skills：不是 Tool，而是“能力说明书”
 
@@ -216,6 +126,78 @@ Skill = 你应该怎么做
 
 Memory = 你需要知道什么
 Skill = 你需要怎么做
+
+### Backend：Deep Agent 的“文件存储层”
+
+- 值：
+  - StateBackend: 默认 (当前 Thread (对话)临时空间)
+  - FilesystemBackend: 用本地磁盘(不同用户容易串)
+  - LocalShellBackend
+  - StoreBackend: 跨 Thread 持久空间
+  - ContextHubBackend
+  - CompositeBackend:
+
+- StateBackend类似于
+
+  ```bash
+    Thread A、B (A、B是2次具体对话)
+       ↓
+    LangGraph Checkpoint
+       ↓
+    StateBackend
+       ↓
+    Virtual Files
+  ```
+
+#### Sandbox(沙盒)：真正让 Agent“执行代码”
+
+- Sandbox 可以让 Agent：
+  - 写文件
+  - 安装依赖
+  - 执行命令
+  - 在隔离环境运行
+
+### middleware
+
+- 可以做：
+  - 日志
+  - Retry
+  - 权限
+  - PII 检测
+  - Human-in-the-loop
+  - Prompt 修改
+  - Summarization
+  - Tool Call 拦截
+  - 统计
+  - 审计
+
+  文档明确说 Deep Agents 支持 LangChain middleware，以及自己的 middleware
+
+- 默认情况下，Deep Agents 会自动组装类似：
+
+```bash
+  SkillsMiddleware
+          ↓
+  FilesystemMiddleware
+          ↓
+  SubAgentMiddleware
+          ↓
+  SummarizationMiddleware
+          ↓
+  PatchToolCallsMiddleware
+          ↓
+  AsyncSubAgentMiddleware
+          ↓
+  你的 Middleware
+          ↓
+  Profile Middleware
+          ↓
+  Prompt Cache
+          ↓
+  MemoryMiddleware
+          ↓
+  HumanInTheLoop
+```
 
 ### Middleware 🆚 Profiles
 

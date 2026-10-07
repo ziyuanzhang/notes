@@ -4,6 +4,8 @@ Deep Agents（深度代理 -- 任务执行深度更深）
 
 Deep Agents = 基于 LangChain 能力 + LangGraph Runtime，预先帮你组装好一套“适合复杂长期任务”的 Agent Harness（智能体运行框架/脚手架）。
 
+Deep Agents = LLM + Agent Runtime + 一堆可调用 Tool。
+
 Deep Agents 是一个独立的 deepagents Python 库，建立在 LangChain 的核心构建块之上，并使用 LangGraph 作为 Runtime。
 
 ```bash
@@ -43,6 +45,31 @@ Deep Agents 是一个独立的 deepagents Python 库，建立在 LangChain 的�
                     │ Streaming        │
                     │ HITL / 执行       │
                     └──────────────────┘
+# -----------------------------------------------------------------------
+LangGraph
+│
+│ 负责底层 Agent Runtime / State / Graph
+│
+↓
+LangChain
+│
+│ Model / Tool / Middleware / Agent抽象
+│
+↓
+Deep Agents
+│
+│ create_deep_agent()
+│
+├── Filesystem
+├── SubAgent
+├── Summarization
+├── Skills
+├── Memory
+├── Middleware
+├── HITL
+├── Backend
+└── ...
+Deep Agents 不是一个“新的 LLM Agent 原理”，而是一套已经帮你组装好大量 Agent 基础能力的 Harness。
 ```
 
 LangGraph = 怎么可靠地运行 Agent
@@ -56,7 +83,13 @@ Deep Agents = 把复杂 Agent 常用能力组装好的“高级 Agent Harness”
 ### 1. Runtime：Agent 怎么运行
 
 ```bash
-                         Deep Agent
+# create_deep_agent() 是组装入口，不是运行时本身。
+# Deep Agent Harness 是在运行时围绕 LLM 建起来的一套“Agent 工作能力/机制”。
+
+              create_deep_agent(Model, Prompt, Tools, Middleware, Subagents, Backend, Memory,....)
+                              │
+                              ▼
+                       Deep Agent / Harness
                               │
                               ▼
                        agent.ainvoke()
@@ -95,6 +128,53 @@ Deep Agents = 把复杂 Agent 常用能力组装好的“高级 Agent Harness”
                                      LLM
                                       │
                                       └─────── Loop
+
+    # agent.ainvoke() 开启 Agent Runtime，然后 Runtime 驱动 Agent Loop。
+                                  │
+                                  ▼
+                           Agent Runtime
+                                  │
+                                  ▼
+                            Agent Loop
+                                  │
+                     ┌────────────┴────────────┐
+                     ▼                         ▼
+                  LLM决策                   Tool执行
+                     │                         │
+                     └───────────循环──────────┘
+
+    # -------------------------------------------------------
+                         │
+                         ▼
+                 Runtime Context
+                         │
+                  当前运行时的
+                 上下文 / 依赖
+     # Runtime Context 是运行时提供/携带的上下文和依赖，不是 Harness 执行完之后产生的结果。
+
+     # ----------------------------------------------------------------------
+     # LLM 负责产生 Tool Call → Agent Runtime/Agent Loop 负责真正执行 Tool → Middleware/Backend/Execution Environment 提供执行能力。
+         create_deep_agent()
+                 ↓
+         Deep Agent Harness
+                 ↓
+         Agent Runtime
+                 ↓
+         Agent Loop
+                 ↓
+         ┌─────────┬────────────┬──────────────┐
+         │ Model   │ Middleware │ Tool/Subagent│
+         └─────────┴────────────┴──────────────┘
+                             ↓
+                   Execution Environment
+                             ↓
+                       Filesystem
+                             ↓
+                 Filesystem Middleware
+                             ↓
+                    Filesystem Tools
+                             ↓
+                          Backend
 ```
 
 ### 2. Context Management：Agent 怎么管理上下文
@@ -385,31 +465,9 @@ Deep Agents: 我给 Agent 一个复杂任务，Agent 自己决定怎么完成;
 
 最终就是：
 
-```bash
-                  ┌──────────────┐
-                  │   Your App   │
-                  └──────┬───────┘
-                         │
-              ┌──────────┴──────────┐
-              ↓                     ↓
-         Deep Agents              RAGFlow
-              │
-       ┌──────┴───────┐
-       ↓              ↓
-   LangChain       LangGraph
-       │              │
-       └──────┬───────┘
-              ↓
-             MCP
-              │
-       ┌──────┼────────┐
-       ↓      ↓        ↓
-      API     DB      Tools
-```
+## 生态关系图
 
 🔥 LangGraph 是“运行时”，LangChain 是“零部件”，Deep Agents 是“把复杂 Agent 所需的零部件和运行能力预先组装好的 Harness”。
-
-## 生态关系图
 
 ```bash
                     AI Application
