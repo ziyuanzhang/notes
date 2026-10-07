@@ -223,12 +223,12 @@ Deep Agents
 │     │     └── Built-in tools (内置工具)
 │     │
 │     ├── virtual Filesystem (虚拟文件系统)
-│     │     └── Backend (后端)
+│     │     └── Backend (后台)
 │     │
 │     ├── Filesystem permissions (文件系统权限)
 │     └── Code execution(代码执行)
-│           ├── optional sandbox (可选沙盒)
-│           └── REPL (interpreter - 解释器)
+│           ├── optional sandbox (沙盒 -- 可选)
+│           └── REPL (code interpreter - 解释器)
 │
 ├── Context Management  (上下文管理)
 │     ├── Skills (摘要)
@@ -241,7 +241,7 @@ Deep Agents
 │     ├── Subagents (子代理)
 │     │    └── Agent Loop (代理循环)
 │     │
-│     └── optional task planning (可选的任务规划)
+│     └── optional task planning (任务规划 -- 可选)
 │          └── Todo list (待办事项列表)
 │
 └── Steering (转向人工)
