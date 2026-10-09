@@ -199,43 +199,6 @@ CustomBackend: 你自己实现文件操作和存储适配
 
 LLM 需要“看到工具失败”，然后 Agent 可以自己决定，所以：Backend 的错误是 Agent Loop 的正常信息，而不是直接把整个 Agent 打崩。
 
-## Permissions vs Backend
-
-Permission = 能不能操作
-Backend = 怎么操作 / 存在哪里
-
-```bash
-                         Agent Runtime
-                              │
-                              ▼
-                             LLM
-                              │
-                              ▼
-                       Filesystem Tool
-                              │
-                              ▼
-                        Policy Wrapper
-                        （策略包装层）
-                              │
-                              ▼
-                         Permission
-                         （权限控制）
-                              │
-                              ▼
-                   FilesystemPermission
-                       （文件权限规则）
-                              │
-                       ┌──────┴──────┐
-                       ▼             ▼
-                     允许           拒绝
-                       │             │
-                       ▼             ▼
-                    Backend      返回拒绝结果
-                       │
-                       ▼
-                    文件写入
-```
-
 ## 存储模型
 
 ![心智模型](./img/心智模型.png)
@@ -279,5 +242,3 @@ Backend = 怎么操作 / 存在哪里
   1. Backend → State：决定文件数据写到哪里。
   2. Checkpointer → State：决定图状态如何保存和恢复。
   3. StoreBackend → Store：决定文件如何存取到跨 thread 的数据空间。
-
-## =======================
