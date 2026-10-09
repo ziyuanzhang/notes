@@ -78,7 +78,7 @@ Deep Agents = 把复杂 Agent 常用能力组装好的“高级 Agent Harness”
 
 ## Deep Agents 的重点不是“让 Agent 会调用工具”，而是让 Agent 能够长期、复杂、多步骤地完成任务。
 
-## 从3个维度学习
+## 从4个维度学习
 
 ### 1. Runtime：Agent 怎么运行
 
@@ -209,6 +209,10 @@ Deep Agents = 把复杂 Agent 常用能力组装好的“高级 Agent Harness”
 ```
 
 ### 3. Capabilities：Agent 能做什么
+
+### 4. Agent 的“工作空间”怎么实现？
+
+Filesystem Tools --> Backend --> State / Disk / Store / Hub / Sandbox / Custom Storage
 
 ## Deep Agents 的四大核心能力
 
@@ -464,6 +468,95 @@ Deep Agents: 我给 Agent 一个复杂任务，Agent 自己决定怎么完成;
   解决：企业知识怎么解析、索引、检索、召回？
 
 最终就是：
+
+## Runtime: 负责：Agent 怎么跑
+
+包括：
+
+- Agent Loop
+- State
+- Context
+- Middleware
+- Tool execution
+- 模型调用
+- 暂停/恢复
+
+## Thread 🆚 Memory 🆚 Context 🆚 State 🆚 Store 🆚 Filesystem 🆚 StateBackend
+
+- Thread 管一次对话(会话线程)，
+- State 管运行状态，
+- Memory 管长期记忆，
+- Context 管模型当前能看到的信息(模型上下文)，
+- Store 管跨 Thread 的数据，
+- Filesystem 是文件系统，
+- StateBackend 是 Agent 操作文件的一种实现。
+
+```bash
+                       Deep Agent
+                            │
+                     ┌──────┴──────┐
+                     ▼             ▼
+                  Thread        Context
+                 （会话）       （模型上下文）
+                     │             │
+                     ▼             ▼
+                   State       System Prompt
+                 （运行状态）   Messages / Files
+                     │             │
+                     ▼             ▼
+                Checkpointer    Context Engineering
+                 （状态持久化）  （上下文工程）
+# -----------------------------------------------------------------------------
+                持久化与文件访问体系
+                            │
+              ┌─────────────┴─────────────┐
+              ▼                           ▼
+           Memory                       Filesystem
+          （长期记忆）                    （文件系统）
+              │                           │
+              ▼                           ▼
+           Store                    StateBackend
+       （跨 Thread 数据）            （文件操作接口）
+              │                           │
+              ▼                           ▼
+       Store 实现/存储               实际文件数据
+# -------------------------------------------------------------------------
+Thread
+  │
+  ▼
+State
+  │  保存当前消息、任务进度和状态数据
+  ▼
+StateBackend
+  │  提供 read_file / write_file 等操作
+  ▼
+虚拟文件空间
+  │
+  ▼
+Agent 读取项目文件并生成分析结果
+  │
+  ├── 相关文件内容 ──→ Context ──→ 模型推理
+  │
+  └── 有价值的经验 ──→ Memory ──→ Store
+                                      │
+                                      ▼
+                              后续 Thread 可复用
+```
+
+| 概念         | 本质                   | 核心问题                 |
+| :----------- | :--------------------- | :----------------------- |
+| Thread       | 会话标识与会话维度     | 哪一条对话？             |
+| State        | 运行状态数据           | 当前执行状态是什么？     |
+| Memory       | 长期记忆能力与内容     | 以后值得记住什么？       |
+| Context      | 当前推理的信息集合     | 模型现在能看到什么？     |
+| Store        | 跨 Thread 数据存取机制 | 长期数据如何保存和查找？ |
+| Filesystem   | 文件组织与访问模型     | 文件如何按路径组织？     |
+| StateBackend | 文件操作的具体后端实现 | 文件读写实际怎么执行？   |
+
+- 最容易混淆的三组关系：
+  - State ≠ Store：一个管理运行状态，一个提供跨 Thread 的数据存取。
+  - Memory ≠ Context：一个面向长期复用，一个面向当前推理。
+  - Filesystem ≠ StateBackend：一个是文件组织与访问模型，一个是实现文件操作的后端。
 
 ## 生态关系图
 
