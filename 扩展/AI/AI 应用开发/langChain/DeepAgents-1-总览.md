@@ -387,6 +387,8 @@ Isolation(隔离): 这是 Subagent 的核心, 每个 Subagent：自己的 Contex
 Long-term Memory
 ```
 
+#### 4. Context Engineering：决定模型当前能看到哪些消息和媒体内容，以及历史内容如何被压缩或引用。
+
 ### 三、Delegation：委派
 
 #### 1. Subagents：这是 Deep Agents 的另一大特色
