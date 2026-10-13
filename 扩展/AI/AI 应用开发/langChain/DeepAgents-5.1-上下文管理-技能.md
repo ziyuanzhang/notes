@@ -31,11 +31,12 @@ Skill 与 Memory 不同：Memory 主要提供背景，Skill 主要提供某类�
 my-project/
 └── skills/                         # 技能集合目录（常见约定，不是强制名称）
     ├── langgraph-docs/
-    │   ├── SKILL.md                # 技能入口说明
-    │   └── references/
-    │       └── schema-reference.md  # 辅助参考资料
+    │   └── SKILL.md                # 技能入口说明
+    │
     └── pdf-processing/
         ├── SKILL.md
+        ├── references/
+        │   └── schema-reference.md # 辅助参考资料
         ├── scripts/
         │   └── extract.py           # 脚本
         └── assets/
@@ -45,8 +46,6 @@ my-project/
 不是每个 Skill 都需要三个子目录。简单的 Skill 只需要 SKILL.md。
 
 ### 2.2 SKILL.md 示例
-
-SKILL.md、YAML frontmatter、命名约束、references、scripts、assets。
 
 ```bash
 ---
