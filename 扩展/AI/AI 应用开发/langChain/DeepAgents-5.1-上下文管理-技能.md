@@ -431,7 +431,7 @@ agent.update_state(
 
 ```
 
-资料将 skills_metadata 描述为技能元数据缓存，并给出以下语义：
+skills_metadata 技能元数据缓存：
 
 - None：尚未加载或需要重新发现。
 - []：已加载，但没有发现可用技能。
