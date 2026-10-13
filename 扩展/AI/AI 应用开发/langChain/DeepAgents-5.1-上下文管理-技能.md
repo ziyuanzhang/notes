@@ -268,10 +268,10 @@ Skill 是一种文件组织与加载约定，不是一种绑定特定 Backend �
 
 ```bash
  # ---------------------------------------------
-  远端 Skill 服务  # 1. 从远程 下载后放本地
+  远端 Skill 服务  # 方式1. 从远程 下载后放本地
         │ HTTP 下载 SKILL.md
         ▼
-  本地 skills/code-review/SKILL.md (存储 Skill 的文本和元数据) # 2. 直接在本地
+  本地 skills/code-review/SKILL.md (存储 Skill 的文本和元数据) # 方式2. 直接在本地
         ↓
   FilesystemBackend (提供目录列表、文件读取等能力)
         ↓
