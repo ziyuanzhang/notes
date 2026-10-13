@@ -271,7 +271,7 @@ Skill 是一种文件组织与加载约定，不是一种绑定特定 Backend �
   远端 Skill 服务  # 方式1. 从远程 下载后放本地
         │ HTTP 下载 SKILL.md
         ▼
-  本地 skills/code-review/SKILL.md (存储 Skill 的文本和元数据) # 方式2. 直接在本地
+  [放入] 本地 skills/code-review/SKILL.md (存储 Skill 的文本和元数据) # 方式2. 直接在本地
         ↓
   FilesystemBackend (提供目录列表、文件读取等能力)
         ↓
@@ -287,7 +287,7 @@ Skill 是一种文件组织与加载约定，不是一种绑定特定 Backend �
 
 ### 4.4 为什么不同 Backend 不能无条件互换？
 
-同一份 Skill 内容可以存放在磁盘，也可以由应用从远端获取后放进相应的存储空间。但对应 Backend 必须提供技能发现所需的目录列表、文件读取等能力。
+同一份 Skill 内容可以存放在磁盘，也可以由“应用从远端获取”后放进“相应的存储空间”。但对应 Backend 必须提供技能发现所需的目录列表、文件读取等能力。
 
 例如：
 
