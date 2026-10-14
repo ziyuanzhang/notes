@@ -1,6 +1,6 @@
 # DeepAgents-5.1-上下文管理-skills
 
-![deepAgent-skills-概念层级图，不是严格的代码调用顺序图](./img/deepAgent-skills-概念层级图，不是严格的代码调用顺序图.png)
+<img src="./img/deepAgents-5.1-skills-概念层级图，不是严格的代码调用顺序图.png" width="800" alt='deepAgents-5.1-skills-概念层级图，不是严格的代码调用顺序图'/>
 
 ## 一、Skill 与相关组件的区别
 
@@ -189,11 +189,11 @@ SkillsMiddleware 检查技能元数据状态
 
 ### 3.3 root_dir 与 sources 不是同一种路径
 
-- root_dir：实际文件系统的根目录。
-- sources：Backend 能识别的技能来源路径。
-- /skills/ 是否映射到磁盘上的 my-project/skills/，取决于 Backend 的路径解析方式和配置。
-
-因此，虚拟路径不能不加判断地当成磁盘绝对路径。
+- root_dir: 实际文件系统的根目录 (确定根目录: 告诉文件系统 Backend，实际从哪里开始访问)。
+- sources: Backend 能识别的技能来源路径(根目录后的 技能路径: 告诉 SkillsMiddleware 去哪个路径找 Skill)。
+- root_dir + sources 组成: 技能文件的实际路径。
+- root_dir、sources 分开写: 把存储位置 和 技能发现规则解耦;
+  - 只要各 Backend 都能提供对应的 /skills/ 路径，技能发现逻辑就有机会保持不变，而不用把每一种物理存储地址都写进 sources
 
 ### 3.4 pinned_skills：预先加载指定技能
 
