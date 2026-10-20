@@ -206,3 +206,46 @@ Deep Agents 前端可视化
 ```
 
 Deep Agents 的前端不是简单地把 LLM 返回的文本显示出来，而是把 Agent 运行时中的消息、状态、委派信息和执行产物转换成用户可以观察、理解和交互的工作界面。
+
+## 六、 useStream() 🆚 FastAPI 中转方案
+
+前端通过 LangGraph API Server 连接 Agent 的方式，不是前端直接调用 Python Agent 对象。
+
+前端直连 LangGraph 服务，LangGraph 服务再运行 Deep Agent。
+
+```ts
+const stream = useStream<typeof agent>
+  {
+    apiUrl: "http://localhost:2024",
+    assistantId: "agent"
+  };
+```
+
+localhost:2024 指向 LangGraph API Server，而不是 Python Agent 对象本身。
+
+- 方案 A：前端直连 LangGraph API Server（本文档）
+
+  `React ──────► LangGraph API ──────► Deep Agent`
+
+- 方案 B：FastAPI 中转（更适合整合业务系统）
+
+  ```bash
+    React ──────► FastAPI ──────► LangGraph API ──────► Deep Agent
+                      │
+                      ├── 用户认证 / JWT
+                      ├── 业务权限 / RBAC
+                      ├── 业务数据库
+                      └── 业务 API
+  ```
+
+- 对比
+
+  | 对比项             | 方案 A：前端直连      | 方案 B：FastAPI 中转       |
+  | ------------------ | --------------------- | -------------------------- |
+  | 架构复杂度         | 较低                  | 较高                       |
+  | 快速验证 Agent     | 很适合                | 可以                       |
+  | 业务鉴权与权限控制 | 需要在服务端另行配置  | 可以集中处理               |
+  | 业务数据库与       | API 集成 需要额外设计 | 更自然                     |
+  | 生产环境           | 适用于受控场景        | 适合需要统一业务入口的系统 |
+
+❗如果 Python 服务里直接执行 agent.ainvoke()，并通过 FastAPI 返回结果，那么也不必额外启动 LangGraph API Server；但如果要使用本文档这种 useStream() 对接方式，就需要提供与它兼容的后端接口。
