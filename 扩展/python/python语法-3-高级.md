@@ -845,14 +845,14 @@ g.send('egg') # 报错: StopIteration
 ## 三元表达式 与 生成式(列表、字典、集合、生成器)
 
 - 语法格式: 条件成立时的值 if 条件 else 条件不成立时的值
-- 列表生成式: arr=[表达式 for item in 可迭代对象 if 条件]
+- 列表生成式(列表推导式): arr=[表达式 for item in 可迭代对象 if 条件]
   `arr = [name for name in names if name[0] == 'w']`
 
-- 字典生成式
-  `items = [('name', 'wc'), ('age', 18), ('sex', 'male')];
-`dicts = {key: value for key, value in items if key != 'sex'}`
+- 字典生成式(字典推导式)
+  `items = [('name', 'wc'), ('age', 18), ('sex', 'male')`;
+  `dicts = {key: value for key, value in items if key != 'sex'}`
 
-- 集合生成式
+- 集合生成式(集合推导式)
   `keys = {name for name in names if name[0] == 'w'}`
 
 - 生成器表达式:
