@@ -2,7 +2,7 @@
 
 ## 先看完整流程图
 
-<img src='./img/python从安装 -> 代码运行起来1.png' alt='python从安装 -> 代码运行起来' width='700'/>
+<img src='./img/python地基_1_从安装 -> 代码运行起来.png' alt='python从安装 -> 代码运行起来' width='700'/>
 
 1. 安装 Python: 获得 Python 解释器及标准库
    ↓
@@ -170,7 +170,7 @@ my-agent/                    项目目录
 
 模块导入机制，整个过程可以简化为:
 
-<img src='./img/python从安装 -> 代码运行起来2_模块导入与执行流程图.png' alt='模块导入与执行流程图.' width='800'/>
+<img src='./img/python地基_2_模块导入与执行流程图.png' alt='模块导入与执行流程图.' width='800'/>
 
 1. sys.path: 搜索路径
 
@@ -280,7 +280,7 @@ my_agent/
   安装好依赖后执行: `uv run python -m uvicorn my_agent.main:app --host 127.0.0.1 --port 8000 --reload`
   Uvicorn 会导入 my_agent.main，取得其中的 app 对象，然后启动 HTTP 服务，监听指定端口。
 
-  <img src='./img/python从安装 -> 代码运行起来3_持续服务.png' alt='python持续服务' width='800'/>
+  <img src='./img/python地基_3_持续服务.png' alt='python持续服务' width='800'/>
 
   LangGraph 的本地开发服务器也是类似的高层思路: 在准备好 Python 环境和项目依赖后，通过 LangGraph CLI 启动服务，由运行时加载配置中的图和相关应用组件，提供 API。
   不过，LangGraph CLI 的具体启动链路还包含自己的配置解析、图加载和运行时逻辑，并不等于上面这个简单的 Uvicorn 示例。
