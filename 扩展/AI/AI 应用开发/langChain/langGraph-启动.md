@@ -1,4 +1,21 @@
-2中启动方式
+# langGraph-启动
+
+agent.invoke() 是“怎么跑图”，
+langgraph dev 是“怎么启动开发服务器”。
+生产环境通常不会用 langgraph dev，而是把图包成服务，再由服务内部调用 invoke / ainvoke / stream。
+
+## 生产怎么选
+
+1. 如果是内部脚本、定时任务、后台批处理：
+   - 可以直接用 agent.invoke() 或 agent.ainvoke()，但要把 Checkpointer 换成持久化存储，比如 PostgresSaver、RedisSaver，不要用 MemorySaver
+
+2. 如果要给前端、其他系统提供 API：
+   - 用 FastAPI + agent.ainvoke() / agent.astream() 自己封装；
+   - 或者用 LangGraph Server 独立服务器模式，通过 langgraph build 构建镜像后部署；
+   - 多实例时要配 PostgreSQL / Redis 做状态共享
+
+3. 如果是企业级高可用：
+   - 官方更推荐 Kubernetes 部署 LangGraph Server，并配合 PostgreSQL、Redis、LangSmith 做持久化和可观测性。
 
 ## 方案 A：单服务
 
