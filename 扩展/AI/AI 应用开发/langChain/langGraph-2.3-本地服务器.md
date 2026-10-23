@@ -66,4 +66,71 @@ langgraph dev 就是文档提供的本地开发入口。它帮你省去了手工
 
 `pip install -e .` 或 `uv sync`
 普通安装通常会把包安装到环境的 site-packages 目录中；
-而 pip install -e . 会让 Python 将本地项目以可编辑方式关联到当前环境。你修改源代码后，通常不需要重新安装整个项目。
+而 pip install -e . 会让 Python 将“本地项目”以可编辑方式关联到当前环境。你修改源代码后，通常不需要重新安装整个项目。
+
+### 第 4 步：配置 .env
+
+建议把 .env 加入 .gitignore，不要将任何真实密钥提交到 Git 仓库。
+
+### 第 5 步：启动 Agent Server
+
+### 第 6 步：用 SDK 调用 Agent
+
+先安装客户端 SDK：`uv add langgraph-sdk`
+
+```python
+from langgraph_sdk import get_client
+import asyncio
+
+client = get_client(url="http://localhost:2024") # ① 创建客户端
+
+async def main():
+    async for chunk in client.runs.stream(  # ② 发起流式运行
+        None,
+        "agent",
+        input={
+            "messages": [
+                {
+                    "role": "human",
+                    "content": "What is LangGraph?",
+                }
+            ],
+        },
+    ):
+        print(f"Receiving new event of type: {chunk.event}...")
+        print(chunk.data)
+
+asyncio.run(main())
+```
+
+- ① 创建客户端 `client = get_client(url="http://localhost:2024")`
+
+  它建立的是一个面向本地 Agent Server 的客户端对象，不是直接加载 Python 中的 Graph。
+
+- ② 发起流式运行
+
+  ```python
+    client.runs.stream(
+        None,
+        "agent",
+        input={...},
+    )
+  ```
+
+  1. 第一个 None：表示这次运行不指定已有的 thread，即 threadless run。
+  2. "agent"：服务端注册的 Graph / assistant 标识，需要和 langgraph.json 的配置对应。
+  3. input：传给 Graph 的输入状态，这里包含一条人类消息。
+
+- ③ 异步迭代事件
+
+  ```python
+    sync for chunk in ...:
+        print(chunk.event)
+        print(chunk.data)
+  ```
+
+  这里的 async for 会持续接收流式事件，直到本次流结束或发生异常。
+
+## 三、能力边界：本地运行，不代表全部本地化
+
+官方文档说明，可以关闭 LangSmith tracing，避免追踪数据发送到 LangSmith；Studio 本身仍然是独立的可视化工具。
