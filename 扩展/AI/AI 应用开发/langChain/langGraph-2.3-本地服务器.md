@@ -134,3 +134,9 @@ asyncio.run(main())
 ## 三、能力边界：本地运行，不代表全部本地化
 
 官方文档说明，可以关闭 LangSmith tracing，避免追踪数据发送到 LangSmith；Studio 本身仍然是独立的可视化工具。
+
+## 四、三个核心问题
+
+1. Graph 在哪里定义？ —— Python 代码和 langgraph.json。
+2. 谁负责对外提供接口？ —— Agent Server，或你自己编写的 FastAPI。
+3. 哪些部分依赖外部平台？ —— Studio、LangSmith 追踪和托管部署等能力。
