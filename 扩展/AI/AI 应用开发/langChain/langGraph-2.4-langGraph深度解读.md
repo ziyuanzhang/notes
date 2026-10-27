@@ -140,7 +140,7 @@ LangGraph 并不是因为 Python 做不到才存在。
    | Checkpointer | 保存与线程执行有关的图状态检查点       |
    | thread_id    | 标识需要继续执行的那条工作流线程       |
 
-## 四、能力边界：LangGraph 能做什么，不能做什么？
+## 四、能力边界: LangGraph 能做什么，不能做什么？
 
 1. LangGraph 不等于 RAG
 
