@@ -250,6 +250,11 @@ async def call_model(
     # 将 info 放入模型调用的适当上下文
 ```
 
+还要防止两个问题：
+
+- 没有匹配结果时，memories 为空，应允许 Agent 正常回答，而不是报错。
+- item.value["memory"] 假定每条记录都存在 memory 字段。如果不同类型的记忆混存，读取逻辑需要做类型校验，或将不同类型分到不同命名空间。
+
 ### 5.6 总结对话，提取长期记忆 -- 【有中间件】
 
 通常是开发者设计规则，Agent/工作流决定何时触发，大模型负责从对话中提取和总结候选记忆，最后由程序写入 Store。
@@ -276,3 +281,27 @@ async def summarize_memory(state, runtime):
 extract_memories_with_llm() 需要自行实现的模型调用逻辑，并不是 LangGraph 自带的函数。
 
 开发者制定规则，大模型负责理解和提炼，工作流负责调度，Store 负责存储。
+
+## 六、能力边界：Store 能做什么，不能做什么？
+
+## 七、对比：不同 Store 后端怎么选？
+
+InMemoryStore、PostgresStore、MongoDBStore、RedisStore 和 UpstashStore 等实现。
+
+- 开发阶段：InMemoryStore
+- 需要更高控制权：自定义 BaseStore
+
+## 八、LangSmith / Agent Server：哪些地方存在绑定？
+
+对于自主可控性，可以这样评估：
+
+| 方案                                           | 控制权判断                                     |
+| ---------------------------------------------- | ---------------------------------------------- |
+| LangGraph + 自己的 FastAPI + 自托管 PostgreSQL | 较高：服务和数据后端都可以自己管理             |
+| LangGraph + 自己管理的数据库适配器             | 较高：取决于适配器和依赖                       |
+| Agent Server + 自己管理的持久化后端            | 中到较高：取决于服务部署、配置和后端支持       |
+| LangSmith 托管服务及其默认基础设施             | 绑定较强：需要考虑平台依赖、数据迁移和退出成本 |
+
+学习阶段先掌握 LangGraph 原生 Store 接口；生产架构优先明确数据归属和迁移路径，再决定是否采用 Agent Server 或 LangSmith 的托管能力。
+
+## 九、进阶：如何实现自己的 Store？
