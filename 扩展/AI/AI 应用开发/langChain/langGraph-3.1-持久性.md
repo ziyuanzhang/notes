@@ -2,7 +2,9 @@
 
 把 Persistence 理解为整个 Agent 系统的“数据记忆与恢复机制”。
 
-Checkpointer 保存一次对话线程的图状态，Store 保存跨线程长期使用的数据。两者解决不同的问题，生产系统通常可以同时使用。
+- LangGraph 提供了两种互补的持久化系统：
+  1. Checkpointer 保存一次对话线程的图状态，
+  2. Store 保存跨线程长期使用的数据。两者解决不同的问题，生产系统通常可以同时使用。
 
 ## 一、概念理解：LangGraph 的 Persistence 主要解决四类问题
 
@@ -100,6 +102,11 @@ if item is not None:
 | value         | 要保存的业务数据     |
 
 ❗ 实际项目中必须根据经过认证的用户身份确定 namespace，不能直接相信客户端随意传来的用户 ID。 否则可能发生跨用户读取或修改数据的问题。
+
+### 3.2 存储
+
+1. Checkpointer: (thread_id) 线程运行状态与检查点
+2. Store: s(namespace + key) 跨线程共享的数据
 
 ## 四、能力边界：Persistence 能做什么，不能做什么？
 
