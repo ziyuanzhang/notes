@@ -247,3 +247,72 @@ resumed = graph.stream_events(
 3. 不要在单个节点中用 while True 反复中断
 4. 中断状态不等于整个业务系统的持久化
 5. Checkpointer 的持久性决定恢复能力
+
+## 八、对比：Interrupt、静态断点、Checkpoint、HITL Middleware 有什么区别？
+
+| 机制              | 核心作用                                                | 典型用途                         |
+| ----------------- | ------------------------------------------------------- | -------------------------------- |
+| interrupt()       | 在运行时动态暂停，等待外部响应                          | 审批、补充信息、人工修改         |
+| interrupt_before  | 在指定节点执行前暂停                                    | 开发调试、逐节点检查             |
+| interrupt_after   | 在指定节点执行后暂停                                    | 开发调试、检查节点结果           |
+| Checkpointer      | 保存和恢复图执行状态                                    | 跨请求恢复、故障恢复             |
+| HITL Middleware   | 在 Agent 的模型调用或工具执行等环节统一实施人工介入策略 | 工具审批、编辑或拒绝工具调用     |
+| Command(goto=...) | 从节点控制后续执行路径                                  | 动态路由、批准后继续或拒绝后结束 |
+
+interrupt_before、interrupt_after 是静态断点，通常用于开发和调试；interrupt() 更适合真实业务中的动态人工介入。
+
+HITL Middleware 则是更高层的封装方式。如果使用 LangChain 的 Agent 构建能力，可以通过中间件统一处理某类工具调用的审批；
+如果你需要自己设计复杂的审批状态机，直接在 LangGraph 中使用 interrupt() 会更灵活。
+
+## 九、自主可控性
+
+推荐的自主可控架构
+
+```bash
+前端 / 审批页面
+       │
+       ▼
+FastAPI 审批接口
+       │
+       ├── 身份认证与 RBAC
+       ├── 审批记录与审计日志
+       └── 任务状态管理
+                │
+                ▼
+         LangGraph Runtime
+                │
+        interrupt() 暂停
+                │
+                ▼
+      PostgreSQL Checkpointer
+                │
+        等待外部审批结果
+                │
+                ▼
+      Command(resume=decision)
+                │
+                ▼
+        恢复执行 / 结束
+```
+
+在这个架构里：
+
+- PostgreSQL 可以同时承担业务数据、审批记录和 Checkpointer 的存储职责，也可以分库。
+- 审批 API 必须校验用户身份、审批权限和任务状态。
+- 恢复任务前要校验审批记录，不能直接信任客户端传入的 True。
+- 对关键外部操作，要考虑幂等、审计和并发控制。
+- LangSmith 可以作为可选的观测平台，不必成为业务执行的唯一入口。
+
+## 十、总结
+
+- interrupt() 是动态暂停点，不是普通的函数返回或前端弹窗。
+- Checkpointer 保存恢复所需的图执行状态，而不是冻结整个 Python 进程。
+- thread_id 定位原来的执行线程，恢复时必须使用正确的 ID。
+- Command(resume=...) 将外部响应交还给中断点，使节点能够继续执行。
+- 恢复时节点从头运行，所以中断前的代码、数据库写入和外部副作用都需要考虑重复执行。
+- 并行中断需要正确匹配响应，类型化 Schema 也不能替代身份认证和业务授权。
+- LangSmith 是可选的观测与调试平台，核心的暂停、持久化与恢复可以由你自己的应用架构承载。
+
+StateGraph 定义流程 → Node 执行业务 → interrupt() 暂停 → Checkpointer 保存恢复状态 → thread_id 定位线程 → 外部审批 → Command(resume=...) 恢复 → 条件边决定下一步 → 图完成执行。
+
+这就是 LangGraph 实现人工介入闭环的核心机制。
