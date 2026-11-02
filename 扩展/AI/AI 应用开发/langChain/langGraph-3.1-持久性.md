@@ -106,7 +106,7 @@ if item is not None:
 ### 3.2 存储
 
 1. Checkpointer: (thread_id) 线程运行状态与检查点
-2. Store: s(namespace + key) 跨线程共享的数据
+2. Store: (namespace + key) 跨线程共享的数据
 
 ## 四、能力边界：Persistence 能做什么，不能做什么？
 
