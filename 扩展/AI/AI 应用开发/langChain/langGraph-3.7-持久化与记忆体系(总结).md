@@ -1,6 +1,6 @@
 # LangGraph 持久化与记忆体系(总结)
 
-<img src="./img/langGraph-3.6-持久化与记忆体系(总结).png" alt="langGraph-3.6-持久化与记忆体系(总结)" width=800 />
+<img src="./img/langGraph-3.7-持久化与记忆体系(总结).png" alt="langGraph-3.7-持久化与记忆体系(总结)" width=800 />
 
 Trim: 裁剪消息; Delete: 删除消息; Summarize: 总结消息; Checkpoint Management: 检查点管理;
 Memory Extraction: 提取长期记忆; Memory Update: 更新长期记忆; Retention: 保留;
@@ -81,7 +81,7 @@ Memory Extraction: 提取长期记忆; Memory Update: 更新长期记忆; Retent
 
 ## 四、一次完整的 Memory 工作流程
 
-<img src='./img/langGraph-3.6-一个实际 Agent 流程.png' alt='langGraph-3.6-一个实际 Agent 流程' width=800 />
+<img src='./img/langGraph-3.7-一个实际 Agent 流程.png' alt='langGraph-3.7-一个实际 Agent 流程' width=800 />
 
 这里特别强调:
 
