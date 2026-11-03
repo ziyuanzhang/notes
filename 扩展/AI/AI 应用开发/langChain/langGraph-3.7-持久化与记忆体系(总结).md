@@ -2,8 +2,10 @@
 
 <img src="./img/langGraph-3.7-持久化与记忆体系(总结).png" alt="langGraph-3.7-持久化与记忆体系(总结)" width=800 />
 
-Trim: 裁剪消息; Delete: 删除消息; Summarize: 总结消息; Checkpoint Management: 检查点管理;
-Memory Extraction: 提取长期记忆; Memory Update: 更新长期记忆; Retention: 保留;
+- 【短期】Trim: 裁剪消息; Delete: 删除消息; Summarize: 总结消息;
+- 【长期】Memory Extraction: 提取长期记忆; Memory Update: 更新长期记忆;
+- Retention: 保留;
+- Checkpoint Management: 检查点管理(和记忆管理是2个东西);
 
 这里有一个重要区分:
 
