@@ -349,3 +349,101 @@ ns（namespace）可以帮助判断事件来源。
 ❗注意： ns 是来源标识，不等于 Agent 的业务身份、权限或租户身份。不要直接将其作为授权依据。
 
 ## 八、过滤与控制：哪些内容可以被暴露？
+
+- nostream 标签。
+
+  ```python
+  internal_model = model.with_config(
+    {"tags": ["nostream"]}
+  )
+  ```
+
+  该模型仍然正常运行，仍然生成结果，但它的 Token 不会出现在 stream_mode="messages" 的输出中(即 零散输出不会在stream流中，最终结果会在stream流中)。
+
+❗注意：nostream 不是安全隔离机制，也不是数据脱敏机制。
+
+它只控制特定消息流中的输出行为。模型结果仍然可能通过 State、日志、其他 Stream Mode 或应用代码暴露。
+
+## 九、Streaming 与 invoke：v2 不只是流格式升级
+
+version="v2" 不仅影响 Streaming，也影响 invoke() / ainvoke() 的返回形式。
+
+- v1
+
+  ```python
+    result = graph.invoke(inputs)
+    result["__interrupt__"]
+  ```
+
+- v2
+
+  ```python
+    result = graph.invoke(
+        inputs,
+        version="v2",
+    )
+
+    result.value
+    result.interrupts
+  ```
+
+  - GraphOutput 将两个概念分离：
+
+  | 属性        | 含义                                  |
+  | ----------- | ------------------------------------- |
+  | .value      | Graph 的实际输出                      |
+  | .interrupts | Graph 执行过程中产生的 Interrupt 信息 |
+
+  这意味着业务结果与中断元数据不再混杂在同一个字典中。
+  另外，使用 Pydantic Model 或 dataclass 作为 State 时，v2 的 values 输出可以自动转换为对应的数据类型，而不只是普通字典。
+
+## 十、与 Event Streaming v3 对比
+
+| 对比项     | Stream Mode API v2         | Event Streaming API v3   |
+| ---------- | -------------------------- | ------------------------ |
+| 调用方式   | graph.stream() / astream() | graph.stream_events()    |
+| 核心模型   | 多种 Stream Mode           | Typed Projections        |
+| 事件组织   | type + ns + data           | 分离的投影接口           |
+| 消费方式   | 根据 type 分发             | 按投影分别消费           |
+| Token 输出 | messages                   | messages 投影            |
+| 状态输出   | values / updates           | values / output 等投影   |
+| 子图支持   | subgraphs=True             | 基于投影与来源信息       |
+| 推荐定位   | 直接使用底层 Stream Mode   | 新应用推荐的高级流式接口 |
+
+```bash
+底层 Graph Runtime
+        │
+        ├── Stream Mode API
+        │      └── v1 / v2
+        │             └── 通过 type 分发事件
+        │
+        └── Event Streaming API
+               └── v3
+                      └── 按 Projection 独立消费
+```
+
+v3 并不是简单地把 v2 的字典换一种写法，而是进一步抽象了事件消费方式。
+
+## 十一、总结：建立完整知识体系
+
+- LangGraph Streaming 核心认知
+
+  第一层：API stream() / astream() → 获取实时执行事件
+
+  第二层：模式
+  values / updates / messages / custom / checkpoints / tasks / debug
+
+  第三层：格式
+  v1 → 多种返回结构
+  v2 → 统一 StreamPart(type, ns, data)
+
+  第四层：高级能力
+  子图 Streaming、Token 过滤、nostream、自定义事件、Checkpoint 与 Task 观察
+
+  第五层：应用架构
+  LangGraph → Event Adapter(事件适配器) → 业务事件协议 → FastAPI → SSE / WebSocket → 前端
+
+- 最重要的三句话：
+  1. Streaming 是 Graph 执行过程的实时事件输出机制，不是新的 Graph 执行引擎。
+  2. Stream Mode 决定观察什么，v2 统一如何接收，Event Streaming v3 进一步改善如何消费。
+  3. 真正生产级的自主可控架构，应当由自己掌握业务事件协议、数据过滤、权限控制和前后端传输层，而不是直接将 LangGraph 原始事件暴露给前端。
