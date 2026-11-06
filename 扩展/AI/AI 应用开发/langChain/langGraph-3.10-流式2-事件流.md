@@ -6,6 +6,8 @@ Event Streaming 解决的是：图正在执行什么、LLM 正在输出什么、
 
 Event Streaming 不是另一套 Agent 执行引擎，也不是模型本身的流式输出功能。它建立在 LangGraph 的 Pregel 执行引擎和底层 Streaming 机制之上，进一步提供结构化事件与便于应用消费的投影（Projection）。
 
+实时观察、状态持久化、历史审计和远程传输是不同职责。要构建自主可控的 Agent 平台，需要将它们通过明确的接口组合起来，而不是把所有能力都寄托在一个 Streaming API 上。
+
 ## 一、概念理解：Event Streaming 是什么？
 
 ### 1.1 先区分三个容易混淆的概念
@@ -179,6 +181,114 @@ await asyncio.gather(
     consume_subgraphs(),
 )
 ```
+
+- 这两种写法的核心思想是：一次图运行可以有多个消费者，分别关注不同类型的信息。
+  - interleave(...)：在同步代码中，把指定的多个投影按照严格的到达顺序交错消费。
+  - asyncio.gather(...)：在异步代码中，并发运行多个消费协程。
+
+它们共享的是同一次运行产生的事件流，消费的是不同的投影视角。
+
+## 六、原始事件：当内置投影不够用时
+
+## 七、StreamTransformer：如何把底层事件加工成业务能力？
+
+## 八、把 Streaming 与 Interrupt、Checkpoint、Store 联系起来
+
+| 机制            | 解决的问题                       | 主要职责                     |
+| --------------- | -------------------------------- | ---------------------------- |
+| Streaming       | 运行过程中发生了什么？           | 实时暴露执行信息             |
+| Event Streaming | 如何方便地消费这些信息？         | 提供类型化投影与事件处理管道 |
+| Checkpointer    | 如何保存并恢复线程状态？         | 持久化图状态检查点           |
+| Store           | 如何跨线程保存长期信息？         | 持久化跨线程的键值数据       |
+| Interrupt       | 运行是否需要暂停并等待外部输入？ | 控制执行暂停与恢复           |
+
+### 8.1 中断后如何恢复？
+
+```python
+from langgraph.types import Command
+from langgraph.checkpoint.memory import MemorySaver
+
+# 1. 编译图时必须挂载 checkpointer
+checkpointer = MemorySaver()
+graph = builder.compile(checkpointer=checkpointer)
+
+# 2. 首次调用：必须传入带 thread_id 的 config
+config = {"configurable": {"thread_id": "your-thread-id"}}
+
+stream = graph.stream_events(
+    input,
+    config=config,
+    version="v3",
+)
+
+for message in stream.messages:
+    print(message.text)
+# -- 是否暂停 --------------------------------
+if stream.interrupted:
+    print(stream.interrupts)
+
+# 3. 恢复时：同样带上同一个 config，输入改为 Command
+stream = graph.stream_events(
+    Command(
+        resume={
+            "decisions": [
+                {"type": "approve"}
+            ]
+        }
+    ),
+    config=config,
+    version="v3",
+)
+
+final_state = stream.output
+```
+
+理解这段代码要分清两件事：
+
+- stream.interrupted 和 stream.interrupts：观察本次运行是否暂停，以及暂停所携带的信息。
+- Command(resume=...)：向图提供恢复所需的输入。
+
+### 8.2 观察中断不等于控制中断
+
+Event Streaming 可以告诉应用程序：
+
+- 当前运行已经中断；
+- 中断携带了哪些信息；
+- 何时可以由用户或其他业务系统提供恢复输入。
+
+但它不会自动决定“是否批准”。
+
+## 九、能力边界：Event Streaming 能做什么，不能做什么？
+
+| 能力                    | 是否支持       | 需要注意                                                   |
+| ----------------------- | -------------- | ---------------------------------------------------------- |
+| 模型文本增量输出        | 支持           | 取决于模型与运行链路是否提供流式输出                       |
+| 观察状态变化            | 支持           | 快照与增量是不同的数据粒度                                 |
+| 观察工具调用            | 支持           | 应根据工具事件的生命周期构建准确状态                       |
+| 观察子图与子 Agent      | 支持           | 需要正确理解执行作用域和嵌套路径                           |
+| 生成自定义业务事件      | 支持           | 需要自行设计数据结构和 Transformer                         |
+| 统计 Token 用量         | 可以实现       | 必须依据实际可用的用量事件；最终用量可能在消息结束时才出现 |
+| 事件持久化与长期审计    | 不自动保证     | 需要自己实现持久化、索引、保留和访问控制                   |
+| 跨进程实时推送          | 不等于自动具备 | 需要建立服务端与客户端之间的传输协议                       |
+| 自动恢复中断任务        | 不单靠它完成   | 需要 Checkpointer、线程配置和恢复逻辑                      |
+| 自动保证工具操作成功    | 不支持         | 工具执行结果和业务成功条件仍需检查                         |
+| 自动实现 RBAC、租户隔离 | 不支持         | 需要应用层权限与数据隔离设计                               |
+
+还有一个重要边界：Event Streaming 提供的是运行时事件与投影，不等于完整的可观测性平台。
+
+## 十、 最终总结：应该怎样学习与实战？
+
+1. Pregel Engine：执行图、推进节点任务、更新状态。
+2. 底层 Streaming：选择并暴露 messages、updates、values、tools 等原始执行信息。
+3. ProtocolEvent：将执行数据规范化成包含 seq、method、namespace、data 的事件封装。
+4. Event Router：把事件交给注册的 Transformer。
+5. StreamTransformer：观察事件、累积数据、生成自定义投影。
+6. Event Stream：向应用提供 messages、values、subgraphs、output、extensions 等接口。
+7. 应用层：实现 UI、进度条、工具活动、日志、审计、权限与远程推送。
+
+实时观察、状态持久化、历史审计和远程传输是不同职责。要构建自主可控的 Agent 平台，需要将它们通过明确的接口组合起来，而不是把所有能力都寄托在一个 Streaming API 上。
+
+##
 
 1. Python的构成（需要整体了解），现在的教程都是从变量开始，没有全局观念；
 2. 有哪些标准库，都是干什么的；
