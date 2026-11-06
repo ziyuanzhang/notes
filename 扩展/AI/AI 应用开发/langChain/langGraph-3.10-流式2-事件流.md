@@ -1,449 +1,185 @@
-# langGraph-3.9-流式1-流媒体(Streaming) - 不推荐了
+# langGraph-3.10-流式2-事件流(推荐)
 
-1. LangGraph 的两种流式机制：Streaming（流模式） 和 Event Streaming（事件流）。核心区别在于：
-   - Streaming 是底层、按模式分发的原始事件流，
-   - Event Streaming 是建立在它之上的高层、类型化投影模型。
+LangGraph 不仅可以把图执行过程中的原始事件暴露出来，还可以把这些事件整理成应用程序容易使用的流式接口。
 
-2. 这篇文档的核心：LangGraph 如何把图执行过程中的状态变化、LLM Token、节点进度、子图事件、持久化事件，实时暴露给应用层。
+Event Streaming 解决的是：图正在执行什么、LLM 正在输出什么、工具运行到哪一步、子 Agent 在做什么，以及最终结果是什么，应用程序如何实时观察并消费这些信息？
 
-🔥 Graph 负责执行，Stream 负责观察执行过程，应用层负责消费事件并决定如何呈现。
+Event Streaming 不是另一套 Agent 执行引擎，也不是模型本身的流式输出功能。它建立在 LangGraph 的 Pregel 执行引擎和底层 Streaming 机制之上，进一步提供结构化事件与便于应用消费的投影（Projection）。
 
-## 一、概念理解：Streaming 是什么？
+## 一、概念理解：Event Streaming 是什么？
 
-- 普通调用与流式调用的区别：
-  1. 普通调用 invoke()：输入 → 执行完整 Graph → 返回最终结果【关注最终结果】
-  2. 流式调用 stream()：输入 → Node A → Node B → Node C【持续输出执行过程中的事件】
+### 1.1 先区分三个容易混淆的概念
 
-❗注意：Streaming 不会改变 Graph 原本的执行逻辑，而是增加一个观察与数据输出通道。
+| 概念            | 核心职责                           | 可以怎么理解                     |
+| --------------- | ---------------------------------- | -------------------------------- |
+| Pregel Engine   | 执行图中的节点和步骤               | 实际干活的执行引擎               |
+| Streaming       | 暴露图执行过程中产生的原始数据     | 把执行过程中的信息流放出来       |
+| Event Streaming | 整理原始事件，提供结构化的消费接口 | 把信息流加工成应用容易使用的形式 |
 
-## 二、层级关系：Streaming 位于哪里？
+### 1.2 它为什么不等于 LLM Token Streaming？
 
-```bash
-Application / Frontend
-        │
-        │ 消费实时事件、更新 UI
-        ▼
-LangGraph Streaming API
-  ├── graph.stream()       同步迭代器
-  ├── graph.astream()      异步迭代器
-  │
-  ├── Stream Modes         选择输出什么
-  │    ├── values
-  │    ├── updates
-  │    ├── messages
-  │    ├── custom
-  │    ├── checkpoints
-  │    ├── tasks
-  │    └── debug
-  │
-  ├── Stream Format        统一输出结构
-  │    ├── v1：不同模式返回格式不统一
-  │    └── v2：StreamPart 统一结构
-  │
-  ▼
-LangGraph Runtime
-  ├── Graph / Node / Edge
-  ├── LLM / Tool
-  ├── Subgraph
-  └── Checkpointer
-```
+- LLM Token Streaming：逐步输出模型生成的文本。
+- LangGraph Streaming：暴露图执行产生的状态更新、消息、任务等信息。
+- Event Streaming：把这些执行信息进一步组织成统一的事件流和多种类型化投影。
 
-| 概念          | 解决的问题               |
-| ------------- | ------------------------ |
-| Streaming API | 如何接收执行过程中的数据 |
-| Stream Mode   | 想接收哪一类数据         |
-| Stream Format | 接收到的数据采用什么结构 |
+## 二、层级关系：整个 Streaming 系统是怎样组织的？
 
-| Mode        | 返回内容                         | 主要用途       |
-| ----------- | -------------------------------- | -------------- |
-| values      | 每个执行步骤后的完整 Graph State | 状态快照       |
-| updates     | Node 返回的状态增量              | 追踪节点更新   |
-| messages    | LLM Token + metadata             | 实时生成文本   |
-| custom      | 开发者自定义数据                 | 进度、业务事件 |
-| checkpoints | Checkpoint 事件                  | 持久化状态观察 |
-| tasks       | Task 开始、结束、结果、异常      | 任务级监控     |
-| debug       | 尽可能全面的运行时事件           | 深度调试       |
+<img src="./img/langGraph-3.10-流式2-事件流-整个 Streaming 系统.png" alt="langGraph-3.10-流式2-事件流-整个 Streaming 系统" width=800 />
 
-## 三、为什么需要 Streaming？
+Graph 执行 → 原始事件 → 事件路由 → Transformer 转换 → 类型化投影 → 应用消费
 
-在真实 Agent 应用中，用户通常不希望等待整个 Graph 执行完成才看到结果。
+各层职责
 
-- Streaming 主要解决四类问题：
+1. Pregel Engine 负责执行，Event Streaming 负责观察和整理执行过程。
+2. Event Router 是事件分发的桥梁，Transformer 是事件加工器。
+3. stream.messages、stream.values 和 stream.subgraphs 不是三次独立执行，而是同一次运行中不同视角的数据投影。
 
-  | 需求                     | 对应能力                    |
-  | ------------------------ | --------------------------- |
-  | 实时展示 AI 回答         | messages                    |
-  | 展示工作流执行进度       | updates / custom            |
-  | 观察 Agent 当前状态      | values                      |
-  | 监控、调试、追踪运行过程 | tasks / checkpoints / debug |
+| 层级                                    | 职责                               |
+| --------------------------------------- | ---------------------------------- |
+| LangGraph Graph Runtime / Pregel Engine | 实际执行节点、调度任务、推进图运行 |
+| Streaming                               | 输出底层 Graph 执行事件            |
+| Event Router                            | 接收并路由规范化后的事件           |
+| Stream Transformers                     | 将原始事件转换为不同的投影         |
+| Event Stream                            | 对外提供类型化的消费接口           |
+| Application                             | 消费流、展示 UI、构建业务逻辑      |
 
-```bash
-React 前端
-    │
-    │ SSE / WebSocket
-    ▼
-FastAPI 后端
-    │
-    │ graph.astream()
-    ▼
-LangGraph
-    │
-    ├── LLM Token
-    ├── Node 状态变化
-    ├── Tool 执行进度
-    └── Graph 最终结果
-```
+❗Event streaming 并不负责执行 Agent，而是负责观察、整理和暴露 Agent 的执行过程。它处于 Graph Runtime 之上的流式数据处理层。
 
-LangGraph 负责产生事件，FastAPI 可以负责把事件转发给前端。
+## 三、为什么需要 Event Streaming？
 
-- 注意：LangGraph Streaming 本身并不等于 SSE，也不等于 WebSocket。 它们属于不同层次：
-  - LangGraph Streaming：Python 进程内部的事件迭代机制。
-  - SSE：后端向浏览器单向推送事件的 HTTP 技术。
-  - WebSocket：客户端与服务端双向通信技术。
+1. 传统 Streaming 的问题: 当开启多个 stream_mode 时，开发者需要自己区分不同类型的 Chunk。随着功能增加，分支判断也会越来越复杂。
+2. Event streaming 的改进: Event streaming 将原始事件转化为语义明确的接口：
+   多个 Projection(投影) 消费者可以同时读取同一个底层事件流，而不会互相消耗数据。
 
-## 四、工作原理：事件是如何产生的？
+3. 为什么不能只用 stream.messages？stream.messages 适合展示模型消息，但它本身不等于完整的业务进度系统。
 
-以一个包含两个 Node 的 Graph 为例：
+   你可能需要另外显示：
+   - 当前正在执行哪个工具；
+   - 工具是否完成或失败；
+   - 当前检索到多少份文档；
+   - 是否正在等待人工审批；
+   - 当前任务是否结束。
 
-```bash
-  START
-    ↓
-  refine_topic
-    ↓
-  generate_joke
-    ↓
-  END
+## 四、工作原理：从节点执行到应用收到事件
 
-  # 假设初始状态为： {"topic": "ice cream", "joke": ""}
-  # -- 执行过程： ---------------------------
-  Graph Runtime
-      │
-      ├── 执行 refine_topic
-      │      └── 返回 {"topic": "ice cream and cats"}
-      │
-      ├── 产生 updates / values 事件
-      │
-      ├── 执行 generate_joke
-      │      └── 返回 {"joke": "This is a joke ..."}
-      │
-      ├── 产生 updates / values 事件
-      │
-      └── Graph 执行结束
-```
+1. 第 1 步：启动图执行
+   应用调用 graph.stream_events(input, version="v3")，开始一次图运行。
 
-🔥 Stream 输出的是 Runtime 执行过程中产生的事件，而不是要求开发者自己在每个 Node 中手动 yield。
-如果你希望主动输出自定义进度，就可以使用 get_stream_writer()。
+2. 第 2 步：Pregel Engine 执行
+   引擎按照图的调度规则执行节点、处理任务并更新状态。
 
-## 五、代码解读：基础 API 与统一格式 v2
+3. 第 3 步：产生原始 Streaming 数据
 
-### 5.1 stream() 与 astream()
+   可能包括状态更新、模型消息、工具事件、自定义数据和任务事件。
 
-| API             | 特征       | 典型场景          |
-| --------------- | ---------- | ----------------- |
-| graph.stream()  | 同步迭代器 | 同步程序、脚本    |
-| graph.astream() | 异步迭代器 | FastAPI、异步服务 |
+4. 第 4 步：标准化与路由
+   运行时将底层输出规范化为 ProtocolEvent，由 Event Router 依次分发给注册的 Transformer。
+
+5. 第 5 步：生成投影
+   内置 Transformer 和自定义 Transformer 分别生成消息、状态、子图、工具活动等视图。
+
+6. 第 6 步：应用消费
+   UI、CLI、日志模块或业务代码读取需要的投影，最终通过 stream.output 获取结果。
+
+- 细节一：Event Router 不是图的条件路由。
+
+  你之前学习的 LangGraph add_conditional_edges，负责决定图下一步执行哪个节点。
+  Event Router 负责把已经产生的事件交给 Transformer。
+  两者都涉及路由，但作用完全不同。
+
+- 细节二：Transformer 不负责重新执行图。
+  Transformer 观察事件并加工数据。它可以维护计数器、累积文本、生成业务进度，也可以决定是否抑制某个原始事件。
+  但按照这篇文档描述，Transformer 本身不回调图运行时来决定下一步执行哪个节点。它是观察与投影层，不是新的 Agent 控制器。
+
+## 五、代码解读：从最简单的用法开始
+
+### 5.1 最基础：逐 Token 输出并取得最终结果
 
 ```python
-  # -- 同步版本 --------------------------------
-  for chunk in graph.stream(
-      inputs,
-      stream_mode="updates",
-      version="v2",
-  ):
-      print(chunk)
-  # -- 异步版本 --------------------------------
-  async for chunk in graph.astream(
-      inputs,
-      stream_mode="updates",
-      version="v2",
-  ):
-      print(chunk)
+# stream = graph.stream_events(input, version="v3")
+
+stream = graph.stream_events( #启动图运行并创建运行流对象
+    {
+        "messages": [
+            {
+                "role": "user",
+                "content": "What is 42 * 17?",
+            }
+        ]
+    },
+    version="v3", # 指定这套 Event Streaming API 的协议版本
+)
+
+for message in stream.messages:
+    for token in message.text:
+        print(token, end="", flush=True)
+
+final_state = stream.output
+
+# stream.messages: 获取模型消息投影
+# message.text: 访问消息文本流
+# for token in message.text: 逐步消费文本片段
+# stream.output: 获取最终输出
 ```
 
-在 FastAPI 异步接口中，通常优先考虑 astream()。
+遍历 stream.messages 拿到的只是文本增量的实时流（可能横跨多次模型调用）；最后一个 token 只是文本的终点，不是图的终点。
+要拿完整结果，得等图跑完看 stream.output，它才是聚合后的最终状态，且结构取决于图的定义，未必等于"最后那段文本"。
 
-### 5.2 为什么推荐 version="v2"？
+### 5.2 stream.messages 能提供哪些内容？
 
-- 旧的 v1 格式会因为模式组合不同，导致返回结构不同, 开发者需要编写多套解析逻辑。
+- message.text：消息文本，可以按增量消费，也可以转换成完整文本。
+- message.reasoning：推理内容的增量（如果模型和运行环境提供）。
+- message.tool_calls：工具调用片段，包括调用 ID、工具名以及新增的参数片段。
 
-- v2 统一为：`{"type": "updates","ns": (),"data": {...}}`
+尤其要注意，工具调用参数也可能是增量的。
 
-  | 字段 | 含义                          |
-  | ---- | ----------------------------- |
-  | type | 当前事件类型                  |
-  | ns   | 事件来自哪个 Graph / Subgraph |
-  | data | 事件实际携带的数据            |
+### 5.3 stream.values 与 Checkpoint 的区别
 
-  这意味着：不论开启多少种模式，甚至是否包含子图，都可以使用统一的事件处理逻辑。
+- stream.values：运行时观察状态变化。
+- stream.output：取得运行最终输出。
+- Checkpoint：由持久化机制保存的图状态检查点，可用于恢复、续跑等操作。
 
-- ns（namespace）可以帮助判断事件来源。
+看到一次状态快照，不代表它一定被作为一个独立的 Checkpoint 永久保存。 两者可能在同一次运行中都出现，但职责不同。
 
-  | ns                        | 含义       |
-  | ------------------------- | ---------- |
-  | ()                        | 根 Graph   |
-  | ("agent_node:<task_id>",) | Agent 子图 |
-  | 更深层的 tuple            | 嵌套子图   |
-
-  ❗注意： ns 是来源标识，不等于 Agent 的业务身份、权限或租户身份。不要直接将其作为授权依据。
-
-### 5.3 推荐的事件分发模式
+### 5.4 同时消费多个投影
 
 ```python
-  for part in graph.stream(
-      inputs,
-      stream_mode=["updates", "messages", "custom"],
-      version="v2",
-  ):
-      if part["type"] == "updates":
-          # 处理节点状态更新
-          pass
+# -- 同步 ----------------------------------
+stream = graph.stream_events(input, version="v3")
 
-      elif part["type"] == "messages":
-          # 处理 LLM Token
-          pass
-
-      elif part["type"] == "custom":
-          # 处理自定义进度
-          pass
-```
-
-这实际上是一种典型的事件驱动编程模式：
-
-```bash
-  Event Producer
-      ↓
-  StreamPart
-      ↓
-  根据 type 分发
-      ├── updates  → 状态更新处理器
-      ├── messages → Token 处理器
-      └── custom   → 进度处理器
-```
-
-## 六、七种 Stream Mode：能力与边界
-
-| Mode        | 返回内容                         | 主要用途       |
-| ----------- | -------------------------------- | -------------- |
-| values      | 每个执行步骤后的完整 Graph State | 状态快照       |
-| updates     | Node 返回的状态增量              | 追踪节点更新   |
-| messages    | LLM Token + metadata             | 实时生成文本   |
-| custom      | 开发者自定义数据                 | 进度、业务事件 |
-| checkpoints | Checkpoint 事件                  | 持久化状态观察 |
-| tasks       | Task 开始、结束、结果、异常      | 任务级监控     |
-| debug       | 尽可能全面的运行时事件           | 深度调试       |
-
-### 6.1 values vs updates
-
-- updates：只输出变更
-- values：输出完整 State
-
-记忆方式：
-
-- updates = 增量更新（Delta）
-- values = 完整快照（Snapshot）
-
-对于大型 State，values 可能产生更多数据传输与处理开销。
-
-### 6.2 messages：LLM Token 流
-
-```python
-for part in graph.stream(
-    inputs,
-    stream_mode="messages",
-    version="v2",
+for name, item in stream.interleave(
+    "values",
+    "messages",
+    "subgraphs",
 ):
-    if part["type"] == "messages":
-        message_chunk, metadata = part["data"]
+    if name == "values":
+        print(f"[state] keys={list(item)}")
+    elif name == "messages":
+        print(f"[llm] node={item.node}")
+    elif name == "subgraphs":
+        print(f"[subgraph] path={item.path}")
+# -- 异步 ----------------------------------
+import asyncio
 
-        if message_chunk.content:
-            print(message_chunk.content, end="", flush=True)
+stream = await graph.astream_events(
+    input,
+    version="v3",
+)
 
+async def consume_messages():
+    async for message in stream.messages:
+        print(f"[llm] node={message.node}")
 
+async def consume_subgraphs():
+    async for subgraph in stream.subgraphs:
+        print(f"[subgraph] path={subgraph.path}")
+
+await asyncio.gather(
+    consume_messages(),
+    consume_subgraphs(),
+)
 ```
 
-这里返回的是：(message_chunk, metadata),而不是直接返回字符串。
-
-- message_chunk：LLM 输出的消息片段，通常包含 Token 内容。
-- metadata：辅助识别该输出来源的信息，例如：
-  - metadata["langgraph_node"]
-  - metadata["tags"]
-
-1. 因此可以过滤特定 Node：
-
-   ```python
-   if metadata["langgraph_node"] == "answer_node":
-     print(message_chunk.content, end="")
-   ```
-
-2. 也可以根据模型调用的 tags 过滤。
-
-🔥 重要边界： messages 只负责流式暴露 LLM 消息，不负责自动将 Tool 调用、业务进度或任意 Python 函数输出转换为 Token。
-
-### 6.3 custom：开发者自定义事件
-
-```python
-from langgraph.config import get_stream_writer
-
-def my_node(state):  # 作为一个节点
-    writer = get_stream_writer()
-
-    writer({"status": "processing", "progress": 30})
-    writer({"status": "processing", "progress": 60})
-    writer({"status": "completed", "progress": 100})
-
-    return {"result": "done"}
-# -- 接收端： ----------------------------------------------
-for part in graph.stream(
-    inputs,
-    stream_mode="custom",
-    version="v2",
-):
-    if part["type"] == "custom":
-        print(part["data"])
-```
-
-自主可控性： custom 不依赖特定模型厂商的流式接口。你可以将 OpenAI、Anthropic 或自建模型的输出统一包装为自定义事件。
-
-### 6.4 checkpoints、tasks、debug
-
-这三种模式偏向运行时观测与调试。
-
-| 模式        | 观察对象                     | 依赖                   |
-| ----------- | ---------------------------- | ---------------------- |
-| checkpoints | Graph 状态保存事件           | Checkpointer           |
-| tasks       | Node / Task 执行、结果、异常 | Checkpointer           |
-| debug       | 更完整的执行过程与元数据     | 依具体事件及持久化配置 |
-
-- 注意：
-  1. checkpoints 并不是用来代替 get_state() 的全部能力，而是允许你在 Graph 执行期间接收 Checkpoint 事件。
-  2. tasks 则让你能够观察任务执行生命周期。
-  3. debug 会提供大量信息，但也意味着更高的日志量、数据量与敏感信息暴露风险。
-     生产环境不应该无差别地向前端暴露全部 Debug 事件。
-
-## 七、子图 Streaming：为什么需要 subgraphs=True？
-
-默认情况下，父 Graph 的 Streaming 不一定会把子图内部事件全部暴露出来。需要显式开启：
-
-```python
-  for part in graph.stream(
-      inputs,
-      stream_mode="messages",
-      subgraphs=True,
-      version="v2",
-  ):
-      if part["type"] == "messages":
-          message_chunk, metadata = part["data"]
-
-          print(part["ns"])
-          print(message_chunk.content)
-```
-
-ns（namespace）可以帮助判断事件来源。
-
-| ns                        | 含义       |
-| ------------------------- | ---------- |
-| ()                        | 根 Graph   |
-| ("agent_node:<task_id>",) | Agent 子图 |
-| 更深层的 tuple            | 嵌套子图   |
-
-❗注意： ns 是来源标识，不等于 Agent 的业务身份、权限或租户身份。不要直接将其作为授权依据。
-
-## 八、过滤与控制：哪些内容可以被暴露？
-
-- nostream 标签。
-
-  ```python
-  internal_model = model.with_config(
-    {"tags": ["nostream"]}
-  )
-  ```
-
-  该模型仍然正常运行，仍然生成结果，但它的 Token 不会出现在 stream_mode="messages" 的输出中(即 零散输出不会在stream流中，最终结果会在stream流中)。
-
-❗注意：nostream 不是安全隔离机制，也不是数据脱敏机制。
-
-它只控制特定消息流中的输出行为。模型结果仍然可能通过 State、日志、其他 Stream Mode 或应用代码暴露。
-
-## 九、Streaming 与 invoke：v2 不只是流格式升级
-
-version="v2" 不仅影响 Streaming，也影响 invoke() / ainvoke() 的返回形式。
-
-- v1
-
-  ```python
-    result = graph.invoke(inputs)
-    result["__interrupt__"]
-  ```
-
-- v2
-
-  ```python
-    result = graph.invoke(
-        inputs,
-        version="v2",
-    )
-
-    result.value
-    result.interrupts
-  ```
-
-  - GraphOutput 将两个概念分离：
-
-  | 属性        | 含义                                  |
-  | ----------- | ------------------------------------- |
-  | .value      | Graph 的实际输出                      |
-  | .interrupts | Graph 执行过程中产生的 Interrupt 信息 |
-
-  这意味着业务结果与中断元数据不再混杂在同一个字典中。
-  另外，使用 Pydantic Model 或 dataclass 作为 State 时，v2 的 values 输出可以自动转换为对应的数据类型，而不只是普通字典。
-
-## 十、与 Event Streaming v3 对比
-
-| 对比项     | Stream Mode API v2         | Event Streaming API v3   |
-| ---------- | -------------------------- | ------------------------ |
-| 调用方式   | graph.stream() / astream() | graph.stream_events()    |
-| 核心模型   | 多种 Stream Mode           | Typed Projections        |
-| 事件组织   | type + ns + data           | 分离的投影接口           |
-| 消费方式   | 根据 type 分发             | 按投影分别消费           |
-| Token 输出 | messages                   | messages 投影            |
-| 状态输出   | values / updates           | values / output 等投影   |
-| 子图支持   | subgraphs=True             | 基于投影与来源信息       |
-| 推荐定位   | 直接使用底层 Stream Mode   | 新应用推荐的高级流式接口 |
-
-```bash
-底层 Graph Runtime
-        │
-        ├── Stream Mode API
-        │      └── v1 / v2
-        │             └── 通过 type 分发事件
-        │
-        └── Event Streaming API
-               └── v3
-                      └── 按 Projection 独立消费
-```
-
-v3 并不是简单地把 v2 的字典换一种写法，而是进一步抽象了事件消费方式。
-
-## 十一、总结：建立完整知识体系
-
-- LangGraph Streaming 核心认知
-
-  第一层：API stream() / astream() → 获取实时执行事件
-
-  第二层：模式
-  values / updates / messages / custom / checkpoints / tasks / debug
-
-  第三层：格式
-  v1 → 多种返回结构
-  v2 → 统一 StreamPart(type, ns, data)
-
-  第四层：高级能力
-  子图 Streaming、Token 过滤、nostream、自定义事件、Checkpoint 与 Task 观察
-
-  第五层：应用架构
-  LangGraph → Event Adapter(事件适配器) → 业务事件协议 → FastAPI → SSE / WebSocket → 前端
-
-- 最重要的三句话：
-  1. Streaming 是 Graph 执行过程的实时事件输出机制，不是新的 Graph 执行引擎。
-  2. Stream Mode 决定观察什么，v2 统一如何接收，Event Streaming v3 进一步改善如何消费。
-  3. 真正生产级的自主可控架构，应当由自己掌握业务事件协议、数据过滤、权限控制和前后端传输层，而不是直接将 LangGraph 原始事件暴露给前端。
+1. Python的构成（需要整体了解），现在的教程都是从变量开始，没有全局观念；
+2. 有哪些标准库，都是干什么的；
+3. 哪些标准库是常用的？哪些是不常用的？哪些是被淘汰的？
