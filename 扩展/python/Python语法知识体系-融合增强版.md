@@ -816,24 +816,19 @@ print(counter())  # 2
 
 一个 Python 模块通常对应一个 `.py` 文件。模块可以包含变量、函数、类和可执行语句。
 
-```python
-import math
-from pathlib import Path
-import numpy as np
-```
-
-常见导入方式：
+常见导入方式：`[from 模块名] import [模块 | 类 | 变量 | 函数 | * ] [as 别名]`
 
 ```python
 import module
 import module as alias
 from module import function
 from module import function as alias
+from module import *
 ```
 
 不建议在业务代码中大量使用 `from module import *`，因为它会让名字来源不清晰，也容易造成命名冲突。
 
-## 7.2 `__name__`
+## 7.2 `__name__`: 内置变量
 
 ```python
 if __name__ == "__main__":
@@ -845,7 +840,7 @@ if __name__ == "__main__":
 
 用途：把可复用定义与脚本入口逻辑分开。
 
-## 7.3 `__all__`
+## 7.3 `__all__`: 内置变量
 
 `__all__` 主要控制执行 `from module import *` 时导出的名称：
 
@@ -880,11 +875,74 @@ Python 3 还支持 namespace package（命名空间包），因此并非所有�
 
 ## 7.5 导入与模块缓存
 
-- 首次导入模块时，Python 查找模块、创建模块对象并执行模块代码。
-- 导入后的模块通常缓存在 `sys.modules` 中。
-- 后续再次导入通常复用缓存中的模块对象，不会简单地从头执行一遍。
-- `import x as y` 是给导入对象在当前命名空间中绑定别名，不会把模块本身改名。
-- 不同文件需要各自执行导入语句，不能因为另一个文件导入过就假设当前文件自动拥有该名字。
+- 首次import 的顺序大致是：
+  1. 查找模块（sys.path / sys.modules）;
+  2. 创建模块对象，同时给它建好一个空的 `__dict__`（此时命名空间是空的）;
+  3. 把模块对象`放进 sys.modules 缓存`（先放，防止循环导入重复执行）;
+  4. 执行模块顶层代码，每条赋值/def/class 都写进这个 `__dict__` (命名空间在这一步被填充);
+  5. 绑定名字到导入方。
+
+- 之后的导入，都是直接引用 “首次导入” 产生的命名空间（不会重复执行）；
+
+```text
+import pkg.mod
+ │
+ ├─ 0. sys.modules 里已有 'pkg.mod'？ → 直接返回（不重复执行）
+ │
+ ├─ 1. 导入父包 pkg（递归走同样流程）
+ │      └─ 执行 pkg/__init__.py，填充 pkg.__dict__(命名空间)
+ │
+ ├─ 2. 为 'pkg.mod' 找 spec：
+ │      └─ 遍历 sys.meta_path 的 finder
+ │           ├─ BuiltinImporter（内置模块）
+ │           ├─ FrozenImporter（冻结模块）
+ │           └─ PathFinder 遍历 sys.path 各项
+ │                ├─ 脚本所在目录/当前目录 → PYTHONPATH → 标准库 → 第三方site-packages
+ │                └─ 找到 pkg/mod.py 或 pkg/mod/__init__.py
+ │
+ ├─ 3. 用 spec 创建模块对象，建空 __dict__(命名空间)
+ │
+ ├─ 4. 放入 sys.modules['pkg.mod']缓存（先放，防循环导入重复执行）
+ │
+ ├─ 5. 执行模块顶层代码，填充 __dict__（命名空间 在这一步被填充）
+ │
+ └─ 6. 绑定：pkg.mod = <module>，并把 pkg 绑定到当前命名空间
+```
+
+spec 是模块的"加载说明书"：finder 搜索后产出它，里面写着模块名、来源路径、用哪个 loader、是不是包、子模块去哪找；  
+import 系统 据此 创建模块对象并执行代码。它是"查找"与"加载"之间的桥梁。
+
+### 7.5.1 绝对导入
+
+| 写法                     | 当前命名空间新增的名字 | 访问方式       |
+| ------------------------ | ---------------------- | -------------- |
+| import pkg.mod           | pkg                    | pkg.mod.func() |
+| import pkg.mod as m      | m                      | m.func()       |
+| from pkg import mod      | mod                    | mod.func()     |
+| from pkg.mod import func | func                   | func()         |
+| from pkg import `*`      | `__all__` 列出的名字   | 直接名字       |
+
+### 7.5.2 相对导入（包内部互相引用）
+
+| 写法 | 含义              |
+| ---- | ----------------- |
+| .    | 当前包（pkg.sub） |
+| ..   | 父包（pkg）       |
+| ...  | 祖父包，以此类推  |
+
+- ❗注：相对导入依赖 `__package__`。
+  - 直接运行 python pkg/sub/mod.py 时，该模块是 `__main__`，没有包上下文，相对导入会报 ImportError 错误。
+  - 正确做法是 `python -m pkg.sub.mod` 或从包外导入。
+
+### 7.5.3 收尾
+
+| 主题                | 要点                                                           |
+| ------------------- | -------------------------------------------------------------- |
+| `from pkg import *` | 受 `__all__` 控制；无,则导非下划线名                           |
+| `__all__`           | 可选；只约束 `import *`；可含模块/函数/变量/类；模块和包都适用 |
+| 相对导入 `. ..`     | 仅包内、被导入时可用；直接运行会失败                           |
+| 子模块 + `import *` | 需 `__all__ `列出并已加载，或 `__init__` 显式 import           |
+| 最佳实践            | 少用 `import *`，优先显式导入                                  |
 
 ## 7.6 第三方依赖与项目安装
 
