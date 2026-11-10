@@ -824,6 +824,8 @@ import module as alias
 from module import function
 from module import function as alias
 from module import *
+
+import 顶级包.子包.子模块 # ❗凡是在导入时带点的，点的左边都必须是一个包，否则非法【包、模块 通用】
 ```
 
 不建议在业务代码中大量使用 `from module import *`，因为它会让名字来源不清晰，也容易造成命名冲突。
@@ -875,10 +877,48 @@ Python 3 还支持 namespace package（命名空间包），因此并非所有�
 
 ## 7.5 导入与模块缓存
 
+### 7.5.1 绝对导入
+
+确保“执行文件” 与 “包” 在同一文件夹下 或者 sys.path.append('/Usrs/xxx/foo')；
+
+原因: 👉 环境变量是以执行文件为准的，“所有被导入的模块中” 或 “后续的其他文件中” 引用的sys.path都是参照执行文件的sys.path
+
+| 写法                     | 当前命名空间新增的名字 | 访问方式       |
+| ------------------------ | ---------------------- | -------------- |
+| import pkg.mod           | pkg                    | pkg.mod.func() |
+| import pkg.mod as m      | m                      | m.func()       |
+| from pkg import mod      | mod                    | mod.func()     |
+| from pkg.mod import func | func                   | func()         |
+| from pkg import `*`      | `__all__` 列出的名字   | 直接名字       |
+
+### 7.5.2 相对导入（仅限于包内引用，不能跨出包）
+
+| 写法 | 含义              |
+| ---- | ----------------- |
+| .    | 当前包（pkg.sub） |
+| ..   | 父包（pkg）       |
+| ...  | 祖父包，以此类推  |
+
+- ❗注：相对导入依赖 `__package__`。
+  - 直接运行 python pkg/sub/mod.py 时，该模块是 `__main__`，没有包上下文，相对导入会报 ImportError 错误。
+  - 正确做法是 `python -m pkg.sub.mod` 或从包外导入。
+
+### 7.5.3 收尾
+
+| 主题                | 要点                                                           |
+| ------------------- | -------------------------------------------------------------- |
+| `from pkg import *` | 受 `__all__` 控制；无,则导非下划线名                           |
+| `__all__`           | 可选；只约束 `import *`；可含模块/函数/变量/类；模块和包都适用 |
+| 相对导入 `. ..`     | 仅包内、被导入时可用；直接运行会失败                           |
+| 子模块 + `import *` | 需 `__all__ `列出并已加载，或 `__init__` 显式 import           |
+| 最佳实践            | 少用 `import *`，优先显式导入                                  |
+
+### 7.5.4 包、模块 的查找顺序
+
 - 首次import 的顺序大致是：
   1. 查找模块（sys.path / sys.modules）;
   2. 创建模块对象，同时给它建好一个空的 `__dict__`（此时命名空间是空的）;
-  3. 把模块对象`放进 sys.modules 缓存`（先放，防止循环导入重复执行）;
+  3. 把模块对象`放进 sys.modules 缓存`（⚠️先放，防止循环导入重复执行）;
   4. 执行模块顶层代码，每条赋值/def/class 都写进这个 `__dict__` (命名空间在这一步被填充);
   5. 绑定名字到导入方。
 
@@ -912,37 +952,68 @@ import pkg.mod
 spec 是模块的"加载说明书"：finder 搜索后产出它，里面写着模块名、来源路径、用哪个 loader、是不是包、子模块去哪找；  
 import 系统 据此 创建模块对象并执行代码。它是"查找"与"加载"之间的桥梁。
 
-### 7.5.1 绝对导入
+- Python: 模块是一个对象，被 import 系统动态加载。
+- Node CommonJS: 模块是一个函数执行环境，通过 require 运行。
+- Node ESM: 模块是一个静态依赖图，在执行前完成链接。
 
-| 写法                     | 当前命名空间新增的名字 | 访问方式       |
-| ------------------------ | ---------------------- | -------------- |
-| import pkg.mod           | pkg                    | pkg.mod.func() |
-| import pkg.mod as m      | m                      | m.func()       |
-| from pkg import mod      | mod                    | mod.func()     |
-| from pkg.mod import func | func                   | func()         |
-| from pkg import `*`      | `__all__` 列出的名字   | 直接名字       |
+#### Node.js 模块加载机制--1--CommonJS（传统）
 
-### 7.5.2 相对导入（包内部互相引用）
+1. 第一步: 检查缓存: `require.cache`
+2. 第二步: 路径解析:
+   Node 按顺序查找:
 
-| 写法 | 含义              |
-| ---- | ----------------- |
-| .    | 当前包（pkg.sub） |
-| ..   | 父包（pkg）       |
-| ...  | 祖父包，以此类推  |
+   ```js
+   ./foo
+   ./foo.js
+   ./foo.json
+   ./foo.node
+   // ========================
+   当前目录/node_modules
+   父目录/node_modules
+   根目录/node_modules
+   ```
 
-- ❗注：相对导入依赖 `__package__`。
-  - 直接运行 python pkg/sub/mod.py 时，该模块是 `__main__`，没有包上下文，相对导入会报 ImportError 错误。
-  - 正确做法是 `python -m pkg.sub.mod` 或从包外导入。
+3. 第三步: 创建 Module 对象,并加入缓存`require.cache`;
 
-### 7.5.3 收尾
+   ```js
+   Module {
+     id
+     filename
+     exports
+     loaded
+   }
+   ```
 
-| 主题                | 要点                                                           |
-| ------------------- | -------------------------------------------------------------- |
-| `from pkg import *` | 受 `__all__` 控制；无,则导非下划线名                           |
-| `__all__`           | 可选；只约束 `import *`；可含模块/函数/变量/类；模块和包都适用 |
-| 相对导入 `. ..`     | 仅包内、被导入时可用；直接运行会失败                           |
-| 子模块 + `import *` | 需 `__all__ `列出并已加载，或 `__init__` 显式 import           |
-| 最佳实践            | 少用 `import *`，优先显式导入                                  |
+4. 第四步: 代码包装；Node 不会直接执行 JS 文件，会先包一层函数:
+
+   ```js foo.js
+   (function (exports, require, module, __filename, __dirname) {
+     // foo.js 内容
+   });
+   ```
+
+5. 第五步: 执行模块:
+   执行 wrapper function，最终返回: `module.exports`
+
+#### Node.js 模块加载机制--2--ES Module（现代）
+
+- Node 的 ESM 实现遵循: ECMAScript Module Spec
+- 加载流程: 解析 → 链接 → 执行
+- ESM 关键特点: 静态分析: 在 编译阶段就解析:所以: import 不能写在 if 里
+- live binding: `export let count = 0` 其他模块引用: 实时更新(不是拷贝)。
+
+#### Python vs Node 模块机制核心区别
+
+| 对比     | Python               | Node CommonJS    | Node ESM     |
+| -------- | -------------------- | ---------------- | ------------ |
+| 加载方式 | import               | require()        | import       |
+| 解析阶段 | 运行时               | 运行时           | 编译阶段     |
+| 缓存     | sys.modules          | require.cache    | Module Map   |
+| 模块本质 | Module object        | module.exports   | live binding |
+| 执行次数 | 一次                 | 一次             | 一次         |
+| 循环依赖 | 可运行但可能未初始化 | 容易 undefined   | 更安全       |
+| 作用域   | module.**dict**      | wrapper function | module scope |
+| 是否静态 | 否                   | 否               | 是           |
 
 ## 7.6 第三方依赖与项目安装
 

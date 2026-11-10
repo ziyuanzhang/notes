@@ -887,7 +887,7 @@ g.send('egg') # 报错: StopIteration
   `res = filter(lambda x:x%2==0,range(10));res.__iter__();`
   `res = reduce(lambda x,y:x+y,range(10),0);res.__iter__();`
 
-## 模块: 一些列功能的集合体
+## 模块: 一些列功能的集合体 ------------------------
 
 - 三者区别
   1. 内置模块: python解释提供好的，C、C++语言便编写的；
@@ -960,13 +960,13 @@ print(x) # 0
 - `sys.modules`:查看已经加载到内存中的模块
   `del 模块名`: 解除模块绑定（理论上模块应该被垃圾回收，实际还在内存中；原因: 优化机制，减少下次导入时申请内存）
 
-### python模块加载机制 与 node 加载机制
+### python模块加载机制 与 node 加载机制 --------------------------
 
 - Python: 模块是一个对象，被 import 系统动态加载。
 - Node CommonJS: 模块是一个函数执行环境，通过 require 运行。
 - Node ESM: 模块是一个静态依赖图，在执行前完成链接。
 
-#### python模块加载机制
+#### python模块加载机制 --------------------------------------------
 
 Python 的模块加载由 import system 控制，核心模块是:
 
@@ -996,7 +996,7 @@ Python 的模块加载由 import system 控制，核心模块是:
 ⚠️ 2、循环引用问题: 因为: module 先进入 sys.modules所以不会死循环，`但变量可能未初始化`。  
 ⚠️ 3、Python 模块是对象: 模块本质是: ModuleType object
 
-#### Node.js 模块加载机制--1--CommonJS（传统）
+#### Node.js 模块加载机制--1--CommonJS（传统）-----------------
 
 1. 第一步: 检查缓存: `require.cache`
 2. 第二步: 路径解析:
@@ -1035,14 +1035,14 @@ Python 的模块加载由 import system 控制，核心模块是:
 5. 第五步: 执行模块:
    执行 wrapper function，最终返回: `module.exports`
 
-#### Node.js 模块加载机制--2--ES Module（现代）
+#### Node.js 模块加载机制--2--ES Module（现代）----------------
 
 - Node 的 ESM 实现遵循: ECMAScript Module Spec
 - 加载流程: 解析 → 链接 → 执行
 - ESM 关键特点: 静态分析: 在 编译阶段就解析:所以: import 不能写在 if 里
 - live binding: `export let count = 0` 其他模块引用: 实时更新(不是拷贝)。
 
-#### Python vs Node 模块机制核心区别
+#### Python vs Node 模块机制核心区别 --------------------------
 
 | 对比     | Python               | Node CommonJS    | Node ESM     |
 | -------- | -------------------- | ---------------- | ------------ |
@@ -1055,33 +1055,32 @@ Python 的模块加载由 import system 控制，核心模块是:
 | 作用域   | module.**dict**      | wrapper function | module scope |
 | 是否静态 | 否                   | 否               | 是           |
 
-## 包（模块的一种）
+## 包（模块的一种） -------------------------------------
 
 包: 一个包含`__init__.py`文件的文件夹；
 包本质: 是模块的模块的一种形式，用来当做模块导入；
 
 ```shell
 day
-|->main.py
-└─>package
-  |->moduleAA.py
-  |->__init__.py
-  └─>packageChild
-       |->moduleBB.py
-       └─>__init__.py
+├─ main.py
+└─ package
+  ├─ moduleAA.py
+  ├─ __init__.py
+  └─ packageChild
+       ├─ moduleBB.py
+       └─ __init__.py
 ```
 
-1.关于包相关的导入语句也分为import和from...import#两种，但是无论哪种，无论在什么位置，在导入时都必须遵循一个原则:# #凡是在导入时带点的，点的左边都必须是一个包，否则非法。
-可以带有一连串的点，如import 顶级包.子包.子模块，但都必须遵循这个原则。
+- 关于包相关的导入语句也分为import和from...import 两种，但是无论哪种，无论在什么位置，在导入时都必须遵循一个原则:凡是在导入时带点的，点的左边都必须是一个包，否则非法。可以带有一连串的点，如import 顶级包.子包.子模块，但都必须遵循这个原则。
 
-例如:#
-#from a.b.c.d.e.f import xxx；。。。。。
-#import a.b.c.d.e.f 其中a、b、c、d、e都必须是包
-#2、包A和包B下有同名模块也不会冲突，如A.a与B.a来自俩个命名空间#
-#3、import导入文件时，产生名称空间中的名字来源于文件，
-#import 包，产生的名称空间的名字同样来源于文件，即包下的
+- 例如:
+  - from a.b.c.d.e.f import xxx；
+  - import a.b.c.d.e.f 其中a、b、c、d、e都必须是包
+  - 包A和包B下有同名模块也不会冲突，如A.a与B.a来自俩个命名空间
+  - import导入文件时，产生名称空间中的名字来源于文件
+  - import 包，产生的名称空间的名字同样来源于文件，即包下的
 
-- 绝对导入: 以包的文件夹作为起始来进行导入；
+* 绝对导入: 以包的文件夹作为起始来进行导入；
   package文件夹下的`__init__.py`中添加`from package.module import func`
 
   确保执行文件与包在同一文件夹下 或者 sys.path.append('/Usrs/xxx/foo')；
@@ -1089,7 +1088,7 @@ day
   原因: 👉 环境变量是以执行文件为准的，“所有被导入的模块中” 或 “后续的其他文件中” 引用的sys.path都是参照执行文件的sys.path
   `from a.b.c.d.e.f import func` : .左侧的必须是包，不能是其他；
 
-- 相对导入: 仅限于包内使用，不能跨出包(包内模块之间的导入，推荐使用相对导入)
+* 相对导入: 仅限于包内使用，不能跨出包(包内模块之间的导入，推荐使用相对导入)
   1. .:代表当前文件夹
   2. ..:代表上一层文件夹
      `from .module import func`
