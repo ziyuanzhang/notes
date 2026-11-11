@@ -51,11 +51,14 @@ class User:
     def introduce(self):
         return f"{self.name}, {self.age}"
 
+    print("===== 定义时运行 ====") # 只执行一次
+
 user = User("张三", 18)
 print(user.introduce())
 ```
 
-1. 类定义阶段: 就是"执行到 class 语句的那一刻"——它发生在运行时，不是编译/解析期。
+0. 编译阶段: 类私有属性改名字，
+1. 类定义阶段: 就是"执行到 class 语句的那一刻"，它发生在运行时，不是编译/解析期。
 
    class User: 这条语句被执行时，立即执行类体代码，建出类的命名空间，然后创建类对象。
 
@@ -116,8 +119,11 @@ class Student:
 | 类方法   | `cls`          | 访问/修改类状态，或提供替代构造器  |
 | 静态方法 | 无             | 与类逻辑相关，但不依赖实例或类状态 |
 
-类属性可被实例访问，但对“可变类属性”进行“原地修改”会影响“共享该对象的实例”。  
-实例对同名属性赋值，通常会在实例自身创建同名属性，从而遮蔽类属性。
+- 类属性可被实例访问，但对“可变类属性”进行“原地修改”会影响“共享该对象的实例”。
+
+  ✅ 查找规则（必须记住）: 对象 → 类 → 父类 →...→ object → 报错;
+
+- 实例对同名属性赋值，通常会在实例自身创建同名属性，从而遮蔽类属性。
 
 ## 8.6 封装与“私有”属性
 
@@ -133,7 +139,7 @@ class Person:
         return self.__mobile
 ```
 
-`__mobile` 通常会被改写为 `_Person__mobile`，主要用于避免子类属性意外冲突，不是安全边界，也不是绝对不可访问。
+`__mobile` 通常会被改写为 `_Person__mobile`，主要用于避免子类属性意外冲突，不是安全边界，也不是绝对不可访问。【编译阶段】
 
 命名习惯：
 
@@ -168,6 +174,21 @@ class Dog(Animal):
 - “is-a（是一个）”关系且行为确实可替代：考虑继承。
 - “has-a（有一个）”关系：优先考虑组合。
 
+```python
+class Fly:
+    def fly(self):
+        print("飞")
+
+class Swim:
+    def swim(self):
+        print("游")
+
+class Duck:
+    def __init__(self):
+        self.fly_ability = Fly()
+        self.swim_ability = Swim()
+```
+
 ## 8.9 多态
 
 多态强调不同对象可以通过共同接口被统一使用：
@@ -189,7 +210,8 @@ Python 常使用鸭子类型（duck typing）：关注对象是否提供所需�
 
 ## 8.10 `property`
 
-`property` 把方法包装成属性接口，常用于校验或控制读写：
+`property` 把 “方法” 包装成 属性接口，常用于校验或控制读写：  
+改变调用方式 `实例.函数名()==》实例.函数名`
 
 ```python
 class Person:
@@ -350,10 +372,10 @@ class Count:
         self.current = start
         self.end = end
 
-    def __iter__(self):
+    def __iter__(self):  # 重写iterator方法，返回当前对象（即：迭代器对象）
         return self
 
-    def __next__(self):
+    def __next__(self):    # 重写next方法，返回当前值，并更新当前值
         if self.current >= self.end:
             raise StopIteration
         value = self.current
@@ -370,43 +392,52 @@ for number in Count(1, 4):
 
 生成器是一种便于创建迭代器的方式，按需生成值，不必一次性把所有结果放进内存。
 
-```python
-def count_up_to(n):
-    for i in range(n):
-        yield i
+创建生成器的方式: 1、yield 关键字; 2、生成器推导式;
 
-gen = count_up_to(3)
-next(gen)  # 0
-next(gen)  # 1
-```
+1. yield 关键字
 
-调用生成器函数时，不会立即执行函数体到结束，而是返回生成器对象；每次迭代推进执行，遇到 `yield` 暂停并产出值。
+   ```python
+   def count_up_to(n):
+       for i in range(n):
+           yield i
 
-生成器表达式：
+   gen = count_up_to(3)
+   next(gen)  # 0
+   next(gen)  # 1
+   ```
 
-```python
-gen = (x * x for x in range(1000000))
-```
+   调用生成器函数时，不会立即执行函数体到结束，而是返回生成器对象；每次迭代推进执行，遇到 `yield` 暂停并产出值。
+   1. 创建生成器对象：当调用 count_up_to(3) 时，Python 发现函数体里有 yield，就会直接返回一个生成器对象（此时函数体内的代码一行都还没执行）。
+   2. 暂停并保存状态：当执行到 yield i 时，yield 会暂停函数的执行，并把当前的局部变量状态（比如 i 的值、代码执行到哪一行了）保存在生成器对象内部。
+   3. 产出值（向外返回）：将 yield 后面的值（这里是 i）抛给调用者（也就是交给 next() 函数）。
 
-与列表推导式比较：
+   ❗ 简记版： yield 的核心动作是 “暂停执行” 和 “产出值”，而不是创建对象。
 
-```python
-squares_list = [x * x for x in range(100)]
-squares_gen = (x * x for x in range(100))
-```
+2. 生成器表达式 (生成器推导式)：
 
-列表推导式立即构造列表；生成器表达式按需计算。
+   ```python
+   gen = (x * x for x in range(1000000))
+   ```
+
+- 生成器 推导式 🆚 列表 推导式：
+
+  ```python
+  # 列表推导式（立即计算并生成整个列表，占内存）
+  squares_list = [x for x in range(3)]  # [0, 1, 2]
+
+  # 生成器推导式（返回生成器对象，惰性求值）
+  squares_gen = (x for x in range(3))  # <generator object <genexpr> at 0x...>
+  next(squares_gen)  # 0
+  ```
 
 ## 9.4 推导式
 
 ```python
-[x * 2 for x in values]
-{x: x * x for x in values}
-{x for x in values if x > 0}
-(x * 2 for x in values)
+列表: [x * 2 for x in values]
+字典: {x: x * x for x in values}
+集合: {x for x in values if x > 0}
+生成器 表达式: (x * 2 for x in values)
 ```
-
-分别是列表、字典、集合和生成器表达式。
 
 ---
 
@@ -414,7 +445,9 @@ squares_gen = (x * x for x in range(100))
 
 ## 10.1 装饰器是什么
 
-装饰器本质上是一个接收函数/类并返回函数/类的可调用对象，常用于在不直接修改原函数业务代码的情况下增加横切逻辑。
+装饰器: 本质上是一个接收 (函数/类)并返回(函数/类) 的可调用对象【一个高阶函数】;
+
+常用于: 在不直接修改原函数业务代码的情况下, 增加横切逻辑。
 
 ```python
 from functools import wraps
@@ -435,20 +468,13 @@ def add(a, b):
 print(add(1, 2))
 ```
 
-`@log_call` 近似等价于：
-
-```python
-def add(a, b):
-    return a + b
-
-add = log_call(add)
-```
+`@log_call` 近似等价于：`add = log_call(add)`
 
 `functools.wraps` 用于保留被装饰函数的名称、文档字符串等元信息。
 
 ## 10.2 装饰器必须正确处理参数与返回值
 
-通用装饰器通常使用：
+通用装饰器 通常使用：
 
 ```python
 def decorator(func):
@@ -461,6 +487,9 @@ def decorator(func):
 
 不能只处理“无参数、无返回值”的函数，否则会破坏原函数接口。
 
+![python_装饰器-有参无返回](./img/python_装饰器-有参无返回.png)
+![python_装饰器-有参有返回](./img/python_装饰器-有参有返回.png)
+
 ## 10.3 多层装饰器
 
 ```python
@@ -470,13 +499,11 @@ def task():
     pass
 ```
 
-等价于：
-
-```python
-task = decorator_a(decorator_b(task))
-```
+等价于：`task = decorator_a(decorator_b(task))`
 
 离函数最近的装饰器先应用，外层装饰器再包装内层结果。
+
+![python_装饰器(多个)-传统执行流程](<./img/python_装饰器(多个)-传统执行流程.png>)
 
 ## 10.4 带参数的装饰器
 
@@ -518,7 +545,7 @@ print(a)  # [1, 2, 3]
 
 ## 11.2 浅拷贝
 
-浅拷贝创建一个新的最外层容器，但内部元素仍然引用原对象。
+浅拷贝：创建一个新的最外层容器，但内部元素仍然引用原对象。
 
 ```python
 import copy
@@ -536,7 +563,7 @@ shallow[0] is source[0]  # True
 
 ## 11.3 深拷贝
 
-深拷贝会递归复制嵌套对象（并通过 memo 机制处理循环引用）：
+深拷贝：会递归复制嵌套对象（并通过 memo 机制处理循环引用）：
 
 ```python
 deep = copy.deepcopy(source)
@@ -546,29 +573,43 @@ deep = copy.deepcopy(source)
 
 注意：深拷贝不一定适用于所有对象；文件句柄、锁、网络连接等资源对象通常不应简单深拷贝。
 
+## 11.4 浅拷贝 vs 深拷贝
+
+浅拷贝：换了皮囊（外层新对象），共用灵魂（内层引用）。
+
+深拷贝：皮囊灵魂全换新（彻底隔离），只有不可变元素（如数字、字符串）因为优化直接复用引用。
+
 ---
 
 # 12. 文件与资源管理
 
 ## 12.1 文件对象与操作系统资源
 
-文件是操作系统通过文件系统提供的抽象；Python 的文件对象提供程序访问文件的接口。打开文件通常同时占用 Python 对象资源和操作系统文件描述符/句柄资源。
+- 文件: 是"操作系统 通过 文件系统 提供的"抽象;
+- Python 里的文件对象 只是“代理人”，真正管磁盘的是 操作系统(OS);
+- 双重资源占用:
+  1. open() 不仅消耗 Python 内存（创建 file 对象），
+  2. 还会消耗操作系统的文件描述符（Linux 的 fd / Windows 的 handle）。
 
 ```text
-Python 程序
-    ↓ open()
-Python 文件对象
-    ↓ 系统调用
-操作系统文件描述符/句柄
-    ↓
-文件系统与存储设备
+Python 程序 (你的代码)
+    │ open()
+    ▼
+Python 文件对象 (内存中的对象，带有 read/write 方法)
+    │ 封装系统调用 (open/read/write)
+    ▼
+操作系统文件描述符 (fd) / 句柄 (handle) —— 进程内有限的整数编号
+    │
+    ▼
+文件系统 (管理目录和 inode)
+    │
+    ▼
+存储设备 (硬盘/SSD)
 ```
 
 ## 12.2 `open()` 参数
 
-```python
-open(file, mode="r", encoding=None)
-```
+`open(file, mode="r", encoding=None)`
 
 常用模式：
 
@@ -584,8 +625,8 @@ open(file, mode="r", encoding=None)
 
 组合示例：`rt`、`wt`、`rb`、`wb`、`r+`、`w+`、`a+`。
 
-- 文本模式读写 `str`，需要编码/解码；通常显式指定 `encoding="utf-8"`。
-- 二进制模式读写 `bytes`，不能指定 `encoding`。
+- 文本模式: 读写 `str`，需要编码/解码；通常显式指定 `encoding="utf-8"`。
+- 二进制模式: 读写 `bytes`，不能指定 `encoding`。
 - `w` 会清空原文件；需要保留原内容时不要误用。
 
 ## 12.3 读文件
@@ -608,6 +649,8 @@ with open("data.txt", "r", encoding="utf-8") as f:
 
 ## 12.4 写文件与缓冲区
 
+用 with 语句打开文件，会自动关闭文件：
+
 ```python
 with open("data.txt", "w", encoding="utf-8") as f:
     f.write("hello\n")
@@ -615,11 +658,30 @@ with open("data.txt", "w", encoding="utf-8") as f:
     f.flush()
 ```
 
-- `write()` 写入字符串。
-- `writelines()` 写入字符串可迭代对象，不会自动添加换行符。
 - 写入通常经过缓冲区，不保证每次 `write()` 都立即落盘。
-- `flush()` 刷新 Python 文件缓冲区；它不等同于所有硬件/文件系统层面的持久化保证。
+  1. `write()` 写入字符串。
+  2. `writelines()` 写入字符串可迭代对象，不会自动添加换行符。
+
+- `flush()` 刷新 Python 文件缓冲区；把 数据 推到 操作系统的页缓存（Page Cache）;
 - `close()` 会刷新缓冲区并关闭文件。
+
+- 完整的写入链路是：
+
+  ```text
+  Python 代码 (f.write)
+      │
+      ▼
+  Python 缓冲区 (BufferedWriter)
+      │ flush() 触发
+      ▼
+  操作系统页缓存 (Page Cache)
+      │ fsync() 触发
+      ▼
+  存储设备 (物理磁盘)
+  ```
+
+- 只有调用 os.fsync(f.fileno())，才是真正告诉操作系统：“把页缓存里的数据立刻刷到物理磁盘上”（这是防断电/崩溃的最后一道保险）。
+- 原因：CPU执行快，硬盘是低速设备，为了避免低速设备拉慢程序执行，将数据写入（内存的）缓存区，等缓存区满了，或者缓存区数据写入完毕，才会将数据写入硬盘；
 
 ## 12.5 二进制文件与编码
 
