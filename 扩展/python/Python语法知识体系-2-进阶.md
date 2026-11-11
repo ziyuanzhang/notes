@@ -694,8 +694,8 @@ raw = text.encode("utf-8")
 decoded = raw.decode("utf-8")
 ```
 
-- `str.encode()`：文本编码为 `bytes`。
-- `bytes.decode()`：字节按指定编码解码为文本。
+- `str.encode()`：将文本编码为 `bytes`。
+- `bytes.decode()`：字节按 指定编码 解码为文本。
 - 图片、音频、压缩包等一般按二进制方式读写。
 
 ## 12.6 `seek()` 与 `tell()`
@@ -721,7 +721,7 @@ with open("data.txt", encoding="utf-8") as f:
     content = f.read()
 ```
 
-`with` 通过上下文管理协议确保退出代码块时执行清理逻辑，即使发生异常也会进入退出流程。它适用于文件、锁、数据库连接、网络连接等资源管理。
+`with` 通过 上下文管理协议 确保 退出代码块时 执行清理逻辑，即使发生异常也会进入退出流程。它适用于文件、锁、数据库连接、网络连接等资源管理。
 
 ---
 
@@ -734,6 +734,8 @@ try:
     result = 10 / 2
 except ZeroDivisionError as exc:
     print("除数不能为零：", exc)
+except Exception as e:
+  # 所有异常都可以匹配到
 else:
     print("try 中没有发生异常")
 finally:

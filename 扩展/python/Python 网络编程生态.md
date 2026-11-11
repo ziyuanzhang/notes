@@ -30,13 +30,13 @@ socket、socketserver、http.server、urllib、requests、aiohttp、httpx、webs
    asyncio / socketserver
            ↑
            │
-   socket
+        socket
            ↑
            │
-   TCP/UDP
+       TCP/UDP
            ↑
            │
-   Linux epoll
+      Linux epoll
 ```
 
 ## Python\_网络编程生态全景图
