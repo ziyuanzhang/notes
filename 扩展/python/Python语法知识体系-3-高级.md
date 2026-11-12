@@ -15,201 +15,314 @@
 
 ---
 
-## 队列 与 管道
+# 并发通信：Queue、Pipe 与任务协作
 
-- 队列（Queue）: 高级封装，安全、好用（推荐）
-  1. 👉 Queue = Pipe + 锁 + 缓冲 + 封装
+## 先建立通信工具全景
 
-     ```code
-       Queue.put() --> pickle序列化 --> 写入 Pipe --> 另一端读取 --> 反序列化
+| 工具                            | 所属模块          | 通信范围                 | 典型用途                       |
+| ------------------------------- | ----------------- | ------------------------ | ------------------------------ |
+| `queue.Queue`                   | `queue`           | 同一进程内的线程之间     | 线程生产者/消费者              |
+| `queue.LifoQueue`               | `queue`           | 同一进程内的线程之间     | 后进先出任务栈                 |
+| `queue.PriorityQueue`           | `queue`           | 同一进程内的线程之间     | 按优先级取任务                 |
+| `multiprocessing.Queue`         | `multiprocessing` | 多个进程之间             | 多生产者、多消费者             |
+| `multiprocessing.JoinableQueue` | `multiprocessing` | 多个进程之间             | 需要确认任务完成               |
+| `multiprocessing.Pipe`          | `multiprocessing` | 进程之间的连接端点       | 两个进程直接收发消息           |
+| `asyncio.Queue`                 | `asyncio`         | 同一事件循环中的协程任务 | 异步生产者/消费者              |
+| `subprocess.PIPE`               | `subprocess`      | 父进程与子进程标准流     | 捕获命令的 stdin/stdout/stderr |
 
-       Queue
-        ├── Pipe（管道）
-        ├── Lock（锁）
-        ├── Buffer（缓冲区）
-        └── pickle（序列化）
-     ```
+选择时先问：**谁和谁通信？线程、进程、协程，还是外部子进程？**
 
-- 管道（Pipe）: 底层通信工具，更轻量但更原始
-  1. Pipe 本质就是: 👉 两个端点的连接（socket/管道）  
-     `parent_conn  ⇄  child_conn`
+## `queue.Queue`：线程间队列
 
-- Queue 是基于 Pipe 的进程安全通信队列，而 Pipe 是更底层的双向通信通道。
-- IPC（进程间通信）
-
-| 对比           | Queue              | Pipe             |
-| -------------- | ------------------ | ---------------- |
-| 抽象层级       | 高级               | 低级             |
-| 是否安全       | ✅ 安全            | ❌ 不安全        |
-| 是否支持多进程 | ✅ 多生产者/消费者 | ❌ 只适合2个端点 |
-| 是否有锁       | ✅ 有              | ❌ 没有          |
-| 性能           | 较慢               | 更快             |
-| 使用难度       | 简单               | 稍复杂           |
-
-### 队列 Queue -- 会 阻塞
-
-- 🔥 Python3 中的两种 Queue:
-  1. 线程用的队列;
-  2. 进程用的队列
-
-  | 对比           | queue.Queue | multiprocessing.Queue |
-  | -------------- | ----------- | --------------------- |
-  | 用途           | 线程间通信  | 进程间通信            |
-  | 是否跨进程     | ❌ 不可以   | ✅ 可以               |
-  | 是否需要序列化 | ❌ 不需要   | ✅ 需要（pickle）     |
-  | 性能           | 快          | 相对慢                |
+`queue.Queue` 是线程安全的 FIFO 队列。多个线程可以同时 `put()` 和`get()`，队列内部负责必要的同步。
 
 ```python
-# ===== 进程队列=======================================
-from multiprocessing import Queue
-q = Queue(5) # 括号内可以放数字来限制队列的大小; 不传则，默认32767个
-q.put(111) # 放数据: 当队列满了，继续放会阻塞，直到有位置让出来， ❗不会报错；
-q.get() # 取数据: 当队列空了，继续取会阻塞；
-q.get(timeout=3) # 取数据: 没有数据之后原地等待三秒,之后再报错 queue.Empty
+from queue import Queue, Empty
+from threading import Thread
 
-# *********** 以下方法 ❗不精确，不是实时的 ************
-q.empty() # 判断队列是否为空（❗不精确，不是实时的）
-q.get_nowait() # 取数据: 不会阻塞，如果队列中没有数据，直接报错queue.Empty（❗不精确，不是实时的）
-# ===== 线程队列=======================================
-from queue import Queue, LifoQueue, PriorityQueue
+tasks = Queue(maxsize=100)
 
-q2 = Queue()
-q2.put(1)
-q2.get()
+def producer():
+    for item in range(5):
+        tasks.put(item)       # 队列满时默认等待
+    tasks.put(None)           # 发送结束标记
 
-q3 = LifoQueue(4)  # 后进先出
+def consumer():
+    while True:
+        item = tasks.get()    # 队列空时默认等待
+        try:
+            if item is None:
+                return
+            print("处理：", item)
+        finally:
+            tasks.task_done()
 
+t1 = Thread(target=producer)
+t2 = Thread(target=consumer)
+t1.start()
+t2.start()
 
-q4 = PriorityQueue(4)  # 优先级高的先执行
-# put括号内放一个元祖;第一个放数字表示优先级; 需要注意的是: 数字越小优先级越高!!!
-q4.put((11, "111"))
-q4.put((22, "222"))
-q4.put((0, "0"))
-q4.put((-5, "-5"))
-print(q4.get())  # (-5,'-5')
+tasks.join()                  # 等待所有 put 的任务都 task_done
+t1.join()
+t2.join()
 ```
 
-- 📌 特点:
-  - ✅ 线程/进程安全
-  - ✅ FIFO（先进先出）
-  - ✅ 自动加锁
-  - ✅ 自动处理并发
-  - ❗ 底层用 pickle（有开销）
+常用 API：
 
-- 👉推荐场景:
-  - 多个生产者 + 多个消费者
-  - 任务调度
-  - 并发安全要求高
+| API                                   | 作用                               |
+| ------------------------------------- | ---------------------------------- |
+| `put(item, block=True, timeout=None)` | 放入元素；满队列时可阻塞           |
+| `put_nowait(item)`                    | 非阻塞放入；失败抛出 `queue.Full`  |
+| `get(block=True, timeout=None)`       | 取出元素；空队列时可阻塞           |
+| `get_nowait()`                        | 非阻塞取出；失败抛出 `queue.Empty` |
+| `task_done()`                         | 通知队列某个已取出的任务处理完毕   |
+| `join()`                              | 等待未完成任务计数归零             |
 
-#### 进程间通信IPC机制
+❗注意：`Queue.join()`等待的是任务完成计数归零，不是等待线程退出。每次成功 `get()`后，消费者应对对应任务调用一次 `task_done()`，否则 `join()`可能一直等待。
+
+### `LifoQueue` 与 `PriorityQueue`
 
 ```python
-  def task(q):
-     q.put('呼叫！呼叫！')
-     prtint('hahahah')
+from queue import LifoQueue, PriorityQueue
 
-  if __name__ == '__main__':
-    q = Queue()
-    p = Process(target=task, args=(q,))
-    p.start()
-    print(q.get()) # 呼叫！呼叫！
+stack = LifoQueue()
+stack.put("first")
+stack.put("second")
+print(stack.get())             # second
+
+priority = PriorityQueue()
+priority.put((10, "普通任务"))
+priority.put((1, "高优先级任务"))
+print(priority.get())          # (1, '高优先级任务')
 ```
 
-#### 生产者-消费者模型（Queue）
+`PriorityQueue` 默认按元素比较顺序取出最小项，因此数值越小越先出队。若优先级相同且任务对象不可比较，可加入递增序号作为第二排序字段：
+
+```python
+from itertools import count
+from queue import PriorityQueue
+
+sequence = count()
+tasks = PriorityQueue()
+tasks.put((1, next(sequence), {"job": "A"}))
+tasks.put((1, next(sequence), {"job": "B"}))
+```
+
+## `multiprocessing.Queue`：进程间队列
+
+不同进程拥有相互隔离的地址空间，普通 Python列表或变量不会因为传给子进程就自动成为共享状态。
+`multiprocessing.Queue` 提供跨进程消息传递。
 
 ```python
 from multiprocessing import Process, Queue
 
 def producer(q):
-    for i in range(5):
-        q.put(i)
+    for value in range(3):
+        q.put(value)
+    q.put(None)                # 结束标记
 
 def consumer(q):
     while True:
-        print(q.get())
+        value = q.get()
+        if value is None:
+            break
+        print("收到：", value)
 
 if __name__ == "__main__":
     q = Queue()
-
-    Process(target=producer, args=(q,)).start()
-    Process(target=consumer, args=(q,)).start()
-
+    p1 = Process(target=producer, args=(q,))
+    p2 = Process(target=consumer, args=(q,))
+    p1.start()
+    p2.start()
+    p1.join()
+    p2.join()
+    q.close()
+    q.join_thread()
 ```
 
-#### JoinableQueue
+要点：
 
-JoinableQueue: 是'带任务完成确认机制'的队列，通过 task_done() 和 join() 实现任务同步。
+- `put()` / `get()` 是主要接口；有界队列满时 `put()` 可以阻塞，空队列 `get()` 可以阻塞。
+- 进程队列传递 Python 对象时需要序列化（通常使用 pickle），接收端再反序列化。
+- 它内部涉及管道、缓冲、锁/信号量以及 feeder thread 等实现细节；**不要把实现简单概括成固定的"Pipe + 一把锁"**，具体内部实现属于 CPython 版本实现细节。
+- `empty()`、`full()`、`qsize()` 在多进程并发场景下不能作为可靠同步依据；应通过阻塞操作、超时、哨兵值或明确的协议协调。
+- `get_nowait()` / `put_nowait()` 是非阻塞操作，可能抛出 `queue.Empty` / `queue.Full`。
+- 使用完毕可调用 `close()`，并按需要调用 `join_thread()` 等待队列后台 feeder thread 结束。
+
+## `JoinableQueue`：确认任务处理完成
+
+`JoinableQueue` 在进程队列基础上增加未完成任务计数：
+
+```text
+put(task)       → 未完成任务数 +1
+get()           → 取出任务，但计数不减少
+task_done()     → 未完成任务数 -1
+join()          → 等待未完成任务数归零
+```
+
+完整示例（包含结束哨兵和任务确认）：
 
 ```python
-
 from multiprocessing import Process, JoinableQueue
-import time
 
 def worker(q):
     while True:
         task = q.get()
-        if task is None:
-            break
-
-        print(f"处理任务: {task}")
-        time.sleep(1)
-
-        q.task_done()  # 🔥 完成任务（消费者调用）
+        try:
+            if task is None:
+                return
+            print("处理任务：", task)
+        finally:
+            # 普通任务和结束哨兵都要与一次 put 对应一次 task_done
+            q.task_done()
 
 if __name__ == "__main__":
-    q = JoinableQueue() # 👉  内部维护一个: “未完成任务计数器”
+    q = JoinableQueue()
+    workers = [Process(target=worker, args=(q,)) for _ in range(2)]
 
-    # 启动消费者
-    for _ in range(2):
-        p = Process(target=worker, args=(q,))
-        p.daemon = True
+    for p in workers:
         p.start()
 
-    # 生产任务
-    for i in range(5):
-        q.put(i) # 放任务
+    for task in range(5):
+        q.put(task)
 
-    q.join()  # 🔥 等待所有任务完成（生产者调用）
-    print("所有任务完成")
+    # 等待业务任务处理完成
+    q.join()
+
+    # 每个 worker 发送一个结束哨兵
+    for _ in workers:
+        q.put(None)
+
+    # 哨兵本身也计入未完成任务，因此再次 join
+    q.join()
+
+    for p in workers:
+        p.join()
+
+    q.close()
+    q.join_thread()
 ```
 
-流程:
+`task_done()` 必须与已放入队列的任务一一对应；多调用会抛出
+`ValueError`，漏调用则可能让 `join()` 永远等不到计数归零。
 
-```code
-  put()        → +1
-  task_done()  → -1
-  join()       → 等待计数器变为 0
-```
+## multiprocessing.Pipe：进程间连接通道
 
-### 管道 Pipe -- 多个进程同时send(): 数据错乱/崩溃
-
-- 📌 特点:
-  - ✅ 双向通信
-  - ✅ 速度更快（比 Queue）
-  - ❌ 不安全（多进程同时用会出问题）
-  - ❌ 没有锁
-
-- 👉 推荐场景:
-  - 只有两个进程通信
-  - 对性能要求极高
-  - 你能控制并发（不会同时写）
+`Pipe()` 创建一对连接对象。默认 `duplex=True`，两个端点都可以收发；设置`duplex=False` 时创建单向通信端点。
 
 ```python
-  from multiprocessing import Process, Pipe
+from multiprocessing import Process, Pipe
 
-  def worker(conn):
-      conn.send("hello")
-      conn.close()
+def worker(conn):
+    message = conn.recv()
+    conn.send({"reply": f"收到：{message}"})
+    conn.close()
 
-  if __name__ == "__main__":
-      parent_conn, child_conn = Pipe()
+if __name__ == "__main__":
+    parent_conn, child_conn = Pipe(duplex=True)
 
-      p = Process(target=worker, args=(child_conn,))
-      p.start()
+    p = Process(target=worker, args=(child_conn,))
+    p.start()
 
-      print(parent_conn.recv())
-      p.join()
+    child_conn.close()         # 父进程不使用子进程端，及时关闭自己的副本
+    parent_conn.send("hello")
+    print(parent_conn.recv())
+
+    parent_conn.close()
+    p.join()
 ```
+
+常用接口：
+
+- `send(obj)` / `recv()`：发送和接收可 pickle 的对象。
+- `send_bytes(data)` / `recv_bytes()`：发送和接收字节数据。
+- `poll(timeout)`：检查是否有数据可读。
+- `close()`：关闭连接端点。
+
+Pipe 适合明确的一对一通信，代码直接、抽象较低。**不能简单说Pipe"不安全"**：两个端点按协议由各自进程使用时完全可以正常工作；如果多个进程同时写同一个连接端点，消息可能发生交错，应自行同步，或改用Queue。
+
+## Queue 与 Pipe 对比
+
+| 维度         | `multiprocessing.Queue`  | `multiprocessing.Pipe`         |
+| ------------ | ------------------------ | ------------------------------ |
+| 抽象         | 队列                     | 连接通道                       |
+| 消息组织     | FIFO 队列                | 端点之间直接收发               |
+| 常见通信模式 | 多生产者/多消费者        | 通常一对进程                   |
+| 并发写入     | 封装了队列所需的同步机制 | 多进程共用同一端点时需自行同步 |
+| 任务完成确认 | `JoinableQueue` 支持     | 需要自行设计协议               |
+| 使用难度     | 较低                     | 需要自行管理端点和通信协议     |
+| 典型场景     | 任务分发、工作队列       | 父子进程命令/响应              |
+
+性能没有脱离场景的绝对结论。消息大小、生产者/消费者数量、序列化成本、进程调度和缓冲策略都会影响结果，不要仅凭"Pipe一定更快"来选择。
+
+## `asyncio.Queue`：协程间队列
+
+`asyncio.Queue`用于同一事件循环中的协程任务，不是线程安全队列，也不能直接替代`multiprocessing.Queue`。
+
+```python
+import asyncio
+
+async def producer(q: asyncio.Queue):
+    for item in range(3):
+        await q.put(item)
+    await q.put(None)
+
+async def consumer(q: asyncio.Queue):
+    while True:
+        item = await q.get()
+        try:
+            if item is None:
+                return
+            print("处理：", item)
+        finally:
+            q.task_done()
+
+async def main():
+    q = asyncio.Queue(maxsize=10)
+    async with asyncio.TaskGroup() as tg:
+        tg.create_task(producer(q))
+        tg.create_task(consumer(q))
+    await q.join()
+
+asyncio.run(main())
+```
+
+常见接口与线程队列相似，但阻塞操作需要`await`：`await put()`、`await get()`、`await join()`。
+
+`asyncio.Queue`的 `put_nowait()` / `get_nowait()` 是同步的非阻塞接口。
+
+## `subprocess.PIPE` 不等于 `multiprocessing.Pipe`
+
+```python
+import subprocess
+
+result = subprocess.run(
+    ["python", "-c", "print('hello')"],
+    capture_output=True,
+    text=True,
+    check=True,
+)
+print(result.stdout)
+```
+
+- `subprocess.PIPE` 是把外部子进程的标准输入/输出/错误流连接到父进程。
+- `multiprocessing.Pipe` 是 Python 多进程 API 提供的进程间连接对象。
+- 两者都借助操作系统的进程通信能力，但 API、数据模型和使用场景不同。
+
+## 共享内存：与消息队列不同的思路（进阶）
+
+`multiprocessing.shared_memory`可让多个进程访问同一块内存，减少大块数据在进程间反复序列化和复制的成本。但共享内存只解决"共享数据区域"，不自动解决并发读写一致性；仍需锁、事件或其他协议协调。
+
+**选择建议：**
+
+- 普通任务传递：优先 `multiprocessing.Queue`。
+- 明确的一对一通信：考虑 `Pipe`。
+- 需要任务完成确认：`JoinableQueue`。
+- 大块数值数据共享：评估 `shared_memory`。
+- 线程之间传任务：`queue.Queue`。
+- 协程之间传任务：`asyncio.Queue`。
+
+---
 
 # 16. 并发编程：进程、线程、协程
 
@@ -560,23 +673,23 @@ result = await asyncio.to_thread(blocking_function, arg)
 以网络接收为例：
 
 1. **等待数据准备好**：数据从网络到达，并进入内核 socket 接收缓冲区。
-2. **数据拷贝**：数据从内核缓冲区复制到用户空间缓冲区，供应用程序使用。
+2. **数据拷贝**：数据从 内核缓冲区 复制到 用户空间缓冲区，供应用程序使用。
 
 很多网络 I/O 的主要等待发生在第一阶段。
 
 ## 18.2 五种经典 I/O 模型
 
-| 模型         | 核心行为                             | 应用程序是否还要 `recv/read`               |
-| ------------ | ------------------------------------ | ------------------------------------------ |
-| 阻塞 I/O     | 调用等待数据就绪，之后等待拷贝完成   | 是                                         |
-| 非阻塞 I/O   | 数据未就绪时立即返回，应用`反复尝试` | 是                                         |
-| I/O 多路复用 | 内核监视多个 fd，通知哪些 fd 就绪    | 是                                         |
-| 信号驱动 I/O | 数据就绪时通过信号通知应用           | 通常是                                     |
-| 异步 I/O     | 应用提交请求，内核完成 I/O 后通知    | 典型完成模型中不需要再主动执行同一读取操作 |
+| 模型         | 核心行为                                       | 应用程序是否还要 `recv/read` |
+| ------------ | ---------------------------------------------- | ---------------------------- |
+| 阻塞 I/O     | 调用等待数据就绪，之后等待拷贝完成             | 是                           |
+| 非阻塞 I/O   | 数据未就绪时立即返回，应用`反复尝试(疯狂轮询)` | 是                           |
+| I/O 多路复用 | 内核监视多个 fd，通知哪些 fd 就绪              | 是                           |
+| 信号驱动 I/O | 数据就绪时通过信号通知应用                     | 通常是【不常用-了解】        |
+| 异步 I/O     | 应用提交请求，内核完成 I/O 后通知              | 否                           |
 
 这里的“异步 I/O”是经典 I/O 模型语境下的概念，不要与 Python `async def` 直接画等号。
 
-## 18.3 select 、poll、epoll
+## 18.3 多路复用IO 下的: select 、poll、epoll
 
 ❗演进链路: 阻塞 → select → poll → epoll → 事件循环 → asyncio
 
@@ -629,24 +742,47 @@ await 等待网络 I/O
 
 不同操作系统底层可能使用 epoll、kqueue、IOCP 等不同机制。不要把 asyncio 永远等同于 Linux epoll。
 
-## 18.7 用户态、内核态、DMA 与零拷贝
+## 18.7 用户态、内核态、DMA与零拷贝
 
 - 用户态：程序通过系统调用请求内核执行文件、网络等操作。
 - 用户态/内核态切换有成本，但不是每次切换都等价于一次完整的线程上下文切换。
-- DMA 允许设备在 DMA 控制器协助下与内存传输数据，减少 CPU 逐字节搬运。
-- 零拷贝是一类减少数据复制和用户态参与的技术，不代表所有路径完全没有数据复制。
 
-传统文件发送网络的概念路径：
+- DMA(Direct Memory Access - 直接内存访问): 允许设备 在 DMA控制器 协助下 与内存传输数据，减少 CPU 逐字节搬运。
 
-```text
-磁盘/页缓存
-   ↓
-用户空间缓冲区
-   ↓
-内核 socket 缓冲区
-   ↓
-网卡
-```
+- 零拷贝: 是一类减少数据复制和用户态参与的技术，不代表所有路径完全没有数据复制。
+
+1. 传统 IO: 多次数据拷贝 + 多次用户态/内核态切换
+
+   ```text
+      磁盘
+       │ DMA
+       ▼
+   内核缓冲区（Page Cache）
+       │ copy_to_user   ← CPU 拷贝
+       ▼
+   用户空间缓冲区
+       │ copy_from_user  ← CPU 拷贝
+       ▼
+   内核 socket 缓冲区
+       │ DMA
+       ▼
+      网卡
+   ```
+
+2. 零拷贝（经典 sendfile）: 绕过 user buffer，省掉两次 CPU 拷贝和两次态切换
+
+   ```text
+      磁盘
+       │ DMA
+       ▼
+   内核缓冲区（Page Cache）
+       │ 内核内拷贝（经典 sendfile 仍有）
+       ▼
+   内核 socket 缓冲区
+       │ DMA
+       ▼
+      网卡
+   ```
 
 使用 `sendfile()` 等机制时，可以在适用条件下减少数据经过用户空间的往返拷贝。实际内核、驱动、协议和硬件路径会更复杂，不能把示意图当成所有机器的固定执行细节。
 

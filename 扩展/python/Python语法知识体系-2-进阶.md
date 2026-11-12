@@ -19,19 +19,13 @@
 
 # 8. 面向对象编程
 
-📌 本质: 面向对象 = 用对象组织程序，而不是用函数堆代码；
-
-🔥 一句话讲清三者关系: `类是模具 → 造出对象 → 对象用函数来干活`
-
-1️⃣ 封装（Encapsulation）: 把数据和操作数据的方法绑定在一起，并隐藏内部细节;
-2️⃣ 继承（Inheritance）: 子类继承父类的属性和方法，并扩展新的属性和方法;
-3️⃣ 多态（Polymorphism）: 同一个方法，不同对象表现不同;
-
 ## 8.1 面向过程与面向对象
 
 - **面向过程**：围绕步骤和流程组织代码。
 - **面向对象**：围绕对象组织状态和行为。
 - 两者不是互斥关系。面向对象程序内部仍然由函数和步骤完成工作。
+
+📌 本质: 面向对象 = 用对象组织程序，而不是用函数堆代码；
 
 ![Python的栈与堆](./img/Python的栈与堆.png)
 
@@ -41,6 +35,12 @@
 - 对象/实例（instance）：根据类创建的具体对象【封装"数据+行为"的实体，是程序运行的基本单位】。
 - 属性：对象或类所关联的数据。
 - 方法：定义在类中的函数，通常描述对象行为【封装“可复用的功能(行为)”】。
+
+🔥 一句话讲清三者关系: `类是模具 → 造出对象 → 对象用函数来干活`
+
+1️⃣ 封装（Encapsulation）: 把数据和操作数据的方法绑定在一起，并隐藏内部细节;  
+2️⃣ 继承（Inheritance）: 子类继承父类的属性和方法，并扩展新的属性和方法;  
+3️⃣ 多态（Polymorphism）: 同一个方法，不同对象表现不同;
 
 ```python
 class User:
@@ -770,24 +770,33 @@ class BusinessError(Exception):
 
 ## 14.1 标准库模块分类
 
-| 领域       | 模块                                                            | 用途                                |
-| ---------- | --------------------------------------------------------------- | ----------------------------------- |
-| 时间日期   | `time`、`datetime`                                              | 时间戳、日期时间、时间差            |
-| 随机与数学 | `random`、`math`、`statistics`                                  | 随机数、数学函数、统计              |
-| 操作系统   | `os`、`sys`                                                     | 环境、路径、进程参数、解释器信息    |
-| 路径       | `pathlib`、`os.path`                                            | 路径拼接、判断、遍历                |
-| 文件操作   | `shutil`、`zipfile`、`tempfile`                                 | 复制、移动、压缩、临时文件          |
-| 序列化     | `json`、`pickle`                                                | JSON 数据交换、Python 对象序列化    |
-| 配置       | `configparser`、`tomllib`                                       | INI、TOML 配置读取                  |
-| 哈希       | `hashlib`                                                       | SHA-256 等摘要计算                  |
-| 正则       | `re`                                                            | 文本模式匹配                        |
-| 标识符     | `uuid`                                                          | 生成 UUID                           |
-| 二进制结构 | `struct`                                                        | Python 数据与二进制结构转换         |
-| 数据结构   | `collections`、`heapq`、`bisect`                                | deque、Counter、堆、二分            |
-| 并发       | `threading`、`multiprocessing`、`concurrent.futures`、`asyncio` | 多线程、多进程、线程池/进程池、协程 |
-| 网络       | `socket`、`urllib`、`http.server`                               | 底层网络与简单 HTTP 服务            |
-| 子进程     | `subprocess`                                                    | 启动外部程序、执行系统命令          |
-| 日志       | `logging`                                                       | 分级日志、日志输出与配置            |
+| 领域       | 模块                                                            | 用途                                 |
+| ---------- | --------------------------------------------------------------- | ------------------------------------ |
+| 时间日期   | `time`、`datetime`                                              | 时间戳、日期时间、时间差             |
+| 随机与数学 | `random`、`math`、`statistics`                                  | 随机数、数学函数、统计               |
+| 操作系统   | `os`、`sys`                                                     | 环境、路径、进程参数、解释器信息     |
+| 路径       | `pathlib`、`os.path`                                            | 路径拼接、判断、遍历                 |
+| 文件操作   | `shutil`、`zipfile`、`tempfile`                                 | 复制、移动、压缩、临时文件           |
+| 序列化     | `json`、`pickle` 、`shelve`、`xml`                              | JSON 数据交换、Python 对象序列化     |
+| 配置       | `configparser`、`tomllib`                                       | INI、TOML 配置读取                   |
+| 哈希       | `hashlib`                                                       | SHA-256 等摘要计算                   |
+| 正则       | `re`                                                            | 文本模式匹配                         |
+| 标识符     | `uuid`                                                          | 生成 UUID                            |
+| 安全随机数 | `secrets`                                                       | 用于安全随机令牌                     |
+| 二进制结构 | `struct`                                                        | Python 数据与二进制结构转换          |
+| 数据结构   | `collections`、`heapq`、`bisect`                                | deque、Counter、堆、二分             |
+| 并发       | `threading`、`multiprocessing`、`concurrent.futures`、`asyncio` | 多线程、多进程、线程池/进程池、协程  |
+| 网络       | `socket`、`urllib`、`http.server`                               | 底层网络与简单 HTTP 服务             |
+| 子进程     | `subprocess`                                                    | 启动外部程序、执行系统命令           |
+| 日志       | `logging`                                                       | 分级日志、日志输出与配置             |
+|            | argparse                                                        | 常用, 命令行参数解析                 |
+|            | signal                                                          | 了解/进阶, 进程信号处理              |
+|            | selectors                                                       | 理解原理即可, I/O 多路复用的高层封装 |
+|            | gc                                                              | 理解机制 少直接干预, 垃圾回收器接口  |
+|            | inspect                                                         | 进阶调试, 运行时检查函数、类、签名   |
+|            | functools                                                       | 常用, wraps、缓存、偏函数等          |
+|            | itertools                                                       | 常用 , 高效迭代器工具                |
+|            | contextlib                                                      | 常用, 构建上下文管理器               |
 
 ## 14.2 `pathlib` 与 `os.path`
 
