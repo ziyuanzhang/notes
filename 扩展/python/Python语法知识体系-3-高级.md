@@ -15,6 +15,202 @@
 
 ---
 
+## 队列 与 管道
+
+- 队列（Queue）: 高级封装，安全、好用（推荐）
+  1. 👉 Queue = Pipe + 锁 + 缓冲 + 封装
+
+     ```code
+       Queue.put() --> pickle序列化 --> 写入 Pipe --> 另一端读取 --> 反序列化
+
+       Queue
+        ├── Pipe（管道）
+        ├── Lock（锁）
+        ├── Buffer（缓冲区）
+        └── pickle（序列化）
+     ```
+
+- 管道（Pipe）: 底层通信工具，更轻量但更原始
+  1. Pipe 本质就是: 👉 两个端点的连接（socket/管道）  
+     `parent_conn  ⇄  child_conn`
+
+- Queue 是基于 Pipe 的进程安全通信队列，而 Pipe 是更底层的双向通信通道。
+- IPC（进程间通信）
+
+| 对比           | Queue              | Pipe             |
+| -------------- | ------------------ | ---------------- |
+| 抽象层级       | 高级               | 低级             |
+| 是否安全       | ✅ 安全            | ❌ 不安全        |
+| 是否支持多进程 | ✅ 多生产者/消费者 | ❌ 只适合2个端点 |
+| 是否有锁       | ✅ 有              | ❌ 没有          |
+| 性能           | 较慢               | 更快             |
+| 使用难度       | 简单               | 稍复杂           |
+
+### 队列 Queue -- 会 阻塞
+
+- 🔥 Python3 中的两种 Queue:
+  1. 线程用的队列;
+  2. 进程用的队列
+
+  | 对比           | queue.Queue | multiprocessing.Queue |
+  | -------------- | ----------- | --------------------- |
+  | 用途           | 线程间通信  | 进程间通信            |
+  | 是否跨进程     | ❌ 不可以   | ✅ 可以               |
+  | 是否需要序列化 | ❌ 不需要   | ✅ 需要（pickle）     |
+  | 性能           | 快          | 相对慢                |
+
+```python
+# ===== 进程队列=======================================
+from multiprocessing import Queue
+q = Queue(5) # 括号内可以放数字来限制队列的大小; 不传则，默认32767个
+q.put(111) # 放数据: 当队列满了，继续放会阻塞，直到有位置让出来， ❗不会报错；
+q.get() # 取数据: 当队列空了，继续取会阻塞；
+q.get(timeout=3) # 取数据: 没有数据之后原地等待三秒,之后再报错 queue.Empty
+
+# *********** 以下方法 ❗不精确，不是实时的 ************
+q.empty() # 判断队列是否为空（❗不精确，不是实时的）
+q.get_nowait() # 取数据: 不会阻塞，如果队列中没有数据，直接报错queue.Empty（❗不精确，不是实时的）
+# ===== 线程队列=======================================
+from queue import Queue, LifoQueue, PriorityQueue
+
+q2 = Queue()
+q2.put(1)
+q2.get()
+
+q3 = LifoQueue(4)  # 后进先出
+
+
+q4 = PriorityQueue(4)  # 优先级高的先执行
+# put括号内放一个元祖;第一个放数字表示优先级; 需要注意的是: 数字越小优先级越高!!!
+q4.put((11, "111"))
+q4.put((22, "222"))
+q4.put((0, "0"))
+q4.put((-5, "-5"))
+print(q4.get())  # (-5,'-5')
+```
+
+- 📌 特点:
+  - ✅ 线程/进程安全
+  - ✅ FIFO（先进先出）
+  - ✅ 自动加锁
+  - ✅ 自动处理并发
+  - ❗ 底层用 pickle（有开销）
+
+- 👉推荐场景:
+  - 多个生产者 + 多个消费者
+  - 任务调度
+  - 并发安全要求高
+
+#### 进程间通信IPC机制
+
+```python
+  def task(q):
+     q.put('呼叫！呼叫！')
+     prtint('hahahah')
+
+  if __name__ == '__main__':
+    q = Queue()
+    p = Process(target=task, args=(q,))
+    p.start()
+    print(q.get()) # 呼叫！呼叫！
+```
+
+#### 生产者-消费者模型（Queue）
+
+```python
+from multiprocessing import Process, Queue
+
+def producer(q):
+    for i in range(5):
+        q.put(i)
+
+def consumer(q):
+    while True:
+        print(q.get())
+
+if __name__ == "__main__":
+    q = Queue()
+
+    Process(target=producer, args=(q,)).start()
+    Process(target=consumer, args=(q,)).start()
+
+```
+
+#### JoinableQueue
+
+JoinableQueue: 是'带任务完成确认机制'的队列，通过 task_done() 和 join() 实现任务同步。
+
+```python
+
+from multiprocessing import Process, JoinableQueue
+import time
+
+def worker(q):
+    while True:
+        task = q.get()
+        if task is None:
+            break
+
+        print(f"处理任务: {task}")
+        time.sleep(1)
+
+        q.task_done()  # 🔥 完成任务（消费者调用）
+
+if __name__ == "__main__":
+    q = JoinableQueue() # 👉  内部维护一个: “未完成任务计数器”
+
+    # 启动消费者
+    for _ in range(2):
+        p = Process(target=worker, args=(q,))
+        p.daemon = True
+        p.start()
+
+    # 生产任务
+    for i in range(5):
+        q.put(i) # 放任务
+
+    q.join()  # 🔥 等待所有任务完成（生产者调用）
+    print("所有任务完成")
+```
+
+流程:
+
+```code
+  put()        → +1
+  task_done()  → -1
+  join()       → 等待计数器变为 0
+```
+
+### 管道 Pipe -- 多个进程同时send(): 数据错乱/崩溃
+
+- 📌 特点:
+  - ✅ 双向通信
+  - ✅ 速度更快（比 Queue）
+  - ❌ 不安全（多进程同时用会出问题）
+  - ❌ 没有锁
+
+- 👉 推荐场景:
+  - 只有两个进程通信
+  - 对性能要求极高
+  - 你能控制并发（不会同时写）
+
+```python
+  from multiprocessing import Process, Pipe
+
+  def worker(conn):
+      conn.send("hello")
+      conn.close()
+
+  if __name__ == "__main__":
+      parent_conn, child_conn = Pipe()
+
+      p = Process(target=worker, args=(child_conn,))
+      p.start()
+
+      print(parent_conn.recv())
+      p.join()
+```
+
 # 16. 并发编程：进程、线程、协程
 
 ## 16.1 并发与并行
@@ -25,10 +221,10 @@
 
 ## 16.2 进程 Process
 
-进程是操作系统进行资源分配和隔离的重要单位。每个进程通常拥有独立的虚拟地址空间。
+进程: 是操作系统进行资源分配和隔离的重要单位。每个进程通常拥有独立的虚拟地址空间。
 
 ```python
-from multiprocessing import Process
+from multiprocessing import Process, current_process
 
 def work(name):
     print("working:", name)
@@ -45,15 +241,21 @@ if __name__ == "__main__":
 - `join()`：等待子进程结束。
 - `terminate()`：请求/强制终止进程，不适合用于正常清理流程。
 - `is_alive()`：检查进程是否仍在运行。
-- `daemon`：守护进程设置，需在启动前配置。
+- `daemon`：守护进程设置，需在启动前配置。因为进程启动后属性不可修改；  
+  🔥 daemon 不是“守护别人”，而是“被主进程绑定生死”
 
+计算机会给每一个运行的进程分配一个PID号;  
 进程之间默认不共享普通 Python 对象；通信需要 IPC，例如 Queue、Pipe、共享内存等。
 
-**跨平台注意：** macOS、Windows 常见启动方式为 `spawn`；Linux 还可能使用 `fork`。多进程代码应使用 `if __name__ == "__main__":` 保护入口，避免子进程导入主模块时重复启动任务。
+**跨平台注意：**
+
+- macOS、Windows 常见启动方式为 `spawn`；
+- Linux 还可能使用 `fork`。
+- ❗多进程代码应使用 `if __name__ == "__main__":` 保护入口，避免子进程导入主模块时重复启动任务。
 
 ## 16.3 线程 Thread
 
-线程是进程内的执行单元。同一进程中的线程共享进程地址空间，因此共享数据方便，但也需要处理竞态条件。
+线程: 是进程内的执行单元。同一进程中的线程共享进程地址空间，因此共享数据方便，但也需要处理竞态条件(抢)❗。
 
 ```python
 import threading
@@ -62,9 +264,12 @@ lock = threading.Lock()
 counter = 0
 
 def work():
+    print(f"线程{i}开始工作")
     global counter
-    with lock:
+    with lock:  # 离开会自动解锁（异常也会解锁）
         counter += 1
+        print(f"线程{i}计数器增加到: {counter}")
+    print(f"线程{i}结束工作")
 
 threads = [threading.Thread(target=work) for _ in range(10)]
 
@@ -77,6 +282,8 @@ for thread in threads:
 
 线程适合 I/O 密集型任务，例如等待网络、磁盘、数据库响应。
 
+🔥 daemon 不是“守护别人”，而是“被进程绑定生死”
+
 ## 16.4 锁与同步原语
 
 | 原语                    | 作用                                 |
@@ -84,24 +291,42 @@ for thread in threads:
 | `Lock`                  | 互斥锁，同一时刻只允许一个线程持有   |
 | `RLock`                 | 可重入锁，同一线程可重复获取         |
 | `Semaphore`             | 信号量，限制同时访问某资源的任务数量 |
+| `Deadlock`              | 死锁，锁用错了，大家一起卡死         |
 | `Event`                 | 事件标志，用于通知等待方             |
 | `Condition`             | 条件变量，等待某个共享状态满足       |
 | `queue.Queue`           | 线程安全队列                         |
 | `multiprocessing.Queue` | 进程间队列                           |
 
-锁应使用上下文管理器：
+- 锁应使用上下文管理器：
 
-```python
-with lock:
-    # 临界区
-    ...
-```
+  ```python
+  with lock:
+      # 临界区
+      ...
+  ```
 
-死锁常见原因：多个锁获取顺序不一致、持锁等待另一个任务、异常路径没有正确释放锁等。降低风险的方法：统一锁顺序、缩小临界区、避免持锁执行慢 I/O、设置合理超时。
+- 死锁常见原因：多个锁获取顺序不一致、持锁等待另一个任务、异常路径没有正确释放锁等。
+
+  降低风险的方法：统一锁顺序、缩小临界区、避免持锁执行慢 I/O、设置合理超时。
+
+- Event 🆚 Condition 🆚 Semaphore:  
+  Event 管“开关”，Condition 管“条件 + 队列”，Semaphore 管“名额（配额）”
+  1. Event 👉 大门开/关（开了大家都能进）
+  2. Condition 👉 “有空位才叫你进”（带排队 + 唤醒机制）
+  3. Semaphore 👉 车位数量（最多 N 辆车能进）
+
+![python并发同步工具图Lock_RLock_Event_Semaphore_Condition](./img/python并发同步工具图Lock_RLock_Event_Semaphore_Condition.png)
+
+## 僵尸进程、孤儿进程（了解）
+
+僵尸进程: 孩子死了，父进程没“收尸”（必须处理）；  
+孤儿进程: 父进程死了，孩子还活着（被“init进程”接管）
 
 ## 16.5 GIL（全局解释器锁）
 
-在传统 GIL 构建的 CPython 中，同一进程内通常同一时刻只有一个线程执行 Python 字节码。因此：
+GIL（全局解释器锁）不是 Python 语言规范的一部分，而是 CPython 解释器的实现机制；
+
+在传统 GIL 构建的 CPython 中，同一进程内 通常同一时刻 只有一个线程执行 Python 字节码。因此：
 
 - 多线程适合 I/O 密集型任务。
 - CPU 密集型纯 Python 计算通常难以通过多线程实现多核并行，可考虑多进程或原生扩展。
@@ -111,22 +336,38 @@ with lock:
 ## 16.6 线程池与进程池
 
 ```python
-from concurrent.futures import ThreadPoolExecutor, ProcessPoolExecutor
+from concurrent.futures import ThreadPoolExecutor, ProcessPoolExecutor，as_completed
 
 def work(value):
     return value * 2
 
 with ThreadPoolExecutor(max_workers=5) as pool:
+    # -- map：批量、同函数、有序、简单 --------------
     results = list(pool.map(work, range(10)))
+    # -- submit：单个提交、可拿 Future、可做超时/回调/异常处理 ----------
+    futs = [pool.submit(work, i) for i in range(10)]
+    for f in futs:
+        print(f.result())   # 阻塞取结果；异常会在 result() 处抛出
+    # -- as_completed：谁先完成先处理 -------------------------------
+    futs = [pool.submit(work, i) for i in range(10)]
+    for f in as_completed(futs):
+        print(f.result())   # 完成顺序，非提交顺序
+
 ```
 
-- `ThreadPoolExecutor`：线程池，适合大量 I/O 等待任务。
-- `ProcessPoolExecutor`：进程池，适合 CPU 密集型任务。
-- `submit()` 返回 `Future`，可通过 `result()` 获取结果；`map()` 适合批量映射。
+- `ThreadPoolExecutor`：线程池，适合大量 I/O 等待任务（共享内存、切换开销小，注意竞争）；
+- `ProcessPoolExecutor`：进程池，适合 CPU 密集型任务（绕 GIL、真并行，需 pickle 与入口保护）。
+- `submit()` 返回 `Future`（未来），可通过 `result()` 获取结果；
+- map() 批量映射，结果有序，阻塞到全部完成，不支持 timeout。
+- as_completed()：按完成顺序处理。
+- with 退出时 shutdown(wait=True)，等待任务完成。
+
+submit、map、as_completed 这三个 API 对线程池和进程池完全通用，因为它们定义在共同的基类 Executor 上，ThreadPoolExecutor 和 ProcessPoolExecutor 都继承它
 
 ## 16.7 协程 Coroutine
 
-协程是一种可以暂停并在之后恢复执行的任务。`async def` 定义的函数调用后会产生协程对象；协程需要由事件循环等机制调度运行。
+协程：是一种可以暂停并在之后恢复执行的任务。
+`async def` 定义的函数调用后会产生协程对象；协程需要由事件循环等机制调度运行。
 
 ```python
 import asyncio
@@ -134,6 +375,14 @@ import asyncio
 async def work():
     await asyncio.sleep(1)
     return "done"
+
+# 任务执行
+#   ↓
+# 遇到 await（IO/等待）
+#   ↓
+# 主动让出控制权
+#   ↓
+# 事件循环去执行别的任务
 ```
 
 协程通常在单线程事件循环中协作式切换；它不等于线程，也不会自动让 CPU 密集计算并行。
@@ -141,6 +390,52 @@ async def work():
 ---
 
 # 17. asyncio 异步编程
+
+asyncio = 事件循环 + IO多路复用 + 协程调度
+
+🔥 核心执行流程（必须掌握）
+
+```bash
+   1. 事件循环: 调度 "协程" 开始执行
+   2. 协程 执行到 await reader.read()，❗数据未就绪
+      - 如果数据已经在缓冲区里，read() 可能直接返回, 不会走到第 3 步
+
+   3. asyncio: 把 socket 的 "读事件" 注册到 selector（epoll）
+
+   4. 协程挂起，让出 CPU，返回 pending Future
+
+   5. 事件循环(event loop): 继续跑 其他协程/回调/定时器 【没有任务则休眠】
+
+   6. 某一刻(收到数据): 内核 把“数据”放进 socket的缓冲区域，并检查 socket 是否被某个 epoll 实例关注
+      * 是：把 socket 放进 epoll实例 的就绪队列
+
+   7. epoll_wait() 返回就绪的fd(休眠的话，事件循环被唤醒)，拿到就绪 fd
+
+   8. 事件循环: 调用该 fd 的回调 → 读出数据 → future.set_result(data)
+
+   9. Future 完成触发回调，协程被重新排入就绪队列
+
+   10. 事件循环: 调度该协程恢复，await 返回数据，继续执行
+```
+
+一句话总结: await = “先挂起，等 IO 好了再回来继续”
+
+## 事件循环 与 线程休眠
+
+- 同一线程在不同时刻有两种状态：状态 A（睡眠）、状态 B（忙）；
+  1. 状态 A（睡眠）：就绪列表为空、也没有到期的定时器、就绪队列里没有待跑的协程时，事件循环调用 epoll_wait()，线程睡在内核里，不占 CPU。
+  2. 状态 B（忙）：epoll_wait() 返回后（有 fd 就绪，或超时到了），线程醒来，依次执行就绪 fd 的回调、就绪队列里的协程、到期的定时器。这时候它在跑你说的“其他回调、协程”。
+
+```text
+t0: 协程 A 执行到 await read()，数据没到 → 注册 socket 到 epoll → A 挂起
+t1: 就绪队列里还有协程 B、C → 事件循环执行 B、C（状态 B，忙）
+t2: B、C 也挂起了，就绪队列空了，没有到期定时器
+    → 事件循环调用 epoll_wait()，线程睡眠（状态 A）
+t3: socket 有数据，内核唤醒线程，epoll_wait() 返回
+t4: 事件循环恢复协程 A（状态 B，忙）
+```
+
+事件循环是个 while True，但循环体里大部分时间卡在 epoll_wait() 这个阻塞调用上。while True 不等于 CPU 忙，卡在阻塞系统调用里时 线程是睡眠的。你可以用 top 看一个纯 asyncio 空闲服务的 CPU 占用，接近 0%，就是因为它睡在 epoll_wait() 里。
 
 ## 17.1 生态关系
 
@@ -152,7 +447,7 @@ AnyIO（兼容 asyncio / Trio 等异步后端的抽象层）
 Starlette / FastAPI 等框架可通过 AnyIO 等机制管理异步任务
 ```
 
-不能简单说 FastAPI、Starlette、HTTPX 的所有异步底层都“完全依赖 AnyIO”；不同库、版本和执行路径的实现有所区别。AnyIO 的价值是提供统一的异步并发抽象。
+AnyIO 的价值是提供统一的异步并发抽象。
 
 ## 17.2 最小可用模板
 
@@ -271,39 +566,45 @@ result = await asyncio.to_thread(blocking_function, arg)
 
 ## 18.2 五种经典 I/O 模型
 
-| 模型         | 核心行为                           | 应用程序是否还要 `recv/read`               |
-| ------------ | ---------------------------------- | ------------------------------------------ |
-| 阻塞 I/O     | 调用等待数据就绪，之后等待拷贝完成 | 是                                         |
-| 非阻塞 I/O   | 数据未就绪时立即返回，应用反复尝试 | 是                                         |
-| I/O 多路复用 | 内核监视多个 fd，通知哪些 fd 就绪  | 是                                         |
-| 信号驱动 I/O | 数据就绪时通过信号通知应用         | 通常是                                     |
-| 异步 I/O     | 应用提交请求，内核完成 I/O 后通知  | 典型完成模型中不需要再主动执行同一读取操作 |
+| 模型         | 核心行为                             | 应用程序是否还要 `recv/read`               |
+| ------------ | ------------------------------------ | ------------------------------------------ |
+| 阻塞 I/O     | 调用等待数据就绪，之后等待拷贝完成   | 是                                         |
+| 非阻塞 I/O   | 数据未就绪时立即返回，应用`反复尝试` | 是                                         |
+| I/O 多路复用 | 内核监视多个 fd，通知哪些 fd 就绪    | 是                                         |
+| 信号驱动 I/O | 数据就绪时通过信号通知应用           | 通常是                                     |
+| 异步 I/O     | 应用提交请求，内核完成 I/O 后通知    | 典型完成模型中不需要再主动执行同一读取操作 |
 
 这里的“异步 I/O”是经典 I/O 模型语境下的概念，不要与 Python `async def` 直接画等号。
 
-## 18.3 select、poll、epoll
+## 18.3 select 、poll、epoll
 
-- `select`：使用集合描述要监视的 fd，存在平台相关的数量限制；每次调用通常需要重新传入并扫描集合。
-- `poll`：使用 pollfd 数组，缓解了传统 `select` 的 fd 数量限制，但仍需要遍历检查就绪项。
-- `epoll`：Linux 提供的 I/O 事件通知机制，适合大量连接场景；通过内核维护关注集合和就绪事件，减少无效扫描。
+❗演进链路: 阻塞 → select → poll → epoll → 事件循环 → asyncio
+
+- `select`：使用"集合"描述要监视的 fd，存在平台相关的 “数量限制”；每次调用通常需要重新传入并扫描集合；
+- `poll`：使用 pollfd 数组，缓解了传统 `select` 的 fd 数量限制，但仍需要遍历检查就绪项；
+- `epoll`：Linux 提供的 I/O 事件通知机制，适合大量连接场景；通过内核维护关注 集合和就绪事件，减少无效扫描；
 
 `epoll` 通知的是**就绪（ready）**：某个 fd 现在可以尝试读/写；应用仍需调用 `recv()` / `send()` 完成相应操作。它通常归入同步 I/O 多路复用，而不是内核替应用完成全部数据拷贝的异步 I/O。
 
-## 18.4 同步/异步与阻塞/非阻塞是两个维度
+1. select【每次全量扫描，数量限制】
+2. poll【每次全量扫描，无数量限制】
+3. epoll【内核维护，事件通知】
+
+## 18.4 同步/异步 、 阻塞/非阻塞 是两个维度
 
 - **阻塞/非阻塞**：描述调用是否会让当前线程等待。
 - **同步/异步**：描述 I/O 操作由谁推进、何时以何种方式通知完成。
 
 典型理解：
 
-- epoll：等待事件时，线程可能阻塞在 `epoll_wait()`；收到 ready 后，应用主动 `recv()`，属于 I/O 多路复用/同步 I/O。
+- epoll：等待事件时，线程可能阻塞在 `epoll_wait()`；收到 ready 后，应用主动 `recv()`，属于 I/O 多路复用、同步 I/O。
 - 典型异步 I/O：应用提交请求，内核完成操作后通知 completion。
 
 因此“非阻塞 I/O 就是异步 I/O”是错误的。
 
 ## 18.5 Reactor 与 Proactor
 
-- **Reactor**：关注事件就绪；事件发生后由应用执行读写处理。常与 `select`、`poll`、`epoll` 组合。
+- **Reactor**：关注事件就绪；事件发生后，由应用执行读写处理。常与 `select`、`poll`、`epoll` 组合。
 - **Proactor**：应用先提交异步 I/O 请求，由系统完成操作，再通知应用结果。
 
 ## 18.6 asyncio 与事件循环
@@ -330,7 +631,7 @@ await 等待网络 I/O
 
 ## 18.7 用户态、内核态、DMA 与零拷贝
 
-- 用户态程序通过系统调用请求内核执行文件、网络等操作。
+- 用户态：程序通过系统调用请求内核执行文件、网络等操作。
 - 用户态/内核态切换有成本，但不是每次切换都等价于一次完整的线程上下文切换。
 - DMA 允许设备在 DMA 控制器协助下与内存传输数据，减少 CPU 逐字节搬运。
 - 零拷贝是一类减少数据复制和用户态参与的技术，不代表所有路径完全没有数据复制。
