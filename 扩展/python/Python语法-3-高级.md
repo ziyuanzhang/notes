@@ -444,7 +444,7 @@ for thread in threads:
   2. Condition 👉 “有空位才叫你进”（带排队 + 唤醒机制）
   3. Semaphore 👉 车位数量（最多 N 辆车能进）
 
-![python并发同步工具图Lock_RLock_Event_Semaphore_Condition](./img/python并发同步工具图Lock_RLock_Event_Semaphore_Condition.png)
+![python语法_并发同步工具图Lock_RLock_Event_Semaphore_Condition](./img/python语法_并发同步工具图Lock_RLock_Event_Semaphore_Condition.png)
 
 ## 僵尸进程、孤儿进程（了解）
 

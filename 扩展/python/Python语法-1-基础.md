@@ -816,8 +816,8 @@ print(counter())  # 2
 
 常见用途：保存状态、延迟执行、装饰器、函数工厂。
 
-![Python_闭包1](./img/Python_闭包1.png)
-![Python_闭包2](./img/Python_闭包2.png)
+![Python语法_闭包1](./img/Python语法_闭包1.png)
+![Python语法_闭包2](./img/Python语法_闭包2.png)
 
 ---
 
