@@ -2648,8 +2648,7 @@ priority.put((1, "高优先级任务"))
 print(priority.get())          # (1, '高优先级任务')
 ```
 
-`PriorityQueue`
-默认按元素比较顺序取出最小项，因此数值越小越先出队。若优先级相同且任务对象不可比较，可加入递增序号作为第二排序字段：
+`PriorityQueue` 默认按元素比较顺序取出最小项，因此数值越小越先出队。若优先级相同且任务对象不可比较，可加入递增序号作为第二排序字段：
 
 ``` python
 from itertools import count

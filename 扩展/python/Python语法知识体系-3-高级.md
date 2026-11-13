@@ -929,6 +929,29 @@ await 等待网络 I/O
 37. **“`__import__()` 是推荐的动态导入方式”**：不推荐。通常使用 `importlib.import_module()`。
 38. **“`locals()` 返回字典，修改它就能可靠修改函数局部变量”**：不可靠。不要依赖修改 `locals()` 的结果来改变优化过的函数局部变量。
 
+39. **Queue 不是简单固定的 `Pipe + Lock`。** `multiprocessing.Queue`
+    的内部实现还涉及缓冲、后台 feeder
+    thread、序列化、同步原语等；实现细节不应当当成跨版本 API 契约。
+40. **Pipe 不是"不安全"。**
+    正常的一对一端点通信可以安全使用；多个进程同时操作同一个连接端点时，需要自行同步。
+41. **`empty()` / `qsize()` 不能用于并发正确性判断。**
+    它们在多进程环境下可能不可靠，不应采用"先判断非空，再
+    get"的竞态写法。
+42. **GIL 不是 Python 语言规范。** 它是传统 CPython
+    构建的实现机制；不能用 GIL 代替业务锁。
+43. **`async def` 不代表函数内部所有操作都是非阻塞。** 同步
+    I/O、`time.sleep()`、CPU 密集代码仍可能阻塞事件循环。
+44. **`asyncio.Queue` 不是线程安全队列。** 不要跨线程随意调用它的常规
+    API。
+45. **`subprocess.PIPE` 与 `multiprocessing.Pipe` 不同。**
+    前者重定向子进程标准流，后者是多进程连接对象。
+46. **pickle 不可信数据反序列化有代码执行风险。** 不应从不可信来源加载
+    pickle。
+47. **Python 字符串是 Unicode 文本，bytes 是字节序列。**
+    编码/解码是两者之间的转换，不是字符串本身的属性。
+48. **"Pipe 一定比 Queue 快"不是可靠结论。**
+    性能需要按消息大小、并发度和负载测量。
+
 ---
 
 # 21. 建议学习顺序
@@ -1029,3 +1052,24 @@ Python
 ```
 
 > 学习主线：先理解 Python 如何表示对象、查找名字和执行函数，再理解如何组织程序；最后学习网络 I/O 与并发。这样后续学习 FastAPI、SQLAlchemy、HTTPX、LangChain/LangGraph 等框架时，会更容易看懂其底层机制。
+
+# 补充概念与内容取舍
+
+## 递归
+
+递归函数会调用自身，必须有明确的终止条件：
+
+```python
+  import sys;
+  sys.getrecursionlimit() # ==> 1000 获取递归深度
+  sys.setrecursionlimit(2000) # 设置递归深度
+  # ---------------------------------------------
+   def factorial(n: int) -> int:
+       if n < 0:
+           raise ValueError("n 必须非负")
+       if n <= 1:
+           return 1
+       return n * factorial(n - 1)
+```
+
+Python不保证尾递归优化，递归层数过深会触发递归深度限制。处理深层数据或大规模任务时，优先考虑显式栈/循环，避免简单地调高递归限制。
