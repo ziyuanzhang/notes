@@ -1779,38 +1779,33 @@ Whistle 官方文档：<https://wproxy.org/whistle/>
 
 # 15. Python 网络编程生态
 
+![Python_网络编程生态全景图](./img/Python_网络编程生态全景图.png)
+
 ## 15.1 先建立层级关系
 
 Python 网络编程不是一堆平级库，而是不同抽象层的工具。
 
-```text
-业务框架层
-  FastAPI / Flask / Django
-        ↓
-应用服务器接口层
-  ASGI / WSGI
-        ↓
-服务端运行层
-  Uvicorn / Gunicorn（常见组合）
-        ↓
-HTTP 协议实现层
-  h11 / httptools 等（依具体实现）
-        ↓
-异步运行时 / I/O 调度
-  asyncio
-        ↓
-Socket API
-  socket
-        ↓
-操作系统网络协议栈
-  TCP / UDP / IP
-        ↓
+```bash
+业务框架层:  FastAPI / Flask / Django
+     ↓
+应用服务器接口层:  ASGI / WSGI
+     ↓
+服务端运行层:  Uvicorn / Gunicorn（常见组合）
+     ↓
+HTTP 协议实现层:  h11 / httptools 等（依具体实现）
+     ↓
+异步运行时、I/O 调度:  asyncio
+     ↓
+Socket API:  socket
+     ↓
+操作系统网络协议栈:  TCP / UDP / IP
+     ↓
 网卡与网络
 ```
 
 客户端工具是另一条分支：
 
-```text
+```bash
 业务代码
   ↓
 requests / httpx / aiohttp
@@ -1842,6 +1837,8 @@ Socket / TLS / asyncio（按实现与使用方式）
 
 ## 15.3 socket：底层网络接口
 
+socket、socketserver、urllib、http.server: 这些更多是：教学、底层框架开发、特殊协议
+
 适合学习 TCP/UDP、实现简单协议、理解连接和数据收发。
 
 不适合直接承担复杂 HTTP 业务，除非明确需要自己实现协议细节。
@@ -1871,7 +1868,7 @@ Socket / TLS / asyncio（按实现与使用方式）
 
 ### httpx
 
-- 同时提供同步和异步客户端。
+- 同时提供 同步和异步 客户端。
 - 支持连接池、超时、HTTP/1.1 和 HTTP/2（需按依赖与配置确认）。
 - 适合 FastAPI 服务调用外部 API。
 
@@ -1921,7 +1918,7 @@ FastAPI
 Uvicorn 编码 HTTP 响应并发送
 ```
 
-FastAPI 并不直接负责 TCP 三次握手；连接管理和底层网络 I/O 主要由操作系统与 ASGI 服务器承担。
+FastAPI 并不直接负责 TCP 三次握手；连接管理和底层网络 I/O 主要由 操作系统与 ASGI 服务器承担。
 
 ## 15.7 Python 后端开发的推荐掌握顺序
 
