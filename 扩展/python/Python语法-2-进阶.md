@@ -503,7 +503,7 @@ def task():
 
 离函数最近的装饰器先应用，外层装饰器再包装内层结果。
 
-![python语法_装饰器(多个)-传统执行流程](./img/python语法_装饰器(多个)-传统执行流程.png)
+![python语法_装饰器(多个)-传统执行流程](<./img/python语法_装饰器(多个)-传统执行流程.png>)
 
 ## 10.4 带参数的装饰器
 
@@ -883,6 +883,8 @@ print(result.stdout)
 
 # 15. 网络编程基础
 
+<img src="./img/网络_socket套接字工作流程.png" alt="网络_socket套接字工作流程" width=800/>
+
 ## 15.1 网络分层与 socket
 
 Socket 是应用程序进行网络通信时常用的编程接口。它不是 TCP 本身，而是操作系统提供的网络通信抽象。
@@ -896,6 +898,10 @@ Socket 是应用程序进行网络通信时常用的编程接口。它不是 TCP
         ↓
 链路层与物理网络
 ```
+
+<img src="./img/网络_五层协议.png" alt="网络_socket层" width=800 />
+
+<img src="./img/网络_socket层.png" alt="网络_socket层" width=800 />
 
 ## 15.2 TCP 与 UDP
 
