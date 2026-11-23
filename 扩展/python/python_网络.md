@@ -4,9 +4,9 @@
 
 ## 目录
 
-1.  [socket 是一切网络编程基础](#一socket-是一切网络编程基础)
-2.  [Python 网络编程生态](#二python-网络编程生态)
-3.  [一次网络请求，从“你点一下按钮”到“页面拿到响应”到底经历了什么？](#三一次网络请求从你点一下按钮到页面拿到响应到底经历了什么)
+1. [socket 是一切网络编程基础](#一socket-是一切网络编程基础)
+2. [Python 网络编程生态](#二python-网络编程生态)
+3. [一次网络请求，从“你点一下按钮”到“页面拿到响应”到底经历了什么？](#三一次网络请求从你点一下按钮到页面拿到响应到底经历了什么)
 
 ---
 
@@ -31,22 +31,24 @@
 Python 网络编程不是一堆平级库，而是不同抽象层的工具。
 
 ```bash
-业务框架层:  FastAPI / Flask / Django
+【应用层】业务框架: FastAPI / Flask / Django
+     ↓ (遵循)
+【接口规范层】ASGI / WSGI (Python 内部接口标准，非网络协议)
+     ↓ (实现)
+【服务器层】Uvicorn / Gunicorn (负责网络通信与进程管理)
+     ↓ (依赖)
+【协议与运行时层】HTTP 解析 (h11/httptools) + 异步事件循环 (asyncio/uvloop)
+     ↓ (调用)
+【系统层】Socket API (操作系统网络接口)
      ↓
-应用服务器接口层:  ASGI / WSGI
+【网络层】TCP / IP
      ↓
-服务端运行层:  Uvicorn / Gunicorn（常见组合）
-     ↓
-HTTP 协议实现层:  h11 / httptools 等（依具体实现）
-     ↓
-异步运行时、I/O 调度:  asyncio
-     ↓
-Socket API:  socket
-     ↓
-操作系统网络协议栈:  TCP / UDP / IP
-     ↓
-网卡与网络
+  网卡与网络
 ```
+
+ASGI 是标准规范，Uvicorn 是遵循该规范的网络服务器，FastAPI 是基于该规范编写的 Web 框架。
+
+FastAPI 负责“想”（业务逻辑），Uvicorn 负责“说和听”（网络通信），而 ASGI 则是它们之间沟通的“语言”（接口规范）。
 
 客户端工具是另一条分支：
 
@@ -140,7 +142,7 @@ async def get_user():
 它们不是同一层：
 
 - FastAPI：Web 应用框架，定义路由、依赖、校验和业务接口。
-- ASGI：异步 Python Web 服务器与应用之间的接口规范。
+- ASGI：异步 Python Web 服务器与应用之间的 “接口规范”。
 - Uvicorn：ASGI 服务器，负责接收网络请求并调用 ASGI 应用。
 - asyncio：常用异步运行时。
 - Socket：操作系统网络通信接口。
@@ -148,22 +150,82 @@ async def get_user():
 关系：
 
 ```text
-浏览器
-  ↓ HTTP
-操作系统 Socket
-  ↓
-Uvicorn
-  ↓ ASGI scope / receive / send
-FastAPI
-  ↓
-路由、依赖、业务逻辑
-  ↓
-响应通过 ASGI 返回
-  ↓
-Uvicorn 编码 HTTP 响应并发送
+【客户端与网络层】
+    浏览器 / 客户端
+      ↓ HTTP 请求
+    操作系统 Socket (TCP/IP 协议栈)
+      ↓
+
+【ASGI 服务器层：Uvicorn 接收与解析】
+    Uvicorn 接收数据
+      ↓
+    解析 HTTP 报文 (提取请求行、请求头、请求体等)
+      ↓
+    构造 ASGI 对象 (Scope 元信息 / Receive 接收函数 / Send 发送函数)
+      ↓
+
+【Web 框架层：FastAPI 请求处理】
+    FastAPI 接收 ASGI 对象
+      ↓
+    中间件链 (前置处理，如日志、CORS、鉴权等)
+      ↓
+    路由匹配 (URL 映射)
+      ↓
+    解析请求数据 (Path / Query / Header / Cookie / Body)
+      ↓
+    依赖注入 (解析并注入所需依赖项)
+      ↓
+    请求数据校验 (基于 Pydantic 进行数据清洗与验证)
+      ↓
+    执行 Endpoint / 业务逻辑
+      ↓
+
+【响应处理与返回层】
+    响应模型处理与序列化 (Python 对象转 JSON 等格式)
+      ↓
+    中间件链 (后置处理，洋葱模型反向执行)
+      ↓
+    通过 ASGI Send 事件将响应传回 Uvicorn
+      ↓
+
+【网络层：Uvicorn 发送与客户端接收】
+    Uvicorn 编码 HTTP 响应 (生成标准 HTTP 响应字节流)
+      ↓
+    操作系统 Socket 将数据发送给客户端
+      ↓
+    浏览器 / 客户端接收并展示结果
 ```
 
+ASGI 是标准规范，Uvicorn 是遵循该规范的网络服务器，FastAPI 是基于该规范编写的 Web 框架。  
+FastAPI 负责“想”（业务逻辑），Uvicorn 负责“说和听”（网络通信），而 ASGI 则是它们之间沟通的“语言”（接口规范）。
+
 FastAPI 并不直接负责 TCP 三次握手；连接管理和底层网络 I/O 主要由 操作系统与 ASGI 服务器承担。
+
+注意：数据库查询、外部 HTTP 请求、文件操作等阻塞行为如果放在错误的执行模型中，可能拖慢整个服务。异步函数中调用同步阻塞 I/O，并不会自动变成异步。
+
+### 数据库与缓存也是网络服务
+
+应用访问 PostgreSQL、MySQL、Redis 等，通常也是一次网络通信：
+
+```text
+FastAPI 业务代码
+  ↓
+数据库驱动 / Redis 客户端
+  ↓
+连接池
+  ↓
+TCP Socket
+  ↓
+数据库 / Redis 服务端
+```
+
+需要理解：
+
+- 数据库端口和网络访问控制。
+- 连接池大小、连接生命周期与超时。
+- 查询耗时、网络往返次数和事务边界。
+- 数据库连接不是 HTTP 请求连接。
+- 连接池应在应用生命周期中管理，避免每个请求重复创建连接。
 
 ### 2.7 Python 后端开发的推荐掌握顺序
 
