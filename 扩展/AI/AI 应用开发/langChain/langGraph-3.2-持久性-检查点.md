@@ -24,6 +24,10 @@ Checkpointer 不是简单地把对话保存到数据库，而是保存“图执�
 | Checkpointer | 负责读写检查点的组件       | 持久化适配器               |
 | Writes       | 节点执行产生的中间写入记录 | 便于故障恢复的执行记录     |
 
+- Checkpoint VS Checkpointer
+  - Checkpoint（检查点）：状态快照；是记录下来的“存档点”
+  - Checkpointer（检查点保存器）：管理工具；是管理这些存档的系统
+
 1. Super-step 不是一个节点（node），也不是固定执行一次模型调用，而是 LangGraph 调度图执行时的一个“执行轮次”。
 
    一个 super-step 可以执行一个节点，也可以并行执行多个节点。它的分界主要由 `图的调度与节点执行状态` 决定，而不是由你手动数代码行数决定。
