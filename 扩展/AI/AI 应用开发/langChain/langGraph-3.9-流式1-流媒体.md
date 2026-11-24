@@ -279,6 +279,8 @@ for part in graph.stream(
 
 🔥 重要边界： messages 只负责流式暴露 LLM 消息，不负责自动将 Tool 调用、业务进度或任意 Python 函数输出转换为 Token。
 
+工具调用参数也可能是增量的（3.10 的 message.tool_calls），但工具执行进度、工具结果需要 custom 事件或 Event Streaming 的 tools 投影。
+
 ### 6.3 custom：开发者自定义事件
 
 ```python

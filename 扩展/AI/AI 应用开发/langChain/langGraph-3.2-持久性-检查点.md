@@ -36,10 +36,12 @@ Checkpointer 不是简单地把对话保存到数据库，而是保存“图执�
    super-step 的数量取决于实际执行路径，不是图上有多少条边，也不是节点总数。
 
 2. Checkpoint vs Writes
-   - Checkpoint: 保存某个 super-step 边界上的”完整状态快照“。
+   - Checkpoint: 保存某个 super-step 边界上的”完整状态(State)快照“。
+   - ❗Checkpoint 在逻辑上代表某个 super-step 边界上的完整 State；物理存储可能是全量也可能是增量，取决于 Checkpointer 实现。
    - Writes: 保存同一轮中 “已经成功执行的节点“ 状态更新记录，供当前执行过程恢复使用。
    - Writes 不等于新的完整状态快照，它是 LangGraph 自己的节点级写入记录，能够帮助恢复时 避免重复运行已经成功的节点。
    - Writes 的保留、关联及清理由 Checkpointer 的具体实现和执行恢复机制决定，不能简单认为所有 Writes 都会永久保留，也不能认为每个新节点都会覆盖上一条。
+   - ❗Writes 解决“图内已成功节点不重复跑”；外部副作用仍需幂等键、补偿、事务或人工确认。
    - 新节点产生新的写入记录，不等于覆盖旧记录；但旧 Writes 是否继续保留，要看其生命周期和 Checkpointer 的实现。
 
    | 对比项               | Writes                         | Checkpoint               |
@@ -51,7 +53,7 @@ Checkpointer 不是简单地把对话保存到数据库，而是保存“图执�
    | 核心作用             | 避免已成功节点重复执行         | 恢复某个执行边界上的状态 |
 
    Checkpoint 解决“恢复时，整个图的状态是什么”；Writes 解决“当前这轮中，哪些节点已经成功做完，它们的结果是什么”【存在并行情况】。
-   核心区别: Checkpoint 记录完整状态；Writes 记录 节点执行过程中 已经成功完成的写入，以支持恢复。
+   核心区别: Checkpoint 记录完整状态(State)；Writes 记录 节点执行过程中 已经成功完成的写入，以支持恢复。
 
 ### 1.2 为什么会不断产生检查点？
 

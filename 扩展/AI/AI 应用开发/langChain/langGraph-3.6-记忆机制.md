@@ -113,6 +113,8 @@ Long-term Memory = Store + Namespace + Key + Value
 
   ❗Store 检索到数据，不代表 LLM 自动就能看到数据。开发者需要将检索结果注入模型输入。
 
+  Store 只提供存取能力，检索结果必须由开发者注入模型上下文。
+
 - 保存记忆
 
   ```python
@@ -296,12 +298,7 @@ checkpointer.delete_thread(thread_id) # 这表示删除指定 Thread 的检查�
 
 注意：❗delete_thread 删除的是该 Thread 的短期持久化数据，不是 Store 中该用户的长期记忆。
 
-如果用户要求注销账号或清除全部个人数据，必须分别处理：
-
-- Checkpointer 中的 Thread 数据。
-- Store 中的用户记忆。
-- 其他业务数据库。
-- 向量索引及相关缓存。
+用户注销/数据删除需要分别处理：Checkpointer 的 Thread 数据、Store 的用户记忆、业务数据库、向量索引、缓存、日志/审计中的副本。delete_thread 只是其中一环。
 
 ## 九、对比：Short-term、Long-term、Checkpoint、Store、Summary
 

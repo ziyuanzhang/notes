@@ -211,6 +211,8 @@ Subgraph 的持久化分成三种模式:
 - Per-thread 子图通过 checkpointer=True 开启跨调用状态积累。
 - Stateless 子图通过 checkpointer=False 禁用检查点。
 
+子图的持久化行为依赖父图编译时配置了 Checkpointer；父图没有 Checkpointer，子图的 True/None 语义都会受影响。Per-thread 子图在同一节点内并行调用可能产生 Checkpoint Namespace 冲突。
+
 ### 6.6 状态检查与调试
 
 ```python
