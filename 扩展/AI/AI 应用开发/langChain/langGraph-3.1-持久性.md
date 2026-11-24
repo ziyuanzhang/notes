@@ -6,6 +6,10 @@
   1. Checkpointer 保存一次对话线程的图状态，
   2. Store 保存跨线程长期使用的数据。两者解决不同的问题，生产系统通常可以同时使用。
 
+- Checkpoint VS Checkpointer
+  - Checkpoint（检查点）：状态快照(数据)；是记录下来的“存档点”
+  - Checkpointer（检查点管理器、持久化器）：管理工具(存取数据的组件)；是管理这些存档的系统
+
 ## 一、概念理解：LangGraph 的 Persistence 主要解决四类问题
 
 1. 对话连续性: 通过 thread_id 找回同一对话线程之前的状态。

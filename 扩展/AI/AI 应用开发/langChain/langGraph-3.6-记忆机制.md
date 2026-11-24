@@ -65,11 +65,11 @@ Long-term Memory = Store + Namespace + Key + Value
 
 与 Checkpointer 不同，Store 不保存整个 Graph State，而是保存开发者定义的数据。
 
-| 字段      | 作用         | 示例                   |
-| --------- | ------------ | ---------------------- |
-| namespace | 数据分组     | user_123/memories      |
-| key       | 数据唯一标识 | 1                      |
-| value     | 实际记忆内容 | User prefers dark mode |
+| 字段      | 作用         | 示例                                                  |
+| --------- | ------------ | ----------------------------------------------------- |
+| namespace | 数据分组     | user_123/memories                                     |
+| key       | 数据唯一标识 | 1                                                     |
+| value     | 实际记忆内容 | 可序列化 dict【{"memory": "User prefers dark mode"}】 |
 
 ```bash
    Store
@@ -120,7 +120,7 @@ Long-term Memory = Store + Namespace + Key + Value
       namespace, # 1、指定用户 Namespace。
       str(uuid7()), # 2、生成一个唯一 Key。
       {
-          "data": "User prefers dark mode" # 3、将记忆内容写入 Value。
+          "data": "User prefers dark mode" # 3、将记忆内容写入 Value。 {"memory": "User prefers dark mode"}
       }
   )
   ```
@@ -198,13 +198,9 @@ def delete_messages(state):
     # -- 删除最早的两条：----------------------------------
     # 并不是简单地把列表覆盖掉。它会通过消息 ID 找到对应消息并执行删除。
     if len(messages) > 2:
-        return {
-            "messages": [RemoveMessage(id=m.id) for m in messages[:2]]
-        }
+        return { "messages": [RemoveMessage(id=m.id) for m in messages[:2]] }
     # -- 删除全部消息：------------------------------------
-        return {
-            "messages": [RemoveMessage(id=REMOVE_ALL_MESSAGES)]
-        }
+    return { "messages": [RemoveMessage(id=REMOVE_ALL_MESSAGES)] }
 ```
 
 ### 7.3 Summarize Messages：总结消息

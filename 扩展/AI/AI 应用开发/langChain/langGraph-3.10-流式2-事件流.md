@@ -26,7 +26,7 @@ Event Streaming 不是另一套 Agent 执行引擎，也不是模型本身的流
 
 ## 二、层级关系：整个 Streaming 系统是怎样组织的？
 
-<img src="./img/langGraph-3.10-流式2-事件流-整个 Streaming 系统.png" alt="langGraph-3.10-流式2-事件流-整个 Streaming 系统" width=800 />
+<img src="./img/langGraph-3.10-流式2-事件流-整个Streaming系统.png" alt="langGraph-3.10-流式2-事件流-整个Streaming系统" width=800 />
 
 Graph 执行 → 原始事件 → 事件路由 → Transformer 转换 → 类型化投影 → 应用消费
 
@@ -206,10 +206,10 @@ await asyncio.gather(
 
 ```python
 from langgraph.types import Command
-from langgraph.checkpoint.memory import MemorySaver
+from langgraph.checkpoint.memory import InMemorySaver
 
 # 1. 编译图时必须挂载 checkpointer
-checkpointer = MemorySaver()
+checkpointer = InMemorySaver()
 graph = builder.compile(checkpointer=checkpointer)
 
 # 2. 首次调用：必须传入带 thread_id 的 config
@@ -287,9 +287,3 @@ Event Streaming 可以告诉应用程序：
 7. 应用层：实现 UI、进度条、工具活动、日志、审计、权限与远程推送。
 
 实时观察、状态持久化、历史审计和远程传输是不同职责。要构建自主可控的 Agent 平台，需要将它们通过明确的接口组合起来，而不是把所有能力都寄托在一个 Streaming API 上。
-
-##
-
-1. Python的构成（需要整体了解），现在的教程都是从变量开始，没有全局观念；
-2. 有哪些标准库，都是干什么的；
-3. 哪些标准库是常用的？哪些是不常用的？哪些是被淘汰的？

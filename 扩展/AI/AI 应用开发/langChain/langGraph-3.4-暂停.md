@@ -50,6 +50,8 @@ def approval_node(state):
 第一次执行会打印: 执行前置逻辑；
 恢复执行时，print("执行前置逻辑") 还会再次运行，然后 Runtime 才会将恢复值交给 interrupt()。任何写在中断点之前的代码，都要考虑重复执行的可能。
 
+🔥interrupt() 的暂停本质是抛出 GraphInterrupt 异常并由 Checkpointer 记录，恢复时 Runtime 重放该节点——所以节点内 interrupt() 之前的所有代码都会再跑一遍。这是「副作用要幂等」的根因
+
 ### 4.1 Checkpoint VS Writes 保存什么？
 
 State: 图当前的业务状态，例如 approved、action_details。
@@ -134,6 +136,10 @@ result = graph.invoke(
 )
 
 print(result["__interrupt__"]) # 从默认 invoke() 结果中读取中断信息
+# result["__interrupt__"] 是默认 v1 返回结构；启用 version="v2" 后改用 result.interrupts 读取中断、result.value 读取业务输出」。两代 API 不要混用。
+
+
+
 
 # 恢复执行: 模拟人工批准
 result = graph.invoke(
@@ -309,7 +315,7 @@ FastAPI 审批接口
 - Checkpointer 保存恢复所需的图执行状态，而不是冻结整个 Python 进程。
 - thread_id 定位原来的执行线程，恢复时必须使用正确的 ID。
 - Command(resume=...) 将外部响应交还给中断点，使节点能够继续执行。
-- 恢复时节点从头运行，所以中断前的代码、数据库写入和外部副作用都需要考虑重复执行。
+- 恢复时`节点`从头运行(不是整个图)，所以中断前的代码、数据库写入和外部副作用都需要考虑重复执行。
 - 并行中断需要正确匹配响应，类型化 Schema 也不能替代身份认证和业务授权。
 - LangSmith 是可选的观测与调试平台，核心的暂停、持久化与恢复可以由你自己的应用架构承载。
 
