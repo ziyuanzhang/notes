@@ -190,7 +190,15 @@ await asyncio.gather(
 
 ## 六、原始事件：当内置投影不够用时
 
+内置投影（messages/values/subgraphs/output）覆盖不了的场景，可消费原始事件层——遍历 stream 得到规范化 ProtocolEvent（含 seq / method / namespace / data），自行解析。适合：自定义埋点、非标准工具事件、细粒度时序对齐。代价：放弃投影的便利、需自己维护解析与版本兼容。
+
 ## 七、StreamTransformer：如何把底层事件加工成业务能力？
+
+Transformer 是「事件的观察 + 加工器」，职责是把原始 ProtocolEvent 累计成自定义业务投影（如「已检索 N 篇文档」「进度 60%」「工具失败重试第 2 次」）。
+
+三要点：① 只观察、不回调运行时改变下一步执行；② 可维护内部状态（计数器/文本缓冲）；③ 可决定抑制某原始事件不对外发。
+
+自定义事件需自行设计数据结构，并通过 extensions 投影暴露给应用。
 
 ## 八、把 Streaming 与 Interrupt、Checkpoint、Store 联系起来
 

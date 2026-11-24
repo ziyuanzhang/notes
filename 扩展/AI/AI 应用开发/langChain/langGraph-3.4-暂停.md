@@ -226,7 +226,12 @@ result = graph.invoke(
 )
 ```
 
+interrupt(payload, response_schema=Model) 中 schema 只做`结构/类型校验`，不做`授权`：  
+校验「恢复输入长什么样」，不校验「这个人有没有权批准」。授权必须在外部审批 API（RBAC）完成。
+
 ### 6.2 多个 Interrupt: 一个节点可以问多个问题
+
+一个节点多次 interrupt()：每次都是独立中断，需逐个 resume；可用 stream.interrupts 列出全部待响应项。
 
 ### 6.3 并行 Interrupt: 多个分支同时等待审批
 
@@ -242,9 +247,11 @@ resumed = graph.stream_events(
 )
 ```
 
-并行分支的核心问题是响应与中断的对应关系，而不是响应的数量。
+并行分支的核心问题：是响应与中断的对应关系，而不是响应的数量。
 
 ### 6.4 中断可以放进 Tool 内部
+
+「中断放进 Tool 内部」：可在工具函数内调用 interrupt() 做工具级人工审批；此时审批发生在工具执行边界，恢复时同样重跑该工具调用——外部副作用仍需幂等。
 
 ## 七、能力边界: 哪些地方最容易出问题？
 

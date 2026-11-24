@@ -284,9 +284,22 @@ extract_memories_with_llm() 需要自行实现的模型调用逻辑，并不是 
 
 ## 六、能力边界：Store 能做什么，不能做什么？
 
+- 能做：跨线程 key-value 存取；前缀 namespace 检索；可选语义（向量）检索；异步 aput/aget/asearch 接口。
+- 不能做：自动判断信息是否值得记、自动去重/过期、自动权限校验、自动把对话转成长期记忆、自动删除备份与索引。
+
+一句话：Store 是「带命名空间的持久 KV + 可选语义检索」，不是「记忆管理系统」。
+
 ## 七、对比：不同 Store 后端怎么选？
 
-InMemoryStore、PostgresStore、MongoDBStore、RedisStore 和 UpstashStore 等实现。
+| 后端                      | 定位                               | 适用                 |
+| ------------------------- | ---------------------------------- | -------------------- |
+| InMemoryStore             | 进程内存、重启即失                 | 开发/单测            |
+| PostgresStore             | 生产主流，配 pgvector 支持语义检索 | 自托管、跨重启       |
+| RedisStore / UpstashStore | 低延迟、可配向量（RediSearch）     | 高频读写、缓存型记忆 |
+| MongoDBStore              | 文档型、灵活 schema                | 已有 Mongo 技术栈    |
+| 自定义 BaseStore          | 实现接口接入自有存储               | 强合规/特殊存储      |
+
+选择三问：① 要不要跨重启？（要就别用 InMemory）② 要不要语义检索？（要就选支持向量索引的后端）③ 数据归属与迁移成本是否可控？
 
 - 开发阶段：InMemoryStore
 - 需要更高控制权：自定义 BaseStore
@@ -305,3 +318,7 @@ InMemoryStore、PostgresStore、MongoDBStore、RedisStore 和 UpstashStore 等�
 学习阶段先掌握 LangGraph 原生 Store 接口；生产架构优先明确数据归属和迁移路径，再决定是否采用 Agent Server 或 LangSmith 的托管能力。
 
 ## 九、进阶：如何实现自己的 Store？
+
+继承 BaseStore，至少实现同步与异步成对方法：batch / abatch（批量操作）、get / aget、search / asearch（含 filter/query/limit）、list_namespaces / alists、put / aput、delete / adelete。
+
+要点：① 语义检索的 index 配置要能被 search(query) 命中；② namespace 前缀匹配语义要自洽；③ value 必须可序列化；④ 上线前先跑官方 Store 兼容性测试集。

@@ -7,8 +7,12 @@
   2. Store 保存跨线程长期使用的数据。两者解决不同的问题，生产系统通常可以同时使用。
 
 - Checkpoint VS Checkpointer
-  - Checkpoint（检查点）：状态快照(数据)；是记录下来的“存档点”
-  - Checkpointer（检查点管理器、持久化器）：管理工具(存取数据的组件)；是管理这些存档的系统
+  - Checkpoint（检查点/快照）：状态快照(数据)，是记录下来的“存档点”；【一张"状态照片"（数据、不可变、属于某个 thread 的某一步）】
+  - Checkpointer（检查点管理器/持久化器）：管理工具(存取数据的组件)，是管理这些存档的系统；【那台"拍照并保管照片的相机+相册"（组件、负责存取、决定存哪）】
+
+  二者通过 thread_id 关联：一个 Checkpointer 管理很多个 thread，每个 thread 是一串 Checkpoint。
+
+  一个线上 LangGraph 应用通常就是：部署 1 份编译好的 graph（含 1 个 PostgresSaver）→ 服务成千上万个用户会话。每个用户/每个对话各自分配一个 thread_id，互相的 Checkpoint 时间线完全隔离，但底层共用同一个 Checkpointer 实例与同一套库表。
 
 ## 一、概念理解：LangGraph 的 Persistence 主要解决四类问题
 
