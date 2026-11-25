@@ -2,40 +2,59 @@
 
 Memory 是一套信息保存、检索、管理和使用的机制。Memory 不等于数据库，也不等于对话历史
 
+<img src="./img/langGraph-记忆整体架构.png" alt="langGraph-记忆整体架构" width=800 />
+
 ## 一、概念理解：LangGraph 有两种 Memory
 
 <img src="./img/langGraph-3.6-记忆机制.png" alt="langGraph-3.6-记忆机制.png" width=700>
 
 两者最大的区别：
 
-| 对比     | Short-term      | Long-term               |
-| -------- | --------------- | ----------------------- |
-| 作用范围 | 单个 Thread     | 跨 Thread               |
-| 保存内容 | Graph State     | 自定义记忆数据          |
-| 核心组件 | Checkpointer    | Store                   |
-| 数据结构 | State 快照      | Namespace + Key + Value |
-| 典型用途 | 对话上下文      | 用户偏好、用户画像      |
-| 生命周期 | Thread 生命周期 | 应用定义的生命周期      |
+1. 按记忆生命周期分类
 
-❗这里的 Short-term / Long-term，主要是按照"记忆的作用范围"区分，而不是按照保存时间区分。
+   | 分类     | Short-term Memory     | Long-term Memory                               |
+   | -------- | --------------------- | ---------------------------------------------- |
+   | 中文     | 短期记忆              | 长期记忆                                       |
+   | 范围     | 单个 Thread           | 跨 Thread                                      |
+   | 主要内容 | 对话历史、Graph State | 用户偏好、用户事实、应用知识 等 自定义记忆数据 |
+   | 核心机制 | Checkpointer          | Store                                          |
+   | 数据结构 | State 快照            | Namespace + Key + Value                        |
+   | 主要目的 | 延续当前对话          | 不同对话共享信息                               |
+   | 生命周期 | Thread 生命周期       | 由业务记忆管理策略决定                         |
 
-## 二、层级关系：Memory 在 Agent 架构中的位置
+   ❗这里的 Short-term / Long-term，主要是按照"记忆的作用范围"区分，而不是按照保存时间区分。
 
-<img src="./img/langGraph-3.6-Memory在Agent架构中的位置.png" alt="langGraph-3.6-Memory在Agent架构中的位置.png" width=800>
+   同一个用户可以拥有多个 Thread，但这些 Thread 可以通过相同的用户 Namespace 访问同一份长期记忆。
 
-- 这里有三个特别重要的概念：
-  1. State：Agent 当前执行过程中使用的数据。
-  2. Checkpointer：负责将 State 持久化，以便后续恢复。
-  3. Store：负责保存跨 Thread 的自定义数据。
+2. 按持久化机制分类
+   这是 LangGraph Memory 最核心的两种机制。
 
-- 容易混淆的地方：
-  1. Checkpointer 和 Store 都可以使用 PostgreSQL，但它们不是同一个组件，也不是同一套数据管理逻辑。
-  2. Checkpointer 的表结构由 langgraph-checkpoint-postgres 管理（checkpoints、checkpoint_writes、checkpoint_blobs 等）。
-  3. Store 的表结构由 langgraph.store.postgres 管理（store 表，含 namespace、key、value、embedding 等）。
+   | 分类      | Checkpointer             | Store                   |
+   | --------- | ------------------------ | ----------------------- |
+   | 数据组织  | Checkpoint / Writes      | Namespace / Key / Value |
+   | 标识      | thread_id                | namespace + key         |
+   | 读取      | get_state()              | get() / search()        |
+   | 写入      | Graph 执行过程中自动保存 | put() / aput()          |
+   | 删除      | delete_thread()          | delete() / adelete()    |
+   | 跨 Thread | 不直接共享               | 支持                    |
+   | 语义搜索  | 不属于其主要能力         | 支持                    |
 
-  两者可以同库不同表，也可以分库；备份、迁移、清理策略要分开设计。
+   两者可以同时使用，不是二选一。
 
-## 三、为什么需要 Memory？
+3. 按记忆管理策略分类
+
+   | 策略                  | 功能             | 解决的问题               |
+   | --------------------- | ---------------- | ------------------------ |
+   | Trim                  | 裁剪消息         | 控制上下文长度           |
+   | Delete                | 删除消息         | 清理无用历史             |
+   | Summarize             | 总结消息         | 保留重要信息，减少 Token |
+   | Checkpoint Management | 查看、删除检查点 | 管理历史状态             |
+   | Extraction            | 提取长期记忆     | 从对话中提取重要信息     |
+   | Update                | 更新长期记忆     | 去重、修正、覆盖旧记忆   |
+
+   其中前四项主要针对短期记忆；后两项是 Store 长期记忆应用中需要自行设计的业务逻辑。
+
+## 二、为什么需要 Memory？
 
 假设用户已经进行了 100 轮对话。
 
@@ -51,7 +70,25 @@ Memory 是一套信息保存、检索、管理和使用的机制。Memory 不等
    - Summarize：总结。
    - Search：检索。
 
-## 四、工作原理: Short-term Memory
+## 三、层级关系：Memory 在 Agent 架构中的位置
+
+<img src="./img/langGraph-3.6-Memory在Agent架构中的位置.png" alt="langGraph-3.6-Memory在Agent架构中的位置.png" width=800>
+
+- 这里有三个特别重要的概念：
+  1. State：Agent 当前执行过程中使用的数据。
+  2. Checkpointer：负责将 State 持久化，以便后续恢复。
+  3. Store：负责保存跨 Thread 的自定义数据。
+
+- 容易混淆的地方：
+  1. Checkpointer 和 Store 都可以使用 PostgreSQL，但它们不是同一个组件，也不是同一套数据管理逻辑。
+  2. Checkpointer 的表结构由 langgraph-checkpoint-postgres 管理（checkpoints、checkpoint_writes、checkpoint_blobs 等）。
+  3. Store 的表结构由 langgraph.store.postgres 管理（store 表，含 namespace、key、value、embedding 等）。
+
+  两者可以同库不同表，也可以分库；备份、迁移、清理策略要分开设计。
+
+## 四、Short-term Memory 短期记忆
+
+### 4.1 工作原理
 
 Short-term Memory = State + Checkpointer + thread_id
 
@@ -62,99 +99,7 @@ Short-term Memory = State + Checkpointer + thread_id
 
 LangGraph 负责恢复 State，不负责自动决定把多少历史消息发送给 LLM。
 
-## 五、工作原理: Long-term Memory
-
-Long-term Memory = Store + Namespace + Key + Value
-
-与 Checkpointer 不同，Store 不保存整个 Graph State，而是保存开发者定义的数据。
-
-| 字段      | 作用         | 示例                                                  |
-| --------- | ------------ | ----------------------------------------------------- |
-| namespace | 数据分组     | user_123/memories                                     |
-| key       | 数据唯一标识 | 1                                                     |
-| value     | 实际记忆内容 | 可序列化 dict【{"memory": "User prefers dark mode"}】 |
-
-```bash
-   Store
-   │
-   ├── user_001
-   │   └── memories
-   │       ├── 1: 喜欢 Python
-   │       └── 2: 喜欢深色模式
-   │
-   ├── user_002
-   │   └── memories
-   │       ├── 1: 使用 Java
-   │       └── 2: 喜欢简洁回答
-   │
-   └── user_003
-       └── memories
-           └── 1: 使用 Go
-```
-
-这样就可以实现不同用户之间的记忆隔离。
-
-❗注意：Namespace 只是数据组织机制，不等于完整的权限控制。生产环境仍需要后端校验用户身份和访问权限，不能直接信任客户端传入的 user_id。
-
-- 如何在 Node节点 中访问 Store？
-
-  | 对象            | 来源           | 作用                 |
-  | --------------- | -------------- | -------------------- |
-  | runtime.context | invoke 时传入  | 当前用户、业务上下文 |
-  | runtime.store   | compile 时注入 | 长期记忆存储         |
-  | state           | Graph 运行过程 | 当前状态             |
-
-- 检索记忆
-
-  ```python
-    memories = await runtime.store.asearch(
-        namespace, # 只搜索当前用户的记忆。
-        query=state["messages"][-1].content, # 根据当前用户问题搜索。
-        limit=3 # 最多返回 3 条。
-    )
-  ```
-
-  ❗Store 检索到数据，不代表 LLM 自动就能看到数据。开发者需要将检索结果注入模型输入。
-
-  Store 只提供存取能力，检索结果必须由开发者注入模型上下文。
-
-- 保存记忆
-
-  ```python
-  await runtime.store.aput( # 4、保存到 Store。
-      namespace, # 1、指定用户 Namespace。
-      str(uuid7()), # 2、生成一个唯一 Key。
-      {
-          "data": "User prefers dark mode" # 3、将记忆内容写入 Value。 {"memory": "User prefers dark mode"}
-      }
-  )
-  ```
-
-- 如果希望自动提取，需要额外设计：
-
-  ```bash
-  用户对话
-   ↓
-  LLM 提取用户偏好
-     ↓
-  开发者校验 / 业务规则
-     ↓
-  Store 保存
-  ```
-
-- 完整数据流
-
-<img src="./img/langGraph-3.6-长期记忆使用流程.png" alt="langGraph-3.6-长期记忆使用流程.png" width=800>
-
-## 六、Semantic Search（语义搜索）
-
-语义搜索不等于 LLM 理解记忆。
-
-它主要负责找到语义上相关的数据，最终如何理解和使用这些数据，仍然由应用和 LLM 决定。
-
-❗存储和检索用的嵌入模型，必须“建库”和“查询”是同一个模型；而聊天和应用用的生成模型，可以“这次用 A、下次用 B”。
-
-## 七、Manage Short-term Memory：短期记忆管理
+### 4.2 短期记忆管理
 
 Checkpointer 会保存完整的 Graph State。但是：保存完整 State ≠ 每次把完整 State 发给 LLM。这两个操作必须分开理解。
 
@@ -175,7 +120,7 @@ Checkpointer 可以保存全部 100 轮。节点Node 可以只取最近的几轮
   3. 删除中间检查点可能导致 Time Travel、Resume 失败。
   4. 官方后端可能提供清理 API，优先用官方能力，而不是直接 SQL DELETE。
 
-### 7.1 Trim Messages：裁剪消息
+### 4.3 Trim Messages：裁剪消息
 
 只控制本次发送给 LLM 的消息，不删除 State 中的历史消息。
 
@@ -195,7 +140,7 @@ def call_model(state: MessagesState):
     return {"messages": [response]}
 ```
 
-### 7.2 Delete Messages：删除消息
+### 4.4 Delete Messages：删除消息
 
 ❗注意：删除当前 State 中的消息，不等于清除了所有历史 Checkpoint。之前已经保存的历史检查点仍可能包含旧消息。
 
@@ -214,7 +159,7 @@ def delete_messages(state):
     return { "messages": [RemoveMessage(id=REMOVE_ALL_MESSAGES)] }
 ```
 
-### 7.3 Summarize Messages：总结消息
+### 4.5 Summarize Messages：总结消息
 
 把早期对话压缩成 Summary，保留最近几轮原始对话。
 
@@ -250,7 +195,7 @@ def summarize_conversation(state: State):
 
 <img src="./img/langGraph-3.6-总结消息-节点的执行流程.png" alt="langGraph-3.6-总结消息-节点的执行流程.png" width=800/>
 
-### 7.4 Trim、Delete、Summarize 应该怎么选？
+### 4.6 Trim、Delete、Summarize 应该怎么选？
 
 | 场景                 | 推荐方式   |
 | -------------------- | ---------- |
@@ -261,9 +206,9 @@ def summarize_conversation(state: State):
 
 注意，Summary 本身也可能越来越长，因此还需要设置摘要长度上限和定期压缩策略。
 
-## 八、Manage Checkpoints：检查点管理
+## 五、Manage Checkpoints：检查点管理【短期记忆】
 
-### 8.1 查看当前 Thread 状态
+### 6.1 查看当前 Thread 状态
 
 ```python
 config = {
@@ -284,7 +229,7 @@ graph.get_state(config)
 # )
 ```
 
-### 8.2 查看 Thread 历史
+### 6.2 查看 Thread 历史
 
 `list( graph.get_state_history(config))` 返回当前 Thread 的多个 StateSnapshot。
 
@@ -298,7 +243,7 @@ graph.get_state(config)
   Checkpoint 4
 ```
 
-### 8.3 删除 Thread 的检查点
+### 6.3 删除 Thread 的检查点
 
 ```python
 thread_id = "1"
@@ -309,20 +254,128 @@ checkpointer.delete_thread(thread_id) # 这表示删除指定 Thread 的检查�
 
 用户注销/数据删除需要分别处理：Checkpointer 的 Thread 数据、Store 的用户记忆、业务数据库、向量索引、缓存、日志/审计中的副本。delete_thread 只是其中一环。
 
-## 九、对比：Short-term、Long-term、Checkpoint、Store、Summary
+## 六、Long-term Memory 长期记忆
 
-| 概念              | 本质             | 保存什么              | 谁负责               |
-| ----------------- | ---------------- | --------------------- | -------------------- |
-| State             | 运行状态         | 当前 Graph 数据       | LangGraph            |
-| Checkpoint        | State 快照       | 某个时刻的 State      | Checkpointer         |
-| Short-term Memory | 短期记忆机制     | Thread 内的状态和历史 | State + Checkpointer |
-| Store             | 长期数据存储     | 自定义 Key-Value      | BaseStore 实现       |
-| Long-term Memory  | 长期记忆机制     | 跨 Thread 的信息      | Store + 业务逻辑     |
-| Summary           | 压缩后的历史信息 | 对话摘要              | 通常由 LLM 生成      |
+### 6.1 工作原理
 
-同一个用户可以拥有多个 Thread，但这些 Thread 可以通过相同的用户 Namespace 访问同一份长期记忆。
+Long-term Memory = Store + Namespace + Key + Value
 
-## 十、自主可控性：生产环境应该如何设计？
+与 Checkpointer 不同，Store 不保存整个 Graph State，而是保存开发者定义的数据。
+
+| 字段      | 作用         | 示例                                                  |
+| --------- | ------------ | ----------------------------------------------------- |
+| namespace | 数据分组     | user_123/memories                                     |
+| key       | 数据唯一标识 | 1                                                     |
+| value     | 实际记忆内容 | 可序列化 dict【{"memory": "User prefers dark mode"}】 |
+
+```bash
+   Store
+   │
+   ├── user_001
+   │   └── memories
+   │       ├── 1: 喜欢 Python
+   │       └── 2: 喜欢深色模式
+   │
+   ├── user_002
+   │   └── memories
+   │       ├── 1: 使用 Java
+   │       └── 2: 喜欢简洁回答
+   │
+   └── user_003
+       └── memories
+           └── 1: 使用 Go
+```
+
+这样就可以实现不同用户之间的记忆隔离。
+
+❗注意：Namespace 只是数据组织机制，不等于完整的权限控制。生产环境仍需要后端校验用户身份和访问权限，不能直接信任客户端传入的 user_id。
+
+### 6.2 如何在 Node节点 中访问 Store？
+
+| 对象            | 来源           | 作用                 |
+| --------------- | -------------- | -------------------- |
+| runtime.context | invoke 时传入  | 当前用户、业务上下文 |
+| runtime.store   | compile 时注入 | 长期记忆存储         |
+| state           | Graph 运行过程 | 当前状态             |
+
+### 6.3 检索记忆
+
+```python
+  memories = await runtime.store.asearch(
+      namespace, # 只搜索当前用户的记忆。
+      query=state["messages"][-1].content, # 根据当前用户问题搜索。
+      limit=3 # 最多返回 3 条。
+  )
+```
+
+❗Store 检索到数据，不代表 LLM 自动就能看到数据。开发者需要将检索结果注入模型输入。
+
+Store 只提供存取能力，检索结果必须由开发者注入模型上下文。
+
+#### 6.3.1 Semantic Search（语义搜索）
+
+语义搜索不等于 LLM 理解记忆。
+
+它主要负责找到语义上相关的数据，最终如何理解和使用这些数据，仍然由应用和 LLM 决定。
+
+❗存储和检索用的嵌入模型，必须“建库”和“查询”是同一个模型；而聊天和应用用的生成模型，可以“这次用 A、下次用 B”。
+
+### 6.4 保存记忆
+
+```python
+await runtime.store.aput( # 4、保存到 Store。
+    namespace, # 1、指定用户 Namespace。
+    str(uuid7()), # 2、生成一个唯一 Key。
+    {
+        "data": "User prefers dark mode" # 3、将记忆内容写入 Value。 {"memory": "User prefers dark mode"}
+    }
+)
+```
+
+### 6.5 如果希望自动提取
+
+```bash
+用户对话
+ ↓
+LLM 提取用户偏好
+   ↓
+开发者校验 / 业务规则
+   ↓
+Store 保存
+```
+
+### 6.6 更新 记忆
+
+### 6.7 完整数据流
+
+<img src="./img/langGraph-3.6-长期记忆使用流程.png" alt="langGraph-3.6-长期记忆使用流程.png" width=800>
+
+## 七、核心对象之间的层级关系
+
+这一部分建议重点记忆。
+
+| 对象              | 所属层次       | 核心职责                |
+| ----------------- | -------------- | ----------------------- |
+| Memory            | 概念层         | 整体记忆体系            |
+| Short-term Memory | 记忆分类       | Thread 级记忆           |
+| Long-term Memory  | 记忆分类       | 跨 Thread 记忆          |
+| Checkpointer      | 持久化机制     | 保存 Graph State        |
+| Store             | 持久化机制     | 保存任意 Key-Value      |
+| Runtime           | 运行时机制     | 访问 Context、Store 等  |
+| Namespace         | Store 数据组织 | 划分记忆空间            |
+| Key               | Store 数据组织 | 唯一标识一条记忆        |
+| Value             | Store 数据组织 | 实际记忆内容            |
+| Embedding         | 检索技术       | 将文本转换为向量        |
+| BaseStore         | 接口抽象       | 自定义 Store 的基础契约 |
+
+这里特别区分:
+
+- Runtime 不是 Memory。
+- Namespace 不是 Store。
+- Embedding 不是 Store。
+- Checkpointer 和 Store 才是两种核心持久化机制。
+
+## 八、自主可控性：生产环境应该如何设计？
 
 ### 推荐的生产架构
 
@@ -380,7 +433,7 @@ LangGraph 只提供存储、检索和运行时集成能力。并不会自动替�
   7. 错误记忆纠正。
   8. 写入权限与审核。
 
-## 十一、总结：建立完整的 Memory 知识体系
+## 九、总结：建立完整的 Memory 知识体系
 
 - LangGraph Memory 知识体系
   1. Short-term Memory 解决：当前会话如何记住历史？
