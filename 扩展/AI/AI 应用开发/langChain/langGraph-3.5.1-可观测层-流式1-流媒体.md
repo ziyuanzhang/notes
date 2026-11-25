@@ -1,4 +1,4 @@
-# langGraph-3.9-流式1-流媒体(Streaming) - 不推荐了
+# langGraph-3.5.1-流式1-流媒体(Streaming) - 不推荐了
 
 1. LangGraph 的两种流式机制：Streaming（流模式） 和 Event Streaming（事件流）。核心区别在于：
    - Streaming 是底层、按模式分发的原始事件流，

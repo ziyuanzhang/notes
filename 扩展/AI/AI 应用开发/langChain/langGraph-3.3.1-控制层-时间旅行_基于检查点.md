@@ -1,4 +1,4 @@
-# langGraph-3.5-时间旅行(Time Travel) -- 基于检查点
+# langGraph-3.3.1-时间旅行(Time Travel) -- 基于检查点
 
 Time Travel 的核心价值: 让 Agent 能够回到过去某个检查点，重新执行后续流程，或者修改过去的状态，探索另一条执行路径。
 
@@ -15,7 +15,7 @@ Time Travel 的核心价值: 让 Agent 能够回到过去某个检查点，重�
 
 ## 二、层级关系: Time Travel 在 LangGraph 中处于什么位置？
 
-<img src="./img/langGraph-3.5-时间旅行.png" alt='langGraph-3.5-时间旅行.png"' width="800">
+<img src="./img/langGraph-3.3.1-时间旅行.png" alt='langGraph-3.5-时间旅行.png"' width="800">
 
 几个概念的关系:
 

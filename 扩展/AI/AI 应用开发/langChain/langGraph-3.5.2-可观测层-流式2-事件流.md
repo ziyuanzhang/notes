@@ -1,4 +1,4 @@
-# langGraph-3.10-流式2-事件流(推荐)
+# langGraph-3.5.2-流式2-事件流(推荐)
 
 LangGraph 不仅可以把图执行过程中的原始事件暴露出来，还可以把这些事件整理成应用程序容易使用的流式接口。
 
@@ -26,7 +26,7 @@ Event Streaming 不是另一套 Agent 执行引擎，也不是模型本身的流
 
 ## 二、层级关系：整个 Streaming 系统是怎样组织的？
 
-<img src="./img/langGraph-3.10-流式2-事件流-整个Streaming系统.png" alt="langGraph-3.10-流式2-事件流-整个Streaming系统" width=800 />
+<img src="./img/langGraph-3.5.2-流式2-事件流-整个Streaming系统.png" alt="langGraph-3.5.2-流式2-事件流-整个Streaming系统" width=800 />
 
 Graph 执行 → 原始事件 → 事件路由 → Transformer 转换 → 类型化投影 → 应用消费
 

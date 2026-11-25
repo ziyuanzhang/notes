@@ -1,4 +1,4 @@
-# langGraph-3.2-持久化-检查点(Checkpointers)
+# langGraph-3.1.2-持久化-检查点(Checkpointers)
 
 - LangGraph 提供了两种互补的持久化系统:
   1. Checkpointer 保存一次对话线程的图状态，

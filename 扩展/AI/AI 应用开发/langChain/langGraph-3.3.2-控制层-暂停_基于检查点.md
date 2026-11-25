@@ -1,4 +1,4 @@
-# langGraph-3.4-暂停(Interrupts)
+# langGraph-3.3.2-暂停(Interrupts) - 基于检查点
 
 - interrupt(): 负责暂停并向外部提出请求;
 - Checkpointer: 负责保存图的执行状态;
@@ -14,7 +14,7 @@ LangGraph 负责工作流暂停和恢复；具体的审批页面、身份认证�
 
 ## 层级关系: Interrupt 在 LangGraph 中处于什么位置？
 
-<img src="./img/langGraph-3.4-暂停.png" alt="langGraph-3.4-暂停.png" width="800" />
+<img src="./img/langGraph-3.3.2-暂停.png" alt="langGraph-3.4-暂停.png" width="800" />
 
 | 概念                | 负责什么                       | 不负责什么                       |
 | ------------------- | ------------------------------ | -------------------------------- |
@@ -33,7 +33,7 @@ LangGraph 负责工作流暂停和恢复；具体的审批页面、身份认证�
 
 ## 四、工作原理: 一次 Interrupt 究竟发生了什么？
 
-<img src="./img/langGraph-3.4-执行顺序拆解.png" alt="langGraph-3.4-执行顺序拆解.png" width="800" />
+<img src="./img/langGraph-3.3.2-执行顺序拆解.png" alt="langGraph-3.4-执行顺序拆解.png" width="800" />
 
 ```python
 def approval_node(state):

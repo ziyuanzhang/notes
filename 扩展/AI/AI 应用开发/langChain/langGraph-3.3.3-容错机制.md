@@ -1,17 +1,17 @@
-# langGraph-3.11-容错机制
+# langGraph-3.3.3-容错机制
 
 ## 一、概念理解：Fault tolerance 到底是什么？
 
 Fault tolerance（容错）不是保证程序永远不出错，而是：当程序出错时，系统有明确的策略决定：是否重试、何时停止、如何恢复，以及如何保留必要的执行进度。
 
-<img src="./img/langGraph-3.11-容错机制.png"  alt="langGraph-3.11-容错机制" width=800 />
+<img src="./img/langGraph-3.3.3-容错机制.png"  alt="langGraph-3.3.3-容错机制" width=800 />
 
 - 执行失败的处理：Retry、Timeout、Error Handler。
 - 执行进度的持久化与恢复：Checkpoint、Checkpointer、Resume。
 
 ## 二、层级关系：这些机制位于 LangGraph 的哪里？
 
-<img src="./img/langGraph-3.11-容错机制-发生位置.png" alt="langGraph-3.11-容错机制-发生位置" width=800 />
+<img src="./img/langGraph-3.3.3-容错机制-发生位置.png" alt="langGraph-3.3.3-容错机制-发生位置" width=800 />
 
 - RetryPolicy: 判断失败后是否重新执行
 - TimeoutPolicy: 限制单次节点尝试的运行时间或无进展时间
@@ -35,7 +35,7 @@ Fault tolerance（容错）不是保证程序永远不出错，而是：当程�
 
 ## 四、工作原理：一次节点失败后，LangGraph 按什么顺序处理？
 
-<img src="./img/langGraph-3.11-容错机制-失败后处理顺序.png" alt="langGraph-3.11-容错机制-失败后处理顺序" width=800 />
+<img src="./img/langGraph-3.3.3-容错机制-失败后处理顺序.png" alt="langGraph-3.3.3-容错机制-失败后处理顺序" width=800 />
 
 这里有三个关键细节。
 

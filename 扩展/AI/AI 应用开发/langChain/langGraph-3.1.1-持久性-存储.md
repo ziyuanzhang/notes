@@ -1,4 +1,4 @@
-# langGraph-3.3-持久性-存储(store)
+# langGraph-3.1.1-持久性-存储(store)
 
 - LangGraph 提供了两种互补的持久化系统：
   1. Checkpointer 保存一次对话线程的图状态，

@@ -1,12 +1,12 @@
-# langGraph-3.6-记忆机制(Memory)
+# langGraph-3.2-记忆机制(Memory) - 基于持久化
 
 Memory 是一套信息保存、检索、管理和使用的机制。Memory 不等于数据库，也不等于对话历史
 
-<img src="./img/langGraph-记忆整体架构.png" alt="langGraph-记忆整体架构" width=800 />
+<img src="./img/langGraph-3.2-记忆整体架构.png" alt="langGraph-记忆整体架构" width=800 />
 
 ## 一、概念理解：LangGraph 有两种 Memory
 
-<img src="./img/langGraph-3.6-记忆机制.png" alt="langGraph-3.6-记忆机制.png" width=700>
+<img src="./img/langGraph-3.2-2种记忆机制.png" alt="langGraph-3.2-2种记忆机制.png" width=700>
 
 两者最大的区别：
 
@@ -72,7 +72,7 @@ Memory 是一套信息保存、检索、管理和使用的机制。Memory 不等
 
 ## 三、层级关系：Memory 在 Agent 架构中的位置
 
-<img src="./img/langGraph-3.6-Memory在Agent架构中的位置.png" alt="langGraph-3.6-Memory在Agent架构中的位置.png" width=800>
+<img src="./img/langGraph-3.2-Memory在Agent架构中的位置.png" alt="langGraph-3.2-Memory在Agent架构中的位置.png" width=800>
 
 - 这里有三个特别重要的概念：
   1. State：Agent 当前执行过程中使用的数据。
@@ -193,7 +193,7 @@ def summarize_conversation(state: State):
     }
 ```
 
-<img src="./img/langGraph-3.6-总结消息-节点的执行流程.png" alt="langGraph-3.6-总结消息-节点的执行流程.png" width=800/>
+<img src="./img/langGraph-3.2-总结消息-节点的执行流程.png" alt="langGraph-3.2-总结消息-节点的执行流程.png" width=800/>
 
 ### 4.6 Trim、Delete、Summarize 应该怎么选？
 
@@ -348,7 +348,7 @@ Store 保存
 
 ### 6.7 完整数据流
 
-<img src="./img/langGraph-3.6-长期记忆使用流程.png" alt="langGraph-3.6-长期记忆使用流程.png" width=800>
+<img src="./img/langGraph-3.2-长期记忆使用流程.png" alt="langGraph-3.6-长期记忆使用流程.png" width=800>
 
 ## 七、核心对象之间的层级关系
 
