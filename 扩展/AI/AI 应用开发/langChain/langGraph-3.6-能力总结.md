@@ -13,13 +13,13 @@
 
 ## 第一部分 全局分类（11 篇归入 5 大支柱）
 
-| 支柱                         | 主题                    | 原始文件                                 |
-| ---------------------------- | ----------------------- | ---------------------------------------- |
-| Ⅰ 持久化 Persistence（地基） | 让状态/数据跨越单次运行 | **3.2（Checkpointer 详解）**、3.1        |
-| Ⅱ 持久化之上的控制能力       | 暂停/恢复、回到过去     | 3.4（Interrupt）、3.5（Time Travel）     |
-| Ⅲ 记忆 Memory                | 短期/长期记忆及其管理   | 3.3（Store）、3.6（Memory）、3.7（总结） |
-| Ⅳ 编排 Modular               | 工作流模块化、父子图    | 3.8（Subgraph）                          |
-| Ⅴ 交互与可靠性               | 实时观察 + 故障处理     | 3.9/3.10（Streaming）、3.11（容错）      |
+| 支柱                          | 主题                    | 原始文件                                 |
+| ----------------------------- | ----------------------- | ---------------------------------------- |
+| 一 持久化 Persistence（地基） | 让状态/数据跨越单次运行 | **3.2（Checkpointer 详解）**、3.1        |
+| 二 持久化之上的控制能力       | 暂停/恢复、回到过去     | 3.4（Interrupt）、3.5（Time Travel）     |
+| 三 记忆 Memory                | 短期/长期记忆及其管理   | 3.3（Store）、3.6（Memory）、3.7（总结） |
+| 四 编排 Modular               | 工作流模块化、父子图    | 3.8（Subgraph）                          |
+| 五 交互与可靠性               | 实时观察 + 故障处理     | 3.9/3.10（Streaming）、3.11（容错）      |
 
 > 一句话主线：**Persistence 是地基，Memory / Interrupt / Time Travel / Subgraph 是地基上长出的能力，Streaming 是观察窗，容错是安全网。**
 
@@ -151,25 +151,25 @@
 
 ### 2.2 横向层级：核心对象归属表（重点记忆）
 
-| 对象                       | 所属支柱 | 层级   | 核心职责                       | 定位方式                             |
-| -------------------------- | -------- | ------ | ------------------------------ | ------------------------------------ |
-| Runtime                    |          |        | 运行时上下文入口               |
-| Writes                     | Ⅰ 持久化 | 元数据 | 记录“已完成节点”的中间更新     | 随 Checkpoint                        |
-| State                      | Ⅰ 持久化 | 运行态 | 图当前业务数据                 | 内存中随执行变化                     |
-| Checkpoint(检查点)         | Ⅰ 持久化 |        | super-step 边界的 完整状态快照 |                                      |
-| Checkpointer(检查点管理器) | Ⅰ 持久化 | 机制   | 保存线程内 State 快照          | thread_id                            |
-| Store                      | Ⅰ 持久化 | 机制   | 保存跨线程自定义数据           | namespace + key                      |
-| thread_id                  | Ⅰ 持久化 | 标识   | 标识一个执行线程（≠ 用户 ID）  | config.configurable                  |
-| Super-step                 | Ⅰ 持久化 | 边界   | 执行/检查点的调度单位          | 运行时                               |
-| Interrupt                  | Ⅱ 控制   | 能力   | 动态暂停等待外部输入           | interrupt() + Command(resume)        |
-| Time Travel                | Ⅱ 控制   | 能力   | 回到历史检查点 Replay/Fork     | get_state_history() + update_state() |
-| Short-term Memory          | Ⅲ 记忆   | 能力   | 当前会话记住历史               | State + Checkpointer                 |
-| Long-term Memory           | Ⅲ 记忆   | 能力   | 跨会话共享用户信息             | Store + 业务逻辑                     |
-| Subgraph                   | Ⅳ 编排   | 能力   | 工作流模块化                   | 作为 Node 嵌套                       |
-| Streaming(v2)              | Ⅴ 交互   | 观察   | 原始模式事件流                 | graph.stream(version="v2")           |
-| Event Streaming(v3)        | Ⅴ 交互   | 观察   | 类型化投影事件流               | graph.stream_events(version="v3")    |
-| Retry/Timeout/ErrorHandler | Ⅴ 可靠   | 容错   | 失败处理                       | add_node(...)                        |
-| Graceful Shutdown          | Ⅴ 可靠   | 容错   | 安全停机保留恢复点             | RunControl                           |
+| 对象                       | 所属支柱  | 层级   | 核心职责                       | 定位方式                             |
+| -------------------------- | --------- | ------ | ------------------------------ | ------------------------------------ |
+| Runtime                    |           |        | 运行时上下文入口               |
+| Writes                     | 一 持久化 | 元数据 | 记录“已完成节点”的中间更新     | 随 Checkpoint                        |
+| State                      | 一 持久化 | 运行态 | 图当前业务数据                 | 内存中随执行变化                     |
+| Checkpoint(检查点)         | 一 持久化 |        | super-step 边界的 完整状态快照 |                                      |
+| Checkpointer(检查点管理器) | 一 持久化 | 机制   | 保存线程内 State 快照          | thread_id                            |
+| Store                      | 一 持久化 | 机制   | 保存跨线程自定义数据           | namespace + key                      |
+| thread_id                  | 一 持久化 | 标识   | 标识一个执行线程（≠ 用户 ID）  | config.configurable                  |
+| Super-step                 | 一 持久化 | 边界   | 执行/检查点的调度单位          | 运行时                               |
+| Interrupt                  | 二 控制   | 能力   | 动态暂停等待外部输入           | interrupt() + Command(resume)        |
+| Time Travel                | 二 控制   | 能力   | 回到历史检查点 Replay/Fork     | get_state_history() + update_state() |
+| Short-term Memory          | 三 记忆   | 能力   | 当前会话记住历史               | State + Checkpointer                 |
+| Long-term Memory           | 三 记忆   | 能力   | 跨会话共享用户信息             | Store + 业务逻辑                     |
+| Subgraph                   | 四 编排   | 能力   | 工作流模块化                   | 作为 Node 嵌套                       |
+| Streaming(v2)              | 五 交互   | 观察   | 原始模式事件流                 | graph.stream(version="v2")           |
+| Event Streaming(v3)        | 五 交互   | 观察   | 类型化投影事件流               | graph.stream_events(version="v3")    |
+| Retry/Timeout/ErrorHandler | 五 可靠   | 容错   | 失败处理                       | add_node(...)                        |
+| Graceful Shutdown          | 五 可靠   | 容错   | 安全停机保留恢复点             | RunControl                           |
 
 ### 2.3 易混概念「非关系」澄清
 
@@ -191,7 +191,7 @@
 
 ## 第三部分 分支柱整合正文（优化重组）
 
-### Ⅰ 持久化 Persistence —— 地基
+### 3.1 持久化 Persistence —— 地基
 
 - **解决四类问题**：对话连续性、中断后继续、故障恢复、长期记忆。
 - **两大机制对照**：
@@ -235,7 +235,7 @@
   3. sync 只强化检查点写入**时序**，不代表整个业务事务具有原子性；
   4. 数据库连接、HTTP 客户端、模型客户端、进程全局变量 不会因出现在 Python 进程里就自动成为可恢复业务状态。
 
-### Ⅱ 控制能力：Interrupt 与 Time Travel
+### 3.2 控制能力：Interrupt 与 Time Travel
 
 **Interrupt（人工介入闭环）** —— 四件套：interrupt() 提请求 + Checkpointer 存状态 + thread_id 定位 + Command(resume=...) 送回输入。
 
@@ -254,7 +254,7 @@
 - 默认子图继承父图 Checkpointer 时，父图把子图整体当**一个 Super-step**，无法穿透到子图内部任意检查点。
 - 边界：不能自动撤销外部 API 副作用、不能自动复现原 LLM 输出。
 
-### Ⅲ 记忆 Memory —— 地基上长出的能力
+### 3.3 记忆 Memory —— 地基上长出的能力
 
 #### 3.2.1 两条主线
 
@@ -281,14 +281,14 @@ Extraction 提取、Update 去重/修正、Semantic Search 检索。
 
 Persistence 是体系 → Checkpointer 管线程状态 → Store 管跨线程数据 → Memory 是能力概念 → Memory Manager 决定记什么 → Memory Retrieval 决定用什么。
 
-### Ⅳ 编排 Subgraph —— 工作流模块化
+### 3.4 编排 Subgraph —— 工作流模块化
 
 - 本质：**被当作节点使用的 Graph**；父图调度、子图承担局部流程。Agent 可作子图，子图不一定是 Agent。
 - 父子通信两模式：
   1. A 在父 Node 内 subgraph.invoke()（State Schema 不同/需转换、隔离好）；
   2. B add_node(child, subgraph) 直接挂（共享 State key、简洁但耦合高）。
 
-- 持久化三模式（与 Ⅰ/Ⅱ 衔接）：
+- 持久化三模式（与 一/二 衔接）：
 
   | 模式           | 配置                      | 含义                           | 跨调用记忆 | 适用             |
   | -------------- | ------------------------- | ------------------------------ | ---------- | ---------------- |
@@ -298,7 +298,7 @@ Persistence 是体系 → Checkpointer 管线程状态 → Store 管跨线程数
 
 - 调试：graph.get_state(config, subgraphs=True) → 父图状态在 state.values，子图状态在 state.tasks[0].state.values；藏在 Tool 里的子图无法静态检查。
 
-### Ⅴ 交互与可靠性：Streaming 与容错
+### 3.5 交互与可靠性：Streaming 与容错
 
 #### **流式两代 API**
 
