@@ -1,4 +1,4 @@
-# langGraph-2.5-工作流与智能体
+# langGraph-4-工作流与智能体
 
 工作流（Workflows）与智能体（Agents）的设计模式
 
@@ -11,7 +11,7 @@ Workflow 和 Agent 不是两种互斥的技术。 你完全可以在一个 Workf
 
 ## 二、层级关系: 从基础组件到完整 Agent
 
-<img src='./img/langGraph-2.5-层级关系.png' alt="langGraph-2.5-层级关系" width='800'/>
+<img src='./img/langGraph-4-层级关系.png' alt="langGraph-4-层级关系" width='800'/>
 
 ### 2.1 基础能力层: 模型能做什么？
 
@@ -199,7 +199,7 @@ Send 解决“发多少个任务、每个任务带什么输入”的问题；red
 
 ### 5.1 推荐的自主可控架构
 
-<img src='./img/langGraph-2.5-工作流与智能体.png' alt='langGraph-2.5-工作流与智能体' width='800' />
+<img src='./img/langGraph-4-工作流与智能体.png' alt='langGraph-4-工作流与智能体' width='800' />
 
 这里的关键设计原则是：
 
