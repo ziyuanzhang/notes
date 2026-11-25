@@ -340,7 +340,7 @@ Persistence 是体系 → Checkpointer 管线程状态 → Store 管跨线程数
 ## 第四部分 全局总结：一张图记住 LangGraph 运行时
 
 ```text
-       一次 Agent 运行的完整生命周期
+一次 Agent 运行的完整生命周期
 
 用户输入 → [Graph/Node 执行] ─┬─ 过程可观察 → Streaming(v2)/Event Streaming(v3) → 前端 SSE/WS
                             ├─ 需人工决策 → interrupt() 暂停 → Command(resume) 恢复
@@ -350,16 +350,35 @@ Persistence 是体系 → Checkpointer 管线程状态 → Store 管跨线程数
                                                 └── 时间旅行 Replay/Fork 回到历史检查点
 ```
 
-- **10 个核心认知（全体系收口）**
-  1. Persistence 让数据跨运行；Checkpointer 与 Store 是**互补两机制**，可同时用。
-  2. thread_id 答「哪个线程」，不是「哪个用户」；跨线程信息走 Store 的 namespace。
-  3. 短期记忆 = State + Checkpointer；长期记忆 = Store + 业务逻辑；**保存 ≠ 全发给 LLM**。
-  4. Memory 是能力概念，不是第三种数据库；「记什么 / 用什么」要应用自己设计。
-  5. Interrupt 恢复时**整节点重跑**，中断前副作用需幂等。
-  6. Time Travel 用历史检查点 Replay/Fork，但不能撤销外部副作用。
-  7. Subgraph 是工作流模块化；其持久化三模式决定子图是否跨调用记忆；父图默认配置不下传子图。
-  8. Streaming 只观察不改执行；新应用优先 Event Streaming v3 投影；ns / nostream 不是权限或脱敏。
-  9. 容错顺序 Retry → ErrorHandler；技术故障重试、业务失败走规则、进程退出安全停。
-  10. 持久化只是可靠 Agent 的地基，还需**幂等、权限、审计、备份、保留策略**自托管设计；LangGraph 不强制绑定 LangSmith。
+### 4.1 三句话
+
+1. thread_id 解决“这是哪个线程”，不是“这是哪个用户”；namespace 解决“这是谁的数据”，但权限必须服务端校验。
+2. Checkpointer 解决“上次执行到哪、状态是什么”；Store 解决“其他线程也需要哪些长期数据”；Memory 是两者加业务策略的组合，不是第三种数据库。
+3. 持久化只是可靠 Agent 的基础；幂等、权限、审计、备份、保留策略、故障恢复设计，仍然由应用开发者掌握。
+
+### 4.2 五个核心认知
+
+1. Short-term Memory = State + Checkpointer + thread_id，
+   - 通过 thread_id 恢复当前会话状态；
+   - 保存完整 State ≠ 每次把完整 State 发给 LLM（Trim/Delete/Summarize 是不同策略）。
+
+2. Long-term Memory = Store + Namespace + Key + Value + 业务逻辑，
+   - Store 不会自动总结对话；
+   - 记忆提取、去重、更新、过期、删除需要开发者设计。
+
+3. Interrupt / Time Travel / Retry / Graceful Shutdown 都依赖 Checkpointer；
+   - 恢复时节点函数体会重跑，interrupt 前的副作用要考虑重复执行。
+
+4. Streaming/Event Streaming 是观察层，不是执行层；
+   - 观察 ≠ 控制，
+   - ns ≠ 权限，
+   - stream.output ≠ 最后一段文本。
+
+5. Subgraph 是编排模块化机制，不是 Agent 同义词；
+   - Subgraph Checkpointer 的 None/True/False 决定子图状态生命周期，父图 Checkpointer 是前提。
+
+### 4.3 一条主线
+
+Graph 执行 → 状态变化 → Checkpointer 保存检查点 → Store 保存跨线程记忆 → Interrupt/Time Travel/Retry 基于检查点控制执行 → Subgraph 组合工作流 → Streaming/Event Streaming 观察执行 → 应用层负责权限、幂等、审计、保留策略。
 
 ---

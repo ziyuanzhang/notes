@@ -1,4 +1,14 @@
-# langGraph-3.1-持久性 Persistence
+# langGraph-3.1-持久性 Persistence--概念
+
+🔥持久化是「概念/目标」；Checkpointer 和 Store 是「实现它的两个互补机制」（分别管会话内快照与跨会话长期记忆）；后端（Postgres 等）是「机制真正落地存储的地方」。
+
+```text
+概念层：持久化（Persistence）—— 让状态在调用之间、进程重启之后不丢
+   ├── 机制层①：Checkpointer  —— 持久化「会话内的状态快照」(Checkpoint)
+   └── 机制层②：Store         —— 持久化「跨会话的长期记忆」
+            ↓ 都依赖
+   后端层：InMemory / Sqlite / Postgres / Redis / 自定义 …
+```
 
 把 Persistence 理解为整个 Agent 系统的“数据记忆与恢复机制”。
 
@@ -6,13 +16,14 @@
   1. Checkpointer 保存一次对话线程的图状态，
   2. Store 保存跨线程长期使用的数据。两者解决不同的问题，生产系统通常可以同时使用。
 
-- Checkpoint VS Checkpointer
-  - Checkpoint（检查点/快照）：状态快照(数据)，是记录下来的“存档点”；【一张"状态照片"（数据、不可变、属于某个 thread 的某一步）】
-  - Checkpointer（检查点管理器/持久化器）：管理工具(存取数据的组件)，是管理这些存档的系统；【那台"拍照并保管照片的相机+相册"（组件、负责存取、决定存哪）】
+## Checkpoint VS Checkpointer
 
-  二者通过 thread_id 关联：一个 Checkpointer 管理很多个 thread，每个 thread 是一串 Checkpoint。
+- Checkpoint（检查点/快照）：状态快照(数据)，是记录下来的“存档点”；【一张"状态照片"（数据、不可变、属于某个 thread 的某一步）】
+- Checkpointer（检查点管理器/持久化器）：管理工具(存取数据的组件)，是管理这些存档的系统；【那台"拍照并保管照片的相机+相册"（组件、负责存取、决定存哪）】
 
-  一个线上 LangGraph 应用通常就是：部署 1 份编译好的 graph（含 1 个 PostgresSaver）→ 服务成千上万个用户会话。每个用户/每个对话各自分配一个 thread_id，互相的 Checkpoint 时间线完全隔离，但底层共用同一个 Checkpointer 实例与同一套库表。
+二者通过 thread_id 关联：一个 Checkpointer 管理很多个 thread，每个 thread 是一串 Checkpoint。
+
+一个线上 LangGraph 应用通常就是：部署 1 份编译好的 graph（含 1 个 PostgresSaver）→ 服务成千上万个用户会话。每个用户/每个对话各自分配一个 thread_id，互相的 Checkpoint 时间线完全隔离，但底层共用同一个 Checkpointer 实例与同一套库表。
 
 ## 一、概念理解：LangGraph 的 Persistence 主要解决四类问题
 
