@@ -406,6 +406,8 @@ request_drain() 发出停止请求后：
   1. 自身异常
 
 - 7.4 interrupt() 不走普通的失败处理链
+  1. interrupt() 不是异常，是协作式暂停；它不会被 RetryPolicy 重试，也不会被 ErrorHandler 捕获。恢复靠 Command(resume=...)，不是靠重试。
+
 - 7.5 子图失败如何处理？
 
   如果父图的某个节点包装了子图，子图出现未处理异常时，该异常会向父节点传播。如果父节点配置了 Error Handler，处理器可以接收到子图抛出的异常。

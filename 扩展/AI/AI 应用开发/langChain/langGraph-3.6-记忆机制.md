@@ -29,8 +29,11 @@ Memory 是一套信息保存、检索、管理和使用的机制。Memory 不等
   3. Store：负责保存跨 Thread 的自定义数据。
 
 - 容易混淆的地方：
+  1. Checkpointer 和 Store 都可以使用 PostgreSQL，但它们不是同一个组件，也不是同一套数据管理逻辑。
+  2. Checkpointer 的表结构由 langgraph-checkpoint-postgres 管理（checkpoints、checkpoint_writes、checkpoint_blobs 等）。
+  3. Store 的表结构由 langgraph.store.postgres 管理（store 表，含 namespace、key、value、embedding 等）。
 
-  Checkpointer 和 Store 都可以使用 PostgreSQL，但它们不是同一个组件，也不是同一套数据管理逻辑。
+  两者可以同库不同表，也可以分库；备份、迁移、清理策略要分开设计。
 
 ## 三、为什么需要 Memory？
 
@@ -165,6 +168,12 @@ Checkpointer 可以保存全部 100 轮。节点Node 可以只取最近的几轮
   | Delete     | 删除历史消息                | 是             |
   | Summarize  | 总结历史消息                | 是             |
   | Checkpoint | 管理 查看、恢复、删除检查点 | 操作持久化数据 |
+
+* “不要未经验证直接删除检查点行”。补充具体风险：
+  1. 检查点之间有父子关系（parent_config）。
+  2. Writes 与 Checkpoint 关联。
+  3. 删除中间检查点可能导致 Time Travel、Resume 失败。
+  4. 官方后端可能提供清理 API，优先用官方能力，而不是直接 SQL DELETE。
 
 ### 7.1 Trim Messages：裁剪消息
 

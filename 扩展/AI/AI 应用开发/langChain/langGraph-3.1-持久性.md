@@ -81,9 +81,10 @@ result = graph.invoke(
 
 这里有三个常见误区：
 
-1. thread_id 不是用户 ID。一个用户可以拥有多个对话线程。
-2. thread_id 也不是 Store 的 key。它用于标识图执行线程。
-3. 仅仅设置 thread_id 并不会让数据跨进程永久保存，仍然取决于 Checkpointer 的实现。
+1. thread_id 只需唯一且稳定，不要求全局 UUID。
+2. 业务上若希望“同一订单/同一工单对应同一线程”，需要设计有命名空间和碰撞控制的 ID，而不是随意截断哈希。
+3. thread_id 不是用户 ID，一个用户可有多个对话线程；也不是 Store 的 key。
+4. 仅仅设置 thread_id 并不会让数据跨进程永久保存，仍然取决于 Checkpointer 的实现。
 
 ### 3.1 第四步：Store 怎样保存长期记忆？
 

@@ -227,10 +227,9 @@ subgraph_state = state.tasks[0].state
 - 父图自己的状态 → state.values
 - 子图的状态 → state.tasks[0].state.values（前提是有挂起的子图任务）
 
-get_state 返回的外层对象永远属于父图。你拿 state 本身就是父图的快照，拿 state.tasks[...].state 才是子图的。
-
-- 如果子图被静态识别为 Graph Node，或者在某个 Node 内直接调用，LangGraph 可以发现并检查子图状态。
-- 如果子图藏在 Tool Function 或其他间接调用中（例如某些 Subagent-as-Tool 模式），就无法通过这种方式静态检查内部状态。
+- 只有子图被静态识别为 Graph Node 或在 Node 内直接调用时才能检查。
+- 子图藏在 Tool 函数或间接调用中（Subagent-as-Tool）无法静态检查。
+- 父图 get_state(config, subgraphs=True) 返回的外层永远是父图快照。拿 state 本身就是父图的快照，拿 state.tasks[...].state 才是子图的。
 
 ## 七、 总结: 建立正确的 Subgraph 心智模型
 

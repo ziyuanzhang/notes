@@ -134,6 +134,9 @@ memories = store.search(
 
 ```
 
+❗存储时用的 embedding 模型和查询时用的 embedding 模型必须是同一个（同模型、同维度、同版本）；  
+聊天生成模型可以换，但嵌入模型不能随意换，否则向量空间不一致，检索失效。
+
 ### 5.2 index=False 是什么意思？
 
 ```python
