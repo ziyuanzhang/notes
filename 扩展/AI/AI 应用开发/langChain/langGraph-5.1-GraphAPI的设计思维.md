@@ -45,7 +45,7 @@ LangGraph 最核心的一项能力：如何把一个实际业务流程，拆解�
 
 ## 三、层级关系
 
-<img src="./img/langGraph-5-从业务到 Graph 的层级.png" alt="从业务到 Graph 的层级" width=800/>
+<img src="./img/langGraph-5.1-从业务到 Graph 的层级.png" alt="从业务到 Graph 的层级" width=800/>
 
 1. Node 的四种职责分类
    - LLM steps： 理解、分析、生成、推理；
@@ -229,7 +229,7 @@ print(result)
 
 最重要的理解：🔥Send 不是简单地决定“下一步走哪个节点”，而是动态地决定“下一步创建多少个节点任务，以及每个任务拿到什么输入”。
 
-<img src="./img/langGraph-5-Send.png" alt="send" width=800 />
+<img src="./img/langGraph-5.1-Send.png" alt="send" width=800 />
 
 ---
 
