@@ -1,4 +1,4 @@
-# langGraph-5.2-GraphAPI的设计决策流程
+# langGraph-5.2-GraphAPI的构建清单（技术实现）
 
 Build checklist(构建检查清单)：是一套构建 Graph 的设计方法论。
 
