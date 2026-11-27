@@ -1,4 +1,4 @@
-# langGraph-5.1- Graph API 的设计思维(Thinking in the Graph API)
+# langGraph-5.1- Graph API 的【设计思维】
 
 LangGraph 最核心的一项能力：如何把一个实际业务流程，拆解成 State、Node、Edge 和 Command，并最终构建成一个可以执行、暂停、恢复、容错的 Agent。
 
